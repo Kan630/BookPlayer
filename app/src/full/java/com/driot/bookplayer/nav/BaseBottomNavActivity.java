@@ -17,12 +17,16 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.nav.NavState;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;
 
+import javax.inject.Inject;
+
 public abstract class BaseBottomNavActivity extends BaseActivity {
+
+    @Inject protected NavState navState;
+    @Inject protected NavHelper navHelper;
 
     protected abstract int getNavId();
 
@@ -107,7 +111,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             myLogI("--- user click bottom Nav bar ---    item = "
                     + item.getItemId() + " - " + item.getTitle());
 
-            if (NavHelper.handleBottomNavClick(BaseBottomNavActivity.this, item.getItemId())) {
+            if (navHelper.handleBottomNavClick(BaseBottomNavActivity.this, item.getItemId())) {
                 return true;
             }
 
@@ -120,6 +124,14 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // Save current intent to NavState for state restoration
+        int navId = getNavId();
+        if (navId != 0 && navState != null) {
+            navState.setLastIntent(navId, getIntent());
+            navState.setCurrentBottomNavId(navId);
+        }
+
         if (bottomNav != null) {
             int targetId = getNavId();
             if (bottomNav.getSelectedItemId() != targetId) {

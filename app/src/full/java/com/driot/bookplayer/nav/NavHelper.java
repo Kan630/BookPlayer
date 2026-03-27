@@ -8,6 +8,7 @@ import android.content.Intent;
 import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
@@ -25,15 +26,25 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.radio.RadioStationActivity;
 import com.driot.bookplayer.db.RadioStationDao;
-import com.driot.bookplayer.activities.AddResourceActivity; // Assuming this is the correct import for AddResourceActivity
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class NavHelper {
 
+    private final NavState navState;
     private static final boolean VERBOSE_DEBUG = false;
 
+    @Inject
+    public NavHelper(NavState navState) {
+        this.navState = navState;
+    }
+
     public static PendingIntent navigateToMain(Context context) {
+        // ... (existing static methods stay as they are if they don't need NavState)
         final int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         return PendingIntent.getActivity(
                 context,
@@ -115,7 +126,6 @@ public class NavHelper {
 
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
-            // tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
             tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
                     .putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
             tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
@@ -123,7 +133,6 @@ public class NavHelper {
             return tsb.getPendingIntent(0, flags);
         }
 
-        // ... rest of the logic for no stationUuid ...
         boolean hasFavOrHistory = false;
         try {
             hasFavOrHistory = AppDatabase.databaseReadExecutor
@@ -153,57 +162,50 @@ public class NavHelper {
 
     /**
      * Handles clicks on the bottom navigation bar.
-     * Starts the requested activity with a full back-stack (Main -> Target).
+     * Uses NavState to restore the last activity for the tab if available.
      */
-    public static boolean handleBottomNavClick(Activity activity, int itemId) {
+    public boolean handleBottomNavClick(Activity activity, int itemId) {
         myLogDD("NavHelper.handleBottomNavClick id=" + itemId);
 
-        int currentItemId = NavState.getInstance().getCurrentBottomNavId();
+        int currentItemId = navState.getCurrentBottomNavId();
 
         // 1. Resolve target Intent
-        Intent targetIntent = null;
-        if (itemId == R.id.nav_radio) {
-                targetIntent = NavState.getInstance().getLastRadioIntent();
-                if (targetIntent == null) {
-                        targetIntent = new Intent(activity, GetRadioActivity.class);
-                }
-        } else if (itemId == R.id.nav_podcast) {
-                targetIntent = NavState.getInstance().getLastPodcastIntent();
-                if (targetIntent == null) {
-                        targetIntent = new Intent(activity, GetPodcastActivity.class);
-                }
-        } else if (itemId == R.id.nav_settings) {
+        Intent targetIntent = navState.getLastIntent(itemId);
+        
+        if (targetIntent == null) {
+            if (itemId == R.id.nav_radio) {
+                targetIntent = new Intent(activity, GetRadioActivity.class);
+            } else if (itemId == R.id.nav_podcast) {
+                targetIntent = new Intent(activity, GetPodcastActivity.class);
+            } else if (itemId == R.id.nav_settings) {
                 targetIntent = new Intent(activity, SettingsActivity.class);
-        } else if (itemId == R.id.nav_library) {
+            } else if (itemId == R.id.nav_library) {
                 targetIntent = new Intent(activity, MainActivity.class);
-        } else if (itemId == R.id.nav_add) {
-                targetIntent = new Intent(activity, AddResourceActivity.class);
+            } else if (itemId == R.id.nav_add) {
+                targetIntent = new Intent(activity, GetActivity.class);
+            }
+        } else {
+            // Ensure we don't carry over stale flags from previous saves
+            targetIntent.setFlags(0);
         }
 
-        if (targetIntent == null) return false; // Changed from return; to return false; to match method signature
+        if (targetIntent == null) return false;
 
         // 2. Handle same-tab click (refresh/back to root)
         if (itemId == currentItemId) {
-                // User clicked the tab they are already on.
-                // Standard behavior: pop to root of this tab.
-                // If it's already the root (e.g. GetRadioActivity), we might want to refresh.
-                if (activity.getClass().getName().equals(GetRadioActivity.class.getName()) ||
-                    activity.getClass().getName().equals(GetPodcastActivity.class.getName()) ||
-                    activity.getClass().getName().equals(MainActivity.class.getName())) {
-                        // Already at root, just refresh if needed or do nothing.
-                        return true; // Changed from return; to return true;
-                }
-                // Otherwise, start the root activity of this tab to "pop"
-                Intent rootIntent = null;
-                if (itemId == R.id.nav_radio) rootIntent = new Intent(activity, GetRadioActivity.class);
-                else if (itemId == R.id.nav_podcast) rootIntent = new Intent(activity, GetPodcastActivity.class);
-                else if (itemId == R.id.nav_library) rootIntent = new Intent(activity, MainActivity.class);
+            // Standard behavior: pop to root of this tab.
+            Intent rootIntent = null;
+            if (itemId == R.id.nav_radio) rootIntent = new Intent(activity, GetRadioActivity.class);
+            else if (itemId == R.id.nav_podcast) rootIntent = new Intent(activity, GetPodcastActivity.class);
+            else if (itemId == R.id.nav_library) rootIntent = new Intent(activity, MainActivity.class);
+            else if (itemId == R.id.nav_add) rootIntent = new Intent(activity, GetActivity.class);
+            else if (itemId == R.id.nav_settings) rootIntent = new Intent(activity, SettingsActivity.class);
 
-                if (rootIntent != null) {
-                        rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        activity.startActivity(rootIntent);
-                }
-                return true; // Changed from return; to return true;
+            if (rootIntent != null) {
+                rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(rootIntent);
+            }
+            return true;
         }
 
         // 3. Switch to different tab
@@ -211,8 +213,7 @@ public class NavHelper {
         activity.startActivity(targetIntent);
         activity.overridePendingTransition(0, 0);
 
-        NavState.getInstance().setCurrentBottomNavId(itemId);
-        NavState.getInstance().setLastIntent(itemId, targetIntent);
+        navState.setCurrentBottomNavId(itemId);
 
         return true;
     }

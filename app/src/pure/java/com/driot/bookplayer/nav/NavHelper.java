@@ -21,9 +21,19 @@ import com.driot.bookplayer.player.PlayList;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class NavHelper {
 
+    private final NavState navState;
     private static final boolean VERBOSE_DEBUG = false;
+
+    @Inject
+    public NavHelper(NavState navState) {
+        this.navState = navState;
+    }
 
     public static PendingIntent navigateToMain(Context context) {
         final int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;

@@ -33,7 +33,7 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
 
     @Override
     protected int getNavId() {
-        return R.id.nav_library;
+        return R.id.nav_add;
     }
 
     @Override

@@ -54,6 +54,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class MainActivity extends BaseBottomNavActivity {
@@ -281,10 +282,17 @@ public class MainActivity extends BaseBottomNavActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Inject
+    NavHelper navHelper;
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_menu_three_dot) {
+        if (itemId == R.id.nav_radio || itemId == R.id.nav_podcast) {
+            if (navHelper.handleBottomNavClick(this, itemId)) {
+                return true;
+            }
+        } else if (itemId == R.id.action_menu_three_dot) {
         } else if (itemId == R.id.menu_sort) {
             myLogI("--- USER clicks MENU : SORT ---");
             showSortOrderDialog();
@@ -321,10 +329,10 @@ public class MainActivity extends BaseBottomNavActivity {
             startActivity(intent);
         } else if (itemId == R.id.menu_radio) {
             myLogI("--- USER clicks MENU : RADIO ---");
-            NavHelper.handleBottomNavClick(this, R.id.nav_radio);
+            navHelper.handleBottomNavClick(this, R.id.nav_radio);
         } else if (itemId == R.id.menu_podcast) {
             myLogI("--- USER clicks MENU : PODCAST ---");
-            NavHelper.handleBottomNavClick(this, R.id.nav_podcast);
+            navHelper.handleBottomNavClick(this, R.id.nav_podcast);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -354,7 +362,7 @@ public class MainActivity extends BaseBottomNavActivity {
         // Consume the extra so it won't re-trigger next time
         intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
 
-        NavHelper.handleBottomNavClick(this, requestedNavId);
+        navHelper.handleBottomNavClick(this, requestedNavId);
     }
 
     private void showSortOrderDialog() {
