@@ -362,6 +362,11 @@ public final class FlagHelper {
             case "jv": return R.drawable.flag_id;
             case "nb": return R.drawable.flag_no;
             case "si": return R.drawable.flag_lk;
+            case "mx": return R.drawable.flag_mx; //mexico
+            case "cl": return R.drawable.flag_cl; //chile
+            case "pe": return R.drawable.flag_pe; //peru
+            case "ec": return R.drawable.flag_ec; //ecuadaor
+            case "py": return R.drawable.flag_py; //paraguay
 
             default: return NO_FLAG;
         }

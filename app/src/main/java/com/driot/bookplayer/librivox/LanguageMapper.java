@@ -218,7 +218,8 @@ public final class LanguageMapper {
         m.put("sorbian",         new Mapping("hsb", "",    R.drawable.flag_de));
         m.put("romani",          new Mapping("rom", "",    R.drawable.flag_romani));
         // manual additions
-        m.put("français - lëtzebuergesch", new Mapping("", "lu",    R.drawable.flag_lu));
+        m.put("français - lëtzebuergesch", new Mapping("", "lu",    R.drawable.flag_lu)); //keep distinct from main lux list because looks shitty
+        m.put("willemstad", new Mapping("pap", "",    R.drawable.flag_cw));
 
 
 
@@ -289,6 +290,7 @@ public final class LanguageMapper {
         a.put("español peruano", "pe");
         a.put("español ecuador", "ec");
         a.put("español paraguay", "py");
+        a.put("asuncíon", "py");
 
         a.put("brazilian portuguese", "br");
         a.put("português brasil", "br");
@@ -327,6 +329,8 @@ public final class LanguageMapper {
         a.put("francaise", "fr");
         a.put("français", "fr");
         a.put("franch", "fr");
+
+        a.put("filipino", "");
 
         // Ukrainian typo
         a.put("ukranian", "uk");

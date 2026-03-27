@@ -3,12 +3,12 @@ package com.driot.bookplayer.radio;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.librivox.LanguageMapper;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,7 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GetRadioCardListViewModel extends AndroidViewModel {
+public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
 
     // --- UI State ---
     public enum LoadingState { IDLE, LOADING, SUCCESS, ERROR }
@@ -200,8 +200,8 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
      * Items whose iso_639 is null in the API are resolved via
      * {@link LanguageMapper#resolveIso639} (alias map + main MAP), so that e.g.:
      *  - "язык: русский"      → "ru" → merged with "russian"
-     *  - "português brasil"   → "pt" → merged with "portuguese"
-     *  - "português (brasil)" → "pt" → merged with "portuguese"
+     *  - "português brasil"   → "br" → merged with "portuguese"
+     *  - "português (brasil)" → "br" → merged with "portuguese"
      *  - "bahasa indonesia"   → "id" → merged with "indonesian"
      *  - "engilsh" (typo)     → "en" → merged with "english"
      *
@@ -219,17 +219,21 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
                 iso = LanguageMapper.resolveIso639(item.name);
                 if (iso != null) {
                     item.iso_639 = iso;  // assign so the flag is shown correctly
+                    myLogD(item.name + ": " + " iso mapped=" + iso);
                 }
             }
             if (iso != null && !iso.isEmpty()) {
                 TagItem existing = byIso.get(iso);
                 if (existing != null) {
                     existing.stationcount += item.stationcount;
+                    myLogI(item.name + ": " + " duplicate of " + existing.name);
                 } else {
                     byIso.put(iso, item);
+                    myLog(item.name + ": " + " iso=" + iso);
                 }
             } else {
                 noIso.add(item);
+                myLog(item.name + ": " + "no iso");
             }
         }
         List<TagItem> result = new ArrayList<>(byIso.values());
