@@ -211,10 +211,6 @@ public final class LanguageMapper {
         m.put("sorbian",        new Mapping("hsb", "",    R.drawable.flag_de));
         m.put("willemstad",     new Mapping("pap", "",    R.drawable.flag_cw));
 
-        // Brazilian Portuguese — separate from "portuguese" (pt) and "breton" (br/ISO-639-1)
-        // "ptbr" is the grouping code for all its aliases below
-        m.put("brazilian portuguese", new Mapping("", "ptbr", R.drawable.flag_br));
-
         // ── Alias entries ─────────────────────────────────────────────────────
         // twoLetterCode must match the canonical entry so mergeByIso groups them.
         // flagRes is the direct drawable — no intermediate "flag code" string needed.
@@ -235,10 +231,10 @@ public final class LanguageMapper {
         m.put("engilsh uk",       new Mapping("", "en", R.drawable.flag_uk));
         m.put("englsih",          new Mapping("", "en", R.drawable.flag_uk));
         m.put("английский",       new Mapping("", "en", R.drawable.flag_uk));
+        m.put("ingles español",   new Mapping("", "en", R.drawable.flag_uk));
 
         // Spanish (generic — groups with "spanish")
         m.put("español internacional",  new Mapping("", "es", R.drawable.flag_es));
-        m.put("español colombia",       new Mapping("", "es", R.drawable.flag_es));
         m.put("castellano. español",    new Mapping("", "es", R.drawable.flag_es));
         m.put("castellano",             new Mapping("", "es", R.drawable.flag_es));
         m.put("castilian",              new Mapping("", "es", R.drawable.flag_es));
@@ -246,26 +242,28 @@ public final class LanguageMapper {
         m.put("espaňol",                new Mapping("", "es", R.drawable.flag_es));
         m.put("spain",                  new Mapping("", "es", R.drawable.flag_es));
         m.put("#spanish",               new Mapping("", "es", R.drawable.flag_es));
+        m.put("español - latinoamerica", new Mapping("", "", R.drawable.flag_es));
 
         // Spanish regional (each gets its own code to stay separate from each other and from "es")
-        m.put("español mexico",          new Mapping("", "esmx", R.drawable.flag_mx));
-        m.put("español - latinoamerica", new Mapping("", "esmx", R.drawable.flag_mx));
-        m.put("español argentina",       new Mapping("", "esar", R.drawable.flag_ar));
-        m.put("español chile",           new Mapping("", "escl", R.drawable.flag_cl));
-        m.put("español peruano",         new Mapping("", "espe", R.drawable.flag_pe));
-        m.put("español ecuador",         new Mapping("", "esec", R.drawable.flag_ec));
-        m.put("español paraguay",        new Mapping("", "espy", R.drawable.flag_py));
-        m.put("asuncíon",                new Mapping("", "espy", R.drawable.flag_py));
+        m.put("español mexico",          new Mapping("", "", R.drawable.flag_mx));
+        m.put("español colombia",       new Mapping("", "", R.drawable.flag_co));
+        m.put("español argentina",       new Mapping("", "", R.drawable.flag_ar));
+        m.put("español chile",           new Mapping("", "", R.drawable.flag_cl));
+        m.put("español peruano",         new Mapping("", "", R.drawable.flag_pe));
+        m.put("español ecuador",         new Mapping("", "", R.drawable.flag_ec));
+        m.put("español paraguay",        new Mapping("", "", R.drawable.flag_py));
+        m.put("asuncíon",                new Mapping("", "", R.drawable.flag_py));
 
         // Brazilian Portuguese aliases (group under "ptbr")
-        m.put("português brasil",      new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("português (brasil)",    new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("portugues do brasil",   new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("portugues brasil",      new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("português (br)",        new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("portugues do braasil",  new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("brasil",                new Mapping("", "ptbr", R.drawable.flag_br));
-        m.put("pt-br",                 new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("brazilian portuguese",  new Mapping("", "", R.drawable.flag_br));
+        m.put("português brasil",      new Mapping("", "", R.drawable.flag_br));
+        m.put("português (brasil)",    new Mapping("", "", R.drawable.flag_br));
+        m.put("portugues do brasil",   new Mapping("", "", R.drawable.flag_br));
+        m.put("portugues brasil",      new Mapping("", "", R.drawable.flag_br));
+        m.put("português (br)",        new Mapping("", "", R.drawable.flag_br));
+        m.put("portugues do braasil",  new Mapping("", "", R.drawable.flag_br));
+        m.put("brasil",                new Mapping("", "", R.drawable.flag_br));
+        m.put("pt-br",                 new Mapping("", "", R.drawable.flag_br));
 
         // Romanian
         m.put("romania", new Mapping("", "ro", R.drawable.flag_ro));
