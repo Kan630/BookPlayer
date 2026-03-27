@@ -1,5 +1,7 @@
 package com.driot.bookplayer.librivox;
 
+import androidx.annotation.NonNull;
+
 import com.driot.bookplayer.R;
 
 import java.util.Collections;
@@ -35,6 +37,16 @@ public final class LanguageMapper {
             this.threeLetterCode = threeLetterCode == null ? "" : threeLetterCode;
             this.twoLetterCode   = twoLetterCode   == null ? "" : twoLetterCode;
             this.flagRes         = flagRes;
+        }
+    }
+
+    public static final class RadioLanguageCardItem {
+        public final String label; // iso 639-3 e.g. "eng"
+        public final List<Mapping> mappings;
+
+        public RadioLanguageCardItem(@NonNull String label, @NonNull List<Mapping> mappings) {
+            this.label = label;
+            this.mappings = mappings;
         }
     }
 
@@ -85,7 +97,6 @@ public final class LanguageMapper {
         m.put("lithuanian",   new Mapping("lit", "lt", R.drawable.flag_lt));
         m.put("luxembourgish",new Mapping("ltz", "lb", R.drawable.flag_lu));
         m.put("français - lëtzebuergesch", new Mapping("", "lu", R.drawable.flag_lu));
-
 
         m.put("swedish",          new Mapping("swe", "sv",  R.drawable.flag_se));
         m.put("norwegian",        new Mapping("nor", "no",  R.drawable.flag_no));
@@ -155,6 +166,7 @@ public final class LanguageMapper {
         m.put("braj",       new Mapping("bra", "",   R.drawable.flag_in));
         m.put("garo",       new Mapping("",    "",   R.drawable.flag_in));
         m.put("khasi",      new Mapping("",    "",   R.drawable.flag_in));
+
         m.put("bangla",     new Mapping("",    "",   R.drawable.flag_bd));
         m.put("nepali",     new Mapping("",    "",   R.drawable.flag_np));
 
@@ -180,8 +192,6 @@ public final class LanguageMapper {
         m.put("old tupi",       new Mapping("",    "",   R.drawable.no_flag));
         m.put("iroquoian",      new Mapping("",    "",   R.drawable.no_flag));
         m.put("north american indian (undetermined dialect)", new Mapping("", "", R.drawable.no_flag));
-
-        // ── Radio-browser additions (from flag audit) ─────────────────────────
 
         m.put("swiss german",   new Mapping("gsw", "",    R.drawable.flag_ch));
         m.put("belarusian",     new Mapping("bel", "be",  R.drawable.flag_by));
@@ -210,10 +220,6 @@ public final class LanguageMapper {
         m.put("papiamentu",     new Mapping("pap", "",    R.drawable.flag_cw));
         m.put("sorbian",        new Mapping("hsb", "",    R.drawable.flag_de));
         m.put("willemstad",     new Mapping("pap", "",    R.drawable.flag_cw));
-
-        // ── Alias entries ─────────────────────────────────────────────────────
-        // twoLetterCode must match the canonical entry so mergeByIso groups them.
-        // flagRes is the direct drawable — no intermediate "flag code" string needed.
 
         // Russian
         m.put("язык: русский", new Mapping("", "ru", R.drawable.flag_ru));
