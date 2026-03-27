@@ -84,28 +84,22 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         findViewById(R.id.bRadioByTag).setOnClickListener(v -> {
             myLogI("---- user clicks BY TAG ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("tag");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_TAG);
         });
         findViewById(R.id.bRadioByCountry).setOnClickListener(v -> {
             myLogI("---- user clicks BY COUNTRY ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("country");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_COUNTRY);
         });
         findViewById(R.id.bRadioByLang).setOnClickListener(v -> {
             myLogI("---- user clicks BY LANGUAGE ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lang");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
         });
@@ -116,10 +110,8 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bTopClick.setOnClickListener(v -> {
             myLogI("---- user clicks TOP CLICK ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_CLICK");
             startActivity(i);
@@ -128,10 +120,8 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bTopVote.setOnClickListener(v -> {
             myLogI("---- user clicks TOP VOTE ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_VOTE");
             startActivity(i);
@@ -140,10 +130,8 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bLastClick.setOnClickListener(v -> {
             myLogI("---- user clicks LAST CLICK ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CLICK");
             startActivity(i);
@@ -152,10 +140,8 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bLastChange.setOnClickListener(v -> {
             myLogI("---- user clicks LAST CHANGE ---");
-            if (!NetworkHelper.isConnected(this)) {
-                myToastE(getString(R.string.no_internet_connection));
+            if (!NetworkHelper.getCheckInternetForAction(this))
                 return;
-            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CHANGE");
             startActivity(i);
@@ -197,8 +183,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
-        if (!NetworkHelper.isConnected(this)) {
-            myToastE(getString(R.string.no_internet_connection));
+        if (!NetworkHelper.getCheckInternetForAction(this)) {
             return;
         }
         query = Tonio.cleanSearchString(etRadio.getText());
@@ -220,6 +205,5 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         startActivity(intent);
         FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
     }
-
 
 }
