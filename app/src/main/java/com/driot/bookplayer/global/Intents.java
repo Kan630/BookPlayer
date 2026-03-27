@@ -27,6 +27,9 @@ public class Intents {
     public static final String EXTRA_IS_PODCAST = "com.driot.bookplayer.EXTRA_IS_PODCAST";
     public static final String EXTRA_INDEX = "extra_index"; // optional, default 0
 
+    /** Set to true on intents launched as the root of a bottom nav section (from the nav bar itself) */
+    public static final String EXTRA_IS_SECTION_ROOT = "extra_is_section_root";
+
     public static final String CMD_TTS_SET_VOICE = "com.driot.bookplayer.CMD_TTS_SET_VOICE";
     public static final String EXTRA_TTS_VOICE_NAME = "com.driot.bookplayer.EXTRA_TTS_VOICE_NAME";
 

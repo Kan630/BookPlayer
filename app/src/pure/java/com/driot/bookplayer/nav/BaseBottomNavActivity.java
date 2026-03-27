@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.LayoutRes;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;
@@ -74,12 +76,35 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
         // 4) Setup bottom nav once for all activities
         setupBottomNav();
+        registerSectionRootBackCallback();
 
         // 5) Optional: hide the bottom nav completely
         if (!displayBottomNavBar()) {
             if (bottomNav != null)
                 bottomNav.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * For non-library section roots (launched via bottom nav): back goes to MainActivity.
+     * Library root (MainActivity) handles its own back callback.
+     * Child activities (no EXTRA_IS_SECTION_ROOT) fall through to normal Android back.
+     */
+    private void registerSectionRootBackCallback() {
+        boolean isSectionRoot = getIntent().getBooleanExtra(Intents.EXTRA_IS_SECTION_ROOT, false);
+        if (!isSectionRoot) return;
+        if (getNavId() == R.id.nav_library) return;
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                myLogI("--- USER CLICK BACK from section root [" + getClass().getSimpleName() + "] --- navigate to MainActivity ---");
+                Intent intent = new Intent(BaseBottomNavActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
+        });
     }
 
     private void setupBottomNav() {

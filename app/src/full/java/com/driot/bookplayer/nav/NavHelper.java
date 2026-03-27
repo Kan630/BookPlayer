@@ -9,15 +9,12 @@ import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.podcasts.GetPodcastActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
-import com.driot.bookplayer.imports.ImportBookMultipleActivity;
 import com.driot.bookplayer.radio.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.podcasts.PodcastFavoritesActivity;
 import com.driot.bookplayer.radio.RadioFavoritesActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -173,6 +170,7 @@ public class NavHelper {
         Intent targetIntent = navState.getLastIntent(itemId);
         
         if (targetIntent == null) {
+            // No saved state for this tab — create a fresh root intent and mark it as section root
             if (itemId == R.id.nav_radio) {
                 targetIntent = new Intent(activity, GetRadioActivity.class);
             } else if (itemId == R.id.nav_podcast) {
@@ -183,6 +181,9 @@ public class NavHelper {
                 targetIntent = new Intent(activity, MainActivity.class);
             } else if (itemId == R.id.nav_add) {
                 targetIntent = new Intent(activity, GetActivity.class);
+            }
+            if (targetIntent != null) {
+                targetIntent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
             }
         } else {
             // Ensure we don't carry over stale flags from previous saves
@@ -203,6 +204,7 @@ public class NavHelper {
 
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                rootIntent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
                 activity.startActivity(rootIntent);
             }
             return true;
@@ -216,105 +218,6 @@ public class NavHelper {
         navState.setCurrentBottomNavId(itemId);
 
         return true;
-    }
-
-    public static void navigateToRadioSection(Activity activity, boolean removeTransitions) {
-        myLogD("navigateToRadioSection start");
-        Context appCtx = activity.getApplicationContext();
-
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            myLogD("navigateToRadioSection: inside executor");
-            RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
-            boolean hasFavOrHistory = dao.anyFavoriteOrHistoryExists();
-            myLogD("navigateToRadioSection: hasFavOrHistory=" + hasFavOrHistory);
-
-            activity.runOnUiThread(() -> {
-                myLogD("navigateToRadioSection: runOnUiThread start");
-                // Prepare base intent (MainActivity) to ensure correct back stack
-                Intent mainIntent = new Intent(activity, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
-                    // 1) Base screen in stack: radio search/list
-                    Intent listIntent = new Intent(activity, GetRadioActivity.class);
-
-                    // 2) Top screen shown to the user: favorites/history screen
-                    Intent favIntent = new Intent(activity, RadioFavoritesActivity.class);
-
-                    // Build back stack: Main -> GetRadio -> RadioFavorites
-                    activity.startActivities(new Intent[] { mainIntent, listIntent, favIntent });
-
-                } else {
-                    // No favorites and no history yet: go to radio search
-                    Intent intent = new Intent(activity, GetRadioActivity.class);
-
-                    // Build back stack: Main -> GetRadio
-                    activity.startActivities(new Intent[] { mainIntent, intent });
-                }
-
-                if (removeTransitions) {
-                    activity.overridePendingTransition(0, 0);
-                }
-                myLogD("navigateToRadioSection: runOnUiThread done");
-            });
-        });
-    }
-
-    public static void navigateToPodcastSection(Activity activity, boolean removeTransitions) {
-        myLogD("navigateToPodcastSection start");
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            myLogD("navigateToPodcastSection: inside executor");
-            int nbFavorite = AppDatabase.getDatabase(activity)
-                    .podcastDao()
-                    .getFavoriteCount();
-            myLogD("navigateToPodcastSection: nbFavorite=" + nbFavorite);
-
-            activity.runOnUiThread(() -> {
-                myLogD("navigateToPodcastSection: runOnUiThread start");
-                // Prepare base intent (MainActivity) to ensure correct back stack
-                Intent mainIntent = new Intent(activity, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                if (Option.getPodcastOpenFavoritesFirst() && nbFavorite > 0) {
-                    // 1) Base screen in stack
-                    Intent listIntent = new Intent(activity, GetPodcastActivity.class);
-
-                    // 2) Top screen shown to the user
-                    Intent favIntent = new Intent(activity, PodcastFavoritesActivity.class);
-
-                    // Build back stack: Main -> GetPodcast -> PodcastFavorites
-                    activity.startActivities(new Intent[] { mainIntent, listIntent, favIntent });
-                } else {
-                    // No favorites → go directly to GetPodcast
-                    Intent intent = new Intent(activity, GetPodcastActivity.class);
-                    // Build back stack: Main -> GetPodcast
-                    activity.startActivities(new Intent[] { mainIntent, intent });
-                }
-                if (removeTransitions)
-                    activity.overridePendingTransition(0, 0);
-                myLogD("navigateToPodcastSection: runOnUiThread done");
-            });
-        });
-    }
-
-    public static PendingIntent navigateToPodcastActivity(Context context) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, GetPodcastActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags);
-    }
-
-    public static PendingIntent navigateToLibrivoxActivity(Context context) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, GetLibrivoxActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags);
     }
 
     private static void myLogDD(String txt) {
