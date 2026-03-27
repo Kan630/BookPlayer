@@ -102,13 +102,8 @@ public class RadioBrowserRepository {
         api.byCountry(country, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
     }
 
-    public void byLanguage(String language, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
-        api.byLanguage(language, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byLanguage"));
-    }
-
-    /** Exact-match variant — only returns stations whose language field equals {@code language} exactly. */
-    public void byLanguageExact(String language, int limit, Callback<List<ApiStation>> cb) {
-        api.byLanguageExact(language, limit, null, "votes", true)
+    public void byLanguageExact(String language, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
+        api.byLanguageExact(language, limit, offset, "votes", true)
                 .enqueue(new LoggingCallback<>(cb, "byLanguageExact"));
     }
 

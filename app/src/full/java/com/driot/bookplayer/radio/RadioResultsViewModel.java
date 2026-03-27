@@ -151,7 +151,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                 if (!lastCountry.isEmpty()) repo.byCountry(lastCountry, limit, offset, cb);
                 break;
             case "MODE_LANGUAGE":
-                if (!lastLang.isEmpty()) repo.byLanguage(lastLang, limit, offset, cb);
+                if (!lastLang.isEmpty()) repo.byLanguageExact(lastLang, limit, offset, cb);
                 break;
             case "MODE_SEARCH":
             default:
@@ -200,7 +200,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                             myLog("lang aliases to query: " + aliases);
                             for (String alias : aliases) {
                                 repo.byLanguageExact(alias, Option.getRadioApiNbResults(),
-                                        aliasResultsCb(alias));
+                                        null, aliasResultsCb(alias));
                             }
                         }
                     }

@@ -181,7 +181,7 @@ public final class LanguageMapper {
         m.put("braj",       new Mapping("bra", "",   R.drawable.flag_in));
         m.put("garo",       new Mapping("002",    "",   R.drawable.flag_in));
         m.put("khasi",      new Mapping("003",    "",   R.drawable.flag_in));
-        m.put("malayam",    new Mapping("004",    "",   R.drawable.flag_in));
+        m.put("malayalam",  new Mapping("004",    "",   R.drawable.flag_in));
         m.put("kannada",    new Mapping("005",    "",   R.drawable.flag_in));
 
         m.put("bangla",     new Mapping("006",    "",   R.drawable.flag_bd));
