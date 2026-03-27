@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.ScrollView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;

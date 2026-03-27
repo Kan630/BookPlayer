@@ -1,8 +1,5 @@
 package com.driot.bookplayer.nav;
 
-import static com.driot.bookplayer.activities.MainActivity.EXTRA_REQUESTED_NAV_ID;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +12,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -42,6 +38,8 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     private NavigationBarView bottomNav;
     private boolean navSelectionFromCode = false;
     private final boolean VERBOSE_DEBUG = false;
+
+    private void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,12 +163,4 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         bottomNav.setSelectedItemId(itemId);
     }
 
-    public static void startAsRoot(Context ctx, int requestedNavId) {
-        Intent intent = new Intent(ctx, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra(EXTRA_REQUESTED_NAV_ID, requestedNavId);
-        ctx.startActivity(intent);
-    }
-
-    private void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
 }
