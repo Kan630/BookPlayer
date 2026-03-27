@@ -27,8 +27,8 @@ public final class LanguageMapper {
     private LanguageMapper() {}
 
     public static final class Mapping {
-        public final String threeLetterCode; // e.g. "eng"
-        public final String twoLetterCode;   // e.g. "en"; grouping key for radio cards
+        public final String threeLetterCode; // iso 639-3 e.g. "eng"
+        public final String twoLetterCode;   // iso 639-1, e.g. "en";
         public final int flagRes;            // R.drawable.flag_*
 
         public Mapping(String threeLetterCode, String twoLetterCode, int flagRes) {
@@ -84,6 +84,8 @@ public final class LanguageMapper {
         m.put("latvian",      new Mapping("lav", "lv", R.drawable.flag_lv));
         m.put("lithuanian",   new Mapping("lit", "lt", R.drawable.flag_lt));
         m.put("luxembourgish",new Mapping("ltz", "lb", R.drawable.flag_lu));
+        m.put("français - lëtzebuergesch", new Mapping("", "lu", R.drawable.flag_lu));
+
 
         m.put("swedish",          new Mapping("swe", "sv",  R.drawable.flag_se));
         m.put("norwegian",        new Mapping("nor", "no",  R.drawable.flag_no));
@@ -97,17 +99,6 @@ public final class LanguageMapper {
         m.put("faroese",          new Mapping("",    "",    R.drawable.flag_fo));
 
         m.put("walloon",          new Mapping("",    "wa",  R.drawable.flag_be));
-        m.put("catalan",          new Mapping("cat", "ca",  R.drawable.flag_catalan));
-        m.put("galician",         new Mapping("glg", "gl",  R.drawable.flag_galician));
-        m.put("basque",           new Mapping("eus", "eu",  R.drawable.flag_basque));
-        m.put("gaelic, scottish", new Mapping("gla", "gd",  R.drawable.flag_scotland));
-        m.put("gaelic",           new Mapping("gla", "gd",  R.drawable.flag_scotland));
-        m.put("irish",            new Mapping("gle", "ga",  R.drawable.flag_ie));
-        m.put("welsh",            new Mapping("cym", "cy",  R.drawable.flag_wales));
-        m.put("breton",           new Mapping("bre", "br",  R.drawable.flag_breton));
-        // "frk" used in both fields so resolveIso639 returns "frk" as grouping key
-        m.put("deutsch fränkisch",new Mapping("frk", "frk", R.drawable.flag_franken));
-        m.put("flemish",          new Mapping("",    "",    R.drawable.flag_flanders));
 
         m.put("indonesian",      new Mapping("ind", "id", R.drawable.flag_id));
         m.put("javanese",        new Mapping("jav", "",   R.drawable.flag_id));
@@ -126,7 +117,6 @@ public final class LanguageMapper {
         m.put("kapampangan", new Mapping("",    "",   R.drawable.flag_ph));
         m.put("ileoko",      new Mapping("",    "",   R.drawable.flag_ph));
 
-        m.put("multilingual",     new Mapping("mul", "",   R.drawable.flag_globe));
         m.put("cantonese chinese",new Mapping("yue", "",   R.drawable.flag_cn));
         m.put("cantonese",        new Mapping("yue", "",   R.drawable.flag_cn));
         m.put("mandarin",         new Mapping("cmn", "",   R.drawable.flag_cn));
@@ -179,7 +169,6 @@ public final class LanguageMapper {
         m.put("amharic",    new Mapping("",    "",   R.drawable.flag_et));
 
         m.put("latin",          new Mapping("lat", "la", R.drawable.flag_spqr));
-        m.put("esperanto",      new Mapping("epo", "",   R.drawable.flag_esperanto));
         m.put("old english",    new Mapping("ang", "",   R.drawable.flag_uk));
         m.put("middle english", new Mapping("enm", "",   R.drawable.flag_uk));
         m.put("frisian",        new Mapping("fry", "fy", R.drawable.flag_de));
@@ -194,23 +183,21 @@ public final class LanguageMapper {
 
         // ── Radio-browser additions (from flag audit) ─────────────────────────
 
-        m.put("swiss german",   new Mapping("gsw", "gsw", R.drawable.flag_ch));
+        m.put("swiss german",   new Mapping("gsw", "",    R.drawable.flag_ch));
         m.put("belarusian",     new Mapping("bel", "be",  R.drawable.flag_by));
-        m.put("low german",     new Mapping("nds", "nds", R.drawable.flag_de));
+        m.put("low german",     new Mapping("nds", "",    R.drawable.flag_de));
         m.put("mongolian",      new Mapping("mon", "mn",  R.drawable.flag_mn));
-        m.put("tibetan",        new Mapping("bod", "bo",  R.drawable.flag_tibet));
         m.put("bambara",        new Mapping("bam", "bm",  R.drawable.flag_ml));
         m.put("tatar",          new Mapping("tat", "tt",  R.drawable.flag_ru));
         m.put("bashkir",        new Mapping("bak", "ba",  R.drawable.flag_ru));
         m.put("hausa",          new Mapping("hau", "ha",  R.drawable.flag_ng));
         m.put("uzbek",          new Mapping("uzb", "uz",  R.drawable.flag_uz));
-        m.put("occitan",        new Mapping("oci", "oc",  R.drawable.flag_occitan));
         m.put("hakka",          new Mapping("hak", "",    R.drawable.flag_cn));
         m.put("odia",           new Mapping("ori", "or",  R.drawable.flag_in));
         m.put("bhojpuri",       new Mapping("",    "",    R.drawable.flag_in));
         m.put("uyghur",         new Mapping("uig", "ug",  R.drawable.flag_cn));
-        m.put("montenegrin",    new Mapping("",    "cnr", R.drawable.flag_me));
-        m.put("moldovian",      new Mapping("",    "mol", R.drawable.flag_md));
+        m.put("montenegrin",    new Mapping("cnr", "",    R.drawable.flag_me));
+        m.put("moldovian",      new Mapping("mol", "",    R.drawable.flag_md));
         m.put("tunisian",       new Mapping("",    "",    R.drawable.flag_tn));
         m.put("lusoga",         new Mapping("",    "",    R.drawable.flag_ug));
         m.put("cebuano",        new Mapping("ceb", "",    R.drawable.flag_ph));
@@ -221,10 +208,7 @@ public final class LanguageMapper {
         m.put("kiswahili",      new Mapping("swa", "sw",  R.drawable.flag_tz));
         m.put("kyrgyz",         new Mapping("kir", "ky",  R.drawable.flag_kg));
         m.put("papiamentu",     new Mapping("pap", "",    R.drawable.flag_cw));
-        m.put("flammish",       new Mapping("",    "",    R.drawable.flag_flanders));
         m.put("sorbian",        new Mapping("hsb", "",    R.drawable.flag_de));
-        m.put("romani",         new Mapping("rom", "",    R.drawable.flag_romani));
-        m.put("français - lëtzebuergesch", new Mapping("", "lu", R.drawable.flag_lu));
         m.put("willemstad",     new Mapping("pap", "",    R.drawable.flag_cw));
 
         // Brazilian Portuguese — separate from "portuguese" (pt) and "breton" (br/ISO-639-1)
@@ -294,8 +278,8 @@ public final class LanguageMapper {
         m.put("deutch",      new Mapping("", "de", R.drawable.flag_de));
         m.put("norddeutsch", new Mapping("", "de", R.drawable.flag_de));
 
-        // Swiss German alias (groups with "swiss german" → "gsw")
-        m.put("schweizerdeutsch", new Mapping("", "gsw", R.drawable.flag_ch));
+        // Swiss German alias (groups with "swiss german" → "gsw" via threeLetterCode)
+        m.put("schweizerdeutsch", new Mapping("gsw", "", R.drawable.flag_ch));
 
         // Turkish
         m.put("türkisch", new Mapping("", "tr", R.drawable.flag_tr));
@@ -319,15 +303,33 @@ public final class LanguageMapper {
         m.put("estonia",    new Mapping("", "et",  R.drawable.flag_ee));  // → estonian
         m.put("nederland",  new Mapping("", "nl",  R.drawable.flag_nl));  // → dutch
         m.put("china",      new Mapping("", "zh",  R.drawable.flag_cn));  // → chinese
-        m.put("montenegro", new Mapping("", "cnr", R.drawable.flag_me));  // → montenegrin
+        m.put("montenegro", new Mapping("cnr", "", R.drawable.flag_me));  // → montenegrin
 
-        // Non-Latin / native-script language names
-        m.put("euskera",   new Mapping("eus", "eu", R.drawable.flag_basque));   // Basque
-        m.put("galego",    new Mapping("glg", "gl", R.drawable.flag_galician)); // Galician
-        m.put("kurdi",     new Mapping("kur", "ku", R.drawable.flag_iq));       // Kurdish
         m.put("shqip",     new Mapping("sqi", "sq", R.drawable.flag_al));       // Albanian
         m.put("česky",     new Mapping("ces", "cs", R.drawable.flag_cz));       // Czech
         m.put("slovenski", new Mapping("slv", "sl", R.drawable.flag_si));       // Slovenian
+
+        // Special non-country / regional flag
+        m.put("multilingual",     new Mapping("mul", "",    R.drawable.flag_globe));
+        m.put("galego",           new Mapping("glg", "gl",  R.drawable.flag_galician));
+        m.put("galician",         new Mapping("glg", "gl",  R.drawable.flag_galician));
+        m.put("gaelic, scottish", new Mapping("gla", "gd",  R.drawable.flag_scotland));
+        m.put("gaelic",           new Mapping("gla", "gd",  R.drawable.flag_scotland));
+        m.put("flammish",         new Mapping("",    "",    R.drawable.flag_flanders));
+        m.put("flemish",          new Mapping("",    "",    R.drawable.flag_flanders));
+        m.put("kurdi",            new Mapping("kur", "ku",  R.drawable.flag_kurd));
+        m.put("romani",           new Mapping("rom", "",    R.drawable.flag_romani));
+        m.put("breton",           new Mapping("bre", "br",  R.drawable.flag_breton));
+        m.put("euskera",          new Mapping("eus", "eu",  R.drawable.flag_basque));
+        m.put("catalan",          new Mapping("cat", "ca",  R.drawable.flag_catalan));
+        m.put("basque",           new Mapping("eus", "eu",  R.drawable.flag_basque));
+        m.put("deutsch fränkisch",new Mapping("frk", "",    R.drawable.flag_franken));
+        m.put("irish",            new Mapping("gle", "ga",  R.drawable.flag_ie));
+        m.put("welsh",            new Mapping("cym", "cy",  R.drawable.flag_wales));
+        m.put("esperanto",        new Mapping("epo", "",    R.drawable.flag_esperanto));
+        m.put("tibetan",          new Mapping("bod", "bo",  R.drawable.flag_tibet));
+        m.put("occitan",          new Mapping("oci", "oc",  R.drawable.flag_occitan));
+
 
         // ── Normalise all keys ────────────────────────────────────────────────
         Map<String, Mapping> normalized = new HashMap<>();
@@ -351,25 +353,29 @@ public final class LanguageMapper {
     }
 
     /**
-     * Resolves a language name from the radio-browser API to a grouping code
-     * (the twoLetterCode from MAP).
+     * Resolves a language name from the radio-browser API to a grouping code.
      *
-     * Standard ISO 639-1 codes group typos/non-English names with the canonical entry
-     * (e.g. "язык: русский" → "ru" → groups with "russian").
+     * Returns twoLetterCode (ISO 639-1) when available; falls back to threeLetterCode
+     * (ISO 639-3) for languages that have no ISO 639-1 code (e.g. "swiss german" → "gsw",
+     * "deutsch fränkisch" → "frk", "montenegrin" → "cnr").
      * Regional varieties use distinct codes so they are NOT merged with the parent
-     * (e.g. "brazilian portuguese" → "ptbr", not "pt"; "deutsch fränkisch" → "frk").
+     * (e.g. "brazilian portuguese" → "ptbr", not "pt").
      *
      * @return grouping code, or {@code null} if unknown
      */
     public static String resolveIso639(String name) {
         if (name == null || name.isEmpty()) return null;
         Mapping m = MAP.get(normaliseKey(name));
-        if (m != null && !m.twoLetterCode.isEmpty()) return m.twoLetterCode;
+        if (m == null) return null;
+        if (!m.twoLetterCode.isEmpty()) return m.twoLetterCode;
+        if (!m.threeLetterCode.isEmpty()) return m.threeLetterCode;
         return null;
     }
 
     /**
-     * Returns all MAP keys (normalised) whose twoLetterCode equals {@code code}.
+     * Returns all MAP keys (normalised) whose grouping code equals {@code code}.
+     * The grouping code is twoLetterCode when non-empty, otherwise threeLetterCode
+     * (mirrors the logic of {@link #resolveIso639}).
      * Used to build the complete list of API variant queries when a language card
      * is clicked. The canonical name is included; callers should filter it out.
      *
@@ -380,7 +386,9 @@ public final class LanguageMapper {
         if (code == null || code.isEmpty()) return new java.util.ArrayList<>();
         List<String> result = new java.util.ArrayList<>();
         for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
-            if (code.equals(e.getValue().twoLetterCode)) result.add(e.getKey());
+            Mapping m = e.getValue();
+            String primary = !m.twoLetterCode.isEmpty() ? m.twoLetterCode : m.threeLetterCode;
+            if (code.equals(primary)) result.add(e.getKey());
         }
         return result;
     }
