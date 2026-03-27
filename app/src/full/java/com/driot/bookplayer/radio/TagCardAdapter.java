@@ -124,39 +124,6 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         if (showFlags && flagResId == 0) {
             flagResId = LanguageMapper.getFlagFromName(t.name);
         }
-        if (showFlags && flagResId == 0) {
-            if ("american english".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "us", "country");
-            } else if ("brazilian portuguese".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-            } else if ("português  brasil".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-            } else if ("português (brasil)".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-            } else if ("portugues do brasil".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-            } else if ("español internacional".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
-            } else if ("español chile".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "cl", "country");
-            } else if ("castellano. español".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
-            } else if ("español - latinoamerica".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
-            } else if ("español argentina".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "ar", "country");
-            } else if ("español mexico".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "mx", "country");
-            } else if ("english uk".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
-            } else if ("british english".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
-            } else if ("swiss german".equals(t.name)) {
-                flagResId = R.drawable.flag_ch;
-            } else if ("romania".equals(t.name)) {
-                flagResId = R.drawable.flag_ro;
-            }
-        }
 
         if (flagResId != 0) {
             // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +

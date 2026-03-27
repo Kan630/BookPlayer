@@ -8,10 +8,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.librivox.LanguageMapper;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -73,7 +76,7 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
 
     public void seedFromCache(List<TagItem> cached) {
         if (cached != null && !cached.isEmpty()) {
-            itemsLive.setValue(cached);
+            itemsLive.setValue(mergeByIso(cached));
             applyFilter();
         }
     }
@@ -95,9 +98,10 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
             public void onResponse(@NonNull Call<List<TagItem>> call, @NonNull Response<List<TagItem>> rsp) {
                 if (cancelled) return;
                 if (rsp.isSuccessful() && rsp.body() != null) {
-                    itemsLive.setValue(rsp.body());
+                    List<TagItem> merged = mergeByIso(rsp.body());
+                    itemsLive.setValue(merged);
                     applyFilter();
-                    RadioCacheHelper.saveCache(getApplication(), currentMode, rsp.body());
+                    RadioCacheHelper.saveCache(getApplication(), currentMode, merged);
                 } else {
                     if (itemsLive.getValue() == null || itemsLive.getValue().isEmpty()) {
                         itemsLive.setValue(new ArrayList<>());
@@ -182,6 +186,55 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
         result.sort(comp);
 
         filteredItemsLive.setValue(result);
+    }
+
+    // -------------------------------------------------------------------------
+    // Deduplication
+    // -------------------------------------------------------------------------
+
+    /**
+     * For MODE_LANGUAGE: merges entries that share the same iso_639 code.
+     * The API returns items sorted by stationcount desc, so the first entry for
+     * each code has the best/most-popular name — duplicates only add their count.
+     *
+     * Items whose iso_639 is null in the API are resolved via
+     * {@link LanguageMapper#resolveIso639} (alias map + main MAP), so that e.g.:
+     *  - "язык: русский"      → "ru" → merged with "russian"
+     *  - "português brasil"   → "pt" → merged with "portuguese"
+     *  - "português (brasil)" → "pt" → merged with "portuguese"
+     *  - "bahasa indonesia"   → "id" → merged with "indonesian"
+     *  - "engilsh" (typo)     → "en" → merged with "english"
+     *
+     * When a code is resolved this way it is also written back to
+     * {@code item.iso_639} so that the adapter can display the correct flag.
+     */
+    private List<TagItem> mergeByIso(List<TagItem> items) {
+        if (currentMode != GetRadioCardListActivity.MODE_LANGUAGE) return items;
+        Map<String, TagItem> byIso = new LinkedHashMap<>();
+        List<TagItem> noIso = new ArrayList<>();
+        for (TagItem item : items) {
+            String iso = item.iso_639;
+            if (iso == null || iso.isEmpty()) {
+                // Try to resolve from the name (typos, non-English, regional variants)
+                iso = LanguageMapper.resolveIso639(item.name);
+                if (iso != null) {
+                    item.iso_639 = iso;  // assign so the flag is shown correctly
+                }
+            }
+            if (iso != null && !iso.isEmpty()) {
+                TagItem existing = byIso.get(iso);
+                if (existing != null) {
+                    existing.stationcount += item.stationcount;
+                } else {
+                    byIso.put(iso, item);
+                }
+            } else {
+                noIso.add(item);
+            }
+        }
+        List<TagItem> result = new ArrayList<>(byIso.values());
+        result.addAll(noIso);
+        return result;
     }
 
     // -------------------------------------------------------------------------

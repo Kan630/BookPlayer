@@ -48,6 +48,7 @@ public final class LanguageMapper {
         m.put("german", new Mapping("deu", "de", R.drawable.flag_de));
         m.put("italian", new Mapping("ita", "it", R.drawable.flag_it));
         m.put("portuguese", new Mapping("por", "pt", R.drawable.flag_pt));
+        m.put("brazilian portuguese", new Mapping("", "", R.drawable.flag_br)); // flag only; code resolved via ALIAS
         m.put("dutch", new Mapping("nld", "nl", R.drawable.flag_nl));
         m.put("russian", new Mapping("rus", "ru", R.drawable.flag_ru));
         m.put("arabic", new Mapping("ara", "ar", R.drawable.flag_sa));
@@ -96,7 +97,7 @@ public final class LanguageMapper {
         m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
         m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_wales));
         m.put("breton", new Mapping("bre", "br", R.drawable.flag_breton));
-        m.put("deutsch fränkisch", new Mapping("", "", R.drawable.flag_franken));
+        m.put("deutsch fränkisch", new Mapping("frk", "", R.drawable.flag_franken));
         m.put("flemish", new Mapping("", "", R.drawable.flag_flanders));
 
         m.put("indonesian", new Mapping("ind", "id", R.drawable.flag_id));
@@ -205,6 +206,107 @@ public final class LanguageMapper {
             normalized.put(e.getKey().trim().toLowerCase(Locale.ROOT), e.getValue());
         }
         MAP = Collections.unmodifiableMap(normalized);
+    }
+
+    // -------------------------------------------------------------------------
+    // Alias map: messy/non-English/regional/typo names → grouping code
+    // Used to resolve "язык: русский" → "ru", all "português brasil" variants
+    // → "pt-BR" (NOT "pt"), "deutsch fränkisch" → "frk" (NOT "de"), etc.
+    // Keys are stored lowercased + single-space-normalised (same normalisation
+    // applied at lookup time).
+    // -------------------------------------------------------------------------
+    private static final Map<String, String> ALIAS;
+    static {
+        Map<String, String> a = new HashMap<>();
+
+        // Russian (non-English label coming from the API)
+        a.put("язык: русский", "ru");
+        a.put("русский", "ru");
+
+        // Brazilian Portuguese — kept separate from plain Portuguese ("pt").
+        // All the messy spellings are grouped together under "pt-BR".
+        a.put("brazilian portuguese", "pt-BR");
+        a.put("português brasil", "pt-BR");
+        a.put("português (brasil)", "pt-BR");
+        a.put("portugues do brasil", "pt-BR");
+        a.put("portugues brasil", "pt-BR");
+
+        // English variants / typos
+        a.put("american english", "en");
+        a.put("british english", "en");
+        a.put("english uk", "en");
+        a.put("engilsh", "en");
+
+        // Spanish variants / typos
+        a.put("español mexico", "es");
+        a.put("español internacional", "es");
+        a.put("español - latinoamerica", "es");
+        a.put("español argentina", "es");
+        a.put("español chile", "es");
+        a.put("español colombia", "es");
+        a.put("castellano. español", "es");
+        a.put("castellano", "es");
+        a.put("espanish", "es");
+        a.put("espaňol", "es");
+
+        // French
+        a.put("francaise", "fr");
+        a.put("français", "fr");
+
+        // Ukrainian typo
+        a.put("ukranian", "uk");
+
+        // Frankish — kept separate from plain German ("de").
+        // "frk" is the ISO 639-3 code; the flag is flag_franken (already in MAP).
+        a.put("deutsch fränkisch", "frk");
+
+        // Romanian (sometimes the country name "romania" is used)
+        a.put("romania", "ro");
+
+        // Punjabi (no two-letter code in main MAP)
+        a.put("punjabi", "pa");
+
+        // Normalize all keys: lowercase + collapse internal whitespace
+        Map<String, String> normalized = new HashMap<>();
+        for (Map.Entry<String, String> e : a.entrySet()) {
+            normalized.put(normaliseKey(e.getKey()), e.getValue());
+        }
+        ALIAS = Collections.unmodifiableMap(normalized);
+    }
+
+    /** Lowercase + collapse runs of whitespace to a single space + trim. */
+    private static String normaliseKey(String s) {
+        return s.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+    }
+
+    /**
+     * Resolves a language name (from the radio-browser API) to a grouping code,
+     * even when the API didn't supply one.
+     *
+     * Standard ISO 639-1 codes are used for typos / non-English names of the same
+     * language (e.g. "язык: русский" → "ru", "engilsh" → "en").
+     *
+     * Distinct regional varieties get their own code so they are NOT merged with
+     * the parent language (e.g. "brazilian portuguese" → "pt-BR", not "pt";
+     * "deutsch fränkisch" → "frk", not "de").
+     *
+     * Lookup order:
+     *  1. ALIAS map  (typos, non-English labels, regional variants)
+     *  2. Main MAP   (LanguageMapper entries that have a twoLetterCode)
+     *
+     * @param name the raw language name (e.g. "язык: русский", "português brasil")
+     * @return grouping code (e.g. "ru", "pt-BR"), or {@code null} if unresolvable
+     */
+    public static String resolveIso639(String name) {
+        if (name == null || name.isEmpty()) return null;
+        String key = normaliseKey(name);
+        // 1. Alias map (handles typos, non-English, regional)
+        String code = ALIAS.get(key);
+        if (code != null) return code;
+        // 2. Main MAP fallback (e.g. "bahasa indonesia" → "id")
+        Mapping m = MAP.get(key);
+        if (m != null && !m.twoLetterCode.isEmpty()) return m.twoLetterCode;
+        return null;
     }
 
     /**
