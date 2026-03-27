@@ -181,6 +181,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                             }
                         }
                     }
+                    myLogD("lang_variants to query: " + langVariants);
                     i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
                             .putExtra("lang", tagItem.name)
                             .putStringArrayListExtra("lang_variants", langVariants)

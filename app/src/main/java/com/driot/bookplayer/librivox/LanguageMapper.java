@@ -247,13 +247,12 @@ public final class LanguageMapper {
     }
 
     // -------------------------------------------------------------------------
-    // Alias map: messy/non-English/regional/typo names → grouping code
+    // Alias map:    to country/flag code : ISO 3166 or specific (like breton)
     // Used to resolve "язык: русский" → "ru", all "português brasil" variants
-    // → "pt-BR" (NOT "pt"), "deutsch fränkisch" → "frk" (NOT "de"), etc.
     // Keys are stored lowercased + single-space-normalised (same normalisation
     // applied at lookup time).
     // -------------------------------------------------------------------------
-    private static final Map<String, String> ALIAS;
+    private static final Map<String, String> ALIAS_TO_FLAG_CODE;
     static {
         Map<String, String> a = new HashMap<>();
 
@@ -278,14 +277,12 @@ public final class LanguageMapper {
         a.put("español colombia", "es");
         a.put("castellano. español", "es");
         a.put("castellano", "es");
+        a.put("castilian", "es");
         a.put("espanish", "es");
         a.put("espaňol", "es");
         a.put("spain", "es");
         a.put("#spanish", "es");
 
-        //TODO ensure that new simple item is named link "string" => flag_code
-        // flag_code (= 2 letters country iso3166 or specific like breton or occitan) checked ok
-        // genre in FlagHelper : public String getFlagCode(String anyString) return result of mapping
         a.put("español mexico", "mx");
         a.put("español - latinoamerica", "mx");
         a.put("español argentina", "ar");
@@ -309,14 +306,13 @@ public final class LanguageMapper {
         a.put("romania", "ro");
         a.put("româna", "ro");
         a.put("românä", "ro");
-        a.put("moldovian", "mol"); // Moldovan → flag_md via MAP
 
         // German variants / typos
         a.put("deu", "de");
         a.put("gernan", "de");
         a.put("deutch", "de");
         a.put("norddeutsch", "de");
-        a.put("schweizerdeutsch", "gsw");
+        a.put("schweizerdeutsch", "ch");
 
         // Turkish variants
         a.put("türkisch", "tr");
@@ -324,35 +320,39 @@ public final class LanguageMapper {
         a.put("tr", "tr");
 
         // Arabic variants
-        a.put("العربية", "ar");
-        a.put("عربي", "ar");
-        a.put("arabic.", "ar");
+        a.put("العربية", "sa");
+        a.put("عربي", "sa");
+        a.put("arabic.", "sa");
 
         // French
         a.put("francaise", "fr");
         a.put("français", "fr");
         a.put("franch", "fr");
 
-        a.put("filipino", "");
+        a.put("filipino", "ph");
+
+        a.put("moldovian", "md");
 
         // Ukrainian typo
-        a.put("ukranian", "uk");
+        a.put("ukranian", "ua");
 
         // Frankish — kept separate from plain German ("de").
         // "frk" is the ISO 639-3 code; the flag is flag_franken (already in MAP).
-        a.put("deutsch fränkisch", "frk");
+        a.put("deutsch fränkisch", "franken");
 
         // Country names used as language labels
-        a.put("estonia", "et");
+        a.put("estonia", "ee");
         a.put("nederland", "nl");
-        a.put("china", "zh");
-        a.put("montenegro", "cnr"); // Montenegrin → flag_me via MAP
+        a.put("china", "cn");
+        a.put("montenegro", "me"); //
+
+        a.put("euskera", "basque");
 
         // Other language name variants / non-Latin scripts
-        a.put("galego", "gl");    // Galician (in Galician)
-        a.put("kurdi", "ku");     // Kurdish (in Kurdish)
-        a.put("shqip", "sq");     // Albanian (in Albanian)
-        a.put("česky", "cs");     // Czech (in Czech)
+        a.put("galego", "galician");    // Galician (in Galician)
+        a.put("kurdi", "kurd");     // Kurdish (in Kurdish)
+        a.put("shqip", "al");     // Albanian (in Albanian)
+        a.put("česky", "cz");     // Czech (in Czech)
         a.put("slovenski", "sl"); // Slovenian (in Slovenian)
 
         // Normalize all keys: lowercase + collapse internal whitespace
@@ -360,7 +360,7 @@ public final class LanguageMapper {
         for (Map.Entry<String, String> e : a.entrySet()) {
             normalized.put(normaliseKey(e.getKey()), e.getValue());
         }
-        ALIAS = Collections.unmodifiableMap(normalized);
+        ALIAS_TO_FLAG_CODE = Collections.unmodifiableMap(normalized);
     }
 
     /** Lowercase + collapse runs of whitespace to a single space + trim. */
@@ -390,7 +390,7 @@ public final class LanguageMapper {
         if (name == null || name.isEmpty()) return null;
         String key = normaliseKey(name);
         // 1. Alias map (handles typos, non-English, regional)
-        String code = ALIAS.get(key);
+        String code = ALIAS_TO_FLAG_CODE.get(key);
         if (code != null) return code;
         // 2. Main MAP fallback (e.g. "bahasa indonesia" → "id")
         Mapping m = MAP.get(key);
@@ -439,7 +439,7 @@ public final class LanguageMapper {
     public static List<String> getAliasNamesForCode(String code) {
         if (code == null || code.isEmpty()) return new java.util.ArrayList<>();
         List<String> result = new java.util.ArrayList<>();
-        for (Map.Entry<String, String> e : ALIAS.entrySet()) {
+        for (Map.Entry<String, String> e : ALIAS_TO_FLAG_CODE.entrySet()) {
             if (code.equals(e.getValue())) {
                 result.add(e.getKey());
             }
