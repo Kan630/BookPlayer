@@ -30,6 +30,7 @@ import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -342,6 +343,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         String lang = getIntent().getStringExtra("lang"); // e.g., "fr"
         String country = getIntent().getStringExtra("country"); // e.g., "FR"
         String tag = getIntent().getStringExtra("tag"); // e.g., "jazz"
+        ArrayList<String> langVariants = getIntent().getStringArrayListExtra("lang_variants");
         myLogIntentExtras(getIntent(), "Radio Query");
 
         if (q == null)
@@ -354,6 +356,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             tag = "";
 
         viewModel.setLastParams(q, lang, country, tag);
+        if (langVariants != null) viewModel.setLastLangVariants(langVariants);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
         // ---- Repo ----
@@ -550,6 +553,35 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         }
     }
 
+    /**
+     * Callback for alias language queries (e.g. "português brasil" when browsing
+     * "brazilian portuguese"). Results are simply appended and deduplicated by uuid;
+     * there is no pagination for aliases since they have few stations.
+     */
+    private Callback<List<ApiStation>> aliasResultsCb(String alias) {
+        return new Callback<>() {
+            @Override
+            public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> rsp) {
+                List<ApiStation> body = rsp.body();
+                if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
+                    myLog("alias lang [" + alias + "] → " + body.size() + " stations");
+                    viewModel.appendResults(body, body.size());
+                    List<ApiStation> all = viewModel.getResults().getValue();
+                    if (all != null) {
+                        viewModel.setHeaderCount(getString(R.string.Results_2pt) + all.size());
+                    }
+                } else {
+                    myLogD("alias lang [" + alias + "] → no results");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ApiStation>> call, Throwable t) {
+                myLogW("alias lang [" + alias + "] failed: " + t.getMessage());
+            }
+        };
+    }
+
     private Callback<List<ApiStation>> resultsCb(String source) {
         return resultsCb(source, false);
     }
@@ -639,6 +671,17 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         viewModel.setHasMore(serverHasMorePages);
                         viewModel.setHeaderCount(getString(R.string.Results_2pt) + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
+
+                        // For language mode: fire one extra call per alias variant (no pagination).
+                        // e.g. "brazilian portuguese" also queries "português brasil", etc.
+                        if ("MODE_LANGUAGE".equals(viewModel.getLastSearchMode())) {
+                            List<String> aliases = viewModel.getLangAliasesOnly();
+                            myLog("lang aliases to query: " + aliases);
+                            for (String alias : aliases) {
+                                repo.byLanguage(alias, Option.getRadioApiNbResults(),
+                                        aliasResultsCb(alias));
+                            }
+                        }
                     }
                 } else {
                     if (!isPagination) {

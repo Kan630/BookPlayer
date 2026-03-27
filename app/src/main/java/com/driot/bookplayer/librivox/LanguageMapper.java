@@ -4,6 +4,7 @@ import com.driot.bookplayer.R;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -420,6 +421,28 @@ public final class LanguageMapper {
             }
         }
         return 0;
+    }
+
+    /**
+     * Returns all alias names (already lowercase + normalised) that map to the
+     * given grouping code.  Useful to build a complete list of API queries when
+     * the user selects a merged language card.
+     *
+     * Example: {@code getAliasNamesForCode("br")} →
+     *   ["brazilian portuguese", "português brasil", "português (brasil)", ...]
+     *
+     * @param code the grouping code as stored in the ALIAS values (e.g. "br", "ru")
+     * @return mutable list of normalised alias names; empty if none found
+     */
+    public static List<String> getAliasNamesForCode(String code) {
+        if (code == null || code.isEmpty()) return new java.util.ArrayList<>();
+        List<String> result = new java.util.ArrayList<>();
+        for (Map.Entry<String, String> e : ALIAS.entrySet()) {
+            if (code.equals(e.getValue())) {
+                result.add(e.getKey());
+            }
+        }
+        return result;
     }
 
     /**

@@ -31,8 +31,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import com.driot.bookplayer.librivox.LanguageMapper;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -161,8 +166,24 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                             .putExtra("lang", "").putExtra("tag", "").putExtra("query", "");
                     break;
                 case MODE_LANGUAGE:
+                    // Build the full list of variant names to query:
+                    // canonical first, then all alias names sharing the same grouping code.
+                    ArrayList<String> langVariants = new ArrayList<>();
+                    langVariants.add(tagItem.name); // canonical (already lowercase from API)
+                    String isoCode = tagItem.iso_639;
+                    if (isoCode != null && !isoCode.isEmpty()) {
+                        String canonicalNorm = tagItem.name.trim().toLowerCase(Locale.ROOT);
+                        List<String> aliases = LanguageMapper.getAliasNamesForCode(isoCode);
+                        for (String alias : aliases) {
+                            // alias keys are already normalised (lowercase+trimmed)
+                            if (!alias.equals(canonicalNorm)) {
+                                langVariants.add(alias);
+                            }
+                        }
+                    }
                     i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
                             .putExtra("lang", tagItem.name)
+                            .putStringArrayListExtra("lang_variants", langVariants)
                             .putExtra("country", "").putExtra("tag", "").putExtra("query", "");
                     break;
                 case MODE_TAG:

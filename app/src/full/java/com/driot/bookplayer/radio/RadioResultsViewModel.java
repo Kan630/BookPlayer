@@ -46,6 +46,9 @@ public class RadioResultsViewModel extends LoggingViewModel {
     private String lastCountry = "";
     private String lastTag = "";
     private String lastSearchMode = "";
+    // Extra language variant names to query alongside the canonical lang (MODE_LANGUAGE only).
+    // Index 0 is canonical (already covered by lastLang); index 1..N are aliases.
+    private List<String> lastLangVariants = new ArrayList<>();
 
     // Pagination state
     private int currentOffset = 0;
@@ -95,6 +98,8 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 if (s.stationuuid != null && !existingUuids.contains(s.stationuuid)) {
                     uniqueApiStations.add(s);
                     existingUuids.add(s.stationuuid); // avoid dupes within the new batch too
+                } else {
+                    myLogD("dedup removed: name=[" + s.name + "] uuid=[" + s.stationuuid + "]");
                 }
             }
 
@@ -173,6 +178,16 @@ public class RadioResultsViewModel extends LoggingViewModel {
         lastLang = lang == null ? "" : lang;
         lastCountry = country == null ? "" : country;
         lastTag = tag == null ? "" : tag;
+    }
+
+    public void setLastLangVariants(List<String> variants) {
+        lastLangVariants = variants != null ? variants : new ArrayList<>();
+    }
+
+    /** Returns alias names at index 1..N (index 0 = canonical, already queried separately). */
+    public List<String> getLangAliasesOnly() {
+        if (lastLangVariants.size() <= 1) return new ArrayList<>();
+        return lastLangVariants.subList(1, lastLangVariants.size());
     }
 
     // ---- Favorites state exposed to UI ----
