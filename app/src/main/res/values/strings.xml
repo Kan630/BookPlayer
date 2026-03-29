@@ -1314,7 +1314,7 @@
     <string name="since">since</string> //depuis
     <string name="available_since">available since</string> //depuis
     <string name="Filter_Tags">Filter Tags</string>
-
+    <string name="MB_taken_by_cached_images">" MB taken by cached images"</string>
 </resources>
 
 

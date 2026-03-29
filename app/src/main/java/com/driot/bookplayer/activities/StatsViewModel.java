@@ -128,10 +128,16 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                 currentAudiosSizeInternal = StorageHelper.getFolderSize(unzipFolder) / 1048576L;
             }
 
-            File imagesFolder = new File(app.getFilesDir(), "images");
+            File imagesFolder = StorageHelper.getImageFolder(getApplication().getApplicationContext(), false);
             long sizeImages = 0;
             if (imagesFolder.exists()) {
                 sizeImages = getFolderSize(imagesFolder.getPath()) / 1048576L;
+            }
+
+            File cachedImagesFolder = StorageHelper.getImageFolder(getApplication().getApplicationContext(), true);
+            long sizeCachedImages = 0;
+            if (cachedImagesFolder.exists()) {
+                sizeCachedImages = getFolderSize(cachedImagesFolder.getPath()) / 1048576L;
             }
 
             File logsFolder = new File(app.getFilesDir(), "log");
@@ -163,6 +169,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                     + "\n" + "\n" + Tonio.formatMemPadding(app, linkedAudiosMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, sizeImages) + ctx.getString(R.string.MB_taken_by_images)
+                    + "\n" + "\n" + Tonio.formatMemPadding(app, sizeCachedImages) + ctx.getString(R.string.MB_taken_by_cached_images)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, sizeLogs) + ctx.getString(R.string.MB_taken_by_logs)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, sizeDB) + ctx.getString(R.string.MB_taken_by_databases);
 
