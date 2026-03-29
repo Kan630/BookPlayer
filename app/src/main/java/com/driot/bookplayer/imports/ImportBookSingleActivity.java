@@ -1,7 +1,6 @@
 package com.driot.bookplayer.imports;
 
 import static com.driot.bookplayer.utils.HashWorker.HASH_NOT_COMPUTED;
-import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
@@ -25,15 +24,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
 import com.driot.bookplayer.db.AppDatabase;
@@ -43,7 +37,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -58,7 +51,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ImportBookSingleActivity extends BaseBottomNavActivity {
+public class ImportBookSingleActivity extends FullActivity {
 
     private boolean initialHashCheckTriggered = false;
 
@@ -108,7 +101,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         return false;
     }
 
-    protected boolean displayBottomNavBar() {
+    protected boolean displayAppNavBar() {
         return false;
     }
 

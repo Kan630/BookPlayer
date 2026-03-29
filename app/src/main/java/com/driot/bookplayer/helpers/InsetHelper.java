@@ -17,6 +17,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import androidx.annotation.Nullable;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.views.FadingEdgeFrameLayout;
@@ -32,18 +34,21 @@ public final class InsetHelper {
 
     // Total height of the fade region = statusBarHeight × this value.
     // 2.0 = fade extends twice the status bar height down into the content.
-    private static final float FADE_HEIGHT_MULTIPLIER = 1.5f;
+    private static final float FADE_HEIGHT_MULTIPLIER_TOP = 1.5f;
+    private static final float FADE_HEIGHT_MULTIPLIER_BOTTOM = 0.2f;
 
     // Fraction of the fade region that is a hard fully-faded cut before the gradient begins.
     // 0.0 = no solid zone, gradient starts immediately at the top.
     // 0.5 = top half is solid fade, gradient fills the bottom half.
-    private static final float FADE_SOLID_RATIO = 0.5f;
+    private static final float FADE_SOLID_RATIO_TOP = 0.5f;
+    private static final float FADE_SOLID_RATIO_BOTTOM = 0.5f;
 
     // How transparent the content is at the strongest point of the fade.
     // 0.0 = fully hidden (content completely invisible at peak).
     // 0.2 = 80% faded — content is still faintly visible, nothing disappears entirely.
     // 1.0 = no fade at all (pointless but valid).
-    private static final float FADE_MAX_ALPHA = 0.3f;
+    private static final float FADE_MAX_ALPHA_TOP = 0.3f;
+    private static final float FADE_MAX_ALPHA_BOTTOM = 0.3f;
 
     // ===== Public API =====
 
@@ -69,10 +74,23 @@ public final class InsetHelper {
     /**
      * Scrollable full-screen view: draws behind nav bar with proper padding.
      * If {@code scrollableView}'s parent is a {@link FadingEdgeFrameLayout},
-     * its fade params are updated from the real status bar inset automatically.
+     * its top AND bottom fade params are updated automatically from the real
+     * status-bar / nav-bar insets.
      */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity,
                                                             @NonNull View scrollableView) {
+        applyInsetsForScrollableBehindNavBar(activity, scrollableView, null);
+    }
+
+    /**
+     * Same as above but also reserves extra bottom padding equal to the measured
+     * height of {@code extraBottomView} (e.g. the mini-player fragment) so that
+     * the last list item is never hidden behind that view.  When the extra view's
+     * height changes (shows / hides), the scrollable's padding is updated automatically.
+     */
+    public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity,
+                                                            @NonNull View scrollableView,
+                                                            @Nullable View extraBottomView) {
         FadingEdgeFrameLayout fading = null;
         if (scrollableView.getParent() instanceof FadingEdgeFrameLayout) {
             fading = (FadingEdgeFrameLayout) scrollableView.getParent();
@@ -86,7 +104,8 @@ public final class InsetHelper {
                 /* allowShortEdgeCutout */true,
                 /* addToPadding */        false,
                 /* consume */             true,
-                /* fadingParent */        fading);
+                /* fadingParent */        fading,
+                /* extraBottomView */     extraBottomView);
     }
 
     /** Status-bar height only — no side or cutout padding (avoids dead space). */
@@ -116,7 +135,23 @@ public final class InsetHelper {
                                     boolean allowShortEdgeCutout,
                                     boolean addToPadding,
                                     boolean consume,
-                                    @androidx.annotation.Nullable FadingEdgeFrameLayout fadingParent) {
+                                    @Nullable FadingEdgeFrameLayout fadingParent) {
+        applyInsets(activity, target, padTop, padBottom, padSides, handleIME, handleCutout,
+                allowShortEdgeCutout, addToPadding, consume, fadingParent, null);
+    }
+
+    private static void applyInsets(@NonNull Activity activity,
+                                    @NonNull View target,
+                                    boolean padTop,
+                                    boolean padBottom,
+                                    boolean padSides,
+                                    boolean handleIME,
+                                    boolean handleCutout,
+                                    boolean allowShortEdgeCutout,
+                                    boolean addToPadding,
+                                    boolean consume,
+                                    @Nullable FadingEdgeFrameLayout fadingParent,
+                                    @Nullable View extraBottomView) {
         try {
             final Window window = activity.getWindow();
 
@@ -148,6 +183,7 @@ public final class InsetHelper {
                         + " padSides=" + padSides + " handleIME=" + handleIME
                         + " handleCutout=" + handleCutout
                         + " hasFadingParent=" + (fadingParent != null)
+                        + " hasExtraBottom=" + (extraBottomView != null)
                         + " orientation=" + orientationString(activity));
 
             final int initLeft   = target.getPaddingLeft();
@@ -171,6 +207,12 @@ public final class InsetHelper {
 
                 if (handleIME) bottom = Math.max(bottom, ime.bottom);
 
+                // Reserve space for the mini-player (or any overlay) so the last
+                // list item remains reachable above it.  The mini-player's height
+                // already includes sys.bottom padding, so we take the max rather
+                // than adding — otherwise sys.bottom would be counted twice.
+                if (extraBottomView != null) bottom = Math.max(bottom, extraBottomView.getHeight());
+
                 if (addToPadding) {
                     v.setPadding(initLeft + left, initTop + top, initRight + right, initBottom + bottom);
                 } else {
@@ -178,14 +220,20 @@ public final class InsetHelper {
                 }
 
                 if (fadingParent != null) {
-                    int fadeHeight  = Math.round(sys.top * FADE_HEIGHT_MULTIPLIER);
-                    int solidHeight = Math.round(fadeHeight * FADE_SOLID_RATIO);
-                    fadingParent.setFadeParams(fadeHeight, solidHeight, FADE_MAX_ALPHA);
+                    // Top fade — driven by status-bar height
+                    int topFadeH  = Math.round(sys.top * FADE_HEIGHT_MULTIPLIER_TOP);
+                    int topSolidH = Math.round(topFadeH * FADE_SOLID_RATIO_TOP);
+                    fadingParent.setFadeParams(topFadeH, topSolidH, FADE_MAX_ALPHA_TOP);
+
+                    // Bottom fade — driven by nav-bar height (0 for gesture nav = no fade)
+                    int botFadeH  = Math.round(sys.bottom * FADE_HEIGHT_MULTIPLIER_BOTTOM);
+                    int botSolidH = Math.round(botFadeH * FADE_SOLID_RATIO_BOTTOM);
+                    fadingParent.setBottomFadeParams(botFadeH, botSolidH, FADE_MAX_ALPHA_BOTTOM);
+
                     if (KanLogger.LOG_INSETS)
-                        myLogD("setFadeParams: fadeHeight=" + fadeHeight
-                                + " solidHeight=" + solidHeight
-                                + " maxAlpha=" + FADE_MAX_ALPHA
-                                + " (statusBar=" + sys.top + ")");
+                        myLogD("setFadeParams: top=" + topFadeH + " bot=" + botFadeH
+                                + " maxAlpha=" + FADE_MAX_ALPHA_TOP + "/" + FADE_MAX_ALPHA_BOTTOM
+                                + " (statusBar=" + sys.top + " navBar=" + sys.bottom + ")");
                 }
 
                 if (KanLogger.LOG_INSETS)
@@ -196,6 +244,15 @@ public final class InsetHelper {
 
                 return consume ? WindowInsetsCompat.CONSUMED : insets;
             });
+
+            // When the extra-bottom view changes height (mini-player shows / hides),
+            // re-request insets so the scrollable's paddingBottom is updated immediately.
+            if (extraBottomView != null) {
+                extraBottomView.addOnLayoutChangeListener(
+                        (v, l, t, r, b, ol, ot, or, ob) -> {
+                            if (b - t != ob - ot) ViewCompat.requestApplyInsets(target);
+                        });
+            }
 
             ViewCompat.requestApplyInsets(target);
 

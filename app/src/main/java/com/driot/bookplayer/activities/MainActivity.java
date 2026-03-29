@@ -38,7 +38,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
@@ -57,7 +57,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class MainActivity extends BaseBottomNavActivity {
+public class MainActivity extends FullActivity {
 
     private RecyclerView recyclerView;
     private View emptyView;
@@ -274,7 +274,7 @@ public class MainActivity extends BaseBottomNavActivity {
         // Conditionally show Radio/Podcast items in the overflow menu
         MenuItem radioItem = menu.findItem(R.id.menu_radio);
         MenuItem podcastItem = menu.findItem(R.id.menu_podcast);
-        boolean showInMenu = !Option.getDisplayBottomNavBar() && !Tonio.isPure(this);
+        boolean showInMenu = !Option.getDisplayAppNavBar() && !Tonio.isPure(this);
         
         if (radioItem != null) radioItem.setVisible(showInMenu);
         if (podcastItem != null) podcastItem.setVisible(showInMenu);

@@ -27,7 +27,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.podcasts.PodcastHelper;
@@ -41,7 +41,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ZikFileActivity extends BaseBottomNavActivity {
+public class ZikFileActivity extends FullActivity {
 
     private RecyclerView recyclerView;
     private ZikFilesViewModel listVm;

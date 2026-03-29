@@ -11,15 +11,12 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
-import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.color.MaterialColors;
@@ -30,7 +27,7 @@ import java.util.Map;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class RadioStationActivity extends BaseBottomNavActivity {
+public class RadioStationActivity extends FullActivity {
 
     private ImageView ivCover;
     private TextView tvName;

@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
@@ -30,7 +30,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ImportBookMultipleActivity extends BaseBottomNavActivity {
+public class ImportBookMultipleActivity extends FullActivity {
 
     public static final String EXTRA_URI = "EXTRA_URI";
 
@@ -67,7 +67,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         return false;
     }
 
-    protected boolean displayBottomNavBar() {
+    protected boolean displayAppNavBar() {
         return false;
     }
 

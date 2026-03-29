@@ -809,17 +809,16 @@ public class Option {
     }
 
     /////////////////// DISPLAY ///////////////////
-    public static boolean getDisplayBottomNavBar() {
-        return prefs.getBoolean("DISPLAY_BOTTOM_NAV_BAR", DEFAULT_DISPLAY_BOTTOM_NAV_BAR);
+    public static boolean getDisplayAppNavBar() {
+        return prefs.getBoolean("DISPLAY_APP_NAV_BAR", DEFAULT_DISPLAY_BOTTOM_NAV_BAR);
+    }
+    public static void setDisplayAppNavBar(boolean bool) {
+        prefs.edit().putBoolean("DISPLAY_APP_NAV_BAR", bool).apply();
     }
 
-    public static void setDisplayBottomNavBar(boolean bool) {
-        prefs.edit().putBoolean("DISPLAY_BOTTOM_NAV_BAR", bool).apply();
-    }
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {
         prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", i).apply();
     }
-
     public static int getPodcastAutoDownloadDelayBetweenChecks() {
         return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",
                 DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);

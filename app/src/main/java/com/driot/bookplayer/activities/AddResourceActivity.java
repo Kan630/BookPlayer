@@ -18,12 +18,12 @@ import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.services.DownloadControl;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class AddResourceActivity extends BaseBottomNavActivity {
+public class AddResourceActivity extends FullActivity {
 
     private static final int DELAY_END_WAIT_WARNINGS = 5 * 60_000;
     private static final int DELAY_END_WAIT_NO_ERROR = 2_000;

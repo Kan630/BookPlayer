@@ -1,62 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/MainContainer">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Top overlay: ongoing task fragment goes here -->
+    <FrameLayout
+        android:id="@+id/topOverlayContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Main content area: each activity layout is inflated here.
+         Extends to the very bottom of the screen (edge-to-edge) so that
+         scrollable content can draw behind the system nav bar.
+         miniNowPlaying and bottomNav are declared after this in the XML
+         and therefore drawn on top with their own opaque backgrounds. -->
+    <FrameLayout
+        android:id="@+id/base_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/topOverlayContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Mini now playing bar (global).
+         Background matches the fragment's own colorPrimary so the sys.bottom
+         padding area (below the content, inside the nav-bar zone) is also
+         opaque and hides any scrollable content behind it. -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniNowPlaying"
+        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/AppNav"
+        app:layout_insetEdge="bottom" />
 
-        <!-- Top overlay: ongoing task fragment goes here -->
-        <FrameLayout
-            android:id="@+id/topOverlayContainer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Bottom navigation bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/AppNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Main content area: each activity layout is inflated here -->
-        <FrameLayout
-            android:id="@+id/base_content"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/topOverlayContainer"
-            app:layout_constraintBottom_toTopOf="@id/miniNowPlaying"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <include layout="@layout/include_progress_overlay"
+        android:visibility="gone" />
 
-        <!-- Mini now playing bar (global) -->
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/miniNowPlaying"
-            android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/bottomNav"
-            app:layout_insetEdge="bottom" />
+    <include layout="@layout/include_message_overlay"
+        android:visibility="gone" />
 
-        <!-- Bottom navigation bar -->
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNav"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:menu="@menu/bottom_nav_menu"
-            app:labelVisibilityMode="labeled"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <include layout="@layout/include_progress_overlay"
-            android:visibility="gone" />
-
-        <include layout="@layout/include_message_overlay"
-            android:visibility="gone" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

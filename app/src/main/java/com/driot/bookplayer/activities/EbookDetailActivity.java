@@ -24,7 +24,7 @@ import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 
@@ -33,7 +33,7 @@ import java.util.Locale;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class EbookDetailActivity extends BaseBottomNavActivity {
+public class EbookDetailActivity extends FullActivity {
 
     private static final int REQ_DOWNLOAD_UNMETERED = 2001;
     private static final int REQ_DOWNLOAD_ROAMING = 2002;

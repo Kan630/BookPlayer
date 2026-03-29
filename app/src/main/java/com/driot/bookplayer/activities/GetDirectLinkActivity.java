@@ -21,7 +21,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
@@ -29,7 +29,7 @@ import com.driot.bookplayer.views.EditText2linesWithPaste;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetDirectLinkActivity extends BaseBottomNavActivity {
+public class GetDirectLinkActivity extends FullActivity {
 
     private static final int REQ_DOWNLOAD_UNMETERED = 2001;
     private String pendingDownloadUrl;

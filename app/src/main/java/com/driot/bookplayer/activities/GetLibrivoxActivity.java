@@ -17,7 +17,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.librivox.GetLibrivoxFacetListActivity;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageStore;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetLibrivoxActivity extends BaseBottomNavActivity {
+public class GetLibrivoxActivity extends FullActivity {
 
     Spinner spinnerLibrivox;
     EditText1lineWithSearch etLibrivoxSearch;

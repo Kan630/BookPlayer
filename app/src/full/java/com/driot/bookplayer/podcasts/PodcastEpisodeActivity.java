@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
@@ -57,7 +57,7 @@ import java.util.Locale;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PodcastEpisodeActivity extends BaseBottomNavActivity
+public class PodcastEpisodeActivity extends FullActivity
         implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
     private TextView tvTitle, tvDescription, tvApiWarning, tvStats, tvToolbarStats, tvSearchStat;
@@ -401,7 +401,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void toggleSearch() {
-        View bottomNav = findViewById(R.id.bottomNav);
+        View bottomNav = findViewById(R.id.AppNav);
         View miniNowPlaying = findViewById(R.id.miniNowPlaying);
         View collapsingHeader = findViewById(R.id.collapsing);
 

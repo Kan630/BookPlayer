@@ -16,7 +16,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageItem;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
 
 @AndroidEntryPoint
-public class GetEbookActivity extends BaseBottomNavActivity {
+public class GetEbookActivity extends FullActivity {
 
     Spinner spinnerEbookLang;
     EditText1lineWithSearch editTextEbook;

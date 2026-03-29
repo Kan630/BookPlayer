@@ -37,7 +37,7 @@ import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.helpers.NetworkStatusMonitor;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -55,7 +55,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @AndroidEntryPoint
-public class LibrivoxDetailActivity extends BaseBottomNavActivity {
+public class LibrivoxDetailActivity extends FullActivity {
 
     private static final int REQ_DOWNLOAD_UNMETERED = 2001;
     private static final int REQ_DOWNLOAD_ROAMING = 2002;
