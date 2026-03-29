@@ -83,27 +83,34 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         setupBottomNav();
         registerSectionRootBackCallback();
 
+        // Apply window insets to miniNowPlaying:
+        // - side insets (sys.left/right) always, to handle landscape nav bar on the side
+        //   (phone: nav bar moves to the right edge, hiding the close button without this)
+        // - bottom inset only when bottomNav is hidden; when visible, bottomNav absorbs
+        //   sys.bottom via its own constraint and Material inset handling
+        View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+        if (miniNowPlaying != null) {
+            final int initLeft   = miniNowPlaying.getPaddingLeft();
+            final int initTop    = miniNowPlaying.getPaddingTop();
+            final int initRight  = miniNowPlaying.getPaddingRight();
+            final int initBottom = miniNowPlaying.getPaddingBottom();
+            final boolean applyBottom = !displayBottomNavBar();
+
+            ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
+                Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(
+                        initLeft  + sys.left,
+                        initTop,
+                        initRight + sys.right,
+                        applyBottom ? initBottom + sys.bottom : initBottom);
+                return insets; // don't consume — InsetHelper still needs them
+            });
+            ViewCompat.requestApplyInsets(miniNowPlaying);
+        }
+
         if (!displayBottomNavBar()) {
             if (bottomNav != null) {
                 bottomNav.setVisibility(View.GONE);
-            }
-
-            // When the bottom nav is hidden, it no longer absorbs the system
-            // navigation bar inset. Apply it directly to miniNowPlaying so it
-            // sits above the system nav bar instead of going behind it.
-            View miniNowPlaying = findViewById(R.id.miniNowPlaying);
-            if (miniNowPlaying != null) {
-                final int initialPaddingBottom = miniNowPlaying.getPaddingBottom();
-                ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
-                    Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    v.setPadding(
-                            v.getPaddingLeft(),
-                            v.getPaddingTop(),
-                            v.getPaddingRight(),
-                            initialPaddingBottom + sys.bottom);
-                    return insets; // don't consume — InsetHelper still needs them
-                });
-                ViewCompat.requestApplyInsets(miniNowPlaying);
             }
         }
     }

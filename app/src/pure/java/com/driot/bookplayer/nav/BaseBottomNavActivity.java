@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
@@ -85,6 +88,29 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         // 4) Setup bottom nav once for all activities
         setupBottomNav();
         registerSectionRootBackCallback();
+
+        // Apply window insets to miniNowPlaying:
+        // - side insets (sys.left/right) always, to handle landscape nav bar on the side
+        // - bottom inset only when bottomNav is hidden (pure flavour: always)
+        View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+        if (miniNowPlaying != null) {
+            final int initLeft   = miniNowPlaying.getPaddingLeft();
+            final int initTop    = miniNowPlaying.getPaddingTop();
+            final int initRight  = miniNowPlaying.getPaddingRight();
+            final int initBottom = miniNowPlaying.getPaddingBottom();
+            final boolean applyBottom = !displayBottomNavBar();
+
+            ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
+                Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(
+                        initLeft  + sys.left,
+                        initTop,
+                        initRight + sys.right,
+                        applyBottom ? initBottom + sys.bottom : initBottom);
+                return insets; // don't consume — InsetHelper still needs them
+            });
+            ViewCompat.requestApplyInsets(miniNowPlaying);
+        }
 
         // 5) Optional: hide the bottom nav completely
         if (!displayBottomNavBar()) {
