@@ -20,7 +20,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.navigationrail.NavigationRailView;
 
 import javax.inject.Inject;
 
@@ -61,7 +60,7 @@ public abstract class FullActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        super.setContentView(R.layout.activity_base_bottom_nav);
+        super.setContentView(R.layout.activity_full);
 
         // activity layout
         ViewGroup container = findViewById(R.id.base_content);
@@ -88,57 +87,19 @@ public abstract class FullActivity extends BaseActivity {
 
         registerSectionRootBackCallback();
 
-        // Apply window insets to miniNowPlaying:
-        // - side insets (sys.left/right) always, to handle landscape nav bar on the side
-        //   (phone: nav bar moves to the right edge, hiding the close button without this)
-        // - bottom inset when:
-        //     a) landscape layout: bottomNav is a NavigationRailView (on the left), so it does
-        //        NOT absorb sys.bottom — miniNowPlaying is constrained bottom_toBottomOf=parent
-        //        and must apply sys.bottom itself.
-        //     b) portrait layout: bottomNav (BottomNavigationView) is hidden by the user option,
-        //        so nothing at the bottom absorbs sys.bottom.
-        //   When portrait + bottomNav IS visible, we apply sys.bottom directly to bottomNav in the
-        //   listener below instead, so the constraint chain positions miniNowPlaying correctly.
+
         View miniNowPlaying = findViewById(R.id.miniNowPlaying);
         if (miniNowPlaying != null) {
-            final int initLeft   = miniNowPlaying.getPaddingLeft();
-            final int initTop    = miniNowPlaying.getPaddingTop();
-            final int initRight  = miniNowPlaying.getPaddingRight();
-            final int initBottom = miniNowPlaying.getPaddingBottom();
-            // NavigationRailView (landscape) sits on the left — it does not absorb sys.bottom
-            final boolean isNavRail   = appNavBar instanceof NavigationRailView;
-            final boolean applyBottom = isNavRail || !displayAppNavBar();
-
             ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
                 Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
                 v.setPadding(
-                        initLeft  + sys.left,
-                        initTop,
-                        initRight + sys.right,
-                        applyBottom ? initBottom + sys.bottom : initBottom);
-
-                // When bottomNav is visible, Material's BottomNavigationView may not receive
-                // sys.bottom if insets are consumed upstream (e.g. by the recyclerView).
-                // Apply it directly here so the constraint chain (miniNowPlaying above bottomNav)
-                // positions the mini player correctly above the system nav bar on all devices,
-                // including tablets where the nav bar / taskbar can be taller than the items height.
-                if (!applyBottom && appNavBar != null) {
-                    appNavBar.setPadding(
-                            appNavBar.getPaddingLeft(),
-                            appNavBar.getPaddingTop(),
-                            appNavBar.getPaddingRight(),
-                            sys.bottom);
-                }
-
+                        sys.left,
+                        sys.top,
+                        sys.right,
+                        sys.bottom);
                 return insets; // don't consume — InsetHelper still needs them
             });
             ViewCompat.requestApplyInsets(miniNowPlaying);
-        }
-
-        if (!displayAppNavBar()) {
-            if (appNavBar != null) {
-                appNavBar.setVisibility(View.GONE);
-            }
         }
     }
 
