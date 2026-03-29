@@ -1,6 +1,10 @@
 package com.driot.bookplayer.radio;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogI;
+
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -50,6 +54,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     private ItemTouchHelper touchHelper;
     private boolean isHistoryMode = false;
 
+    private ScaleGestureDetector scaleDetector;
+
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
     /** Back from favorites goes up to the radio search root, not straight to MainActivity. */
@@ -92,17 +98,97 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
         int span = getResources().getInteger(R.integer.radio_grid_span_station);
-        GridLayoutManager glm = new GridLayoutManager(this, span);
+
+        int initialSpan = getResources().getInteger(R.integer.radio_grid_span_station);
+        final GridLayoutManager glm = new GridLayoutManager(this, initialSpan);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                // position 0 = header → take the whole row
-                return position == 0 ? span : 1;
+                return position == 0 ? initialSpan : 1;  // header takes full row
             }
         });
+
         recyclerView.setLayoutManager(glm);
-        recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
+
+// Spacing decoration - we'll update it when span changes
+        final ViewHelper.SpacesItemDecoration spacingDecoration =
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO));
+
+        recyclerView.addItemDecoration(spacingDecoration);
+
+// Load saved preference (optional but recommended)
+        final String PREF_RADIO_SPAN = "radio_grid_span";
+        int savedSpan = getPreferences(MODE_PRIVATE).getInt(PREF_RADIO_SPAN, initialSpan);
+        glm.setSpanCount(savedSpan);
+
+// Current span for gesture handling
+        final int[] currentSpan = {savedSpan};
+
+        scaleDetector = new ScaleGestureDetector(this,
+                new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
+                    private float accumulatedScale = 1f;
+
+                    @Override
+                    public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+                        accumulatedScale = 1f;
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                        accumulatedScale *= detector.getScaleFactor();
+
+                        // Decide direction and sensitivity
+                        if (accumulatedScale > 1.15f) {           // Pinch out → fewer columns (bigger items)
+                            int newSpan = Math.max(1, currentSpan[0] - 1);
+                            if (newSpan != currentSpan[0]) {
+                                currentSpan[0] = newSpan;
+                                glm.setSpanCount(newSpan);
+                                // Optional: update header span size if needed
+                                glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                                    @Override
+                                    public int getSpanSize(int position) {
+                                        return position == 0 ? newSpan : 1;
+                                    }
+                                });
+                                recyclerView.requestLayout(); // helps smooth transition
+                            }
+                            accumulatedScale = 1f; // reset accumulator
+                        }
+                        else if (accumulatedScale < 0.85f) {      // Pinch in → more columns (smaller items)
+                            int minSpan = 2; // getResources().getInteger(R.integer.radio_grid_span_min))
+                            int maxSpan = 10; // getResources().getInteger(R.integer.radio_grid_span_max))
+                            int newSpan = Math.max(Math.min(maxSpan, currentSpan[0] + 1), minSpan);
+                            if (newSpan != currentSpan[0]) {
+                                currentSpan[0] = newSpan;
+                                glm.setSpanCount(newSpan);
+                                glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                                    @Override
+                                    public int getSpanSize(int position) {
+                                        return position == 0 ? newSpan : 1;
+                                    }
+                                });
+                                recyclerView.requestLayout();
+                            }
+                            accumulatedScale = 1f;
+                        }
+
+                        return true;
+                    }
+
+                    @Override
+                    public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
+                        // Save preference when gesture finishes
+                        getPreferences(MODE_PRIVATE).edit()
+                                .putInt(PREF_RADIO_SPAN, currentSpan[0])
+                                .apply();
+
+                        myLogI("Grid span changed to: " + currentSpan[0]);
+                    }
+                });
+
+        attachTouchLogic();
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
 
@@ -371,4 +457,31 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             progressHelper.stop();
         }
     }
+
+    private void attachTouchLogic() {
+        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleDetector.onTouchEvent(e);
+
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myLogI("TOUCH Reader: ACTION_DOWN " + e.getX() + "," + e.getY());
+                } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                    myLogI("TOUCH Reader: ACTION_MOVE " + e.getX() + "," + e.getY());
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    myLogI("TOUCH Reader: ACTION_UP");
+                } else if (e.getAction() == MotionEvent.ACTION_CANCEL) {
+                    myLogI("TOUCH Reader: ACTION_CANCEL");
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleDetector.onTouchEvent(e);
+            }
+        });
+    }
+
+
 }
