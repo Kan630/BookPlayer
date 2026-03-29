@@ -97,31 +97,28 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         new NetworkStatusRowController(this, networkRowView, this, netVm);
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
-        int span = getResources().getInteger(R.integer.radio_grid_span_station);
+        int minSpan = getResources().getInteger(R.integer.radio_grid_span_min);     // add this to integers.xml
+        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_max);     // add this
+        int defaultSpan = getResources().getInteger(R.integer.radio_grid_span_station);
 
-        int initialSpan = getResources().getInteger(R.integer.radio_grid_span_station);
-        final GridLayoutManager glm = new GridLayoutManager(this, initialSpan);
+        final GridLayoutManager glm = new GridLayoutManager(this, defaultSpan);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return position == 0 ? initialSpan : 1;  // header takes full row
+                return position == 0 ? defaultSpan : 1;
             }
         });
-
         recyclerView.setLayoutManager(glm);
 
-// Spacing decoration - we'll update it when span changes
-        final ViewHelper.SpacesItemDecoration spacingDecoration =
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO));
+        recyclerView.addItemDecoration(
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
 
-        recyclerView.addItemDecoration(spacingDecoration);
+// Load saved value with proper clamping
+        int savedSpan = Option.getRadioGridLayoutSpan();
+        savedSpan = Math.max(minSpan, Math.min(maxSpan, savedSpan));
 
-// Load saved preference (optional but recommended)
-        final String PREF_RADIO_SPAN = "radio_grid_span";
-        int savedSpan = getPreferences(MODE_PRIVATE).getInt(PREF_RADIO_SPAN, initialSpan);
         glm.setSpanCount(savedSpan);
 
-// Current span for gesture handling
         final int[] currentSpan = {savedSpan};
 
         scaleDetector = new ScaleGestureDetector(this,
@@ -139,39 +136,27 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     public boolean onScale(@NonNull ScaleGestureDetector detector) {
                         accumulatedScale *= detector.getScaleFactor();
 
-                        // Decide direction and sensitivity
-                        if (accumulatedScale > 1.15f) {           // Pinch out → fewer columns (bigger items)
-                            int newSpan = Math.max(1, currentSpan[0] - 1);
+                        // Pinch out → fewer columns (bigger cards)
+                        if (accumulatedScale > 1.15f) {
+                            int newSpan = currentSpan[0] - 1;
+                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));   // proper clamp
+
                             if (newSpan != currentSpan[0]) {
                                 currentSpan[0] = newSpan;
-                                glm.setSpanCount(newSpan);
-                                // Optional: update header span size if needed
-                                glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                                    @Override
-                                    public int getSpanSize(int position) {
-                                        return position == 0 ? newSpan : 1;
-                                    }
-                                });
-                                recyclerView.requestLayout(); // helps smooth transition
+                                applyNewSpan(glm, newSpan);
+                                accumulatedScale = 1f;
                             }
-                            accumulatedScale = 1f; // reset accumulator
                         }
-                        else if (accumulatedScale < 0.85f) {      // Pinch in → more columns (smaller items)
-                            int minSpan = 2; // getResources().getInteger(R.integer.radio_grid_span_min))
-                            int maxSpan = 10; // getResources().getInteger(R.integer.radio_grid_span_max))
-                            int newSpan = Math.max(Math.min(maxSpan, currentSpan[0] + 1), minSpan);
+                        // Pinch in → more columns (smaller cards)
+                        else if (accumulatedScale < 0.85f) {
+                            int newSpan = currentSpan[0] + 1;
+                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));   // proper clamp
+
                             if (newSpan != currentSpan[0]) {
                                 currentSpan[0] = newSpan;
-                                glm.setSpanCount(newSpan);
-                                glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                                    @Override
-                                    public int getSpanSize(int position) {
-                                        return position == 0 ? newSpan : 1;
-                                    }
-                                });
-                                recyclerView.requestLayout();
+                                applyNewSpan(glm, newSpan);
+                                accumulatedScale = 1f;
                             }
-                            accumulatedScale = 1f;
                         }
 
                         return true;
@@ -180,10 +165,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     @Override
                     public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
                         // Save preference when gesture finishes
-                        getPreferences(MODE_PRIVATE).edit()
-                                .putInt(PREF_RADIO_SPAN, currentSpan[0])
-                                .apply();
-
+                        Option.setRadioGridLayoutSpan(currentSpan[0]);
                         myLogI("Grid span changed to: " + currentSpan[0]);
                     }
                 });
@@ -483,5 +465,17 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         });
     }
 
+    private void applyNewSpan(GridLayoutManager glm, int newSpan) {
+        glm.setSpanCount(newSpan);
+        updateSpanSizeLookup(glm, newSpan);
+        recyclerView.requestLayout();
+    }
 
-}
+    private void updateSpanSizeLookup(GridLayoutManager glm, int spanCount) {
+        glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == 0 ? spanCount : 1;   // header takes full row
+            }
+        });
+    }}

@@ -261,6 +261,16 @@ public class Option {
         return prefs.getBoolean("RADIO_USE_CLOUDFARE", DEFAULT_RADIO_USE_CLOUDFARE);
     }
 
+
+    public static void setRadioGridLayoutSpan(int i) {
+        prefs.edit().putInt("RADIO_GRID_LAYOUT_SPAN", i).apply();
+    }
+
+    public static int getRadioGridLayoutSpan() {
+        return prefs.getInt("RADIO_GRID_LAYOUT_SPAN", -1); // because lives in res : /values/integers.xml
+    }
+
+
     public static boolean getRadioSleepCopy() {
         return prefs.getBoolean("RADIO_SLEEP_COPY", DEFAULT_RADIO_SLEEP_COPY);
     }
