@@ -47,40 +47,81 @@ public class FaviconResolver {
         new FaviconResolver(stationName, country, homepage, callback).start();
     }
 
+    /** Audio stream file extensions — no point scraping these as web pages. */
+    private static final String[] STREAM_EXTENSIONS =
+            { ".mp3", ".m3u8", ".m3u", ".aac", ".ogg", ".flac", ".wav", ".pls", ".xspf" };
+
+    private static boolean isStreamUrl(String url) {
+        if (url == null) return false;
+        String lower = url.toLowerCase().split("\\?")[0]; // strip query params before checking
+        for (String ext : STREAM_EXTENSIONS) {
+            if (lower.endsWith(ext)) return true;
+        }
+        return false;
+    }
+
     private void start() {
-        if (!TextUtils.isEmpty(homepage)) {
+        if (!TextUtils.isEmpty(homepage) && !isStreamUrl(homepage)) {
             tryOgImage();
         } else {
+            if (isStreamUrl(homepage))
+                log("[" + stationName + "] step 1/OG: skipped — homepage is a stream URL");
             tryWikipedia();
         }
     }
 
     // Step 1 — OG image from the station's homepage
     private void tryOgImage() {
+        log("[" + stationName + "] step 1/OG: trying og:image from " + homepage);
         fetchOgImage(homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
             if (url != null) {
-                log("[" + stationName + "] => og image found");
+                log("[" + stationName + "] step 1/OG: found => " + url);
                 callback.accept(url);
             } else {
+                log("[" + stationName + "] step 1/OG: not found, trying google favicon");
                 tryGoogleFavicon();
             }
         });
     }
 
-    // Step 2 — Google favicon service (fallback when og:image is absent)
+    // Step 2 — Google favicon service; probed via HEAD before accepting (returns 404 for some domains)
     private void tryGoogleFavicon() {
-        String url = "https://www.google.com/s2/favicons?sz=256&domain=" + homepage;
-        log("[" + stationName + "] => using google favicon");
-        callback.accept(url); // Google always returns something; treat as terminal
+        String host = homepage;
+        try { host = new java.net.URL(homepage).getHost(); } catch (Exception ignored) {}
+        final String faviconUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + host;
+        log("[" + stationName + "] step 2/GF: probing => " + faviconUrl);
+        new Thread(() -> {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new java.net.URL(faviconUrl).openConnection();
+                conn.setRequestMethod("HEAD");
+                conn.setConnectTimeout(3000);
+                conn.setReadTimeout(3000);
+                conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+                int code = conn.getResponseCode();
+                conn.disconnect();
+                if (code == 200) {
+                    log("[" + stationName + "] step 2/GF: found (HTTP 200) => " + faviconUrl);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.accept(faviconUrl));
+                } else {
+                    log("[" + stationName + "] step 2/GF: HTTP " + code + ", trying wikipedia");
+                    new Handler(Looper.getMainLooper()).post(this::tryWikipedia);
+                }
+            } catch (Exception e) {
+                log("[" + stationName + "] step 2/GF: error (" + e.getMessage() + "), trying wikipedia");
+                new Handler(Looper.getMainLooper()).post(this::tryWikipedia);
+            }
+        }).start();
     }
 
     // Step 3 — Wikipedia page image (used when there is no homepage at all)
     private void tryWikipedia() {
+        log("[" + stationName + "] step 3/WP: trying wikipedia");
         fetchFallbackBySearch(stationName, country, url -> {
             if (url != null) {
-                log("[" + stationName + "] => Wikipedia image found");
+                log("[" + stationName + "] step 3/WP: found => " + url);
                 callback.accept(url);
             } else {
+                log("[" + stationName + "] step 3/WP: not found, trying iTunes");
                 tryItunes();
             }
         });
@@ -88,11 +129,12 @@ public class FaviconResolver {
 
     // Step 4 — iTunes artwork (last resort)
     private void tryItunes() {
+        log("[" + stationName + "] step 4/ITN: trying iTunes");
         fetchFallbackImage(stationName, country, url -> {
             if (url != null) {
-                log("[" + stationName + "] => iTunes image found");
+                log("[" + stationName + "] step 4/ITN: found => " + url);
             } else {
-                log("[" + stationName + "] => no image found at all");
+                log("[" + stationName + "] step 4/ITN: not found — no image at all");
             }
             callback.accept(url); // may be null — caller handles it
         });
