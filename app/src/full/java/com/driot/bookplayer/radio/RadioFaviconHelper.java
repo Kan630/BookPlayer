@@ -122,7 +122,7 @@ public class RadioFaviconHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 File dir = StorageHelper.getImageFolder(context, isCached);
-                File outFile = new File(dir, uuid + ".jpg");
+                File outFile = new File(dir, "radio_cover_" + uuid + ".jpg");
 
                 if (outFile.exists() && outFile.length() > 0) {
                     myLogDD("downloadAndSaveFavicon already on disk: " + outFile.getAbsolutePath());
@@ -158,7 +158,7 @@ public class RadioFaviconHelper {
                 }
 
             } catch (Exception e) {
-                myLogW("downloadAndSaveFavicon failed for " + uuid + ": " + e.getMessage());
+                myLogW("downloadAndSaveFavicon failed for " + url + ": " + e.getMessage());
             }
         });
     }
