@@ -97,27 +97,25 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         new NetworkStatusRowController(this, networkRowView, this, netVm);
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
-        int minSpan = getResources().getInteger(R.integer.radio_grid_span_min);     // add this to integers.xml
-        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_max);     // add this
+        int minSpan = getResources().getInteger(R.integer.radio_grid_span_min);
+        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_max);
         int defaultSpan = getResources().getInteger(R.integer.radio_grid_span_station);
 
+        // Create GridLayoutManager with default first
         final GridLayoutManager glm = new GridLayoutManager(this, defaultSpan);
-        glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                return position == 0 ? defaultSpan : 1;
-            }
-        });
+
         recyclerView.setLayoutManager(glm);
 
         recyclerView.addItemDecoration(
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
 
-// Load saved value with proper clamping
+        // Load saved span and clamp it
         int savedSpan = Option.getRadioGridLayoutSpan();
         savedSpan = Math.max(minSpan, Math.min(maxSpan, savedSpan));
 
+        // IMPORTANT: Set both span count AND update SpanSizeLookup together
         glm.setSpanCount(savedSpan);
+        updateSpanSizeLookup(glm, savedSpan);
 
         final int[] currentSpan = {savedSpan};
 
@@ -136,10 +134,9 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     public boolean onScale(@NonNull ScaleGestureDetector detector) {
                         accumulatedScale *= detector.getScaleFactor();
 
-                        // Pinch out → fewer columns (bigger cards)
-                        if (accumulatedScale > 1.15f) {
+                        if (accumulatedScale > 1.15f) {           // Pinch out → fewer columns
                             int newSpan = currentSpan[0] - 1;
-                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));   // proper clamp
+                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));
 
                             if (newSpan != currentSpan[0]) {
                                 currentSpan[0] = newSpan;
@@ -147,10 +144,9 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                 accumulatedScale = 1f;
                             }
                         }
-                        // Pinch in → more columns (smaller cards)
-                        else if (accumulatedScale < 0.85f) {
+                        else if (accumulatedScale < 0.85f) {      // Pinch in → more columns
                             int newSpan = currentSpan[0] + 1;
-                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));   // proper clamp
+                            newSpan = Math.max(minSpan, Math.min(maxSpan, newSpan));
 
                             if (newSpan != currentSpan[0]) {
                                 currentSpan[0] = newSpan;
@@ -158,13 +154,11 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                 accumulatedScale = 1f;
                             }
                         }
-
                         return true;
                     }
 
                     @Override
                     public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
-                        // Save preference when gesture finishes
                         Option.setRadioGridLayoutSpan(currentSpan[0]);
                         myLogI("Grid span changed to: " + currentSpan[0]);
                     }
@@ -446,6 +440,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 scaleDetector.onTouchEvent(e);
 
+                /*
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     myLogI("TOUCH Reader: ACTION_DOWN " + e.getX() + "," + e.getY());
                 } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
@@ -455,6 +450,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 } else if (e.getAction() == MotionEvent.ACTION_CANCEL) {
                     myLogI("TOUCH Reader: ACTION_CANCEL");
                 }
+
+                 */
                 return false;
             }
 
