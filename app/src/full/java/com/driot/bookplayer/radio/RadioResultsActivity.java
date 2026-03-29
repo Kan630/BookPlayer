@@ -86,7 +86,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
 
         // ---- Grid layout ----
-        int span = getResources().getInteger(R.integer.radio_grid_span_station);
+        int span = getResources().getInteger(R.integer.radio_grid_span_station_default);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override public int getSpanSize(int position) {

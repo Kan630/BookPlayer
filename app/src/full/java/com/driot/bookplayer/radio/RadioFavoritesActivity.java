@@ -1,7 +1,5 @@
 package com.driot.bookplayer.radio;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogI;
-
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -97,9 +95,9 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         new NetworkStatusRowController(this, networkRowView, this, netVm);
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
-        int minSpan = getResources().getInteger(R.integer.radio_grid_span_min);
-        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_max);
-        int defaultSpan = getResources().getInteger(R.integer.radio_grid_span_station);
+        int minSpan = getResources().getInteger(R.integer.radio_grid_span_station_min);
+        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_station_max);
+        int defaultSpan = getResources().getInteger(R.integer.radio_grid_span_station_default);
 
         // Create GridLayoutManager with default first
         final GridLayoutManager glm = new GridLayoutManager(this, defaultSpan);

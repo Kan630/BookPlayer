@@ -2,8 +2,12 @@
 
 <resources>
     <integer name="classic_grid_span">2</integer>
-    <integer name="radio_grid_span_station">6</integer>
     <integer name="radio_grid_span_card_tag">4</integer>
     <integer name="radio_grid_span_card_country">6</integer>
     <integer name="heatmaps_cursor_size_dp">4</integer>
+
+    <integer name="radio_grid_span_station_default">5</integer>
+    <integer name="radio_grid_span_station_min">3</integer>
+    <integer name="radio_grid_span_station_max">8</integer>
+
 </resources>

@@ -2,9 +2,11 @@
     <!-- phones -->
 
     <integer name="classic_grid_span">1</integer>
-    <integer name="radio_grid_span_min">2</integer>
-    <integer name="radio_grid_span_max">10</integer>
-    <integer name="radio_grid_span_station">3</integer>
+
+    <integer name="radio_grid_span_station_default">3</integer>
+    <integer name="radio_grid_span_station_min">2</integer>
+    <integer name="radio_grid_span_station_max">6</integer>
+
     <integer name="radio_grid_span_card_tag">2</integer>
     <integer name="radio_grid_span_card_country">3</integer>
     <integer name="heatmaps_cursor_size_dp">2</integer>
