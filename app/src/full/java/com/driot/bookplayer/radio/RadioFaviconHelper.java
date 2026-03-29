@@ -57,6 +57,17 @@ public class RadioFaviconHelper {
             return;
         }
 
+        // Step 1b — disk cache hit: load local file immediately, no network needed
+        File diskFile = new File(StorageHelper.getImageFolder(context, true),
+                "radio_cover_" + s.stationuuid + ".jpg");
+        if (diskFile.exists() && diskFile.length() > 0) {
+            String localPath = diskFile.getAbsolutePath();
+            myLogDD("step 1b/disk-cache: [" + s.name + "] hit => " + diskFile.getName());
+            faviconCache.put(s.stationuuid, localPath);
+            GlideLoader.load(favicon, localPath, replacementResource);
+            return;
+        }
+
         // No cache — reset to default while resolving
         GlideLoader.clear(favicon, replacementResource);
 
