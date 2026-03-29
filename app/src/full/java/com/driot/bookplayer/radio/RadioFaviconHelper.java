@@ -152,8 +152,11 @@ public class RadioFaviconHelper {
                     return;
                 }
 
-                // SVG files are not decodable by Glide without an extra library — skip them
-                if (url.toLowerCase().contains(".svg")) {
+                // SVG files are not decodable by Glide without an extra library — skip them.
+                // Only reject true SVGs; Wikimedia thumbnails look like "logo.svg/300px-logo.svg.png"
+                // and are actually PNGs, so check the path ending, not a substring.
+                String urlPath = url.split("\\?")[0].toLowerCase();
+                if (urlPath.endsWith(".svg")) {
                     myLogDD("step D/skip: [" + stationName + "] SVG not supported — " + url);
                     return;
                 }

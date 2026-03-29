@@ -127,17 +127,56 @@ public class FaviconResolver {
         });
     }
 
-    // Step 4 — iTunes artwork (last resort)
+    // Step 4 — iTunes artwork
     private void tryItunes() {
         log("[" + stationName + "] step 4/ITN: trying iTunes");
         fetchFallbackImage(stationName, country, url -> {
             if (url != null) {
                 log("[" + stationName + "] step 4/ITN: found => " + url);
+                callback.accept(url);
             } else {
-                log("[" + stationName + "] step 4/ITN: not found — no image at all");
+                log("[" + stationName + "] step 4/ITN: not found, trying bing image search");
+                tryImageSearch();
             }
-            callback.accept(url); // may be null — caller handles it
         });
+    }
+
+    // Step 5 — Bing Image Search for "stationName radio"
+    // (Google Images blocks programmatic requests; Bing HTML is parseable with jsoup)
+    private void tryImageSearch() {
+        log("[" + stationName + "] step 5/IS: searching bing images for \"" + stationName + " radio\"");
+        new Thread(() -> {
+            String result = null;
+            try {
+                String query = URLEncoder.encode(stationName + " radio", "UTF-8");
+                org.jsoup.nodes.Document doc = org.jsoup.Jsoup
+                        .connect("https://www.bing.com/images/search?q=" + query + "&FORM=HDRSC2")
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                        .header("Accept-Language", "en-US,en;q=0.9")
+                        .timeout(5000)
+                        .get();
+                // Each result is <a class="iusc" m='{"murl":"FULL_URL","turl":"THUMB_URL",...}'>
+                for (org.jsoup.nodes.Element item : doc.select("a.iusc")) {
+                    try {
+                        org.json.JSONObject m = new org.json.JSONObject(item.attr("m"));
+                        String url = m.optString("murl");
+                        if (!url.isEmpty() && url.startsWith("http")) {
+                            result = url;
+                            break;
+                        }
+                    } catch (Exception ignored) {}
+                }
+                if (result != null) {
+                    log("[" + stationName + "] step 5/IS: found => " + result);
+                } else {
+                    log("[" + stationName + "] step 5/IS: no image found");
+                }
+            } catch (Exception e) {
+                log("[" + stationName + "] step 5/IS: error — " + e.getMessage());
+            }
+            final String r = result;
+            new Handler(Looper.getMainLooper()).post(() -> callback.accept(r));
+        }).start();
     }
 
     // -------------------------------------------------------------------------
@@ -150,7 +189,8 @@ public class FaviconResolver {
             try {
                 org.jsoup.nodes.Document doc = org.jsoup.Jsoup.connect(homeUrl).timeout(timeoutMs).get();
                 String img = doc.select("meta[property=og:image]").attr("content");
-                if (!img.isEmpty()) result = img;
+                // Reject relative paths — only accept absolute HTTP URLs
+                if (!img.isEmpty() && img.startsWith("http")) result = img;
             } catch (Exception ignored) {}
             final String r = result;
             new Handler(Looper.getMainLooper()).post(() -> callback.accept(r));
