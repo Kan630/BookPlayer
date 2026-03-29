@@ -1,6 +1,7 @@
 package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.helpers.GridScaleGestureHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -86,16 +88,35 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
 
         // ---- Grid layout ----
-        int span = getResources().getInteger(R.integer.radio_grid_span_station_default);
-        GridLayoutManager glm = new GridLayoutManager(this, span);
-        glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override public int getSpanSize(int position) {
-                return position == 0 ? span : 1;
+        int minSpan = getResources().getInteger(R.integer.radio_grid_span_station_min);
+        int maxSpan = getResources().getInteger(R.integer.radio_grid_span_station_max);
+        int defaultSpan = getResources().getInteger(R.integer.radio_grid_span_station_default);
+
+        final GridLayoutManager glm = new GridLayoutManager(this, defaultSpan);
+        recyclerView.setLayoutManager(glm);
+
+        recyclerView.addItemDecoration(
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
+
+        GridScaleGestureHelper scaleHelper = new GridScaleGestureHelper(
+                recyclerView,
+                minSpan,
+                maxSpan,
+                defaultSpan,
+                "RADIO_GRID_LAYOUT_SPAN"
+        );
+        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleHelper.onTouchEvent(e);
+                return false;   // important: let other listeners (ItemTouchHelper, clicks) still work
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleHelper.onTouchEvent(e);
             }
         });
-        recyclerView.setLayoutManager(glm);
-        recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         // ---- Adapter ----
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
