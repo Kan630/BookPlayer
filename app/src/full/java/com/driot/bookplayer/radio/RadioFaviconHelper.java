@@ -34,7 +34,7 @@ import java.util.Set;
 
 public class RadioFaviconHelper {
 
-    public static final boolean VERBOSE_DEBUG = true;
+    public static final boolean VERBOSE_DEBUG = false;
     private static void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
 
     private static final int MAX_FAVICON_SIZE_BYTES = 20_480; // 20 KB
