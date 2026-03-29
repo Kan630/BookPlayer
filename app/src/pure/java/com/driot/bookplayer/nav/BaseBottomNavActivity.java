@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
@@ -41,11 +42,18 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         return false;
     }
 
+    /**
+     * Override to declare the "section parent" of this activity.
+     * - null (default): this activity IS the section root → back goes to MainActivity.
+     * - non-null: back navigates to that activity (which must itself be IS_SECTION_ROOT).
+     */
+    @Nullable
+    protected Class<? extends BaseBottomNavActivity> getSectionParent() { return null; }
+
     private NavigationBarView bottomNav;
-
     private boolean navSelectionFromCode = false;
-
     private final boolean VERBOSE_DEBUG = false;
+    private OnBackPressedCallback sectionRootBackCallback = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,26 +93,39 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         }
     }
 
-    /**
-     * For non-library section roots (launched via bottom nav): back goes to MainActivity.
-     * Library root (MainActivity) handles its own back callback.
-     * Child activities (no EXTRA_IS_SECTION_ROOT) fall through to normal Android back.
-     */
     private void registerSectionRootBackCallback() {
-        boolean isSectionRoot = getIntent().getBooleanExtra(Intents.EXTRA_IS_SECTION_ROOT, false);
-        if (!isSectionRoot) return;
-        if (getNavId() == R.id.nav_library) return;
+        if (sectionRootBackCallback != null) return;
+        if (!getIntent().getBooleanExtra(Intents.EXTRA_IS_SECTION_ROOT, false)) return;
 
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+        Class<? extends BaseBottomNavActivity> parent = getSectionParent();
+
+        sectionRootBackCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                myLogI("--- USER CLICK BACK from section root [" + getClass().getSimpleName() + "] --- navigate to MainActivity ---");
-                Intent intent = new Intent(BaseBottomNavActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                overridePendingTransition(0, 0);
+                if (parent == null) {
+                    myLogI("--- BACK from section root [" + getClass().getSimpleName() + "] → MainActivity ---");
+                    Intent intent = new Intent(BaseBottomNavActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                } else {
+                    myLogI("--- BACK from [" + getClass().getSimpleName() + "] → " + parent.getSimpleName() + " ---");
+                    Intent intent = new Intent(BaseBottomNavActivity.this, parent);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                }
             }
-        });
+        };
+        getOnBackPressedDispatcher().addCallback(this, sectionRootBackCallback);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        registerSectionRootBackCallback();
     }
 
     private void setupBottomNav() {

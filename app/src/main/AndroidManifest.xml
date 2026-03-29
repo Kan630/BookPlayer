@@ -139,21 +139,28 @@
             android:exported="false" />
 
 
-        <activity android:name=".radio.RadioResultsActivity" />
-        <activity android:name=".radio.RadioFavoritesActivity" />
-        <activity android:name=".radio.RadioStationActivity" />
-        <activity android:name=".podcasts.PodcastSearchResultsActivity"/>
-        <activity android:name=".podcasts.PodcastEpisodeActivity"
-            android:launchMode="singleTop"
-            />
-        <activity android:name=".podcasts.PodcastFavoritesActivity"/>
-        <activity android:name=".podcasts.GetPodcastActivity" />
         <activity android:name=".radio.GetRadioActivity"
             android:launchMode="singleTop"
             />
+        <activity android:name=".radio.RadioFavoritesActivity"
+            android:parentActivityName=".radio.GetRadioActivity"
+            />
         <activity android:name=".radio.GetRadioCardListActivity" />
-        
-        
+        <activity android:name=".radio.RadioResultsActivity" />
+        <activity android:name=".radio.RadioStationActivity" />
+
+        <activity android:name=".podcasts.GetPodcastActivity"
+            android:parentActivityName=".activities.MainActivity"
+            />
+        <activity android:name=".podcasts.PodcastFavoritesActivity"
+            android:parentActivityName=".podcasts.GetPodcastActivity"
+            />
+        <activity android:name=".podcasts.PodcastSearchResultsActivity"
+            />
+        <activity android:name=".podcasts.PodcastEpisodeActivity"
+            android:launchMode="singleTop"
+            />
+
         <activity
             android:name=".activities.SettingsHostActivity"
             android:exported="false"

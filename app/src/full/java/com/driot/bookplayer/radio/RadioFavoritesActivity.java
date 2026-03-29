@@ -52,6 +52,12 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
+    /** Back from favorites goes up to the radio search root, not straight to MainActivity. */
+    @Override
+    protected Class<? extends com.driot.bookplayer.nav.BaseBottomNavActivity> getSectionParent() {
+        return GetRadioActivity.class;
+    }
+
     @Override
     protected int getNavId() {
         return R.id.nav_radio;

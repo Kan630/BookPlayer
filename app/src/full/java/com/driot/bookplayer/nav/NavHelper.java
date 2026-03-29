@@ -13,6 +13,7 @@ import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.podcasts.GetPodcastActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.podcasts.PodcastFavoritesActivity;
 import com.driot.bookplayer.radio.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.radio.RadioFavoritesActivity;
@@ -166,58 +167,85 @@ public class NavHelper {
 
         int currentItemId = navState.getCurrentBottomNavId();
 
-        // 1. Resolve target Intent
-        Intent targetIntent = navState.getLastIntent(itemId);
-        
-        if (targetIntent == null) {
-            // No saved state for this tab — create a fresh root intent and mark it as section root
-            if (itemId == R.id.nav_radio) {
-                targetIntent = new Intent(activity, GetRadioActivity.class);
-            } else if (itemId == R.id.nav_podcast) {
-                targetIntent = new Intent(activity, GetPodcastActivity.class);
-            } else if (itemId == R.id.nav_settings) {
-                targetIntent = new Intent(activity, SettingsActivity.class);
-            } else if (itemId == R.id.nav_library) {
-                targetIntent = new Intent(activity, MainActivity.class);
-            } else if (itemId == R.id.nav_add) {
-                targetIntent = new Intent(activity, GetActivity.class);
-            }
-            if (targetIntent != null) {
-                targetIntent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
-            }
-        } else {
-            // Ensure we don't carry over stale flags from previous saves
-            targetIntent.setFlags(0);
-        }
-
-        if (targetIntent == null) return false;
-
-        // 2. Handle same-tab click (refresh/back to root)
+        // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
-            // Standard behavior: pop to root of this tab.
-            Intent rootIntent = null;
-            if (itemId == R.id.nav_radio) rootIntent = new Intent(activity, GetRadioActivity.class);
-            else if (itemId == R.id.nav_podcast) rootIntent = new Intent(activity, GetPodcastActivity.class);
-            else if (itemId == R.id.nav_library) rootIntent = new Intent(activity, MainActivity.class);
-            else if (itemId == R.id.nav_add) rootIntent = new Intent(activity, GetActivity.class);
-            else if (itemId == R.id.nav_settings) rootIntent = new Intent(activity, SettingsActivity.class);
-
+            Intent rootIntent = buildSectionRootIntent(activity, itemId);
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                rootIntent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
                 activity.startActivity(rootIntent);
             }
             return true;
         }
 
-        // 3. Switch to different tab
-        targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        activity.startActivity(targetIntent);
+        // 2. Switch to different tab — restore saved state or start fresh
+        Intent targetIntent = navState.getLastIntent(itemId);
+
+        if (targetIntent != null) {
+            targetIntent.setFlags(0);
+            targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            activity.startActivity(targetIntent);
+        } else {
+            startFreshSectionRoot(activity, itemId);
+        }
+
         activity.overridePendingTransition(0, 0);
-
         navState.setCurrentBottomNavId(itemId);
-
         return true;
+    }
+
+    /**
+     * Starts the section for the first time (no saved state).
+     * When "open favorites first" is ON for radio/podcast, uses TaskStackBuilder to place
+     * the true root (GetRadioActivity / GetPodcastActivity) below the favorites screen,
+     * so the system back button navigates correctly:
+     *   PodcastFavoritesActivity → GetPodcastActivity → MainActivity
+     * When OFF, starts the root activity directly.
+     */
+    private void startFreshSectionRoot(Activity activity, int itemId) {
+        boolean favFirst = (itemId == R.id.nav_radio && Option.getRadioOpenFavoritesFirst())
+                        || (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst());
+
+        if (favFirst) {
+            Class<?> rootClass = (itemId == R.id.nav_radio) ? GetRadioActivity.class : GetPodcastActivity.class;
+            Class<?> favClass  = (itemId == R.id.nav_radio) ? RadioFavoritesActivity.class : PodcastFavoritesActivity.class;
+            TaskStackBuilder.create(activity)
+                    .addNextIntent(new Intent(activity, rootClass)
+                            .putExtra(Intents.EXTRA_IS_SECTION_ROOT, true))
+                    .addNextIntent(new Intent(activity, favClass))
+                    .startActivities();
+        } else {
+            Intent rootIntent = buildSectionRootIntent(activity, itemId);
+            if (rootIntent != null) {
+                rootIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(rootIntent);
+            }
+        }
+    }
+
+    /**
+     * Returns the true section root intent for a given bottom nav tab.
+     * For radio/podcast this is always the browse/search activity, regardless of the
+     * "open favorites first" option — favorites are layered on top by startFreshSectionRoot.
+     * IS_SECTION_ROOT is stamped on all tabs except Library so the back callback fires.
+     */
+    private Intent buildSectionRootIntent(Activity activity, int itemId) {
+        Intent intent = null;
+        if (itemId == R.id.nav_radio) {
+            intent = new Intent(activity, GetRadioActivity.class);
+        } else if (itemId == R.id.nav_podcast) {
+            intent = new Intent(activity, GetPodcastActivity.class);
+        } else if (itemId == R.id.nav_settings) {
+            intent = new Intent(activity, SettingsActivity.class);
+        } else if (itemId == R.id.nav_library) {
+            intent = new Intent(activity, MainActivity.class);
+        } else if (itemId == R.id.nav_add) {
+            intent = new Intent(activity, GetActivity.class);
+        }
+        // Library root (MainActivity) handles its own back — no need to stamp IS_SECTION_ROOT
+        if (intent != null && itemId != R.id.nav_library) {
+            intent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
+        }
+        return intent;
     }
 
     private static void myLogDD(String txt) {

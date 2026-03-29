@@ -209,7 +209,7 @@ public class MainActivity extends BaseBottomNavActivity {
                                     .setAction(Intents.EXTRA_CMD_STOP)
                                     .putExtra(Intents.EXTRA_CALLER, "press back from MainActivity"));
                 }
-                finish();
+                finishAffinity();
             }
         });
 

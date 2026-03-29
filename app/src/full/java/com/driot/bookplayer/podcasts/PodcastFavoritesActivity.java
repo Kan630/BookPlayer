@@ -35,6 +35,12 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
     private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
     private PodcastFavoritesRVAdapter adapter;
 
+    /** Back from favorites goes up to the podcast search root, not straight to MainActivity. */
+    @Override
+    protected Class<? extends com.driot.bookplayer.nav.BaseBottomNavActivity> getSectionParent() {
+        return GetPodcastActivity.class;
+    }
+
     @Override
     protected int getNavId() {
         return R.id.nav_podcast;
@@ -94,6 +100,7 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
                 myToast(getString(com.driot.bookplayer.R.string.no_favorite_podcasts_found));
                 adapter.setItems(Collections.emptyList());
                 adapter.notifyDataSetChanged();
+                finish();
             } else {
                 showResults(favorites, "Favorites", "");
             }
