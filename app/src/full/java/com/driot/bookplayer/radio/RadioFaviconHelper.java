@@ -27,7 +27,10 @@ import com.driot.bookplayer.utils.Tonio;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class RadioFaviconHelper {
 
@@ -36,6 +39,15 @@ public class RadioFaviconHelper {
 
     private static final int MAX_FAVICON_SIZE_BYTES = 20_480; // 20 KB
     private static final int FAVICON_PX = 256;
+
+    /**
+     * Guards against queuing the same UUID more than once concurrently.
+     * Without this, a station visible multiple times in a recycler scroll can trigger
+     * 3 parallel downloads that all receive the same Glide-cached Bitmap, then one
+     * thread recycles it while the others are still using it → SIGABRT.
+     */
+    private static final Set<String> inProgressDownloads =
+            Collections.synchronizedSet(new HashSet<>());
     /** Favicons at or below this size are treated as "small" and centered on a padded canvas. */
     private static final int FAVICON_SMALL_THRESHOLD_PX = 64;
     private static final int FAVICON_SMALL_BOX_PX = 64; // inner box size inside the 256×256 canvas
@@ -142,7 +154,24 @@ public class RadioFaviconHelper {
      */
     private static void downloadAndSaveFavicon(Context context, String uuid, String stationName,
                                                String url, boolean isCached) {
+        // --- Deduplication gate (main-thread call site) ----------------------------
+        // A station visible multiple times during a fast scroll can enqueue several
+        // concurrent jobs for the same UUID. All of them would receive the same
+        // Glide-cached Bitmap; the first job to finish recycles it and the others
+        // crash with "Error, cannot access an invalid/free'd bitmap here!".
+        if (!inProgressDownloads.add(uuid)) {
+            myLogDD("step D/skip: [" + stationName + "] already in progress, skipping duplicate");
+            return;
+        }
+
         AppDatabase.databaseWriteExecutor.execute(() -> {
+            // NEVER call downloaded.recycle() — Glide may hand the same cached Bitmap
+            // instance to concurrent callers. The dedup gate above ensures only one
+            // thread reaches this point per UUID, so we are safe; just let Glide's
+            // own ref-counting/pool manage the downloaded bitmap's lifetime.
+            Bitmap downloaded = null;
+            Bitmap bmp = null;
+
             try {
                 File dir = StorageHelper.getImageFolder(context, isCached);
                 File outFile = new File(dir, "radio_cover_" + uuid + ".jpg");
@@ -163,21 +192,25 @@ public class RadioFaviconHelper {
 
                 // Download capped at FAVICON_PX. Glide does NOT upscale, so a 16×16 favicon
                 // comes back as 16×16 — which lets us detect it and apply the gray canvas.
-                Bitmap downloaded = Glide.with(context)
+                downloaded = Glide.with(context)
                         .asBitmap()
                         .load(url)
                         .submit(FAVICON_PX, FAVICON_PX)
                         .get();
+
+                if (downloaded == null) {
+                    myLogW("step D/fail: [" + stationName + "] Glide returned null — " + url);
+                    return;
+                }
 
                 boolean isSmall = downloaded.getWidth() <= FAVICON_SMALL_THRESHOLD_PX
                         || downloaded.getHeight() <= FAVICON_SMALL_THRESHOLD_PX;
                 myLogDD("step D/dl: [" + stationName + "] downloaded " + downloaded.getWidth()
                         + "×" + downloaded.getHeight() + (isSmall ? " (small → gray canvas)" : ""));
 
-                Bitmap bmp = isSmall
+                bmp = isSmall
                         ? centerOnGrayCanvas(downloaded)
                         : Bitmap.createScaledBitmap(downloaded, FAVICON_PX, FAVICON_PX, true);
-                if (downloaded != bmp) downloaded.recycle();
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 int quality = 85;
@@ -201,10 +234,18 @@ public class RadioFaviconHelper {
                             .updateFavicon(uuid, outFile.getAbsolutePath());
                 }
 
-            } catch (Exception e) {
-                // Collapse verbose multi-line GlideException to a single useful line
+            } catch (Throwable e) {
+                // Catch Throwable (not just Exception) so OutOfMemoryError from bitmap
+                // operations doesn't escape and crash the process silently.
                 Throwable cause = e.getCause() != null ? e.getCause() : e;
                 myLogW("step D/fail: [" + stationName + "] " + cause.getMessage() + " — " + url);
+            } finally {
+                inProgressDownloads.remove(uuid);
+                // Recycle OUR bitmap (createScaledBitmap / centerOnGrayCanvas result).
+                // Guard against bmp == downloaded (createScaledBitmap returns the same
+                // instance when the source is already the right size — don't double-free).
+                // downloaded itself is intentionally NOT recycled; Glide manages it.
+                if (bmp != null && bmp != downloaded && !bmp.isRecycled()) bmp.recycle();
             }
         });
     }
