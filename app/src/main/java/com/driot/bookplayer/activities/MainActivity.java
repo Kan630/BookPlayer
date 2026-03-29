@@ -289,7 +289,7 @@ public class MainActivity extends FullActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.nav_radio || itemId == R.id.nav_podcast) {
-            if (navHelper.handleBottomNavClick(this, itemId)) {
+            if (navHelper.handleAppNavClick(this, itemId)) {
                 return true;
             }
         } else if (itemId == R.id.action_menu_three_dot) {
@@ -329,10 +329,10 @@ public class MainActivity extends FullActivity {
             startActivity(intent);
         } else if (itemId == R.id.menu_radio) {
             myLogI("--- USER clicks MENU : RADIO ---");
-            navHelper.handleBottomNavClick(this, R.id.nav_radio);
+            navHelper.handleAppNavClick(this, R.id.nav_radio);
         } else if (itemId == R.id.menu_podcast) {
             myLogI("--- USER clicks MENU : PODCAST ---");
-            navHelper.handleBottomNavClick(this, R.id.nav_podcast);
+            navHelper.handleAppNavClick(this, R.id.nav_podcast);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -362,7 +362,7 @@ public class MainActivity extends FullActivity {
         // Consume the extra so it won't re-trigger next time
         intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
 
-        navHelper.handleBottomNavClick(this, requestedNavId);
+        navHelper.handleAppNavClick(this, requestedNavId);
     }
 
     private void showSortOrderDialog() {

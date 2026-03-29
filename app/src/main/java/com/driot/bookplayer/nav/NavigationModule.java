@@ -1,5 +1,7 @@
 package com.driot.bookplayer.nav;
 
+import android.app.Application;
+import android.content.res.Resources;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -12,7 +14,13 @@ public class NavigationModule {
 
     @Provides
     @Singleton
-    public NavState provideNavState() {
-        return new NavState();
+    Resources provideResources(Application application) {
+        return application.getResources();
+    }
+
+    @Provides
+    @Singleton
+    NavState provideNavState(Resources resources) {
+        return new NavState(resources);
     }
 }

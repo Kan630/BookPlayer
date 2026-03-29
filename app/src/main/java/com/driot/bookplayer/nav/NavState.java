@@ -1,6 +1,8 @@
 package com.driot.bookplayer.nav;
 
 import android.content.Intent;
+import android.content.res.Resources;
+
 import com.driot.bookplayer.R;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,19 +16,21 @@ import javax.inject.Singleton;
 @Singleton
 public class NavState {
 
-    private int currentBottomNavId = R.id.nav_library;
+    private int currentAppNavId = R.id.nav_library;
     private final Map<Integer, Intent> lastIntents = new HashMap<>();
+    private final Resources resources;
 
     @Inject
-    public NavState() {
+    public NavState(Resources resources) {
+        this.resources = resources;
     }
 
-    public int getCurrentBottomNavId() {
-        return currentBottomNavId;
+    public int getCurrentAppNavId() {
+        return currentAppNavId;
     }
 
-    public void setCurrentBottomNavId(int id) {
-        this.currentBottomNavId = id;
+    public void setCurrentAppNavId(int id) {
+        this.currentAppNavId = id;
     }
 
     public void setLastIntent(int navId, Intent intent) {
@@ -37,5 +41,26 @@ public class NavState {
         return lastIntents.get(navId);
     }
 
+    private Resources getResources() {
+        return resources;
+    }
+
+    public String getCurrentNavName() {
+        return getNavName(currentAppNavId);
+    }
+
+    /**
+     * Returns the resource name for any given navigation ID.
+     * Useful if you need the name for a specific ID.
+     */
+    public String getNavName(int navId) {
+        try {
+            // This gets the actual name defined in res/values/ids.xml or wherever the IDs are declared
+            return getResources().getResourceEntryName(navId);
+        } catch (Exception e) {
+            // Fallback in case the ID is not found
+            return "unknown_nav_" + navId;
+        }
+    }
 
 }

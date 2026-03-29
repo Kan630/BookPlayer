@@ -51,10 +51,19 @@ public abstract class FullActivity extends BaseActivity {
 
     private NavigationBarView appNavBar;
     private boolean navSelectionFromCode = false;
-    private final boolean VERBOSE_DEBUG = false;
+    private final boolean VERBOSE_DEBUG = true;
     private OnBackPressedCallback sectionRootBackCallback = null;
 
     private void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
+
+    @Override
+    public void onBackPressed() {
+        myLogDD("--- user pressed BACK (FullActivity override) ---     on " + TAG_FROM_BRACKET);
+        myLogDD("current section :" + navState.getCurrentNavName());
+        myLogDD("last intent :" + navState.getLastIntent(navState.getCurrentAppNavId()));
+        //TODO if we have a specific stack, follow it instead of super that can lead to to another section like nav_id_library
+        super.onBackPressed(); // keep default behaviour (finish / navigate back)
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +177,7 @@ public abstract class FullActivity extends BaseActivity {
             myLogI("--- user click bottom Nav bar ---    item = "
                     + item.getItemId() + " - " + item.getTitle());
 
-            if (navHelper.handleBottomNavClick(FullActivity.this, item.getItemId())) {
+            if (navHelper.handleAppNavClick(FullActivity.this, item.getItemId())) {
                 return true;
             }
 
@@ -186,7 +195,7 @@ public abstract class FullActivity extends BaseActivity {
         int navId = getNavId();
         if (navId != 0 && navState != null) {
             navState.setLastIntent(navId, getIntent());
-            navState.setCurrentBottomNavId(navId);
+            navState.setCurrentAppNavId(navId);
         }
 
         if (appNavBar != null) {

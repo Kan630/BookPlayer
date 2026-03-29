@@ -34,7 +34,7 @@ import javax.inject.Singleton;
 public class NavHelper {
 
     private final NavState navState;
-    private static final boolean VERBOSE_DEBUG = false;
+    private static final boolean VERBOSE_DEBUG = true;
 
     @Inject
     public NavHelper(NavState navState) {
@@ -162,34 +162,42 @@ public class NavHelper {
      * Handles clicks on the bottom navigation bar.
      * Uses NavState to restore the last activity for the tab if available.
      */
-    public boolean handleBottomNavClick(Activity activity, int itemId) {
-        myLogDD("NavHelper.handleBottomNavClick id=" + itemId);
+    public boolean handleAppNavClick(Activity activity, int itemId) {
+        myLogDD("NavHelper.handleAppNavClick id=" + itemId + " - activity:" + activity.getComponentName());
 
-        int currentItemId = navState.getCurrentBottomNavId();
+        int currentItemId = navState.getCurrentAppNavId();
+        myLogDD("navState.getCurrentNavName() " + navState.getCurrentNavName() + " - " + navState.getCurrentAppNavId());
 
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
+            myLogDD("appNavBar: Same-tab click");
             Intent rootIntent = buildSectionRootIntent(activity, itemId);
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 activity.startActivity(rootIntent);
+            } else {
+                myLogE("no root intent");
             }
             return true;
         }
 
         // 2. Switch to different tab — restore saved state or start fresh
+        myLogDD("appNavBar: other tab click ");
+
         Intent targetIntent = navState.getLastIntent(itemId);
 
         if (targetIntent != null) {
             targetIntent.setFlags(0);
             targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             activity.startActivity(targetIntent);
+            myLogDD("appNavBar: has a saved targetIntent : " + targetIntent);
         } else {
             startFreshSectionRoot(activity, itemId);
+            myLogDD("appNavBar: no saved targetIntent");
         }
 
         activity.overridePendingTransition(0, 0);
-        navState.setCurrentBottomNavId(itemId);
+        navState.setCurrentAppNavId(itemId);
         return true;
     }
 
