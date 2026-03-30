@@ -3,11 +3,17 @@ package com.driot.bookplayer.nav;
 import android.content.Context;
 import android.content.Intent;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.AddResourceActivity;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
+import com.driot.bookplayer.imports.ImportBookMultipleActivity;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -81,6 +87,27 @@ public class NavState {
         java.util.Deque<Intent> stack = navStacks.get(navId);
         if (stack != null) stack.clear();
         myLogDD(navId + " clear");
+    }
+
+    /**
+     * Removes AddResourceActivity, ImportBookSingleActivity and ImportBookMultipleActivity
+     * from the nav_add stack, leaving any other entries intact.
+     */
+    public void removeAddBookNavSpecial() {
+        Deque<Intent> stack = navStacks.get(R.id.nav_add);
+        if (stack == null || stack.isEmpty()) return;
+
+        Set<String> toRemove = new HashSet<>(Arrays.asList(
+                AddResourceActivity.class.getName(),
+                ImportBookSingleActivity.class.getName(),
+                ImportBookMultipleActivity.class.getName()
+        ));
+
+        stack.removeIf(intent ->
+                intent.getComponent() != null
+                && toRemove.contains(intent.getComponent().getClassName())
+        );
+        myLogDD("removeAddBookNavSpecial done, remaining stack size=" + stack.size());
     }
 
     public String getSectionName(Context ctx, int navId) {

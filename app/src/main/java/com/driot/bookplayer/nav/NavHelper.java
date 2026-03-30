@@ -44,10 +44,6 @@ public class NavHelper {
         navState.removeAddBookNavSpecial();
     }
 
-    public void removeAddBookNavSpecial() {
-        navState.clear(R.id.nav_add);
-    }
-
     public static PendingIntent navigateToMain(Context context) {
         // ... (existing static methods stay as they are if they don't need NavState)
         final int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
