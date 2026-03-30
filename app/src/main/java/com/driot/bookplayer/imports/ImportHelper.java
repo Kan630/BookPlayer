@@ -126,6 +126,8 @@ public class ImportHelper {
         myLogD("Cleanup starting (bg)…   - deleteBook = [" + deleteBook + "] - futureFolderPath = [" + futureFolderPath
                 + "]");
 
+        navHelper.removeAddBookNavSpecial();
+
         // 3) Delete the unzip/working folder iff it's internal AND not referenced in DB
         if (deleteBook) {
             try {

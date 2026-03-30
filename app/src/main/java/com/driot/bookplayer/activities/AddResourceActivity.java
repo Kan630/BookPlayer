@@ -182,7 +182,6 @@ public class AddResourceActivity extends FullActivity {
     private void enterExitMode() {
         myLog("enterExitMode");
         didEnterExitMode = true;
-        navHelper.removeAddBookNavSpecial();
         bPauseResume.setVisibility(View.GONE);
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {

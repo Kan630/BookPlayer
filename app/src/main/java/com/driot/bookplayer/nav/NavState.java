@@ -95,6 +95,7 @@ public class NavState {
      */
     public void removeAddBookNavSpecial() {
         Deque<Intent> stack = navStacks.get(R.id.nav_add);
+        myLogDD("removeAddBookNavSpecial init, stack size=" + (stack == null ? 0 : stack.size()));
         if (stack == null || stack.isEmpty()) return;
 
         Set<String> toRemove = new HashSet<>(Arrays.asList(
