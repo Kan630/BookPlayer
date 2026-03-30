@@ -165,10 +165,21 @@ public abstract class FullActivity extends BaseActivity {
                 "Use getLayoutResId() in FullActivity instead of setContentView()");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int sectionId = getNavSectionId();
+        if (sectionId > 0) {
+            selectAppNavItemFromCode(sectionId);
+            navState.setCurrentAppNavBarId(sectionId);
+        }
+    }
+
     private void selectAppNavItemFromCode(int itemId) {
         if (appNavBarView == null) return;
         navSelectionFromCode = true;
         appNavBarView.setSelectedItemId(itemId);
+        navSelectionFromCode = false; // safety: if item already selected, listener won't fire to reset it
     }
 
 }

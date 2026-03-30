@@ -88,7 +88,7 @@ public class NavHelper {
      * Uses NavState to restore the last activity for the tab if available.
      */
     public boolean handleAppNavBarClick(Activity activity, int itemId) {
-        myLogDD("NavHelper.handleBottomNavClick id=" + itemId);
+        myLogDD("NavHelper.handleAppNavBarClick id=" + itemId);
 
         int currentItemId = navState.getCurrentAppNavBarId();
 
