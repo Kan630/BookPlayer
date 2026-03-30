@@ -36,13 +36,6 @@ public class NavState {
         this.currentBottomNavId = id;
     }
 
-    /*
-    public void push(int navId, Intent intent) {
-        navStacks.computeIfAbsent(navId, k -> new java.util.ArrayDeque<>()).push(intent);
-        myLogDD(navId + " pushing " + intent);
-    }
-     */
-
     public void push(int navId, Intent newIntent) {
         Deque<Intent> stack = navStacks.computeIfAbsent(navId, k -> new ArrayDeque<>());
 
