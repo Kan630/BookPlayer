@@ -45,11 +45,14 @@ import com.driot.bookplayer.nav.NavState;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 
 /**
  * This abstract class extends the Activity class and overrides
  * lifecycle callbacks for logging various lifecycle events.
  */
+@AndroidEntryPoint
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Inject protected NavState navState;
@@ -120,18 +123,20 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
 
-        navState = new NavState();
+        super.onCreate(savedInstanceState); //Hilt injection here
+
         int navId = getNavSectionId();
         if (navId > 0) {
             boolean fromTabSwitch = getIntent().getBooleanExtra("FROM_TAB_SWITCH", false);
             if (!fromTabSwitch) {
-                navState.push(navId, getIntent());
+                myLog("push new nav item");
+                navState.push(navId, new Intent(getIntent()));
+            } else {
+                myLog("tab switch, no navStack push");
             }
         }
 
         registerBackCallback();
-
-        super.onCreate(savedInstanceState);
 
         String calledBy = CallerInspector.inferCaller(this, Intents.EXTRA_CALLER);
 
@@ -463,6 +468,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         Intent previous = navState.pop(getNavSectionId());
 
                         if (previous != null) {
+                            previous = new Intent(previous);
                             myLogI("--- user press BACK --- inside section " + navSectionName + " -> going the previous in the stack");
                             previous.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(previous);
