@@ -40,20 +40,9 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         return Option.getDisplayBottomNavBar();
     }
 
-    /**
-     * Override to declare the "section parent" of this activity.
-     * - null (default): this activity IS the section root → back goes to MainActivity.
-     * - non-null: back navigates to that activity (which must itself be IS_SECTION_ROOT).
-     *
-     * Example chain: RadioFavoritesActivity(parent=GetRadioActivity) → GetRadioActivity(root) → MainActivity
-     */
-    @Nullable
-    protected Class<? extends BaseBottomNavActivity> getSectionParent() { return null; }
-
     private NavigationBarView bottomNav;
     private boolean navSelectionFromCode = false;
     private final boolean VERBOSE_DEBUG = false;
-    private OnBackPressedCallback sectionRootBackCallback = null;
 
     private void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
 
@@ -82,7 +71,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         }
 
         setupBottomNav();
-        registerSectionRootBackCallback();
 
         // Apply window insets to miniNowPlaying:
         // - side insets (sys.left/right) always, to handle landscape nav bar on the side
@@ -136,54 +124,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
                 bottomNav.setVisibility(View.GONE);
             }
         }
-    }
-
-    /**
-     * Registers a back callback for activities that are section roots (IS_SECTION_ROOT=true).
-     *
-     * Two cases based on getSectionParent():
-     *  - null  → this is the true section root → back goes to MainActivity
-     *  - Class → this activity sits above a parent → back navigates to that parent (also IS_SECTION_ROOT)
-     *
-     * Only registers once (sectionRootBackCallback guard). Called from onCreate and onNewIntent
-     * so that activities reused via REORDER_TO_FRONT also get the callback when needed.
-     */
-    private void registerSectionRootBackCallback() {
-        if (sectionRootBackCallback != null) return; // already registered
-        if (!getIntent().getBooleanExtra(Intents.EXTRA_IS_SECTION_ROOT, false)) return;
-
-        Class<? extends BaseBottomNavActivity> parent = getSectionParent();
-
-        sectionRootBackCallback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (parent == null) {
-                    // True section root → go to MainActivity
-                    myLogI("--- BACK from section root [" + getClass().getSimpleName() + "] → MainActivity ---");
-                    Intent intent = new Intent(BaseBottomNavActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                } else {
-                    // Has a declared parent → navigate up, marking it as section root too
-                    myLogI("--- BACK from [" + getClass().getSimpleName() + "] → " + parent.getSimpleName() + " ---");
-                    Intent intent = new Intent(BaseBottomNavActivity.this, parent);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    intent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                }
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, sectionRootBackCallback);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent); // keep getIntent() up-to-date
-        // Activity reused via REORDER_TO_FRONT: register callback if now acting as section root
-        registerSectionRootBackCallback();
     }
 
     private void setupBottomNav() {

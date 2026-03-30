@@ -56,6 +56,8 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         return true;
     }
 
+    @Override protected boolean isSectionRoot() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

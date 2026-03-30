@@ -206,11 +206,8 @@ public class NavHelper {
                         || (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst());
 
         if (favFirst) {
-            Class<?> rootClass = (itemId == R.id.nav_radio) ? GetRadioActivity.class : GetPodcastActivity.class;
             Class<?> favClass  = (itemId == R.id.nav_radio) ? RadioFavoritesActivity.class : PodcastFavoritesActivity.class;
             TaskStackBuilder.create(activity)
-                    .addNextIntent(new Intent(activity, rootClass)
-                            .putExtra(Intents.EXTRA_IS_SECTION_ROOT, true))
                     .addNextIntent(new Intent(activity, favClass))
                     .startActivities();
         } else {
@@ -223,10 +220,9 @@ public class NavHelper {
     }
 
     /**
-     * Returns the true section root intent for a given bottom nav tab.
+     * Returns the section root intent for a given bottom nav tab.
      * For radio/podcast this is always the browse/search activity, regardless of the
      * "open favorites first" option — favorites are layered on top by startFreshSectionRoot.
-     * IS_SECTION_ROOT is stamped on all tabs except Library so the back callback fires.
      */
     private Intent buildSectionRootIntent(Activity activity, int itemId) {
         Intent intent = null;
@@ -240,10 +236,6 @@ public class NavHelper {
             intent = new Intent(activity, MainActivity.class);
         } else if (itemId == R.id.nav_add) {
             intent = new Intent(activity, GetActivity.class);
-        }
-        // Library root (MainActivity) handles its own back — no need to stamp IS_SECTION_ROOT
-        if (intent != null && itemId != R.id.nav_library) {
-            intent.putExtra(Intents.EXTRA_IS_SECTION_ROOT, true);
         }
         return intent;
     }

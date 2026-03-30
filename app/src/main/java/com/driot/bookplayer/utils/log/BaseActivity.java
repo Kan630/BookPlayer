@@ -26,17 +26,20 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.fragments.LiveLogFragment;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
-//import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 
 
 /**
@@ -53,6 +56,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private LiveLogFragment liveLogFragment;
     private FrameLayout liveLogContainer;
 
+    private OnBackPressedCallback backCallback = null;
+
     // WRAPPING OF THE CONTEXT - DO NOT DO IN MYAPP, or you will fix the context
     // forever, and then device system changes like darkmode are just ignored by the
     // app... here : any conf change trigger an activity recreation, so context will
@@ -63,12 +68,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(newBase));
     }
 
-    @Override
-    public void onBackPressed() {
-        if (LOG_LIFECYCLE_TRACE)
-            myLifecycleLog(TAG_FROM_BRACKET + "onBackPressed() - user pressed BACK");
-        myLogI("--- user pressed BACK ---     on " + TAG_FROM_BRACKET);
-        super.onBackPressed(); // keep default behaviour (finish / navigate back)
+    /**
+     * Override to declare the "section parent" of this activity.
+     * - null (default): this activity IS the section root → back goes to MainActivity.
+     * - non-null: back navigates to that activity (which must itself be IS_SECTION_ROOT).
+     *
+     * Example chain: RadioFavoritesActivity(parent=GetRadioActivity) → GetRadioActivity(root) → MainActivity
+     */
+    @Nullable
+    protected Class<? extends BaseBottomNavActivity> getSectionParent() { return null; }
+
+    protected boolean isSectionRoot() {
+        return false; //true for each AppNavBar section first activity
     }
 
     /**
@@ -97,6 +108,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
         }
+
+        registerBackCallback();
 
         super.onCreate(savedInstanceState);
 
@@ -241,6 +254,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         if (LOG_LIFECYCLE_TRACE)
             myLifecycleLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
+        setIntent(intent); // keep getIntent() up-to-date
+        // Activity reused via REORDER_TO_FRONT: register callback if now acting as section root
+        registerBackCallback();
     }
 
     // Pour le changement de Locale (Language) + NightMode ? Does not seem really
@@ -393,5 +409,44 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void registerBackCallback() {
+        if (backCallback != null) return; // already registered
+
+        //Do we have a hard coded parent ?
+        Class<? extends BaseBottomNavActivity> parent = getSectionParent();
+        String parentName = (parent != null ? parent.getSimpleName() : "no");
+        myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "]");
+
+        backCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (LOG_LIFECYCLE_TRACE)
+                    myLifecycleLog(TAG_FROM_BRACKET + "onBackPressed() - user pressed BACK");
+                if (parent != null) {
+                    // Has a declared parent → navigate to that declared parent
+                    myLogI("--- user press BACK --- with declared parent → " + parent.getSimpleName());
+                    Intent intent = new Intent(BaseActivity.this, parent);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                } else if (isSectionRoot()) {
+                    // Root section → back to MainActivity
+                    myLogI("--- user press BACK --- from section root → MainActivity");
+                    Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
+                } else {
+                    myLogI("--- user press BACK ---");
+                    setEnabled(false); // VERY IMPORTANT
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backCallback);
+    }
+
+
 
 }

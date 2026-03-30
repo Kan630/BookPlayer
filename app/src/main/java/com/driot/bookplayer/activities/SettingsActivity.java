@@ -65,6 +65,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
         return true;
     }
 
+    @Override protected boolean isSectionRoot() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
