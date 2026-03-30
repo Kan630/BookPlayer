@@ -165,7 +165,7 @@ public class GetRadioCardListActivity extends FullActivity {
         TagCardAdapter.OnLangCardClick langClick = mode == MODE_LANGUAGE ? card -> {
             myLogI("---- user clicks lang card, label=[" + card.label + "]");
             ArrayList<String> langVariants = new ArrayList<>(card.apiNames);
-            myLogI("lang_variants to query: " + langVariants);
+            myLog("lang_variants to query: " + langVariants);
             startActivity(new Intent(this, RadioResultsActivity.class)
                     .putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
                     .putExtra("lang", card.label)
