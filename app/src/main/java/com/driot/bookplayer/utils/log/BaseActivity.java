@@ -123,7 +123,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         navState = new NavState();
         int navId = getNavSectionId();
         if (navId > 0) {
-            navState.push(navId, getIntent());
+            boolean fromTabSwitch = getIntent().getBooleanExtra("FROM_TAB_SWITCH", false);
+            if (!fromTabSwitch) {
+                navState.push(navId, getIntent());
+            }
         }
 
         registerBackCallback();
@@ -432,9 +435,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         //Do we have a hard coded parent ?
         Class<? extends BaseBottomNavActivity> parent = getSectionParent();
-        String parentName = (parent != null ? parent.getSimpleName() : "no");
-        int navSectionId = getNavSectionId();
-        myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "] - navSection=[" + navSectionId + "]");
+        final String parentName = (parent != null ? parent.getSimpleName() : "no");
+        final String navSectionName = navState.getSectionName(this, getNavSectionId());
+        myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "] - navSection=[" + navSectionName + "]");
 
         backCallback = new OnBackPressedCallback(true) {
             @Override
@@ -455,12 +458,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
-                } else if (navSectionId > 0) {
-                    if (navState.hasBack(navSectionId)) {
-                        Intent previous = navState.pop(navSectionId);
+                } else if (getNavSectionId() > 0) {
+                    if (navState.hasBack(getNavSectionId())) {
+                        Intent previous = navState.pop(getNavSectionId());
 
                         if (previous != null) {
-                            myLogI("--- user press BACK --- inside section " + navSectionId + " -> going the previous in the stack");
+                            myLogI("--- user press BACK --- inside section " + navSectionName + " -> going the previous in the stack");
                             previous.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(previous);
                             overridePendingTransition(0, 0);
@@ -468,7 +471,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         }
                     }
                     // No more history → fallback to root
-                    myLogI("--- user press BACK --- inside section " + navSectionId + " -> stack is empty");
+                    myLogI("--- user press BACK --- inside section " + navSectionName + " -> stack is empty");
                     setEnabled(false); // VERY IMPORTANT
                     getOnBackPressedDispatcher().onBackPressed();
 

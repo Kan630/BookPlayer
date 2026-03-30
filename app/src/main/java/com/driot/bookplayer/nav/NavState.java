@@ -1,11 +1,15 @@
 package com.driot.bookplayer.nav;
 
+import android.content.Context;
 import android.content.Intent;
 import com.driot.bookplayer.R;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import static com.driot.bookplayer.nav.NavHelper.VERBOSE_DEBUG;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 /**
  * Tracks the current navigation state (which tab is active) and the last used intent for each tab
@@ -31,6 +35,7 @@ public class NavState {
 
     public void push(int navId, Intent intent) {
         navStacks.computeIfAbsent(navId, k -> new java.util.ArrayDeque<>()).push(intent);
+        myLog(navId + " pushing " + intent);
     }
 
     public Intent pop(int navId) {
@@ -39,6 +44,7 @@ public class NavState {
 
         // remove current
         stack.pop();
+        myLog(navId + " popping");
 
         // return previous
         return stack.peek();
@@ -53,6 +59,21 @@ public class NavState {
         java.util.Deque<Intent> stack = navStacks.get(navId);
         if (stack == null || stack.isEmpty()) return null;
         return stack.peek();
+    }
+
+    public void clear(int navId) {
+        java.util.Deque<Intent> stack = navStacks.get(navId);
+        if (stack != null) stack.clear();
+        myLog(navId + " clear");
+    }
+
+    public String getSectionName(Context ctx, int navId) {
+        return ctx.getResources().getResourceEntryName(navId);
+    }
+
+    private static void myLogDD(String txt) {
+        if (VERBOSE_DEBUG)
+            myLogD(txt);
     }
 
 }
