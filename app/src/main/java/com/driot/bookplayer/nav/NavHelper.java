@@ -14,10 +14,11 @@ import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.activities.SettingsActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -71,85 +72,15 @@ public class NavHelper {
     }
 
     public static void openRadioStationActivity(Context context, long trackId) {
-        if (trackId <= 0) {
-            myLogE("openRadioStationActivity => no trackId");
-            context.startActivity(new Intent(context, GetRadioActivity.class));
-            return;
-        }
-
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            String uuid = null;
-            try {
-                RadioStationDao dao = AppDatabase.getDatabase(context).radioStationDao();
-                uuid = dao.findById(trackId).stationuuid;
-            } catch (Exception e) {
-                myLogEE(e, "openRadioStationActivity: UUID lookup failed for trackId=" + trackId);
-            }
-
-            openRadioStationActivityFromUuid(context, uuid);
-        });
+        RadioHelper.openRadioStationActivity(context, trackId);
     }
 
     public static void openRadioStationActivityFromUuid(Context context, String uuid) {
-        if (uuid == null || uuid.isEmpty()) {
-            context.startActivity(new Intent(context, GetRadioActivity.class));
-            return;
-        }
-        context.startActivity(
-                new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
+        RadioHelper.openRadioStationActivityFromUuid(context, uuid);
     }
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        Context appCtx = context.getApplicationContext();
-
-        if (trackId > 0) {
-            String uuid = null;
-            try {
-                uuid = AppDatabase.databaseReadExecutor
-                        .submit(() -> {
-                            RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
-                            return dao.findById(trackId).stationuuid;
-                        })
-                        .get(); // because off main thread
-            } catch (Exception e) {
-                myLogEE(e, "getNavToRadioActivityPendingIntent: UUID lookup failed for trackId=" + trackId);
-            }
-
-            TaskStackBuilder tsb = TaskStackBuilder.create(context);
-            tsb.addNextIntent(new Intent(context, MainActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
-                    .putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
-            tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
-                    .putExtra(Intents.EXTRA_STATION_UUID, uuid));
-            return tsb.getPendingIntent(0, flags);
-        }
-
-        boolean hasFavOrHistory = false;
-        try {
-            hasFavOrHistory = AppDatabase.databaseReadExecutor
-                    .submit(() -> {
-                        RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
-                        return dao.anyFavoriteOrHistoryExists();
-                    })
-                    .get();
-        } catch (Exception e) {
-            myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
-        }
-
-        if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
-            TaskStackBuilder tsb = TaskStackBuilder.create(context);
-            tsb.addNextIntent(new Intent(context, MainActivity.class));
-            tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
-                    .putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
-            return tsb.getPendingIntent(0, flags);
-        } else {
-            return PendingIntent.getActivity(
-                    context,
-                    0,
-                    new Intent(context, GetRadioActivity.class), flags);
-        }
+        return RadioHelper.getNavToRadioActivityPendingIntent(context, trackId);
     }
 
     /**
@@ -207,10 +138,14 @@ public class NavHelper {
 
         if (favFirst) {
             myLogDD("start fresh => favorite first");
-            Class<?> favClass  = (itemId == R.id.nav_radio) ? RadioFavoritesActivity.class : PodcastFavoritesActivity.class;
-            TaskStackBuilder.create(activity)
-                    .addNextIntent(new Intent(activity, favClass))
-                    .startActivities();
+            Intent favIntent = (itemId == R.id.nav_radio)
+                    ? RadioHelper.getFavoritesSectionIntent(activity)
+                    : PodcastHelper.getFavoritesSectionIntent(activity);
+            if (favIntent != null) {
+                TaskStackBuilder.create(activity)
+                        .addNextIntent(favIntent)
+                        .startActivities();
+            }
         } else {
             myLogDD("start fresh => no favorite first option");
             Intent rootIntent = buildSectionRootIntent(activity, itemId);
@@ -229,9 +164,9 @@ public class NavHelper {
     private Intent buildSectionRootIntent(Activity activity, int itemId) {
         Intent intent = null;
         if (itemId == R.id.nav_radio) {
-            intent = new Intent(activity, GetRadioActivity.class);
+            intent = RadioHelper.getSectionRootIntent(activity);
         } else if (itemId == R.id.nav_podcast) {
-            intent = new Intent(activity, GetPodcastActivity.class);
+            intent = PodcastHelper.getSectionRootIntent(activity);
         } else if (itemId == R.id.nav_settings) {
             intent = new Intent(activity, SettingsActivity.class);
         } else if (itemId == R.id.nav_library) {

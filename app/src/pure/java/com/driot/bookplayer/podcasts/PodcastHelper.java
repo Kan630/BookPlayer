@@ -77,4 +77,12 @@ public class PodcastHelper {
         myLogE("should never happen");
     }
 
+    public static Intent getSectionRootIntent(Context context) {
+        return null;
+    }
+
+    public static Intent getFavoritesSectionIntent(Context context) {
+        return null;
+    }
+
 }

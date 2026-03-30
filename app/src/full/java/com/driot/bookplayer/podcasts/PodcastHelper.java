@@ -651,4 +651,14 @@ public class PodcastHelper {
         db.episodeDao().addSecondToTimeListened(trackId);
     }
 
+    // ---- Navigation Helpers ----
+
+    public static android.content.Intent getSectionRootIntent(android.content.Context context) {
+        return new android.content.Intent(context, GetPodcastActivity.class);
+    }
+
+    public static android.content.Intent getFavoritesSectionIntent(android.content.Context context) {
+        return new android.content.Intent(context, PodcastFavoritesActivity.class);
+    }
+
 }

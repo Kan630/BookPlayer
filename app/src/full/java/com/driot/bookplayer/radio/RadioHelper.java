@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,6 +8,11 @@ import android.net.Uri;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.text.TextUtils;
+
+import androidx.core.app.TaskStackBuilder;
+
+import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.global.Option;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -431,6 +437,92 @@ public class RadioHelper {
 	}
 	public static int getFlagResource(Context appContext, RadioStation s) {
 		return getFlagResource(appContext, s, false);
+	}
+
+	// ---- Navigation Helpers ----
+
+	public static Intent getSectionRootIntent(Context context) {
+		return new Intent(context, GetRadioActivity.class);
+	}
+
+	public static Intent getFavoritesSectionIntent(Context context) {
+		return new Intent(context, RadioFavoritesActivity.class);
+	}
+
+	public static void openRadioStationActivity(Context context, long trackId) {
+		if (trackId <= 0) {
+			myLogE("openRadioStationActivity => no trackId");
+			context.startActivity(new Intent(context, GetRadioActivity.class));
+			return;
+		}
+		AppDatabase.databaseWriteExecutor.execute(() -> {
+			String uuid = null;
+			try {
+				RadioStationDao dao = AppDatabase.getDatabase(context).radioStationDao();
+				uuid = dao.findById(trackId).stationuuid;
+			} catch (Exception e) {
+				myLogEE(e, "openRadioStationActivity: UUID lookup failed for trackId=" + trackId);
+			}
+			openRadioStationActivityFromUuid(context, uuid);
+		});
+	}
+
+	public static void openRadioStationActivityFromUuid(Context context, String uuid) {
+		if (uuid == null || uuid.isEmpty()) {
+			context.startActivity(new Intent(context, GetRadioActivity.class));
+			return;
+		}
+		context.startActivity(
+				new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
+	}
+
+	public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
+		final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+		Context appCtx = context.getApplicationContext();
+
+		if (trackId > 0) {
+			String uuid = null;
+			try {
+				uuid = AppDatabase.databaseReadExecutor
+						.submit(() -> {
+							RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
+							return dao.findById(trackId).stationuuid;
+						})
+						.get();
+			} catch (Exception e) {
+				myLogEE(e, "getNavToRadioActivityPendingIntent: UUID lookup failed for trackId=" + trackId);
+			}
+			TaskStackBuilder tsb = TaskStackBuilder.create(context);
+			tsb.addNextIntent(new Intent(context, MainActivity.class));
+			tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
+					.putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
+			tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
+					.putExtra(Intents.EXTRA_STATION_UUID, uuid));
+			return tsb.getPendingIntent(0, flags);
+		}
+
+		boolean hasFavOrHistory = false;
+		try {
+			hasFavOrHistory = AppDatabase.databaseReadExecutor
+					.submit(() -> {
+						RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
+						return dao.anyFavoriteOrHistoryExists();
+					})
+					.get();
+		} catch (Exception e) {
+			myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
+		}
+
+		if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
+			TaskStackBuilder tsb = TaskStackBuilder.create(context);
+			tsb.addNextIntent(new Intent(context, MainActivity.class));
+			tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
+			tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
+					.putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
+			return tsb.getPendingIntent(0, flags);
+		} else {
+			return PendingIntent.getActivity(context, 0, new Intent(context, GetRadioActivity.class), flags);
+		}
 	}
 
 }
