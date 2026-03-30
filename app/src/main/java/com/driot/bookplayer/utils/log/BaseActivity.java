@@ -453,14 +453,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                     // Has a declared parent → navigate to that declared parent
                     myLogI("--- user press BACK --- with declared parent → " + parent.getSimpleName());
                     Intent intent = new Intent(BaseActivity.this, parent);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                 } else if (isSectionRoot()) {
                     // Root section → back to MainActivity
                     myLogI("--- user press BACK --- from section root → MainActivity");
                     Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                 } else if (getNavSectionId() > 0) {
@@ -470,7 +470,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (previous != null) {
                             previous = new Intent(previous);
                             myLogI("--- user press BACK --- inside section " + navSectionName + " -> going the previous in the stack");
-                            previous.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            previous.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(previous);
                             overridePendingTransition(0, 0);
                             return;

@@ -52,9 +52,9 @@ public class PodcastSearchResultsActivity extends FullActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
+        InsetHelper.applyInsetsForScrollableInFullActivity(this, recyclerView);
 
         View networkRowView = findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);

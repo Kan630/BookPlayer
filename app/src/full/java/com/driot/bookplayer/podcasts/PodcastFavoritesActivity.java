@@ -59,9 +59,9 @@ public class PodcastFavoritesActivity extends FullActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
+        InsetHelper.applyInsetsForScrollableInFullActivity(this, recyclerView);
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_error_message);
 

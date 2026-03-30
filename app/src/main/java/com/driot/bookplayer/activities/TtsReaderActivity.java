@@ -44,7 +44,7 @@ public class TtsReaderActivity extends FullActivity {
         super.onCreate(savedInstanceState);
         RecyclerView rv = findViewById(R.id.rvTtsText);
 
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, rv);
+        InsetHelper.applyInsetsForScrollableInFullActivity(this, rv);
 
         PlaybackViewModel vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 

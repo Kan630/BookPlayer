@@ -85,7 +85,7 @@ public class RadioResultsActivity extends FullActivity {
         tvProgressMessage   = findViewById(R.id.tvProgressMessage);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+        InsetHelper.applyInsetsForScrollableInFullActivity(this, recyclerView);
 
         // ---- Grid layout ----
         int minSpan = getResources().getInteger(R.integer.radio_grid_span_station_min);

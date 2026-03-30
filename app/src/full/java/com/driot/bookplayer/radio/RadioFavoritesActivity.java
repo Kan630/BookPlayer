@@ -87,7 +87,7 @@ public class RadioFavoritesActivity extends FullActivity {
         super.onCreate(savedInstanceState);
 
         recyclerView = findViewById(R.id.recyclerView);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+        InsetHelper.applyInsetsForScrollableInFullActivity(this, recyclerView);
 
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
@@ -105,8 +105,7 @@ public class RadioFavoritesActivity extends FullActivity {
         final GridLayoutManager glm = new GridLayoutManager(this, defaultSpan);
         recyclerView.setLayoutManager(glm);
 
-        recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
+        recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
 
         GridScaleGestureHelper scaleHelper = new GridScaleGestureHelper(
                 recyclerView,
@@ -394,21 +393,6 @@ public class RadioFavoritesActivity extends FullActivity {
             progressBar.setVisibility(View.GONE);
             progressHelper.stop();
         }
-    }
-
-    private void attachTouchLogic() {
-        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                scaleDetector.onTouchEvent(e);
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                scaleDetector.onTouchEvent(e);
-            }
-        });
     }
 
 }

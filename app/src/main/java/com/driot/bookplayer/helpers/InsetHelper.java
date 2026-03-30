@@ -68,6 +68,7 @@ public final class InsetHelper {
 
     /**
      * Scrollable full-screen view: draws behind nav bar with proper padding.
+     * Use this for standalone activities (not inside FullActivity chrome).
      * If {@code scrollableView}'s parent is a {@link FadingEdgeFrameLayout},
      * its fade params are updated from the real status bar inset automatically.
      */
@@ -80,6 +81,32 @@ public final class InsetHelper {
         applyInsets(activity, scrollableView,
                 /* padTop */              true,
                 /* padBottom */           true,
+                /* padSides */            true,
+                /* handleIME */           true,
+                /* handleCutout */        true,
+                /* allowShortEdgeCutout */true,
+                /* addToPadding */        false,
+                /* consume */             true,
+                /* fadingParent */        fading);
+    }
+
+    /**
+     * Scrollable view inside a FullActivity (has miniNowPlaying + bottomNav chrome).
+     * Applies top and side insets only — bottom is already handled by the constraint
+     * chain (base_content is constrained above miniNowPlaying, never reaching the
+     * system nav bar). Applying sys.bottom here would create a white-space gap.
+     * If {@code scrollableView}'s parent is a {@link FadingEdgeFrameLayout},
+     * its fade params are updated from the real status bar inset automatically.
+     */
+    public static void applyInsetsForScrollableInFullActivity(@NonNull Activity activity,
+                                                              @NonNull View scrollableView) {
+        FadingEdgeFrameLayout fading = null;
+        if (scrollableView.getParent() instanceof FadingEdgeFrameLayout) {
+            fading = (FadingEdgeFrameLayout) scrollableView.getParent();
+        }
+        applyInsets(activity, scrollableView,
+                /* padTop */              true,
+                /* padBottom */           false,
                 /* padSides */            true,
                 /* handleIME */           true,
                 /* handleCutout */        true,

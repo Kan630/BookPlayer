@@ -5,21 +5,18 @@
     android:layout_height="match_parent"
     >
 
-    <LinearLayout
-        android:orientation="vertical"
+    <com.driot.bookplayer.views.FadingEdgeFrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-12dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewPodcast"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="16dp" />
+            android:layout_height="wrap_content"
+            android:clipToPadding="false" />
 
-    </LinearLayout>
+    </com.driot.bookplayer.views.FadingEdgeFrameLayout>
 
     <ProgressBar
         android:id="@+id/progressBarPodcast"
