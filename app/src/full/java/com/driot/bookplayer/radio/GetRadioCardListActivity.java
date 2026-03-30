@@ -69,9 +69,6 @@ public class GetRadioCardListActivity extends FullActivity {
     private ImageButton   btnClearSearch;
     private ImageButton   btnSort;
 
-    private int  backPressCount    = 0;
-    private long lastBackPressTime = 0;
-
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
     // -------------------------------------------------------------------------
@@ -297,34 +294,4 @@ public class GetRadioCardListActivity extends FullActivity {
         btnAlpha.setOnClickListener(sortClick);
     }
 
-    // -------------------------------------------------------------------------
-    // Search toggle (called from toolbar button / menu item)
-    // -------------------------------------------------------------------------
-
-    private void toggleSearch() {
-        View bottomNav      = findViewById(R.id.bottomNav);
-        View miniNowPlaying = findViewById(R.id.miniNowPlaying);
-
-        if (viewModel.isSearchVisible()) {
-            // --- Close search ---
-            viewModel.setSearchVisible(false);   // also clears the query
-            if (bottomNav      != null) bottomNav.setVisibility(View.VISIBLE);
-            if (miniNowPlaying != null) miniNowPlaying.setVisibility(View.VISIBLE);
-            etSearch.setText("");
-            ViewHelper.hideKeyboard(this, etSearch);
-            backPressCount    = 0;
-            lastBackPressTime = 0;
-        } else {
-            // --- Open search ---
-            viewModel.setSearchVisible(true);
-            if (bottomNav      != null) bottomNav.setVisibility(View.GONE);
-            if (miniNowPlaying != null) miniNowPlaying.setVisibility(View.GONE);
-            // Restore any previously typed query (survives rotation)
-            String current = viewModel.getSearchQueryLive().getValue();
-            etSearch.setText(current);
-            if (current != null) etSearch.setSelection(current.length());
-            etSearch.requestFocus();
-            ViewHelper.showKeyboard(this, etSearch);
-        }
-    }
 }
