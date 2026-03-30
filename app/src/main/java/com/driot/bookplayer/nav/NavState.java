@@ -3,6 +3,9 @@ package com.driot.bookplayer.nav;
 import android.content.Context;
 import android.content.Intent;
 import com.driot.bookplayer.R;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -33,9 +36,29 @@ public class NavState {
         this.currentBottomNavId = id;
     }
 
+    /*
     public void push(int navId, Intent intent) {
         navStacks.computeIfAbsent(navId, k -> new java.util.ArrayDeque<>()).push(intent);
-        myLog(navId + " pushing " + intent);
+        myLogDD(navId + " pushing " + intent);
+    }
+     */
+
+    public void push(int navId, Intent newIntent) {
+        Deque<Intent> stack = navStacks.computeIfAbsent(navId, k -> new ArrayDeque<>());
+
+        if (!stack.isEmpty()) {
+            Intent top = stack.peek();
+
+            if (top != null && top.getComponent() != null
+                    && top.getComponent().equals(newIntent.getComponent())) {
+
+                myLogDD(navId + " same activity already at top → skipping push");
+                return;
+            }
+        }
+
+        stack.push(newIntent);
+        myLogDD(navId + " pushed");
     }
 
     public Intent pop(int navId) {
@@ -44,7 +67,7 @@ public class NavState {
 
         // remove current
         stack.pop();
-        myLog(navId + " popping");
+        myLogDD(navId + " popping");
 
         // return previous
         return stack.peek();
@@ -64,11 +87,15 @@ public class NavState {
     public void clear(int navId) {
         java.util.Deque<Intent> stack = navStacks.get(navId);
         if (stack != null) stack.clear();
-        myLog(navId + " clear");
+        myLogDD(navId + " clear");
     }
 
     public String getSectionName(Context ctx, int navId) {
-        return ctx.getResources().getResourceEntryName(navId);
+        try {
+            return ctx.getResources().getResourceEntryName(navId);
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
     }
 
     private static void myLogDD(String txt) {

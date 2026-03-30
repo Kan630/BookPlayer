@@ -380,6 +380,7 @@ public class PlayActivity extends BaseActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                myLogI("--- user press BACK from PLAY ACTIVITY --- just finish, maybe todo : integrate with NavStacks and BaseActivity");
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null) {
                     myLog("s == null");
@@ -390,6 +391,9 @@ public class PlayActivity extends BaseActivity {
                         vm.stop();
                     }
                 }
+                //if we use code below, we could force a return to ZikFileActivity by setting getSectionParent()
+                //setEnabled(false); // VERY IMPORTANT
+                //getOnBackPressedDispatcher().onBackPressed();
                 finish();
             }
         });
