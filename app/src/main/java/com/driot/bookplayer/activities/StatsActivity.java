@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.widgets.StorageBarView;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
@@ -289,6 +290,8 @@ public class StatsActivity extends BaseActivity {
         myLogI("--- user clicks RESET APP ---");
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
+        navHelper.resetAddBookNav();
+        PlaybackCommands.stop(getApplicationContext());
         myToast(getString(R.string.app_reset_done));
     }
 

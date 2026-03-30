@@ -14,12 +14,18 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.importexport.ImportExportActivity;
 import com.driot.bookplayer.utils.log.LoggingFragment;
-import com.google.android.material.checkbox.MaterialCheckBox;
 
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
+
+@AndroidEntryPoint
 public class UtilitiesSettingsFragment extends LoggingFragment {
+
+    @Inject NavHelper navHelper;
 
     @Nullable
     @Override
@@ -101,6 +107,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             myLogI("--- user clicks RESET APP ---");
             ImportHelper.cancelCurrentImport(requireContext().getApplicationContext());
             ImportHelper.cancelAll_in_DB(requireContext().getApplicationContext());
+            navHelper.resetAddBookNav();
             PlaybackCommands.stop(requireContext().getApplicationContext());
             myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
         });
