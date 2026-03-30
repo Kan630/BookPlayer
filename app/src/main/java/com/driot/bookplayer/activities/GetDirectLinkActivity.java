@@ -42,7 +42,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
     private ActivityResultLauncher<Intent> loadBookActivityResultLauncher;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

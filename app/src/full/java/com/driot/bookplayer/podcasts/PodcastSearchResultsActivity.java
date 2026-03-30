@@ -35,7 +35,7 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     Podcast podcast;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_podcast;
     }
 

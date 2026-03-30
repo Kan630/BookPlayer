@@ -44,7 +44,7 @@ public class AddResourceActivity extends BaseBottomNavActivity {
     private boolean didEnterExitMode = false;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

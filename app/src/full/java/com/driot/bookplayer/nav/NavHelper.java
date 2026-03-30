@@ -34,7 +34,7 @@ import javax.inject.Singleton;
 public class NavHelper {
 
     private final NavState navState;
-    private static final boolean VERBOSE_DEBUG = false;
+    private static final boolean VERBOSE_DEBUG = true;
 
     @Inject
     public NavHelper(NavState navState) {
@@ -169,6 +169,7 @@ public class NavHelper {
 
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
+            myLogDD("same tab click");
             Intent rootIntent = buildSectionRootIntent(activity, itemId);
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -178,13 +179,16 @@ public class NavHelper {
         }
 
         // 2. Switch to different tab — restore saved state or start fresh
+        myLogDD("different tab click");
         Intent targetIntent = navState.getLastIntent(itemId);
 
         if (targetIntent != null) {
+            myLogDD("has a last intent");
             targetIntent.setFlags(0);
             targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             activity.startActivity(targetIntent);
         } else {
+            myLogDD("no last intent, start fresh root");
             startFreshSectionRoot(activity, itemId);
         }
 
@@ -206,11 +210,13 @@ public class NavHelper {
                         || (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst());
 
         if (favFirst) {
+            myLogDD("start fresh => favorite first");
             Class<?> favClass  = (itemId == R.id.nav_radio) ? RadioFavoritesActivity.class : PodcastFavoritesActivity.class;
             TaskStackBuilder.create(activity)
                     .addNextIntent(new Intent(activity, favClass))
                     .startActivities();
         } else {
+            myLogDD("start fresh => no favorite first option");
             Intent rootIntent = buildSectionRootIntent(activity, itemId);
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);

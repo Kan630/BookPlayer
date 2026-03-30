@@ -94,7 +94,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private static final int REQ_DELETE_SOURCE = 2001;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

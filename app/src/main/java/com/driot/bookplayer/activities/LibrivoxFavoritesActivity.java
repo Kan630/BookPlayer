@@ -32,7 +32,7 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
     private LibrivoxBookSourceRVAdapter adapter;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

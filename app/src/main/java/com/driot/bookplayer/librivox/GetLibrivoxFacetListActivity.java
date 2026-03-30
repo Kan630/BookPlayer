@@ -50,7 +50,7 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
     // (Later you can add: startForAuthors(Context, String lang) similarly)
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

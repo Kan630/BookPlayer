@@ -5,17 +5,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -28,8 +24,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
     @Inject protected NavState navState;
     @Inject protected NavHelper navHelper;
-
-    protected abstract int getNavId();
 
     @LayoutRes
     protected abstract int getLayoutResId();
@@ -128,7 +122,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
     private void setupBottomNav() {
         bottomNav = findViewById(R.id.bottomNav);
-        myLogDD("setupBottomNav() -  navId=" + getNavId());
+        myLogDD("setupBottomNav() -  navId=" + getNavSectionId());
 
         bottomNav.setOnItemSelectedListener(item -> {
             boolean fromCode = navSelectionFromCode;
@@ -150,7 +144,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             return true;
         });
 
-        selectBottomNavItemFromCode(getNavId());
+        selectBottomNavItemFromCode(getNavSectionId());
     }
 
     @Override
@@ -158,14 +152,14 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         super.onResume();
         
         // Save current intent to NavState for state restoration
-        int navId = getNavId();
+        int navId = getNavSectionId();
         if (navId != 0 && navState != null) {
             navState.setLastIntent(navId, getIntent());
             navState.setCurrentBottomNavId(navId);
         }
 
         if (bottomNav != null) {
-            int targetId = getNavId();
+            int targetId = getNavSectionId();
             if (bottomNav.getSelectedItemId() != targetId) {
                 myLogD("onResume(): fixing bottom nav selection to " + targetId);
                 selectBottomNavItemFromCode(targetId);

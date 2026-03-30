@@ -51,7 +51,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
     // TODO new universal toggle to replace checkboxes
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_settings;
     }
 

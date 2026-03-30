@@ -53,7 +53,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
     private TextView tvMassImportProgressText;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

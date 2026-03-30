@@ -61,7 +61,7 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     private String localCoverPath;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

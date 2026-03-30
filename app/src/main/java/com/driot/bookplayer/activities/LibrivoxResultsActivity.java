@@ -45,7 +45,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private String mode;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

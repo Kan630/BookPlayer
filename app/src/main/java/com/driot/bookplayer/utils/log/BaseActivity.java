@@ -82,6 +82,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         return false; //true for each AppNavBar section first activity
     }
 
+    protected int getNavSectionId() {
+        return -1;
+    }
+
     /**
      * Hook method called when a new instance of Activity is created. One time
      * initialization code should go here e.g. UI layout, some class scope
@@ -416,7 +420,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         //Do we have a hard coded parent ?
         Class<? extends BaseBottomNavActivity> parent = getSectionParent();
         String parentName = (parent != null ? parent.getSimpleName() : "no");
-        myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "]");
+        int navSectionId = getNavSectionId();
+        myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "] - navSection=[" + navSectionId + "]");
 
         backCallback = new OnBackPressedCallback(true) {
             @Override
@@ -437,6 +442,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
+                } else if (navSectionId > 0) {
+                    myLogI("--- user press BACK --- navSection=");
+                    //TODO here we need to go to the parent of that same section
+                    // Intent intent = new Intent(BaseActivity.this, );
+                    // intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    // startActivity(intent);
                 } else {
                     myLogI("--- user press BACK ---");
                     setEnabled(false); // VERY IMPORTANT

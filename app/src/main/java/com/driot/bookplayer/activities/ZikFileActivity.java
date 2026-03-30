@@ -69,7 +69,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
     }
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_library;
     }
 
@@ -81,6 +81,11 @@ public class ZikFileActivity extends BaseBottomNavActivity {
     @Override
     protected boolean enableOngoingTaskOverlay() {
         return true;
+    }
+
+    @Override
+    protected Class<? extends BaseBottomNavActivity> getSectionParent() {
+        return MainActivity.class;
     }
 
     @Override

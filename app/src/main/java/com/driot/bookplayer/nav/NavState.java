@@ -37,7 +37,4 @@ public class NavState {
         return lastIntents.get(navId);
     }
 
-    // Legacy helpers for compatibility during migration
-    public Intent getLastRadioIntent() { return getLastIntent(R.id.nav_radio); }
-    public Intent getLastPodcastIntent() { return getLastIntent(R.id.nav_podcast); }
 }

@@ -20,7 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class TtsReaderActivity extends BaseBottomNavActivity {
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_library;
     }
 

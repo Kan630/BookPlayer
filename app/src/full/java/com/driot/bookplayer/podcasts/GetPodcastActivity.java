@@ -38,7 +38,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
     Spinner spinnerLang;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_podcast;
     }
 

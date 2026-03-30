@@ -61,7 +61,7 @@ public class SettingsHostActivity extends BaseBottomNavActivity {
         ctx.startActivity(i);
     }
 
-    @Override protected int getNavId() { return R.id.nav_settings; }
+    @Override protected int getNavSectionId() { return R.id.nav_settings; }
     @Override protected int getLayoutResId() { return R.layout.activity_settings_host; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
 

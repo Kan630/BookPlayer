@@ -42,7 +42,7 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
     }
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_podcast;
     }
 

@@ -64,7 +64,7 @@ public class NearbyShareActivity extends BaseBottomNavActivity {
     private Runnable delayedRunnable;
 
     @Override
-    protected int getNavId() { return R.id.nav_library; }
+    protected int getNavSectionId() { return R.id.nav_library; }
 
     @Override
     protected int getLayoutResId() {

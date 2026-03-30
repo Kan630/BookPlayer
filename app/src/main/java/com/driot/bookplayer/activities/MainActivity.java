@@ -110,7 +110,7 @@ public class MainActivity extends BaseBottomNavActivity {
             });
 
     @Override
-    protected int getNavId() { return Tonio.isPure(this) ? -1 : R.id.nav_library; }
+    protected int getNavSectionId() { return Tonio.isPure(this) ? -1 : R.id.nav_library; }
 
     @Override
     protected int getLayoutResId() {

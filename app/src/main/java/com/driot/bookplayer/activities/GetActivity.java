@@ -14,7 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class GetActivity extends BaseBottomNavActivity {
 
-    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getNavSectionId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_get; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
     @Override protected boolean isSectionRoot() { return true; }

@@ -66,7 +66,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     }
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_radio;
     }
 

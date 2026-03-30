@@ -37,7 +37,7 @@ public class GetEbookBookshelfListActivity extends BaseBottomNavActivity {
         ctx.startActivity(i);
     }
 
-    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getNavSectionId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_get_librivox_by_facet; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
 

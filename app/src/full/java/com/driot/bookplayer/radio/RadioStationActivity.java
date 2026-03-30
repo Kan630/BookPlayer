@@ -46,7 +46,7 @@ public class RadioStationActivity extends BaseBottomNavActivity {
     private final Map<String, String> faviconCache = new HashMap<>();
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_radio;
     }
 

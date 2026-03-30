@@ -77,7 +77,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private static final String STATE_TOPIC = "state_topic";
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

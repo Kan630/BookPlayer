@@ -77,7 +77,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     private String futureCoverPic; // path of the file we plan to use/show
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_add;
     }
 

@@ -42,7 +42,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
     RadioBrowserRepository repo;
 
     @Override
-    protected int getNavId() {
+    protected int getNavSectionId() {
         return R.id.nav_radio;
     }
 

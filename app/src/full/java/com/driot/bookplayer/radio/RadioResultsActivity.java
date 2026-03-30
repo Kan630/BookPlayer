@@ -61,7 +61,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     // BaseBottomNavActivity overrides
     // =========================================================================
 
-    @Override protected int getNavId()       { return R.id.nav_radio; }
+    @Override protected int getNavSectionId()       { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
