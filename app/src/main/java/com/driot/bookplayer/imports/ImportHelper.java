@@ -1,8 +1,6 @@
 package com.driot.bookplayer.imports;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -13,8 +11,6 @@ import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Transformations;
 import androidx.work.WorkManager;
 
 import java.io.File;
@@ -123,13 +119,6 @@ public class ImportHelper {
             myLog(dao.getActive().toString());
         }
         return nbActive > 0;
-    }
-
-    public static LiveData<Boolean> observeAnyImportActive(Context ctx) {
-        AppDatabase db = AppDatabase.getInstance(ctx.getApplicationContext());
-        return Transformations.map(
-                db.importJobDao().observeActiveCount(),
-                c -> c != null && c > 0);
     }
 
     public static void cleanUp(Context context, boolean deleteBook, String futureFolderPath) {
