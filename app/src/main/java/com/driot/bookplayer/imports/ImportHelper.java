@@ -6,18 +6,28 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-
+import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.work.WorkManager;
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
 
 import java.io.File;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
 public class ImportHelper {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent.class)
+    interface ImportHelperEntryPoint {
+        NavHelper navHelper();
+    }
 
     public static String getSourceFilePathForWorker(ImportJob j) {
         myLog(j.importId + " - getSourceFilePathForWorker");
@@ -125,8 +135,9 @@ public class ImportHelper {
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
         myLogD("Cleanup starting (bg)…   - deleteBook = [" + deleteBook + "] - futureFolderPath = [" + futureFolderPath
                 + "]");
+        EntryPointAccessors.fromApplication(context.getApplicationContext(), ImportHelperEntryPoint.class)
+                .navHelper().removeAddBookNavSpecial();
 
-        navHelper.removeAddBookNavSpecial();
 
         // 3) Delete the unzip/working folder iff it's internal AND not referenced in DB
         if (deleteBook) {
