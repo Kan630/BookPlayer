@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.LibrivoxResultsActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -25,7 +25,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
+public class GetLibrivoxFacetListActivity extends FullActivity {
 
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";
 

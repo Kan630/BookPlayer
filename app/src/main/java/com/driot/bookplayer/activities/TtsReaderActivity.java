@@ -10,14 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsReaderController;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class TtsReaderActivity extends BaseBottomNavActivity {
+public class TtsReaderActivity extends FullActivity {
 
     @Override
     protected int getNavSectionId() {
@@ -35,7 +35,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     }
 
     @Override
-    protected boolean displayBottomNavBar() {
+    protected boolean displayAppNavBar() {
         return false;
     }
 

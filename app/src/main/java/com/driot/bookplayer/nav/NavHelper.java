@@ -87,10 +87,10 @@ public class NavHelper {
      * Handles clicks on the bottom navigation bar.
      * Uses NavState to restore the last activity for the tab if available.
      */
-    public boolean handleBottomNavClick(Activity activity, int itemId) {
+    public boolean handleAppNavBarClick(Activity activity, int itemId) {
         myLogDD("NavHelper.handleBottomNavClick id=" + itemId);
 
-        int currentItemId = navState.getCurrentBottomNavId();
+        int currentItemId = navState.getCurrentAppNavBarId();
 
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
@@ -120,7 +120,7 @@ public class NavHelper {
         }
 
         activity.overridePendingTransition(0, 0);
-        navState.setCurrentBottomNavId(itemId);
+        navState.setCurrentAppNavBarId(itemId);
         return true;
     }
 

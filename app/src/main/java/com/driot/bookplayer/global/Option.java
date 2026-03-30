@@ -138,7 +138,7 @@ public class Option {
     public static final boolean DEFAULT_USE_OPEN_LIBRARY = true;
     public static final boolean DEFAULT_USE_GOOGLE_IMAGES = true;
     public static final String DEFAULT_TTS_ENGINE = null;
-    private static final boolean DEFAULT_DISPLAY_BOTTOM_NAV_BAR = true;
+    private static final boolean DEFAULT_DISPLAY_APP_NAV_BAR = true;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -809,12 +809,12 @@ public class Option {
     }
 
     /////////////////// DISPLAY ///////////////////
-    public static boolean getDisplayBottomNavBar() {
-        return prefs.getBoolean("DISPLAY_BOTTOM_NAV_BAR", DEFAULT_DISPLAY_BOTTOM_NAV_BAR);
+    public static boolean getDisplayAppNavBar() {
+        return prefs.getBoolean("DISPLAY_APP_NAV_BAR", DEFAULT_DISPLAY_APP_NAV_BAR);
     }
 
-    public static void setDisplayBottomNavBar(boolean bool) {
-        prefs.edit().putBoolean("DISPLAY_BOTTOM_NAV_BAR", bool).apply();
+    public static void setDisplayAppNavBar(boolean bool) {
+        prefs.edit().putBoolean("DISPLAY_APP_NAV_BAR", bool).apply();
     }
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {
         prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", i).apply();

@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -27,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint;
  * Very close to GetAudiobookActivity: favorites, settings, search, trending.
  */
 @AndroidEntryPoint
-public class GetRadioActivity extends BaseBottomNavActivity {
+public class GetRadioActivity extends FullActivity {
 
     public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";
 

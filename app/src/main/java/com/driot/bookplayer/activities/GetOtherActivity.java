@@ -32,7 +32,7 @@ import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.imports.ImportBookMultipleActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
@@ -44,7 +44,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermission
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetOtherActivity extends BaseBottomNavActivity {
+public class GetOtherActivity extends FullActivity {
 
     private static final int REQ_PERMISSION_DENIED = 2001;
 

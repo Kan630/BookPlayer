@@ -15,8 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.helpers.ColorHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
@@ -38,7 +37,7 @@ import java.util.List;
  * Activity for sharing books between devices using Nearby Connections API
  */
 @AndroidEntryPoint
-public class NearbyShareActivity extends BaseBottomNavActivity {
+public class NearbyShareActivity extends FullActivity {
 
     private static final int QUICK_SHARE_VERSION = 1;
 

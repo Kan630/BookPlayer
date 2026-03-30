@@ -276,13 +276,13 @@ public class DesignSettingsFragment extends LoggingFragment {
             MaterialCheckBox chkDisplayBottomNav = root.findViewById(R.id.chk_display_bottom_nav_bar);
             LinearLayout llDisplayBottomNav = root.findViewById(R.id.ll_display_bottom_nav_bar);
             if (chkDisplayBottomNav != null) {
-                chkDisplayBottomNav.setChecked(Option.getDisplayBottomNavBar());
+                chkDisplayBottomNav.setChecked(Option.getDisplayAppNavBar());
                 if (llDisplayBottomNav != null) {
                     llDisplayBottomNav.setOnClickListener(v -> chkDisplayBottomNav.toggle());
                 }
                 chkDisplayBottomNav.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    if (isChecked != Option.getDisplayBottomNavBar()) {
-                        Option.setDisplayBottomNavBar(isChecked);
+                    if (isChecked != Option.getDisplayAppNavBar()) {
+                        Option.setDisplayAppNavBar(isChecked);
                         signalAndRecreate();
                     }
                 });

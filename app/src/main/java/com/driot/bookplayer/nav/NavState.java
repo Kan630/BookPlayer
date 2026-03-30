@@ -21,19 +21,19 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 @Singleton
 public class NavState {
 
-    private int currentBottomNavId = R.id.nav_library;
+    private int currentAppNavBarId = R.id.nav_library;
     private final Map<Integer, java.util.Deque<Intent>> navStacks = new HashMap<>();
 
     @Inject
     public NavState() {
     }
 
-    public int getCurrentBottomNavId() {
-        return currentBottomNavId;
+    public int getCurrentAppNavBarId() {
+        return currentAppNavBarId;
     }
 
-    public void setCurrentBottomNavId(int id) {
-        this.currentBottomNavId = id;
+    public void setCurrentAppNavBarId(int id) {
+        this.currentAppNavBarId = id;
     }
 
     public void push(int navId, Intent newIntent) {

@@ -20,7 +20,7 @@ import com.google.android.material.navigationrail.NavigationRailView;
 
 import javax.inject.Inject;
 
-public abstract class BaseBottomNavActivity extends BaseActivity {
+public abstract class FullActivity extends BaseActivity {
 
     @Inject protected NavState navState;
     @Inject protected NavHelper navHelper;
@@ -30,11 +30,11 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
     protected abstract boolean enableOngoingTaskOverlay();
 
-    protected boolean displayBottomNavBar() {
-        return Option.getDisplayBottomNavBar();
+    protected boolean displayAppNavBar() {
+        return Option.getDisplayAppNavBar();
     }
 
-    private NavigationBarView bottomNav;
+    private NavigationBarView appNavBarView;
     private boolean navSelectionFromCode = false;
     private final boolean VERBOSE_DEBUG = false;
 
@@ -44,7 +44,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        super.setContentView(R.layout.activity_base_bottom_nav);
+        super.setContentView(R.layout.activity_app_nav);
 
         ViewGroup container = findViewById(R.id.base_content);
         getLayoutInflater().inflate(getLayoutResId(), container, true);
@@ -64,7 +64,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             }
         }
 
-        setupBottomNav();
+        setupAppNavBar();
 
         // Apply window insets to miniNowPlaying:
         // - side insets (sys.left/right) always, to handle landscape nav bar on the side
@@ -84,8 +84,8 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             final int initRight  = miniNowPlaying.getPaddingRight();
             final int initBottom = miniNowPlaying.getPaddingBottom();
             // NavigationRailView (landscape) sits on the left — it does not absorb sys.bottom
-            final boolean isNavRail   = bottomNav instanceof NavigationRailView;
-            final boolean applyBottom = isNavRail || !displayBottomNavBar();
+            final boolean isNavRail   = appNavBarView instanceof NavigationRailView;
+            final boolean applyBottom = isNavRail || !displayAppNavBar();
 
             ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
                 Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -100,11 +100,11 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
                 // Apply it directly here so the constraint chain (miniNowPlaying above bottomNav)
                 // positions the mini player correctly above the system nav bar on all devices,
                 // including tablets where the nav bar / taskbar can be taller than the items height.
-                if (!applyBottom && bottomNav != null) {
-                    bottomNav.setPadding(
-                            bottomNav.getPaddingLeft(),
-                            bottomNav.getPaddingTop(),
-                            bottomNav.getPaddingRight(),
+                if (!applyBottom && appNavBarView != null) {
+                    appNavBarView.setPadding(
+                            appNavBarView.getPaddingLeft(),
+                            appNavBarView.getPaddingTop(),
+                            appNavBarView.getPaddingRight(),
                             sys.bottom);
                 }
 
@@ -113,18 +113,18 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             ViewCompat.requestApplyInsets(miniNowPlaying);
         }
 
-        if (!displayBottomNavBar()) {
-            if (bottomNav != null) {
-                bottomNav.setVisibility(View.GONE);
+        if (!displayAppNavBar()) {
+            if (appNavBarView != null) {
+                appNavBarView.setVisibility(View.GONE);
             }
         }
     }
 
-    private void setupBottomNav() {
-        bottomNav = findViewById(R.id.bottomNav);
+    private void setupAppNavBar() {
+        appNavBarView = findViewById(R.id.bottomNav);
         myLogDD("setupBottomNav() -  navId=" + getNavSectionId());
 
-        bottomNav.setOnItemSelectedListener(item -> {
+        appNavBarView.setOnItemSelectedListener(item -> {
             boolean fromCode = navSelectionFromCode;
             navSelectionFromCode = false;
 
@@ -137,60 +137,38 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             myLogI("--- user click bottom Nav bar ---    item = "
                     + item.getItemId() + " - " + item.getTitle());
 
-            if (navHelper.handleBottomNavClick(BaseBottomNavActivity.this, item.getItemId())) {
+            if (navHelper.handleAppNavBarClick(FullActivity.this, item.getItemId())) {
                 return true;
             }
 
             return true;
         });
 
-        selectBottomNavItemFromCode(getNavSectionId());
+        selectAppNavItemFromCode(getNavSectionId());
     }
-/*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        
-        // Save current intent to NavState for state restoration
-        int navId = getNavSectionId();
-        if (navId != 0 && navState != null) {
-            navState.setLastIntent(navId, getIntent());
-            navState.setCurrentBottomNavId(navId);
-        }
-
-        if (bottomNav != null) {
-            int targetId = getNavSectionId();
-            if (bottomNav.getSelectedItemId() != targetId) {
-                myLogD("onResume(): fixing bottom nav selection to " + targetId);
-                selectBottomNavItemFromCode(targetId);
-            }
-        }
-    }
-
- */
 
     @Override
     public void setContentView(int layoutResID) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
+                "Use getLayoutResId() in FullActivity instead of setContentView()");
     }
 
     @Override
     public void setContentView(View view) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
+                "Use getLayoutResId() in FullActivity instead of setContentView()");
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
+                "Use getLayoutResId() in FullActivity instead of setContentView()");
     }
 
-    private void selectBottomNavItemFromCode(int itemId) {
-        if (bottomNav == null) return;
+    private void selectAppNavItemFromCode(int itemId) {
+        if (appNavBarView == null) return;
         navSelectionFromCode = true;
-        bottomNav.setSelectedItemId(itemId);
+        appNavBarView.setSelectedItemId(itemId);
     }
 
 }

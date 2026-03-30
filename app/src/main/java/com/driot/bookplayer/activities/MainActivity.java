@@ -38,7 +38,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
@@ -57,7 +57,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class MainActivity extends BaseBottomNavActivity {
+public class MainActivity extends FullActivity {
 
     private RecyclerView recyclerView;
     private View emptyView;
@@ -276,7 +276,7 @@ public class MainActivity extends BaseBottomNavActivity {
         // Conditionally show Radio/Podcast items in the overflow menu
         MenuItem radioItem = menu.findItem(R.id.menu_radio);
         MenuItem podcastItem = menu.findItem(R.id.menu_podcast);
-        boolean showInMenu = !Option.getDisplayBottomNavBar() && !Tonio.isPure(this);
+        boolean showInMenu = !Option.getDisplayAppNavBar() && !Tonio.isPure(this);
         
         if (radioItem != null) radioItem.setVisible(showInMenu);
         if (podcastItem != null) podcastItem.setVisible(showInMenu);
@@ -291,7 +291,7 @@ public class MainActivity extends BaseBottomNavActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.nav_radio || itemId == R.id.nav_podcast) {
-            if (navHelper.handleBottomNavClick(this, itemId)) {
+            if (navHelper.handleAppNavBarClick(this, itemId)) {
                 return true;
             }
         } else if (itemId == R.id.action_menu_three_dot) {
@@ -331,10 +331,10 @@ public class MainActivity extends BaseBottomNavActivity {
             startActivity(intent);
         } else if (itemId == R.id.menu_radio) {
             myLogI("--- USER clicks MENU : RADIO ---");
-            navHelper.handleBottomNavClick(this, R.id.nav_radio);
+            navHelper.handleAppNavBarClick(this, R.id.nav_radio);
         } else if (itemId == R.id.menu_podcast) {
             myLogI("--- USER clicks MENU : PODCAST ---");
-            navHelper.handleBottomNavClick(this, R.id.nav_podcast);
+            navHelper.handleAppNavBarClick(this, R.id.nav_podcast);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -364,7 +364,7 @@ public class MainActivity extends BaseBottomNavActivity {
         // Consume the extra so it won't re-trigger next time
         intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
 
-        navHelper.handleBottomNavClick(this, requestedNavId);
+        navHelper.handleAppNavBarClick(this, requestedNavId);
     }
 
     private void showSortOrderDialog() {

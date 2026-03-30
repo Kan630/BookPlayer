@@ -7,12 +7,12 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetActivity extends BaseBottomNavActivity {
+public class GetActivity extends FullActivity {
 
     @Override protected int getNavSectionId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_get; }

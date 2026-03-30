@@ -15,11 +15,9 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.podcasts.PodcastFavoritesActivity;
-import com.driot.bookplayer.podcasts.PodcastSearchResultsActivity;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
@@ -27,7 +25,7 @@ import com.driot.bookplayer.views.EditText1lineWithSearch;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetPodcastActivity extends BaseBottomNavActivity {
+public class GetPodcastActivity extends FullActivity {
 
     String query, lang;
     EditText1lineWithSearch editTextPodcast;

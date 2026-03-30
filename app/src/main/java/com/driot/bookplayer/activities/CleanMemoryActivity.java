@@ -20,7 +20,7 @@ import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
@@ -31,7 +31,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
+public class CleanMemoryActivity extends FullActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
     private static final int REQ_DELETE_AUDIO = 3001;
     private File pendingFileToDelete;
     private CleanMemoryRVAdapter cacheFilesAdapter;

@@ -39,7 +39,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.nav.NavState;
 
@@ -86,7 +86,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Example chain: RadioFavoritesActivity(parent=GetRadioActivity) → GetRadioActivity(root) → MainActivity
      */
     @Nullable
-    protected Class<? extends BaseBottomNavActivity> getSectionParent() { return null; }
+    protected Class<? extends FullActivity> getSectionParent() { return null; }
 
     protected boolean isSectionRoot() {
         return false; //true for each AppNavBar section first activity
@@ -439,7 +439,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (backCallback != null) return; // already registered
 
         //Do we have a hard coded parent ?
-        Class<? extends BaseBottomNavActivity> parent = getSectionParent();
+        Class<? extends FullActivity> parent = getSectionParent();
         final String parentName = (parent != null ? parent.getSimpleName() : "no");
         final String navSectionName = navState.getSectionName(this, getNavSectionId());
         myLogD("registerBackCallback() - isRoot=[" + isSectionRoot() + "] - parent=[" + parentName + "] - navSection=[" + navSectionName + "]");

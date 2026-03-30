@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.GridScaleGestureHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -41,7 +41,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @AndroidEntryPoint
-public class RadioFavoritesActivity extends BaseBottomNavActivity {
+public class RadioFavoritesActivity extends FullActivity {
 
     private RadioResultsViewModel viewModel;
     private RecyclerView recyclerView;
@@ -61,7 +61,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
      * Back from favorites goes up to the radio search root, not straight to MainActivity.
      */
     @Override
-    protected Class<? extends com.driot.bookplayer.nav.BaseBottomNavActivity> getSectionParent() {
+    protected Class<? extends FullActivity> getSectionParent() {
         return GetRadioActivity.class;
     }
 

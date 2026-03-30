@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
@@ -26,7 +26,7 @@ import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
+public class PodcastSearchResultsActivity extends FullActivity {
 
     private PodcastSearchResultsViewModel viewModel;
     private ProgressBar progressBar;

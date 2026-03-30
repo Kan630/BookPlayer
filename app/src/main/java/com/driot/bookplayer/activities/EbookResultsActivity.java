@@ -2,8 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,11 +23,10 @@ import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.utils.LiveCensorshipManager;
 
 import java.text.NumberFormat;
@@ -50,7 +47,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @AndroidEntryPoint
-public class EbookResultsActivity extends BaseBottomNavActivity {
+public class EbookResultsActivity extends FullActivity {
 
     RecyclerView recyclerView;
     ProgressBar progressBar;

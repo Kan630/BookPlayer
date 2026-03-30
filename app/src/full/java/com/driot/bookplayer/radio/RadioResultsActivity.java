@@ -16,7 +16,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.GridScaleGestureHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -40,7 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @AndroidEntryPoint
-public class RadioResultsActivity extends BaseBottomNavActivity {
+public class RadioResultsActivity extends FullActivity {
 
     // --- Views ---
     private RecyclerView recyclerView;
@@ -58,7 +58,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private boolean hasInternet = true;
 
     // =========================================================================
-    // BaseBottomNavActivity overrides
+    // FullActivity overrides
     // =========================================================================
 
     @Override protected int getNavSectionId()       { return R.id.nav_radio; }

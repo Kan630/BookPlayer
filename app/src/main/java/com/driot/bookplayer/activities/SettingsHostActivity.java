@@ -10,12 +10,12 @@ import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SettingsHostActivity extends BaseBottomNavActivity {
+public class SettingsHostActivity extends FullActivity {
 
     public static final String EXTRA_FRAGMENT_CLASS = "extra_fragment_class";
     public static final String EXTRA_FRAGMENT_ARGS  = "extra_fragment_args";

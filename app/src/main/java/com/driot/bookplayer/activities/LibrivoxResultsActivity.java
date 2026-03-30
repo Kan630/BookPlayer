@@ -20,9 +20,10 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
+
 import android.widget.TextView;
 import java.text.NumberFormat;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Locale;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class LibrivoxResultsActivity extends BaseBottomNavActivity {
+public class LibrivoxResultsActivity extends FullActivity {
 
     private RecyclerView recyclerView;
     private LibrivoxResultRVAdapter adapter;

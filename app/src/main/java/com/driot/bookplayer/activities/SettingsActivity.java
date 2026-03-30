@@ -8,7 +8,7 @@ import android.widget.ScrollView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.SettingsSectionView;
@@ -37,7 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 
 @AndroidEntryPoint
-public class SettingsActivity extends BaseBottomNavActivity {
+public class SettingsActivity extends FullActivity {
 
     ScrollView scrollView;
     private SectionHost currentlyExpanded = null;

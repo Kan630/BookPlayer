@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;
@@ -27,7 +27,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PodcastFavoritesActivity extends BaseBottomNavActivity {
+public class PodcastFavoritesActivity extends FullActivity {
 
     private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
@@ -37,7 +37,7 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
 
     /** Back from favorites goes up to the podcast search root, not straight to MainActivity. */
     @Override
-    protected Class<? extends com.driot.bookplayer.nav.BaseBottomNavActivity> getSectionParent() {
+    protected Class<? extends FullActivity> getSectionParent() {
         return GetPodcastActivity.class;
     }
 

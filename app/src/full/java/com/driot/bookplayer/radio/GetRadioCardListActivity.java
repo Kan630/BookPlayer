@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class GetRadioCardListActivity extends BaseBottomNavActivity {
+public class GetRadioCardListActivity extends FullActivity {
 
     // -------------------------------------------------------------------------
     // Constants
@@ -85,7 +85,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     }
 
     // -------------------------------------------------------------------------
-    // BaseBottomNavActivity overrides
+    // FullActivity overrides
     // -------------------------------------------------------------------------
 
     @Override protected int getNavSectionId()         { return R.id.nav_radio; }
