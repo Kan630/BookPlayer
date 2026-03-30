@@ -146,7 +146,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
         selectBottomNavItemFromCode(getNavSectionId());
     }
-
+/*
     @Override
     protected void onResume() {
         super.onResume();
@@ -166,6 +166,8 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             }
         }
     }
+
+ */
 
     @Override
     public void setContentView(int layoutResID) {

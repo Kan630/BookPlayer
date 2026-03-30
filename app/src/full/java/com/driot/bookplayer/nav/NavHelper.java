@@ -180,7 +180,7 @@ public class NavHelper {
 
         // 2. Switch to different tab — restore saved state or start fresh
         myLogDD("different tab click");
-        Intent targetIntent = navState.getLastIntent(itemId);
+        Intent targetIntent = navState.peek(itemId);
 
         if (targetIntent != null) {
             myLogDD("has a last intent");

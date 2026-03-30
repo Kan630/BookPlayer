@@ -40,6 +40,10 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.nav.NavState;
+
+import javax.inject.Inject;
 
 
 /**
@@ -47,6 +51,9 @@ import com.driot.bookplayer.nav.BaseBottomNavActivity;
  * lifecycle callbacks for logging various lifecycle events.
  */
 public abstract class BaseActivity extends AppCompatActivity {
+
+    @Inject protected NavState navState;
+    @Inject protected NavHelper navHelper;
 
     private static final String LOG_TAG = "Lifecycle";
 
@@ -111,6 +118,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             } else {
                 setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
+        }
+
+        navState = new NavState();
+        int navId = getNavSectionId();
+        if (navId > 0) {
+            navState.push(navId, getIntent());
         }
 
         registerBackCallback();
@@ -432,22 +445,33 @@ public abstract class BaseActivity extends AppCompatActivity {
                     // Has a declared parent → navigate to that declared parent
                     myLogI("--- user press BACK --- with declared parent → " + parent.getSimpleName());
                     Intent intent = new Intent(BaseActivity.this, parent);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                 } else if (isSectionRoot()) {
                     // Root section → back to MainActivity
                     myLogI("--- user press BACK --- from section root → MainActivity");
                     Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                 } else if (navSectionId > 0) {
-                    myLogI("--- user press BACK --- navSection=");
-                    //TODO here we need to go to the parent of that same section
-                    // Intent intent = new Intent(BaseActivity.this, );
-                    // intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    // startActivity(intent);
+                    if (navState.hasBack(navSectionId)) {
+                        Intent previous = navState.pop(navSectionId);
+
+                        if (previous != null) {
+                            myLogI("--- user press BACK --- inside section " + navSectionId + " -> going the previous in the stack");
+                            previous.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            startActivity(previous);
+                            overridePendingTransition(0, 0);
+                            return;
+                        }
+                    }
+                    // No more history → fallback to root
+                    myLogI("--- user press BACK --- inside section " + navSectionId + " -> stack is empty");
+                    setEnabled(false); // VERY IMPORTANT
+                    getOnBackPressedDispatcher().onBackPressed();
+
                 } else {
                     myLogI("--- user press BACK ---");
                     setEnabled(false); // VERY IMPORTANT

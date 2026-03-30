@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 public class NavState {
 
     private int currentBottomNavId = R.id.nav_library;
-    private final Map<Integer, Intent> lastIntents = new HashMap<>();
+    private final Map<Integer, java.util.Deque<Intent>> navStacks = new HashMap<>();
 
     @Inject
     public NavState() {
@@ -29,12 +29,30 @@ public class NavState {
         this.currentBottomNavId = id;
     }
 
-    public void setLastIntent(int navId, Intent intent) {
-        lastIntents.put(navId, intent);
+    public void push(int navId, Intent intent) {
+        navStacks.computeIfAbsent(navId, k -> new java.util.ArrayDeque<>()).push(intent);
     }
 
-    public Intent getLastIntent(int navId) {
-        return lastIntents.get(navId);
+    public Intent pop(int navId) {
+        java.util.Deque<Intent> stack = navStacks.get(navId);
+        if (stack == null || stack.isEmpty()) return null;
+
+        // remove current
+        stack.pop();
+
+        // return previous
+        return stack.peek();
+    }
+
+    public boolean hasBack(int navId) {
+        java.util.Deque<Intent> stack = navStacks.get(navId);
+        return stack != null && stack.size() > 1;
+    }
+
+    public Intent peek(int navId) {
+        java.util.Deque<Intent> stack = navStacks.get(navId);
+        if (stack == null || stack.isEmpty()) return null;
+        return stack.peek();
     }
 
 }
