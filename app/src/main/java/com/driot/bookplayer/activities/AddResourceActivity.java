@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class AddResourceActivity extends FullActivity {
 
     private static final int DELAY_END_WAIT_WARNINGS = 5 * 60_000;
-    private static final int DELAY_END_WAIT_NO_ERROR = 2_000;
+    private static final int DELAY_END_WAIT_NO_ERROR = 1_000;
 
     private TextView tvTitle;
     private TextView progressBarText;
