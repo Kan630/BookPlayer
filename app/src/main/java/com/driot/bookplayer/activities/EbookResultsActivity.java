@@ -387,7 +387,7 @@ public class EbookResultsActivity extends FullActivity {
                             .updateLanguageCompletedCount(lang, resp.count);
                 }
 
-                nextPageUrl = resp.next;
+                nextPageUrl = rewriteNextUrl(resp.next);
                 totalCount = resp.count;
                 adapter.setItems(mapped);
                 updateCountDisplay(mapped.size());
@@ -479,7 +479,7 @@ public class EbookResultsActivity extends FullActivity {
 
                 if (!mapped.isEmpty()) {
                     // Update pagination info
-                    nextPageUrl = resp.next;
+                    nextPageUrl = rewriteNextUrl(resp.next);
                     totalCount = resp.count;
 
                     // Append new items
@@ -487,7 +487,7 @@ public class EbookResultsActivity extends FullActivity {
                     updateCountDisplay(adapter.getItemCountExcludingHeader());
                 } else {
                     // All filtered out, but there might be more pages
-                    nextPageUrl = resp.next;
+                    nextPageUrl = rewriteNextUrl(resp.next);
                     if (nextPageUrl != null && !nextPageUrl.isEmpty()) {
                         // Try loading next page immediately if current page had no valid EPUBs
                         loadNextPage();
@@ -504,6 +504,13 @@ public class EbookResultsActivity extends FullActivity {
                 myToastEE(t, getString(R.string.an_error_occurred));
             }
         });
+    }
+
+    /** Rewrite a gutendex.com "next" URL to go through our caching proxy base URL. */
+    private static String rewriteNextUrl(String next) {
+        if (next == null) return null;
+        String base = Option.getGutenbergBaseUrl(); // e.g. "https://gutenberg.driot.com/"
+        return next.replaceFirst("^https://gutendex\\.com/", base);
     }
 
     private void updateCountDisplay(int loadedCount) {
