@@ -1,6 +1,8 @@
 package com.driot.bookplayer.net;
 
 import android.content.Context;
+
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.CoverResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,7 +22,8 @@ public class GoogleImageProvider implements CoverSearchProvider {
 
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?tbm=isch&q=";
     // Using a simpler mobile User-Agent to get more predictable HTML
-    private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.4.2; en-us; LGMS323 Build/KOT49I.MS32310c) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36";
+    // private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.4.2; en-us; LGMS323 Build/KOT49I.MS32310c) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36";
+    private static final String USER_AGENT = Var.USER_AGENT_BOOKPLAYER;
 
     @Override
     public List<CoverResult> search(Context ctx, String query, int max) {
@@ -33,9 +36,13 @@ public class GoogleImageProvider implements CoverSearchProvider {
                     .timeout(8000)
                     .get();
 
+            myLogD("GoogleImage: page title='" + doc.title() + "'");
+
             // In very simple mobile layouts, images are often in <img> tags.
             // We want to skip the top logo and other UI elements.
             Elements imgs = doc.select("img");
+            myLogD("GoogleImage: total <img> tags found=" + imgs.size());
+            int skippedEmpty = 0, skippedFilter = 0, skippedSize = 0;
 
             for (Element img : imgs) {
                 if (out.size() >= max)
@@ -46,8 +53,10 @@ public class GoogleImageProvider implements CoverSearchProvider {
                     src = img.attr("data-src");
                 }
 
-                if (src.isEmpty())
+                if (src.isEmpty()) {
+                    skippedEmpty++;
                     continue;
+                }
 
                 // Skip common Google UI/tracking images and social media icons
                 String srcLower = src.toLowerCase();
@@ -63,6 +72,7 @@ public class GoogleImageProvider implements CoverSearchProvider {
                         || srcLower.contains("twitter")
                         || srcLower.contains("instagram") || srcLower.contains("linkedin") || srcLower.contains("email")
                         || srcLower.contains("share_icon") || srcLower.contains("profile_icon")) {
+                    skippedFilter++;
                     continue;
                 }
 
@@ -70,24 +80,21 @@ public class GoogleImageProvider implements CoverSearchProvider {
                         || altLower.contains("twitter")
                         || altLower.contains("instagram") || altLower.contains("linkedin") || altLower.contains("email")
                         || altLower.contains("partager") || altLower.contains("share")) {
+                    skippedFilter++;
                     continue;
                 }
 
                 // Skip small icons/trackers (often 1x1 or very small)
-                // Note: user requested minimum size to filter them out.
                 String widthStr = img.attr("width");
                 String heightStr = img.attr("height");
-                //myLog(src + " width=" + widthStr + " height=" + heightStr + " alt=" + alt + " size=" + src.length());
                 try {
                     if (!widthStr.isEmpty() && !heightStr.isEmpty()) {
                         int w = Integer.parseInt(widthStr);
                         int h = Integer.parseInt(heightStr);
-                        if (w < 100 || h < 100)
-                            continue;
+                        if (w < 100 || h < 100) { skippedSize++; continue; }
                     } else {
                         // If dimensions missing, check for pattern like _32x32 in URL
-                        if (srcLower.matches(".*[0-9]{1,2}x[0-9]{1,2}.*"))
-                            continue;
+                        if (srcLower.matches(".*[0-9]{1,2}x[0-9]{1,2}.*")) { skippedSize++; continue; }
                     }
                 } catch (NumberFormatException ignored) {
                 }
@@ -112,6 +119,10 @@ public class GoogleImageProvider implements CoverSearchProvider {
 
                 out.add(new CoverResult(title, src, "GoogleImage"));
             }
+            myLogD("GoogleImage: kept=" + out.size()
+                    + " skippedEmpty=" + skippedEmpty
+                    + " skippedFilter=" + skippedFilter
+                    + " skippedSize=" + skippedSize);
 
         } catch (Exception e) {
             myLogEE(e, "GoogleImage search failed");

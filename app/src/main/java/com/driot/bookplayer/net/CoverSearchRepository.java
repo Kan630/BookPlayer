@@ -43,9 +43,9 @@ public class CoverSearchRepository {
         if (Option.getUseGoogleBooks()) {
             providers.add(new GoogleBooksProvider());
         }
-        if (Option.getUseGoogleImages()) {
-            providers.add(new GoogleImageProvider());
-        }
+        // GoogleImageProvider disabled: Google returns a JS-rendered page with 0 <img> tags,
+        // scraping is completely broken. Provider wastes ~700ms and returns nothing.
+        // if (Option.getUseGoogleImages()) { providers.add(new GoogleImageProvider()); }
 
         // Cloudflare Worker
         if (Option.getUsePixabay()) {
