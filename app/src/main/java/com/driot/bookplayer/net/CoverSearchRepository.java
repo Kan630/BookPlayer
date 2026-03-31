@@ -37,10 +37,10 @@ public class CoverSearchRepository {
 
         // Cloudflare Worker
         if (Option.getUsePixabay()) {
-            String base = BuildConfig.PIXABAY_BASE_URL; // e.g., https://steep-hat-11ff.adriot.workers.dev
+            String base = BuildConfig.PIXABAY_BASE_URL; // e.g., https://pixabay.driot.com
             String tok = BuildConfig.APP_TOKEN; // optional, can be ""
             if (base != null && !base.isEmpty()) {
-                providers.add(new PixabayProxyProvider(base + "/pixabay", tok));
+                providers.add(new PixabayProxyProvider(base, tok));
             }
         }
     }

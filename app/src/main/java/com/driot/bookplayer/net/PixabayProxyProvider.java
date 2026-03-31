@@ -8,8 +8,10 @@ import com.driot.bookplayer.objects.CoverResult;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 public class PixabayProxyProvider implements CoverSearchProvider {
-    private final String baseUrl; // e.g. "https://bookplayer-proxy...workers.dev/pixabay"
+    private final String baseUrl; // e.g. "https://pixabay.driot.com"
     private final String appToken;
 
     public PixabayProxyProvider(String baseUrl, String appToken) {
@@ -24,6 +26,7 @@ public class PixabayProxyProvider implements CoverSearchProvider {
             String q = java.net.URLEncoder.encode(query, "UTF-8");
             int perPage = Math.max(20, max);
             String urlStr = baseUrl + "?q=" + q + "&per_page=" + perPage + "&lang=en";
+            myLogD("Pixabay request: " + urlStr);
 
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
             conn.setConnectTimeout(8000);
@@ -34,7 +37,10 @@ public class PixabayProxyProvider implements CoverSearchProvider {
             int code = conn.getResponseCode();
             java.io.InputStream in = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
             String json = NetUtils.readUtf8(in);
-            if (code < 200 || code >= 300) return out;
+            if (code < 200 || code >= 300) {
+                myLogW("Pixabay HTTP " + code + " for " + urlStr);
+                return out;
+            }
 
             org.json.JSONObject root = new org.json.JSONObject(json);
             org.json.JSONArray hits = root.optJSONArray("hits");
@@ -50,7 +56,9 @@ public class PixabayProxyProvider implements CoverSearchProvider {
                 String title = h.optString("tags", query);
                 out.add(new CoverResult(title, image, "Pixabay"));
             }
-        } catch (Exception ignore) {}
+        } catch (Exception e) {
+            myLogEE(e, "Pixabay search failed");
+        }
         return out;
     }
 
