@@ -15,8 +15,12 @@ import com.driot.bookplayer.global.Option;
 public class CoverSearchRepository {
 
     public interface ResultCallback {
+        /** Called on a background thread when a provider starts fetching. */
+        default void onProviderStarted(String providerName) {}
         /** Called on a background thread each time a provider returns results. */
         void onPartialResults(List<CoverResult> newResults);
+        /** Called on a background thread when a provider finishes (success or failure). */
+        default void onProviderFinished(String providerName) {}
         /** Called on a background thread once all providers have finished. */
         void onComplete();
     }
@@ -193,15 +197,17 @@ public class CoverSearchRepository {
 
         for (CoverSearchProvider p : providers) {
             POOL.submit(() -> {
+                cb.onProviderStarted(p.getName());
                 long t = System.currentTimeMillis();
                 List<CoverResult> list = Collections.emptyList();
                 try {
                     list = p.search(ctx, query, max);
                 } catch (Throwable e) {
-                    myLogEE(e, "Provider failed: " + p.getClass().getSimpleName());
+                    myLogEE(e, "Provider failed: " + p.getName());
                 }
-                myLogD("Provider " + p.getClass().getSimpleName() + " returned "
+                myLogD("Provider " + p.getName() + " returned "
                         + list.size() + " in " + (System.currentTimeMillis() - t) + "ms");
+                cb.onProviderFinished(p.getName());
 
                 // Deduplicate against already-seen results from other providers
                 List<CoverResult> newResults = new ArrayList<>();

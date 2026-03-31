@@ -16,6 +16,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class GoogleImageProvider implements CoverSearchProvider {
 
+    @Override public String getName() { return "Google Images"; }
+
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?tbm=isch&q=";
     // Using a simpler mobile User-Agent to get more predictable HTML
     private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 4.4.2; en-us; LGMS323 Build/KOT49I.MS32310c) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36";

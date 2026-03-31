@@ -16,6 +16,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class GoogleBooksProvider implements CoverSearchProvider {
 
+    @Override public String getName() { return "Google Books"; }
+
     @Override
     public List<CoverResult> search(Context ctx, String query, int max) {
         ArrayList<CoverResult> out = new ArrayList<>();

@@ -4,20 +4,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapters.CoverResultAdapter;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -27,8 +29,10 @@ import com.driot.bookplayer.objects.CoverResult;
 import com.driot.bookplayer.services.DownloadCoverWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
+
 import java.util.List;
-import java.util.concurrent.Executors;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CoverWebSearchActivity extends BaseActivity {
     public static final String EXTRA_FOLDER_ID = "folderId";
@@ -40,13 +44,15 @@ public class CoverWebSearchActivity extends BaseActivity {
 
     private long folderId;
     private EditText etQuery;
-    private ProgressBar progressBar;
+    private LinearLayout llProviderProgress;
     private CoverResultAdapter adapter;
     private final CoverSearchRepository repo = new CoverSearchRepository(this);
 
     private ImageButton btnSearch;
-    private final java.util.concurrent.ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
     private volatile boolean searching = false;
+
+    /** Maps provider display name → its progress row view. */
+    private final Map<String, View> providerRows = new ConcurrentHashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,7 +69,7 @@ public class CoverWebSearchActivity extends BaseActivity {
 
         etQuery = findViewById(R.id.etQuery);
         btnSearch = findViewById(R.id.btnSearch);
-        progressBar = findViewById(R.id.progressBar);
+        llProviderProgress = findViewById(R.id.llProviderProgress);
 
         etQuery.setText(defaultTitle != null ? defaultTitle : "");
 
@@ -72,7 +78,6 @@ public class CoverWebSearchActivity extends BaseActivity {
         adapter = new CoverResultAdapter(this::onResultClicked);
         rv.setAdapter(adapter);
 
-        // IME action on keyboard
         etQuery.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 runSearch(etQuery.getText().toString().trim());
@@ -81,27 +86,17 @@ public class CoverWebSearchActivity extends BaseActivity {
             return false;
         });
 
-        // Button click
         btnSearch.setOnClickListener(v -> runSearch(etQuery.getText().toString().trim()));
 
-        // Enable/disable button based on text present (optional)
         btnSearch.setEnabled(!TextUtils.isEmpty(etQuery.getText()));
         etQuery.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int st, int c, int a) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int st, int b, int c) {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
                 btnSearch.setEnabled(s != null && !s.toString().trim().isEmpty() && !searching);
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Auto search on open if we have a title
         if (defaultTitle != null && !defaultTitle.isEmpty()) {
             runSearch(defaultTitle);
         }
@@ -109,7 +104,6 @@ public class CoverWebSearchActivity extends BaseActivity {
 
     private void setSearching(boolean isSearching) {
         searching = isSearching;
-        progressBar.setVisibility(isSearching ? View.VISIBLE : View.GONE);
         btnSearch.setEnabled(!isSearching && !etQuery.getText().toString().trim().isEmpty());
         etQuery.setEnabled(!isSearching);
     }
@@ -122,6 +116,11 @@ public class CoverWebSearchActivity extends BaseActivity {
         tvEmpty.setVisibility(View.GONE);
         adapter.submit(java.util.Collections.emptyList());
 
+        // Clear any leftover provider rows from a previous search
+        llProviderProgress.removeAllViews();
+        providerRows.clear();
+        llProviderProgress.setVisibility(View.GONE);
+
         if (!NetworkHelper.isConnected(this)) {
             tvEmpty.setText(R.string.no_internet_connection);
             tvEmpty.setVisibility(View.VISIBLE);
@@ -130,6 +129,38 @@ public class CoverWebSearchActivity extends BaseActivity {
         }
 
         repo.searchAsync(this, q, MAX_NB_COVER_SEARCH_RESULT, new CoverSearchRepository.ResultCallback() {
+
+            @Override
+            public void onProviderStarted(String providerName) {
+                runOnUiThread(() -> {
+                    // Build a small row: [spinner] [provider name]
+                    LinearLayout row = new LinearLayout(CoverWebSearchActivity.this);
+                    row.setOrientation(LinearLayout.HORIZONTAL);
+                    row.setGravity(Gravity.CENTER_VERTICAL);
+                    int pad = (int) (4 * getResources().getDisplayMetrics().density);
+                    row.setPadding(0, pad, 0, pad);
+
+                    ProgressBar pb = new ProgressBar(CoverWebSearchActivity.this,
+                            null, android.R.attr.progressBarStyleSmall);
+                    LinearLayout.LayoutParams pbParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    pbParams.setMarginEnd((int) (8 * getResources().getDisplayMetrics().density));
+                    pb.setLayoutParams(pbParams);
+
+                    TextView tv = new TextView(CoverWebSearchActivity.this);
+                    tv.setText(providerName);
+                    tv.setTextSize(13f);
+
+                    row.addView(pb);
+                    row.addView(tv);
+
+                    providerRows.put(providerName, row);
+                    llProviderProgress.addView(row);
+                    llProviderProgress.setVisibility(View.VISIBLE);
+                });
+            }
+
             @Override
             public void onPartialResults(List<CoverResult> newResults) {
                 runOnUiThread(() -> {
@@ -139,8 +170,20 @@ public class CoverWebSearchActivity extends BaseActivity {
             }
 
             @Override
+            public void onProviderFinished(String providerName) {
+                runOnUiThread(() -> {
+                    View row = providerRows.remove(providerName);
+                    if (row != null) llProviderProgress.removeView(row);
+                    if (llProviderProgress.getChildCount() == 0) {
+                        llProviderProgress.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
             public void onComplete() {
                 runOnUiThread(() -> {
+                    llProviderProgress.setVisibility(View.GONE);
                     if (adapter.getItemCount() == 0) {
                         tvEmpty.setVisibility(View.VISIBLE);
                     }
@@ -153,7 +196,6 @@ public class CoverWebSearchActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        searchExecutor.shutdownNow();
     }
 
     private void onResultClicked(CoverResult r) {
@@ -178,7 +220,6 @@ public class CoverWebSearchActivity extends BaseActivity {
 
         WorkManager.getInstance(this).enqueue(req);
 
-        // Send result back so ModifyFolderActivity can refresh preview if needed
         Intent out = new Intent();
         out.putExtra("downloadEnqueued", true);
         setResult(RESULT_OK, out);

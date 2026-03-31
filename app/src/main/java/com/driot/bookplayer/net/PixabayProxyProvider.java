@@ -22,6 +22,8 @@ public class PixabayProxyProvider implements CoverSearchProvider {
         this.appToken = appToken;
     }
 
+    @Override public String getName() { return "Pixabay"; }
+
     @Override
     public List<CoverResult> search(Context ctx, String query, int max) {
         ArrayList<CoverResult> out = new ArrayList<>();
