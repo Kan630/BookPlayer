@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     card_view:cardElevation="2dp"
-    card_view:cardCornerRadius="12dp"
+    card_view:cardCornerRadius="8dp"
     card_view:cardBackgroundColor="@color/cardBackground"
     android:foreground="?android:attr/selectableItemBackground">
 
@@ -87,6 +87,19 @@
             </LinearLayout>
         </LinearLayout>
 
+
+        <!-- Loading spinner: visible only while clicked but not yet playing -->
+        <ProgressBar
+            android:id="@+id/pbLoading"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:indeterminate="true"
+            app:layout_constraintTop_toTopOf="@id/radio_favicon"
+            app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
+            app:layout_constraintStart_toStartOf="@id/radio_favicon"
+            app:layout_constraintEnd_toEndOf="@id/radio_favicon" />
 
         <!-- Border overlay (on top of EVERYTHING including scrim and badges) -->
         <View

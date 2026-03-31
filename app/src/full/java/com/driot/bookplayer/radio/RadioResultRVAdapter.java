@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -149,6 +150,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         ImageView favicon, ivDefaultIcon, ivFlag;
         TextView title, info;
         ImageButton ibFavorite;
+        ProgressBar pbLoading;
 
         ItemVH(@NonNull View itemView) {
             super(itemView);
@@ -157,6 +159,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             info = itemView.findViewById(R.id.radio_info_txt); // country • language • tags
             ibFavorite = itemView.findViewById(R.id.ibFavorite);
             ivFlag = itemView.findViewById(R.id.iv_radio_flag);
+            pbLoading = itemView.findViewById(R.id.pbLoading);
         }
     }
 
@@ -202,8 +205,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             boolean isPlaying = playingRadioStationUuid != null && playingRadioStationUuid.equals(s.stationuuid);
             boolean isClicked = clickedRadioStationUuid != null && clickedRadioStationUuid.equals(s.stationuuid);
 
+            boolean isLoading = isClicked && !isPlaying;
             holder.itemView.setActivated(isPlaying);
-            holder.itemView.setSelected(isClicked && !isPlaying);
+            holder.itemView.setSelected(isLoading);
+            holder.pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 
             Context context = holder.itemView.getContext();
             Context appContext = holder.itemView.getContext().getApplicationContext();
