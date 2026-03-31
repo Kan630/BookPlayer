@@ -6,6 +6,7 @@ import androidx.annotation.Keep;
 public class ArchiveItem {
     public String identifier;
     public String title;
+    public String creator;
     public String author;
     public String date;
     public float avg_rating;

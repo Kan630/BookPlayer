@@ -148,8 +148,11 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.title.setText(item.title);
 
+            holder.creator.setText(""); //important, if not Alexandre Dumas partout !
             if (item.author != null && !item.author.isEmpty()) {
                 holder.creator.setText(item.author);
+            } else if (item.creator != null && !item.creator.isEmpty()) {
+                holder.creator.setText(item.creator);
             }
 
             //myLog("mode : " + mode);
