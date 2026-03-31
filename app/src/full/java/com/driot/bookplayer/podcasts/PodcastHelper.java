@@ -22,6 +22,7 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.player.StartPlayHelper;
+import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class PodcastHelper {
     }
 
     public static PodcastIndexApi buildApi() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LoggerStaticHelper::myLog);
         logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
         // Optional: add the shared token header so your Worker accepts the call

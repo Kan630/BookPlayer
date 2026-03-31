@@ -48,24 +48,12 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
         return errorMessage;
     }
 
-    public void requestFinish() {
-        shouldFinish.setValue(true);
-    }
-
     public String getLastQuery() {
         return lastQuery;
     }
 
     public String getLastLang() {
         return lastLang;
-    }
-
-    public void setLastQuery(String q) {
-        lastQuery = q;
-    }
-
-    public void setLastLang(String l) {
-        lastLang = l;
     }
 
     public LiveData<List<Podcast>> getFavoritePodcastsLive() {
@@ -121,6 +109,7 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
             public void onError(Exception e) {
                 isLoading.postValue(false);
                 errorMessage.postValue(e.getMessage());
+                myLogE(e.getMessage());
             }
         });
     }
@@ -151,6 +140,7 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
             public void onError(Exception e) {
                 isLoading.postValue(false);
                 errorMessage.postValue(e.getMessage());
+                myLogE(e.getMessage());
             }
         });
     }
