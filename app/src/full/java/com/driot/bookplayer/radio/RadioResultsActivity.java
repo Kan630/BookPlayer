@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
@@ -56,6 +57,7 @@ public class RadioResultsActivity extends FullActivity {
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
     private boolean hasInternet = true;
+    private boolean glideIsPaused = false;
 
     // =========================================================================
     // FullActivity overrides
@@ -143,6 +145,7 @@ public class RadioResultsActivity extends FullActivity {
                     return;
                 }
 
+                pauseGlideForPlay();
                 PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_RADIO);
 
                 final boolean renewOnClick  = Option.getRadioRenewUrl();
@@ -232,6 +235,7 @@ public class RadioResultsActivity extends FullActivity {
                             RadioHelper.play(getApplicationContext(), apiStation, stream,
                                     "RadioResultsActivity - onPlay() - after url renewed");
                         } else {
+                            resumeGlideAfterPlay();
                             myToastE(getString(R.string.an_error_occurred));
                         }
                     }
@@ -242,6 +246,7 @@ public class RadioResultsActivity extends FullActivity {
                         progressHelper.stop();
 
                         if (NetworkHelper.isUnknownHost(t)) {
+                            resumeGlideAfterPlay();
                             myToastE(getString(R.string.no_internet_connection));
                         } else {
                             myLogEE(t, "resolveUrl failed");
@@ -252,6 +257,7 @@ public class RadioResultsActivity extends FullActivity {
                                         apiStation.url_resolved,
                                         "RadioResultsActivity - onPlay() - fallback after failure");
                             } else {
+                                resumeGlideAfterPlay();
                                 myToastE(getString(R.string.an_error_occurred));
                             }
                         }
@@ -273,6 +279,7 @@ public class RadioResultsActivity extends FullActivity {
         playbackVm.getState().observe(this, state -> {
             if (state == null) return;
             if (Var.PLAY_MODE_RADIO.equals(state.playMode) && state.trackId > 0) {
+                resumeGlideAfterPlay();
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     RadioStation rs = AppDatabase.getDatabase(getApplicationContext())
                             .radioStationDao().findById(state.trackId);
@@ -458,6 +465,20 @@ public class RadioResultsActivity extends FullActivity {
                 break;
         }
         return true;
+    }
+
+    private void pauseGlideForPlay() {
+        if (!glideIsPaused) {
+            Glide.with(this).pauseRequests();
+            glideIsPaused = true;
+        }
+    }
+
+    private void resumeGlideAfterPlay() {
+        if (glideIsPaused) {
+            Glide.with(this).resumeRequests();
+            glideIsPaused = false;
+        }
     }
 
     /** Sets the adapter's header search label (UI string, stays in Activity). */
