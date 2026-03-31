@@ -8,6 +8,8 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.utils.Tonio;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class ShareHelper {
@@ -67,6 +69,9 @@ public class ShareHelper {
                 if (path != null) {
                     switch (path) {
                         case "/share/radio":
+                            if (Tonio.isPure(context)) {
+                                myToastE("Pure version cannot load radio");
+                            }
                             RadioHelper.handleDeepLink(context, data);
                             return;
                     }
