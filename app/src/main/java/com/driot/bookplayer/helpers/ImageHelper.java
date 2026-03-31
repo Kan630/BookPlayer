@@ -109,7 +109,7 @@ public class ImageHelper {
         FileOutputStream fos = new FileOutputStream(imageFile);
         fos.write(data);
         fos.close();
-        myLogD("image saved [" + imagePath + "] - " + (imageFile.length() / 1024) + "KB");
+        myLogDD("image saved [" + imagePath + "] - " + (imageFile.length() / 1024) + "KB");
         return imageFile.getAbsolutePath();
     }
 
