@@ -290,7 +290,7 @@ public class StatsActivity extends BaseActivity {
         myLogI("--- user clicks RESET APP ---");
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
-        navHelper.resetAddBookNav();
+        navHelper.reInitNavState();
         PlaybackCommands.stop(getApplicationContext());
         myToast(getString(R.string.app_reset_done));
     }

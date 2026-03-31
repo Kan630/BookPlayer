@@ -34,6 +34,12 @@ public class NavState {
     public NavState() {
     }
 
+    public void reInitNavState() {
+        currentAppNavBarId = R.id.nav_library;
+        navStacks.clear();
+        myLogDD("NavState re-initialized (current tab = library, all stacks cleared)");
+    }
+
     public int getCurrentAppNavBarId() {
         return currentAppNavBarId;
     }
