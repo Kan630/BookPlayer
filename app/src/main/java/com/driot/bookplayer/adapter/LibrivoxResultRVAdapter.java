@@ -152,7 +152,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 holder.creator.setText(item.author);
             }
 
-            myLog("mode : " + mode);
+            //myLog("mode : " + mode);
             String year = "";
             if (mode.equalsIgnoreCase("MODE_LAST_ADDED")) {
                 holder.info.setText(extractDate(item.date)); //date means date added in archive/librivox

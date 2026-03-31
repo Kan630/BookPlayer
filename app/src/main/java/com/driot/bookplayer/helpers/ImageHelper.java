@@ -219,7 +219,7 @@ public class ImageHelper {
             return imageFile.getAbsolutePath();
         }
 
-        myLogI("Downloading Librivox image for: " + identifier);
+        myLogDD("Downloading Librivox image for: " + identifier);
         return downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
     }
 
