@@ -23,12 +23,14 @@ public final class NetUtils {
         if (sClient == null) {
             synchronized (NetUtils.class) {
                 if (sClient == null) {
-                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LoggerStaticHelper::myLog);
+                    // Collapse pretty-printed JSON bodies to a single line
+                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor(
+                            msg -> LoggerStaticHelper.myLog(msg.replace("\n", "").replace("\r", "")));
                     logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
                     sClient = new OkHttpClient.Builder()
                             .addInterceptor(logging)
                             .connectTimeout(8, TimeUnit.SECONDS)
-                            .readTimeout(8, TimeUnit.SECONDS)
+                            .readTimeout(20, TimeUnit.SECONDS) // OpenLibrary can be slow
                             .build();
                 }
             }
