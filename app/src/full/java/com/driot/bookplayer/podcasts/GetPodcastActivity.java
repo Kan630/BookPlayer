@@ -66,7 +66,7 @@ public class GetPodcastActivity extends FullActivity {
 
         spinnerLang = findViewById(R.id.spinnerLang);
         spinnerLang.setAdapter(new ArrayAdapter<>(this,
-                R.layout.spinner_language_item, new String[]{ getString(R.string.loading)}));
+                R.layout.spinner_language_item, R.id.textViewLanguage, new String[]{ getString(R.string.loading)}));
         spinnerLang.post(() ->
                 LanguageHelper.setupLanguageSpinner(
                         this,
