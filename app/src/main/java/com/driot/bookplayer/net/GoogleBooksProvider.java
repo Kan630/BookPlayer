@@ -9,9 +9,6 @@ import org.json.JSONObject;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.CoverResult;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,40 +19,33 @@ public class GoogleBooksProvider implements CoverSearchProvider {
     @Override
     public List<CoverResult> search(Context ctx, String query, int max) {
         ArrayList<CoverResult> out = new ArrayList<>();
-        HttpURLConnection conn = null;
         try {
             String q = java.net.URLEncoder.encode("intitle:" + query, "UTF-8");
-            URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=" + q + "&maxResults=20");
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(8000);
-            conn.setReadTimeout(8000);
-            conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+            String urlStr = "https://www.googleapis.com/books/v1/volumes?q=" + q + "&maxResults=20";
 
-            int responseCode = conn.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                myLogW("GoogleBooks search returned response code: " + responseCode);
-                return out;
-            }
+            okhttp3.Request req = new okhttp3.Request.Builder()
+                    .url(urlStr)
+                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER)
+                    .build();
 
-            try (InputStream in = conn.getInputStream()) {
-                String json = NetUtils.readUtf8(in);
+            try (okhttp3.Response resp = NetUtils.sharedClient().newCall(req).execute()) {
+                if (!resp.isSuccessful()) {
+                    myLogW("GoogleBooks search returned response code: " + resp.code());
+                    return out;
+                }
+                String json = resp.body().string();
                 JSONObject root = new JSONObject(json);
                 JSONArray items = root.optJSONArray("items");
-                if (items == null)
-                    return out;
+                if (items == null) return out;
 
                 for (int i = 0; i < items.length() && out.size() < max; i++) {
                     JSONObject volume = items.getJSONObject(i).optJSONObject("volumeInfo");
-                    if (volume == null)
-                        continue;
+                    if (volume == null) continue;
                     JSONObject imageLinks = volume.optJSONObject("imageLinks");
-                    if (imageLinks == null)
-                        continue;
+                    if (imageLinks == null) continue;
 
                     String img = pickBestImageUrl(imageLinks);
-                    if (img == null)
-                        continue;
+                    if (img == null) continue;
 
                     String title = volume.optString("title", query);
                     out.add(new CoverResult(title, img, "GoogleBooks"));
@@ -63,45 +53,26 @@ public class GoogleBooksProvider implements CoverSearchProvider {
             }
         } catch (Exception e) {
             myLogEE(e, "GoogleBooks search failed");
-        } finally {
-            if (conn != null)
-                conn.disconnect();
         }
         return out;
     }
 
     private static String pickBestImageUrl(JSONObject imageLinks) {
-        // Try larger first; some fields may be absent
         String[] keys = { "extraLarge", "large", "medium", "small", "thumbnail", "smallThumbnail" };
         for (String k : keys) {
             String u = imageLinks.optString(k, null);
             u = normalizeGoogleImageUrl(u);
-            if (u != null)
-                return u;
+            if (u != null) return u;
         }
         return null;
     }
 
     private static String normalizeGoogleImageUrl(String u) {
-        if (u == null || u.isEmpty())
-            return null;
-
-        // Handle protocol-relative URLs like //books.google.com/...
-        if (u.startsWith("//"))
-            u = "https:" + u;
-
-        // Force HTTPS (Android blocks cleartext HTTP by default)
-        if (u.startsWith("http://"))
-            u = "https://" + u.substring(7);
-
-        // Remove the curled-edge border parameter if present
-        // (purely cosmetic; some thumbnails add a white border)
+        if (u == null || u.isEmpty()) return null;
+        if (u.startsWith("//")) u = "https:" + u;
+        if (u.startsWith("http://")) u = "https://" + u.substring(7);
         u = u.replace("&edge=curl", "");
-
-        // Ask for a bit larger thumbnail when possible
-        // (zoom=1 is tiny; 2 is usually safe; 3 sometimes available)
         u = u.replace("zoom=1", "zoom=2");
-
         return u;
     }
 }

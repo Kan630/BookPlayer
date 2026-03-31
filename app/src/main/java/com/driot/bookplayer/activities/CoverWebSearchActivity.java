@@ -115,33 +115,38 @@ public class CoverWebSearchActivity extends BaseActivity {
     }
 
     private void runSearch(String q) {
-        if (q.isEmpty())
-            return;
+        if (q.isEmpty()) return;
 
         setSearching(true);
-
         TextView tvEmpty = findViewById(R.id.tvEmpty);
         tvEmpty.setVisibility(View.GONE);
         adapter.submit(java.util.Collections.emptyList());
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            List<CoverResult> list = null;
-            boolean online = NetworkHelper.isConnected(this);
-            if (!online) {
-                tvEmpty.setText(R.string.no_internet_connection);
-            } else {
-                try {
-                    list = repo.search(this, q, MAX_NB_COVER_SEARCH_RESULT);
-                } catch (Throwable t) {
-                    myLogEE(t, "cover web search failed");
-                }
+        if (!NetworkHelper.isConnected(this)) {
+            tvEmpty.setText(R.string.no_internet_connection);
+            tvEmpty.setVisibility(View.VISIBLE);
+            setSearching(false);
+            return;
+        }
+
+        repo.searchAsync(this, q, MAX_NB_COVER_SEARCH_RESULT, new CoverSearchRepository.ResultCallback() {
+            @Override
+            public void onPartialResults(List<CoverResult> newResults) {
+                runOnUiThread(() -> {
+                    adapter.addResults(newResults);
+                    tvEmpty.setVisibility(View.GONE);
+                });
             }
-            List<CoverResult> finalList = list;
-            runOnUiThread(() -> {
-                adapter.submit(finalList);
-                tvEmpty.setVisibility(finalList == null || finalList.isEmpty() ? View.VISIBLE : View.GONE);
-                setSearching(false);
-            });
+
+            @Override
+            public void onComplete() {
+                runOnUiThread(() -> {
+                    if (adapter.getItemCount() == 0) {
+                        tvEmpty.setVisibility(View.VISIBLE);
+                    }
+                    setSearching(false);
+                });
+            }
         });
     }
 

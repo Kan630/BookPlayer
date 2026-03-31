@@ -7,11 +7,19 @@ import com.driot.bookplayer.BuildConfig;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.global.Option;
 
 public class CoverSearchRepository {
+
+    public interface ResultCallback {
+        /** Called on a background thread each time a provider returns results. */
+        void onPartialResults(List<CoverResult> newResults);
+        /** Called on a background thread once all providers have finished. */
+        void onComplete();
+    }
     private final List<CoverSearchProvider> providers = new ArrayList<>();
     private static final int MIN_PER_PROVIDER = 2; // guarantee at least N from each provider
     private static final int TIMEOUT_MS = 6000; // per-provider hard cap
@@ -160,6 +168,62 @@ public class CoverSearchRepository {
         myLogD("CoverSearchRepository: returned " + out.size() + " in " + (System.currentTimeMillis() - t0) + "ms for '"
                 + query + "'");
         return out;
+    }
+
+    /** Fires all providers in parallel and calls cb.onPartialResults() as each one finishes. */
+    public void searchAsync(Context ctx, String query, int max, ResultCallback cb) {
+        final String key = query.trim().toLowerCase(Locale.US) + "#" + max;
+        CacheEntry ce = cache.get(key);
+        if (ce != null && (System.currentTimeMillis() - ce.when) <= CACHE_TTL_MS) {
+            myLogD("CoverSearchRepository: cache hit for '" + query + "'");
+            cb.onPartialResults(new ArrayList<>(ce.results));
+            cb.onComplete();
+            return;
+        }
+
+        if (providers.isEmpty()) {
+            cb.onComplete();
+            return;
+        }
+
+        final long t0 = System.currentTimeMillis();
+        final Set<String> seen = Collections.synchronizedSet(new HashSet<>());
+        final List<CoverResult> allResults = Collections.synchronizedList(new ArrayList<>());
+        final AtomicInteger remaining = new AtomicInteger(providers.size());
+
+        for (CoverSearchProvider p : providers) {
+            POOL.submit(() -> {
+                long t = System.currentTimeMillis();
+                List<CoverResult> list = Collections.emptyList();
+                try {
+                    list = p.search(ctx, query, max);
+                } catch (Throwable e) {
+                    myLogEE(e, "Provider failed: " + p.getClass().getSimpleName());
+                }
+                myLogD("Provider " + p.getClass().getSimpleName() + " returned "
+                        + list.size() + " in " + (System.currentTimeMillis() - t) + "ms");
+
+                // Deduplicate against already-seen results from other providers
+                List<CoverResult> newResults = new ArrayList<>();
+                for (CoverResult r : list) {
+                    if (r != null && r.imageUrl != null && seen.add(r.imageUrl)) {
+                        newResults.add(r);
+                    }
+                }
+                if (!newResults.isEmpty()) {
+                    allResults.addAll(newResults);
+                    cb.onPartialResults(newResults);
+                }
+
+                if (remaining.decrementAndGet() == 0) {
+                    cache.put(key, new CacheEntry(System.currentTimeMillis(), new ArrayList<>(allResults)));
+                    myLogD("CoverSearchRepository: all done in "
+                            + (System.currentTimeMillis() - t0) + "ms, total=" + allResults.size()
+                            + " for '" + query + "'");
+                    cb.onComplete();
+                }
+            });
+        }
     }
 
     private static final class ProvResult {

@@ -5,9 +5,36 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
 public final class NetUtils {
     private NetUtils() {}
+
+    private static volatile OkHttpClient sClient;
+
+    /** Shared OkHttpClient with logging — reuse across all cover providers. */
+    public static OkHttpClient sharedClient() {
+        if (sClient == null) {
+            synchronized (NetUtils.class) {
+                if (sClient == null) {
+                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LoggerStaticHelper::myLog);
+                    logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
+                    sClient = new OkHttpClient.Builder()
+                            .addInterceptor(logging)
+                            .connectTimeout(8, TimeUnit.SECONDS)
+                            .readTimeout(8, TimeUnit.SECONDS)
+                            .build();
+                }
+            }
+        }
+        return sClient;
+    }
 
     public static byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

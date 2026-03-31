@@ -26,6 +26,13 @@ public class CoverResultAdapter extends RecyclerView.Adapter<CoverResultAdapter.
         notifyDataSetChanged();
     }
 
+    public void addResults(List<CoverResult> newItems) {
+        if (newItems == null || newItems.isEmpty()) return;
+        int start = data.size();
+        data.addAll(newItems);
+        notifyItemRangeInserted(start, newItems.size());
+    }
+
     @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int vt) {
         View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_cover_result, p, false);
         return new VH(v);

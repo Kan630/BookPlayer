@@ -5,6 +5,9 @@ import android.content.Context;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.CoverResult;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,33 +31,31 @@ public class PixabayProxyProvider implements CoverSearchProvider {
             String urlStr = baseUrl + "?q=" + q + "&per_page=" + perPage + "&lang=en";
             myLogD("Pixabay request: " + urlStr);
 
-            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
-            conn.setConnectTimeout(8000);
-            conn.setReadTimeout(8000);
-            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
-            if (appToken != null && !appToken.isEmpty()) conn.setRequestProperty("x-app-auth", appToken);
+            okhttp3.Request.Builder reqBuilder = new okhttp3.Request.Builder()
+                    .url(urlStr)
+                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+            if (appToken != null && !appToken.isEmpty()) reqBuilder.header("x-app-auth", appToken);
 
-            int code = conn.getResponseCode();
-            java.io.InputStream in = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
-            String json = NetUtils.readUtf8(in);
-            if (code < 200 || code >= 300) {
-                myLogW("Pixabay HTTP " + code + " for " + urlStr);
-                return out;
-            }
+            try (okhttp3.Response resp = NetUtils.sharedClient().newCall(reqBuilder.build()).execute()) {
+                if (!resp.isSuccessful()) {
+                    myLogW("Pixabay HTTP " + resp.code() + " for " + urlStr);
+                    return out;
+                }
+                String json = resp.body().string();
+                JSONObject root = new JSONObject(json);
+                JSONArray hits = root.optJSONArray("hits");
+                if (hits == null) return out;
 
-            org.json.JSONObject root = new org.json.JSONObject(json);
-            org.json.JSONArray hits = root.optJSONArray("hits");
-            if (hits == null) return out;
-
-            for (int i = 0; i < hits.length() && out.size() < max; i++) {
-                org.json.JSONObject h = hits.getJSONObject(i);
-                String large = opt(h, "largeImageURL");
-                String web   = opt(h, "webformatURL");
-                String prev  = opt(h, "previewURL");
-                String image = firstHttps(large, web, prev);
-                if (image == null) continue;
-                String title = h.optString("tags", query);
-                out.add(new CoverResult(title, image, "Pixabay"));
+                for (int i = 0; i < hits.length() && out.size() < max; i++) {
+                    JSONObject h = hits.getJSONObject(i);
+                    String large = opt(h, "largeImageURL");
+                    String web   = opt(h, "webformatURL");
+                    String prev  = opt(h, "previewURL");
+                    String image = firstHttps(large, web, prev);
+                    if (image == null) continue;
+                    String title = h.optString("tags", query);
+                    out.add(new CoverResult(title, image, "Pixabay"));
+                }
             }
         } catch (Exception e) {
             myLogEE(e, "Pixabay search failed");
@@ -62,10 +63,11 @@ public class PixabayProxyProvider implements CoverSearchProvider {
         return out;
     }
 
-    private static String opt(org.json.JSONObject o, String k) {
+    private static String opt(JSONObject o, String k) {
         String s = o.optString(k, "");
         return s.isEmpty() ? null : s;
     }
+
     private static String firstHttps(String... urls) {
         if (urls == null) return null;
         for (String u : urls) {
