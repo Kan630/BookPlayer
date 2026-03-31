@@ -18,8 +18,8 @@ android {
 
         buildConfigField "String", "LIBRIVOX_PROXY_BASE_URL", "\"https://librivox.driot.com\"";
         buildConfigField "String", "GUTENDEX_BASE_URL", "\"https://gutenberg.driot.com/\""
-        buildConfigField "String", "PIXABAY_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev\""
-        buildConfigField "String", "PODCASTINDEX_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev/podcastindex/\""
+        buildConfigField "String", "PIXABAY_BASE_URL",      "\"https://pixabay.driot.com\""
+        buildConfigField "String", "PODCASTINDEX_BASE_URL",  "\"https://podcastindex.driot.com/\""
         buildConfigField "String", "RADIO_PROXY_BASE_URL", "\"https://radio.driot.com\""
         buildConfigField "String", "APP_TOKEN", "\"bookplayer_petit_mais_costaud\""
 
