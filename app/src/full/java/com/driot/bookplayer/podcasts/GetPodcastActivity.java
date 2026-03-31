@@ -3,6 +3,7 @@ package com.driot.bookplayer.podcasts;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -64,13 +65,16 @@ public class GetPodcastActivity extends FullActivity {
         buttonTrending = findViewById(R.id.bPodcastTrending);
 
         spinnerLang = findViewById(R.id.spinnerLang);
-        LanguageHelper.setupLanguageSpinner(
-                this,
-                spinnerLang,
-                Pref.get_Audio_Language_Podcast(this),
-                LanguageHelper.getPodcastLanguages(),
-                lang -> Pref.set_Audio_Language_Podcast(this, lang.twoLetterCode),
-                false);
+        spinnerLang.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, new String[]{ getString(R.string.loading)}));
+        spinnerLang.post(() ->
+                LanguageHelper.setupLanguageSpinner(
+                        this,
+                        spinnerLang,
+                        Pref.get_Audio_Language_Podcast(this),
+                        LanguageHelper.getPodcastLanguages(),
+                        lang -> Pref.set_Audio_Language_Podcast(this, lang.twoLetterCode),
+                        false));
 
         bFavorite.setOnClickListener(v -> clickFavorite());
         ibFavorite.setOnClickListener(v -> clickFavorite());
