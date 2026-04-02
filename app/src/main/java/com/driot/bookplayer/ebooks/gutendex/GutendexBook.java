@@ -19,6 +19,7 @@ public class GutendexBook {
     public boolean copyright;
     public String media_type;
     public int download_count;
+    public List<String> summaries; // may be null if not provided by server
 
     // key = MIME type, value = URL
     public Map<String, String> formats;

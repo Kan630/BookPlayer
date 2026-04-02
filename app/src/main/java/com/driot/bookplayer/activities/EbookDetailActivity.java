@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,7 +17,11 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.ebooks.gutendex.GutendexApiService;
+import com.driot.bookplayer.ebooks.gutendex.GutendexBook;
+import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -30,8 +35,16 @@ import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @AndroidEntryPoint
 public class EbookDetailActivity extends FullActivity {
@@ -47,6 +60,7 @@ public class EbookDetailActivity extends FullActivity {
     private TextView tvAuthors;
     private TextView tvInfo;
     private TextView tvGutenbergLink;
+    private TextView tvDescription;
     private TextView tvStatus;
     private Button bGet;
 
@@ -57,9 +71,6 @@ public class EbookDetailActivity extends FullActivity {
     private int downloads;
     private String coverUrl;
     private String epubUrl;
-
-    // If later you download cover to a local file, store its path here
-    private String localCoverPath;
 
     @Override
     protected int getNavSectionId() {
@@ -86,6 +97,7 @@ public class EbookDetailActivity extends FullActivity {
         tvAuthors = findViewById(R.id.textDetailAuthors);
         tvInfo = findViewById(R.id.textDetailInfo);
         tvGutenbergLink = findViewById(R.id.tvGutenbergLink);
+        tvDescription = findViewById(R.id.tvDescription);
         tvStatus = findViewById(R.id.tvStatus);
         bGet = findViewById(R.id.bGet);
 
@@ -140,39 +152,20 @@ public class EbookDetailActivity extends FullActivity {
             }
         });
 
-        // Cover — use persisted file if available, otherwise download and persist
+        // Cover — show persisted file immediately if available
         java.io.File persistedCover = ImageHelper.getGutendexImageFile(this, gutendexId);
         if (persistedCover.exists()) {
-            localCoverPath = persistedCover.getAbsolutePath();
             Glide.with(coverView.getContext())
                     .load(persistedCover)
                     .placeholder(R.drawable.placeholder_cover)
                     .error(R.drawable.placeholder_cover)
                     .into(coverView);
-        } else if (coverUrl != null && !coverUrl.isEmpty()) {
-            coverView.setImageResource(R.drawable.placeholder_cover);
-            final String url = coverUrl;
-            new Thread(() -> {
-                String path = ImageHelper.getOrDownloadGutendexImage(this, gutendexId, url);
-                if (path != null) {
-                    localCoverPath = path;
-                    coverView.post(() -> {
-                        try {
-                            Glide.with(coverView.getContext())
-                                    .load(new java.io.File(path))
-                                    .placeholder(R.drawable.placeholder_cover)
-                                    .error(R.drawable.placeholder_cover)
-                                    .into(coverView);
-                        } catch (Exception e) {
-                            myLogEE(e, "glide error for gutendex cover");
-                        }
-                    });
-                }
-            }).start();
         } else {
             coverView.setImageResource(R.drawable.placeholder_cover);
-            localCoverPath = null;
         }
+
+        // Refresh from API: update description, re-check cover URL
+        refreshFromApi();
 
         // Initial status
         tvStatus.setText("");
@@ -191,6 +184,89 @@ public class EbookDetailActivity extends FullActivity {
     protected void onResume() {
         super.onResume();
         updateGetButtonEnabled();
+    }
+
+    private void refreshFromApi() {
+        if (!NetworkHelper.isConnected(this)) return;
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
+        logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(Var.GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .readTimeout(Var.GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Option.getGutenbergBaseUrl())
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        retrofit.create(GutendexApiService.class).getBook(gutendexId).enqueue(new Callback<GutendexBook>() {
+            @Override
+            public void onResponse(Call<GutendexBook> call, Response<GutendexBook> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    myLogD("refreshFromApi: no valid response for id=" + gutendexId);
+                    return;
+                }
+                GutendexBook book = response.body();
+
+                // Description: prefer summaries, fall back to subjects
+                String description = null;
+                if (book.summaries != null && !book.summaries.isEmpty()) {
+                    description = android.text.TextUtils.join("\n", book.summaries);
+                } else if (book.subjects != null && !book.subjects.isEmpty()) {
+                    description = android.text.TextUtils.join(" · ", book.subjects);
+                }
+                final String finalDesc = description;
+                runOnUiThread(() -> {
+                    if (finalDesc != null && !finalDesc.isEmpty()) {
+                        tvDescription.setText(finalDesc);
+                        tvDescription.setVisibility(View.VISIBLE);
+                    } else {
+                        tvDescription.setVisibility(View.GONE);
+                    }
+                });
+
+                // Cover: check if URL changed
+                String newCoverUrl = GutendexMapper.findCoverUrl(book);
+                if (newCoverUrl == null || newCoverUrl.isEmpty()) return;
+
+                String savedUrl = ImageHelper.getGutendexSavedCoverUrl(EbookDetailActivity.this, gutendexId);
+                java.io.File imageFile = ImageHelper.getGutendexImageFile(EbookDetailActivity.this, gutendexId);
+
+                boolean needsDownload = !imageFile.exists()
+                        || !newCoverUrl.equals(savedUrl);
+
+                if (!needsDownload) {
+                    myLogD("refreshFromApi: cover unchanged for id=" + gutendexId);
+                    return;
+                }
+
+                myLogD("refreshFromApi: cover changed or missing, re-downloading id=" + gutendexId);
+                String path = ImageHelper.forceDownloadGutendexImage(
+                        EbookDetailActivity.this, gutendexId, newCoverUrl);
+                if (path != null) {
+                    runOnUiThread(() -> {
+                        try {
+                            Glide.with(coverView.getContext())
+                                    .load(new java.io.File(path))
+                                    .placeholder(R.drawable.placeholder_cover)
+                                    .error(R.drawable.placeholder_cover)
+                                    .into(coverView);
+                        } catch (Exception e) {
+                            myLogEE(e, "glide error refreshing gutendex cover");
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GutendexBook> call, Throwable t) {
+                myLogD("refreshFromApi: failed for id=" + gutendexId + " - " + t.getMessage());
+            }
+        });
     }
 
     private void updateGetButtonEnabled() {
@@ -298,7 +374,8 @@ public class EbookDetailActivity extends FullActivity {
             myLogE("Error computing hash for Gutenberg ebook [" + title + "]: " + e.getMessage());
         }
 
-        state.imagePath = localCoverPath;
+        java.io.File coverFile = ImageHelper.getGutendexImageFile(this, gutendexId);
+        state.imagePath = coverFile.exists() ? coverFile.getAbsolutePath() : null;
 
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);

@@ -60,6 +60,7 @@
             android:layout_marginTop="8dp"
             android:text="https://www.gutenberg.org/ebooks/2600" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/tvStatus"
             style="@style/myStyleInfo"
@@ -73,8 +74,19 @@
             android:id="@+id/bGet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="0dp"
             android:text="@string/get" />
+
+
+        <TextView
+            android:id="@+id/tvDescription"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:padding="8dp"
+            android:background="@drawable/bg_chip"
+            />
 
     </LinearLayout>
 </ScrollView>

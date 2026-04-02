@@ -229,6 +229,30 @@ public class ImageHelper {
         return new File(dir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
     }
 
+    private static File getGutendexUrlFile(Context context, int gutendexId) {
+        return new File(StorageHelper.getImageFolder(context, true),
+                IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".url");
+    }
+
+    public static String getGutendexSavedCoverUrl(Context context, int gutendexId) {
+        File f = getGutendexUrlFile(context, gutendexId);
+        if (!f.exists()) return null;
+        try {
+            return new String(java.nio.file.Files.readAllBytes(f.toPath())).trim();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static void saveGutendexCoverUrl(Context context, int gutendexId, String url) {
+        try {
+            java.nio.file.Files.write(getGutendexUrlFile(context, gutendexId).toPath(),
+                    url.getBytes());
+        } catch (Exception e) {
+            myLogEE(e, "Failed to save gutendex cover URL sidecar");
+        }
+    }
+
     public static String getOrDownloadGutendexImage(Context context, int gutendexId, String imageUrl) {
         String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
         File imageFile = new File(StorageHelper.getImageFolder(context, true), imagePath);
@@ -239,7 +263,21 @@ public class ImageHelper {
         }
 
         myLogDD("Downloading Gutendex image for id=" + gutendexId);
-        return downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
+        String result = downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
+        if (result != null) {
+            saveGutendexCoverUrl(context, gutendexId, imageUrl);
+        }
+        return result;
+    }
+
+    public static String forceDownloadGutendexImage(Context context, int gutendexId, String imageUrl) {
+        String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
+        myLogD("Force re-downloading Gutendex image for id=" + gutendexId);
+        String result = downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
+        if (result != null) {
+            saveGutendexCoverUrl(context, gutendexId, imageUrl);
+        }
+        return result;
     }
 
     public static File getGutendexImageFile(Context context, int gutendexId) {
