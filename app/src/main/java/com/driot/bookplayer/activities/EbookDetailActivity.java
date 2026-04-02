@@ -14,14 +14,14 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.ebooks.gutendex.GutendexApiService;
 import com.driot.bookplayer.ebooks.gutendex.GutendexBook;
 import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -35,22 +35,16 @@ import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 @AndroidEntryPoint
 public class EbookDetailActivity extends FullActivity {
 
     private static final int REQ_DOWNLOAD_UNMETERED = 2001;
     private static final int REQ_DOWNLOAD_ROAMING = 2002;
+
+    private EbookDetailViewModel viewModel;
 
     private String pendingDownloadUrl;
     private String pendingDownloadPath;
@@ -164,8 +158,10 @@ public class EbookDetailActivity extends FullActivity {
             coverView.setImageResource(R.drawable.placeholder_cover);
         }
 
-        // Refresh from API: update description, re-check cover URL
-        refreshFromApi();
+        // ViewModel: fetch once, survive orientation change / back nav
+        viewModel = new ViewModelProvider(this).get(EbookDetailViewModel.class);
+        viewModel.getBookData().observe(this, this::onBookRefreshed);
+        viewModel.fetchBookIfNeeded(gutendexId);
 
         // Initial status
         tvStatus.setText("");
@@ -186,87 +182,50 @@ public class EbookDetailActivity extends FullActivity {
         updateGetButtonEnabled();
     }
 
-    private void refreshFromApi() {
-        if (!NetworkHelper.isConnected(this)) return;
+    private void onBookRefreshed(GutendexBook book) {
+        // Description: prefer summaries, fall back to subjects
+        String description = null;
+        if (book.summaries != null && !book.summaries.isEmpty()) {
+            description = android.text.TextUtils.join("\n", book.summaries);
+        } else if (book.subjects != null && !book.subjects.isEmpty()) {
+            description = android.text.TextUtils.join(" · ", book.subjects);
+        }
+        if (description != null && !description.isEmpty()) {
+            tvDescription.setText(description);
+            tvDescription.setVisibility(View.VISIBLE);
+        } else {
+            tvDescription.setVisibility(View.GONE);
+        }
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
-        logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(Var.GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-                .readTimeout(Var.GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
-                .addInterceptor(logging)
-                .build();
+        // Cover: only re-download if the URL changed or file is missing
+        String newCoverUrl = GutendexMapper.findCoverUrl(book);
+        if (newCoverUrl == null || newCoverUrl.isEmpty()) return;
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Option.getGutenbergBaseUrl())
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        java.io.File imageFile = ImageHelper.getGutendexImageFile(this, gutendexId);
+        String savedUrl = ImageHelper.getGutendexSavedCoverUrl(this, gutendexId);
 
-        retrofit.create(GutendexApiService.class).getBook(gutendexId).enqueue(new Callback<GutendexBook>() {
-            @Override
-            public void onResponse(Call<GutendexBook> call, Response<GutendexBook> response) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    myLogD("refreshFromApi: no valid response for id=" + gutendexId);
-                    return;
-                }
-                GutendexBook book = response.body();
+        if (imageFile.exists() && newCoverUrl.equals(savedUrl)) {
+            myLogD("onBookRefreshed: cover unchanged for id=" + gutendexId);
+            return;
+        }
 
-                // Description: prefer summaries, fall back to subjects
-                String description = null;
-                if (book.summaries != null && !book.summaries.isEmpty()) {
-                    description = android.text.TextUtils.join("\n", book.summaries);
-                } else if (book.subjects != null && !book.subjects.isEmpty()) {
-                    description = android.text.TextUtils.join(" · ", book.subjects);
-                }
-                final String finalDesc = description;
-                runOnUiThread(() -> {
-                    if (finalDesc != null && !finalDesc.isEmpty()) {
-                        tvDescription.setText(finalDesc);
-                        tvDescription.setVisibility(View.VISIBLE);
-                    } else {
-                        tvDescription.setVisibility(View.GONE);
+        myLogD("onBookRefreshed: cover changed or missing, re-downloading id=" + gutendexId);
+        new Thread(() -> {
+            String path = ImageHelper.forceDownloadGutendexImage(this, gutendexId, newCoverUrl);
+            if (path != null) {
+                coverView.post(() -> {
+                    try {
+                        Glide.with(coverView.getContext())
+                                .load(new java.io.File(path))
+                                .placeholder(R.drawable.placeholder_cover)
+                                .error(R.drawable.placeholder_cover)
+                                .into(coverView);
+                    } catch (Exception e) {
+                        myLogEE(e, "glide error refreshing gutendex cover");
                     }
                 });
-
-                // Cover: check if URL changed
-                String newCoverUrl = GutendexMapper.findCoverUrl(book);
-                if (newCoverUrl == null || newCoverUrl.isEmpty()) return;
-
-                String savedUrl = ImageHelper.getGutendexSavedCoverUrl(EbookDetailActivity.this, gutendexId);
-                java.io.File imageFile = ImageHelper.getGutendexImageFile(EbookDetailActivity.this, gutendexId);
-
-                boolean needsDownload = !imageFile.exists()
-                        || !newCoverUrl.equals(savedUrl);
-
-                if (!needsDownload) {
-                    myLogD("refreshFromApi: cover unchanged for id=" + gutendexId);
-                    return;
-                }
-
-                myLogD("refreshFromApi: cover changed or missing, re-downloading id=" + gutendexId);
-                String path = ImageHelper.forceDownloadGutendexImage(
-                        EbookDetailActivity.this, gutendexId, newCoverUrl);
-                if (path != null) {
-                    runOnUiThread(() -> {
-                        try {
-                            Glide.with(coverView.getContext())
-                                    .load(new java.io.File(path))
-                                    .placeholder(R.drawable.placeholder_cover)
-                                    .error(R.drawable.placeholder_cover)
-                                    .into(coverView);
-                        } catch (Exception e) {
-                            myLogEE(e, "glide error refreshing gutendex cover");
-                        }
-                    });
-                }
             }
-
-            @Override
-            public void onFailure(Call<GutendexBook> call, Throwable t) {
-                myLogD("refreshFromApi: failed for id=" + gutendexId + " - " + t.getMessage());
-            }
-        });
+        }).start();
     }
 
     private void updateGetButtonEnabled() {
