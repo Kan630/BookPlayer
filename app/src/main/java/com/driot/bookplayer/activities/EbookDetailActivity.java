@@ -18,6 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
@@ -139,20 +140,39 @@ public class EbookDetailActivity extends FullActivity {
             }
         });
 
-        // Cover
-        if (coverUrl != null && !coverUrl.isEmpty()) {
+        // Cover — use persisted file if available, otherwise download and persist
+        java.io.File persistedCover = ImageHelper.getGutendexImageFile(this, gutendexId);
+        if (persistedCover.exists()) {
+            localCoverPath = persistedCover.getAbsolutePath();
             Glide.with(coverView.getContext())
-                    .load(coverUrl)
+                    .load(persistedCover)
                     .placeholder(R.drawable.placeholder_cover)
                     .error(R.drawable.placeholder_cover)
                     .into(coverView);
+        } else if (coverUrl != null && !coverUrl.isEmpty()) {
+            coverView.setImageResource(R.drawable.placeholder_cover);
+            final String url = coverUrl;
+            new Thread(() -> {
+                String path = ImageHelper.getOrDownloadGutendexImage(this, gutendexId, url);
+                if (path != null) {
+                    localCoverPath = path;
+                    coverView.post(() -> {
+                        try {
+                            Glide.with(coverView.getContext())
+                                    .load(new java.io.File(path))
+                                    .placeholder(R.drawable.placeholder_cover)
+                                    .error(R.drawable.placeholder_cover)
+                                    .into(coverView);
+                        } catch (Exception e) {
+                            myLogEE(e, "glide error for gutendex cover");
+                        }
+                    });
+                }
+            }).start();
         } else {
             coverView.setImageResource(R.drawable.placeholder_cover);
+            localCoverPath = null;
         }
-
-        // For now, no local cover download → importer will rely on embedded cover in
-        // EPUB
-        localCoverPath = null;
 
         // Initial status
         tvStatus.setText("");
@@ -278,9 +298,6 @@ public class EbookDetailActivity extends FullActivity {
             myLogE("Error computing hash for Gutenberg ebook [" + title + "]: " + e.getMessage());
         }
 
-        // For now: no explicit cover file – rely on embedded cover in EPUB.
-        // If later you download the cover to a file, set:
-        // state.imagePath = localCoverPath;
         state.imagePath = localCoverPath;
 
         state.onGoingLoading = true;
