@@ -45,6 +45,7 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_PODCAST_COVERS = "podcast_feed_";
     public static final String IMAGE_PREFIX_FOR_RADIO_COVERS = "radio_station_";
     public static final String IMAGE_PREFIX_FOR_LIBRIVOX_COVERS = "librivox_img_";
+    public static final String IMAGE_PREFIX_FOR_GUTENDEX_COVERS = "gutendex_img_";
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
     public static final String IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER = "saved_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
@@ -226,6 +227,24 @@ public class ImageHelper {
     public static File getLibrivoxImageFile(Context context, String identifier) {
         File dir = StorageHelper.getImageFolder(context, true);
         return new File(dir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
+    }
+
+    public static String getOrDownloadGutendexImage(Context context, int gutendexId, String imageUrl) {
+        String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
+        File imageFile = new File(StorageHelper.getImageFolder(context, true), imagePath);
+
+        if (imageFile.exists()) {
+            myLogD("Gutendex image already exists: " + imageFile.getAbsolutePath());
+            return imageFile.getAbsolutePath();
+        }
+
+        myLogDD("Downloading Gutendex image for id=" + gutendexId);
+        return downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
+    }
+
+    public static File getGutendexImageFile(Context context, int gutendexId) {
+        File dir = StorageHelper.getImageFolder(context, true);
+        return new File(dir, IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg");
     }
 
     public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName,

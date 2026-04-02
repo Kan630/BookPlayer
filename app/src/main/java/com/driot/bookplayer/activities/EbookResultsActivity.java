@@ -104,7 +104,7 @@ public class EbookResultsActivity extends FullActivity {
         recyclerView.addItemDecoration(
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
-        adapter = new EbookResultRVAdapter(item -> {
+        adapter = new EbookResultRVAdapter(this, item -> {
             myLogI("User clicks ebook item id=[" + item.gutendexId + "] - title=[" + item.title + "]\nurl=["
                     + item.epubUrl + "]");
 

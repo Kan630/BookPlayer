@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.ebooks.EbookItem;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -27,6 +28,7 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     private final OnItemClickListener listener;
+    private final Context appContext;
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM = 1;
@@ -40,7 +42,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     private String headerLang = "";
     private String headerCount = "";
 
-    public EbookResultRVAdapter(OnItemClickListener listener) {
+    public EbookResultRVAdapter(Context context, OnItemClickListener listener) {
+        this.appContext = context.getApplicationContext();
         this.listener = listener;
     }
 
@@ -218,13 +221,38 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             holder.image.setTag(item.gutendexId);
 
             if (item.coverUrl != null && !item.coverUrl.isEmpty()) {
-                // Use viewContext directly (not getApplicationContext()) for proper Glide
-                // lifecycle in RecyclerView
-                Glide.with(viewContext)
-                        .load(item.coverUrl)
-                        .placeholder(R.drawable.placeholder_cover)
-                        .error(R.drawable.placeholder_cover)
-                        .into(holder.image);
+                java.io.File imageFile = ImageHelper.getGutendexImageFile(appContext, item.gutendexId);
+
+                if (imageFile.exists()) {
+                    Glide.with(appContext)
+                            .load(imageFile)
+                            .placeholder(R.drawable.placeholder_cover)
+                            .into(holder.image);
+                } else {
+                    holder.image.setImageResource(R.drawable.placeholder_cover);
+
+                    final String coverUrl = item.coverUrl;
+                    final int gutendexId = item.gutendexId;
+                    new Thread(() -> {
+                        String localPath = ImageHelper.getOrDownloadGutendexImage(appContext, gutendexId, coverUrl);
+                        if (localPath != null) {
+                            holder.image.post(() -> {
+                                Object tag = holder.image.getTag();
+                                if (tag instanceof Integer && (int) tag == gutendexId) {
+                                    try {
+                                        Glide.with(appContext)
+                                                .load(new java.io.File(localPath))
+                                                .placeholder(R.drawable.placeholder_cover)
+                                                .error(R.drawable.placeholder_cover)
+                                                .into(holder.image);
+                                    } catch (Exception e) {
+                                        myLogEE(e, "glide error for gutendex cover");
+                                    }
+                                }
+                            });
+                        }
+                    }).start();
+                }
             } else {
                 holder.image.setImageResource(R.drawable.placeholder_cover);
             }
