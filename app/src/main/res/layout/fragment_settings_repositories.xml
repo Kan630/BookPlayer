@@ -128,94 +128,41 @@
             style="@style/OptionTitle"
             android:textSize="16sp"
             android:layout_marginStart="40dp"
-            android:text="@string/quick_lists"/>
-
-        <!-- Use mirror for lists and search -->
-        <LinearLayout
-            android:id="@+id/ll_option_gutendex_use_list_mirror"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_gutendex_use_list_mirror"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_gutendex_use_list_mirror" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_gutendex_list_mirror_selection"
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="0dp">
-            <TextView
-                style="@style/OptionMiniText"
-                android:text="@string/option_gutendex_list_mirror_selection" />
-            <Spinner
-                style="@style/Spinner"
-                android:id="@+id/sp_gutendex_list_mirror"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="36dp"
-                android:layout_marginEnd="30dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_option_gutenberg_use_cloudfare"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_gutenberg_use_cloudfare"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_gutenberg_use_cloudfare" />
-        </LinearLayout>
+            android:layout_marginBottom="10dp"
+            android:text="@string/lists_and_search"/>
         <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_gutenberg_use_cloudfare_subtitle" />
+            style="@style/OptionMiniText"
+            android:layout_marginStart="20dp"
+            android:text="@string/select_source" />
+        <Spinner
+            style="@style/Spinner"
+            android:id="@+id/sp_gutendex_list_mirror"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:minHeight="36dp"
+            android:layout_marginEnd="30dp" />
 
         <TextView
             style="@style/OptionTitle"
             android:textSize="16sp"
             android:layout_marginStart="40dp"
+            android:layout_marginBottom="10dp"
             android:text="@string/Download"/>
 
-        <LinearLayout
-            android:id="@+id/ll_option_gutenberg_use_mirror"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_gutenberg_use_mirror"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_gutenberg_use_mirror" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_gutenberg_mirror_selection"
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="0dp"
-            >
-            <TextView
-                style="@style/OptionMiniText"
-                android:text="@string/option_gutenberg_mirror_selection" />
-            <Spinner
-                style="@style/Spinner"
-                android:id="@+id/sp_gutenberg_mirror"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="36dp"
-                android:layout_marginEnd="30dp"
-                />
-        </LinearLayout>
         <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_gutenberg_mirror_explain" />
+            style="@style/OptionMiniText"
+            android:layout_marginStart="20dp"
+            android:text="@string/select_source" />
+        <Spinner
+            style="@style/Spinner"
+            android:id="@+id/sp_gutenberg_mirror"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:minHeight="36dp"
+            android:layout_marginEnd="30dp"
+            />
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
