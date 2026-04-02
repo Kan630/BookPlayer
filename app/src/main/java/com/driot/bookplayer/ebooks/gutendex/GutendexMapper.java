@@ -25,9 +25,8 @@ public class GutendexMapper {
 
     @Nullable
     public static String rewriteUrlForMirror(String url, int bookId) {
-        boolean useMirror = Option.getGutenbergUseMirror();
-        if (url == null || !useMirror) {
-            return url;
+        if (url == null) {
+            return null;
         }
 
         String mirrorBase = Option.getGutenbergMirrorUrl();

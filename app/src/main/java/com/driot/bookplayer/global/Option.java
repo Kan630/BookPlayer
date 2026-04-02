@@ -98,39 +98,35 @@ public class Option {
     private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
-    public static final boolean DEFAULT_GUTENBERG_USE_CLOUDFARE = true;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
-    public static final boolean DEFAULT_GUTENBERG_USE_MIRROR = true;
-    public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
-    public static final boolean DEFAULT_GUTENDEX_USE_LIST_MIRROR = false;
-    public static final String DEFAULT_GUTENDEX_LIST_MIRROR_URL = BuildConfig.GUTENDEX_BASE_URL_MIRROR;
 
-    public static final String[] GUTENDEX_LIST_MIRROR_NAMES = {
-            "gutenberg.driot.com (Cloudflare worker)",
-            "gutendex.driot.com (docker)",
+    // Gutendex source for lists & search
+    public static final String[] GUTENDEX_SOURCE_NAMES = {
+            "BookPlayer mirror",   // gutendex.driot.com docker
+            "gutendex.org cached",     // gutenberg.driot.com cloudflare worker
+            "gutendex.org direct",     // gutendex.com
     };
-
-    public static final String[] GUTENDEX_LIST_MIRROR_URLS = {
-            BuildConfig.GUTENDEX_BASE_URL_ORIGINAL,
-            BuildConfig.GUTENDEX_BASE_URL_MIRROR,
+    public static final String[] GUTENDEX_SOURCE_URLS = {
+            BuildConfig.GUTENDEX_BASE_URL_MIRROR,    // gutendex.driot.com
+            BuildConfig.GUTENDEX_BASE_URL_ORIGINAL,  // gutenberg.driot.com
+            "https://gutendex.com/",
     };
+    public static final String DEFAULT_GUTENDEX_SOURCE_URL = BuildConfig.GUTENDEX_BASE_URL_MIRROR;
 
+    // Gutenberg download mirror
+    public static final String GUTENBERG_DIRECT_URL = "https://www.gutenberg.org/cache/epub/";
     public static final String[] GUTENBERG_MIRROR_NAMES = {
-            "Old Dominion University (USA)",
-            "Project Gutenberg (Aleph)",
-            //"UK Mirror Service (GB)",
-            //"U. Waterloo CSC (CA)",
-            //"Xmission ISP (USA)"
+            "Old Dominion University",
+            "Gutenberg Aleph (Pglaf)",
+            "gutenberg.com direct",
     };
-
     public static final String[] GUTENBERG_MIRROR_URLS = {
             "https://mirror.cs.odu.edu/gutenberg-epub/", // OK on 2026-03-22
-            "https://aleph.pglaf.org/cache/epub/", // OK on 2026-03-22
-            //"http://www.mirrorservice.org/sites/ftp.ibiblio.org/pub/docs/books/gutenberg/cache/epub/", // KO! on 2026-03-22
-            //"http://mirror.csclub.uwaterloo.ca/gutenberg/cache/epub/", // KO! on 2026-03-22
-            //"http://mirrors.xmission.com/gutenberg/cache/epub/", // KO! on 2026-03-22
+            "https://aleph.pglaf.org/cache/epub/",       // OK on 2026-03-22
+            GUTENBERG_DIRECT_URL,
     };
+    public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
     private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
@@ -314,46 +310,12 @@ public class Option {
     }
 
     /////////////////// GUTENBERG ///////////////////
-    public static void setGutenbergUseCloudflare(boolean bool) {
-        prefs.edit().putBoolean("GUTENBERG_USE_CLOUDFARE", bool).apply();
-    }
-
-    public static boolean getGutenbergUseCloudflare() {
-        return prefs.getBoolean("GUTENBERG_USE_CLOUDFARE", DEFAULT_GUTENBERG_USE_CLOUDFARE);
-    }
-
-    public static boolean getGutendexUseListMirror() {
-        return prefs.getBoolean("GUTENDEX_USE_LIST_MIRROR", DEFAULT_GUTENDEX_USE_LIST_MIRROR);
-    }
-
-    public static void setGutendexUseListMirror(boolean bool) {
-        prefs.edit().putBoolean("GUTENDEX_USE_LIST_MIRROR", bool).apply();
-    }
-
-    public static String getGutendexListMirrorUrl() {
-        return prefs.getString("GUTENDEX_LIST_MIRROR_URL", DEFAULT_GUTENDEX_LIST_MIRROR_URL);
-    }
-
-    public static void setGutendexListMirrorUrl(String url) {
-        prefs.edit().putString("GUTENDEX_LIST_MIRROR_URL", url).apply();
-    }
-
     public static String getGutenbergBaseUrl() {
-        if (getGutendexUseListMirror()) {
-            return getGutendexListMirrorUrl();
-        }
-        if (getGutenbergUseCloudflare()) {
-            return BuildConfig.GUTENDEX_BASE_URL_ORIGINAL;
-        }
-        return "https://gutendex.com/";
+        return prefs.getString("GUTENDEX_SOURCE_URL", DEFAULT_GUTENDEX_SOURCE_URL);
     }
 
-    public static boolean getGutenbergUseMirror() {
-        return prefs.getBoolean("GUTENBERG_USE_MIRROR", DEFAULT_GUTENBERG_USE_MIRROR);
-    }
-
-    public static void setGutenbergUseMirror(boolean bool) {
-        prefs.edit().putBoolean("GUTENBERG_USE_MIRROR", bool).apply();
+    public static void setGutenbergBaseUrl(String url) {
+        prefs.edit().putString("GUTENDEX_SOURCE_URL", url).apply();
     }
 
     public static String getGutenbergMirrorUrl() {

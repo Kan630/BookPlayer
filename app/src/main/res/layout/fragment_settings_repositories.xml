@@ -65,7 +65,9 @@
         <!-- Google Images -->
         <LinearLayout
             android:id="@+id/ll_option_use_google_images"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:visibility="gone"
+            >
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_option_use_google_images"
                 style="@style/OptionCheckBox"
@@ -78,45 +80,6 @@
             style="@style/OptionExplainText"
             android:text="@string/cover_search_repositories_explain" />
 
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Librivox_Audiobooks"/>
-
-        <LinearLayout
-            android:id="@+id/ll_Search"
-            style="@style/LinearLayoutOptionsVertical">
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_width="match_parent"
-                android:layout_marginTop="0dp">
-                <TextView
-                    style="@style/OptionPodcastTextBeforeEditText"
-                    android:textSize="16sp"
-                    android:text="@string/api_paging_size"
-                    android:layout_marginStart="10dp"/>
-                <EditText
-                    style="@style/OptionPodcastEditText"
-                    android:layout_width="70dp"
-                    android:textSize="16sp"
-                    android:id="@+id/et_librivox_api_nb_results"/>
-            </LinearLayout>
-            <TextView
-                android:text="Min = 20"
-                style="@style/OptionMiniText"
-                android:layout_marginStart="10dp"/>
-            <TextView
-                android:text="Max = 1000"
-                style="@style/OptionMiniText"
-                android:layout_marginStart="10dp"/>
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:layout_marginTop="0dp"
-            android:text="@string/api_paging_size_explain" />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
