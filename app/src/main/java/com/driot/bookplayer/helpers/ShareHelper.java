@@ -71,6 +71,7 @@ public class ShareHelper {
                         case "/share/radio":
                             if (Tonio.isPure(context)) {
                                 myToastE("Pure version cannot load radio");
+                                return;
                             }
                             RadioHelper.handleDeepLink(context, data);
                             return;
