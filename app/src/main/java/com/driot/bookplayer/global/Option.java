@@ -103,6 +103,18 @@ public class Option {
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
     public static final boolean DEFAULT_GUTENBERG_USE_MIRROR = true;
     public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
+    public static final boolean DEFAULT_GUTENDEX_USE_LIST_MIRROR = false;
+    public static final String DEFAULT_GUTENDEX_LIST_MIRROR_URL = BuildConfig.GUTENDEX_BASE_URL_MIRROR;
+
+    public static final String[] GUTENDEX_LIST_MIRROR_NAMES = {
+            "gutenberg.driot.com (Cloudflare worker)",
+            "gutendex.driot.com (docker)",
+    };
+
+    public static final String[] GUTENDEX_LIST_MIRROR_URLS = {
+            BuildConfig.GUTENDEX_BASE_URL_ORIGINAL,
+            BuildConfig.GUTENDEX_BASE_URL_MIRROR,
+    };
 
     public static final String[] GUTENBERG_MIRROR_NAMES = {
             "Old Dominion University (USA)",
@@ -310,12 +322,30 @@ public class Option {
         return prefs.getBoolean("GUTENBERG_USE_CLOUDFARE", DEFAULT_GUTENBERG_USE_CLOUDFARE);
     }
 
+    public static boolean getGutendexUseListMirror() {
+        return prefs.getBoolean("GUTENDEX_USE_LIST_MIRROR", DEFAULT_GUTENDEX_USE_LIST_MIRROR);
+    }
+
+    public static void setGutendexUseListMirror(boolean bool) {
+        prefs.edit().putBoolean("GUTENDEX_USE_LIST_MIRROR", bool).apply();
+    }
+
+    public static String getGutendexListMirrorUrl() {
+        return prefs.getString("GUTENDEX_LIST_MIRROR_URL", DEFAULT_GUTENDEX_LIST_MIRROR_URL);
+    }
+
+    public static void setGutendexListMirrorUrl(String url) {
+        prefs.edit().putString("GUTENDEX_LIST_MIRROR_URL", url).apply();
+    }
+
     public static String getGutenbergBaseUrl() {
-        if (getGutenbergUseCloudflare()) {
-            return BuildConfig.GUTENDEX_BASE_URL;
-        } else {
-            return "https://gutendex.com/";
+        if (getGutendexUseListMirror()) {
+            return getGutendexListMirrorUrl();
         }
+        if (getGutenbergUseCloudflare()) {
+            return BuildConfig.GUTENDEX_BASE_URL_ORIGINAL;
+        }
+        return "https://gutendex.com/";
     }
 
     public static boolean getGutenbergUseMirror() {

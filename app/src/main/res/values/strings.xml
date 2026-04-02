@@ -455,6 +455,8 @@
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>
 
+    <string name="option_gutendex_use_list_mirror">Use mirror for lists and search</string>
+    <string name="option_gutendex_list_mirror_selection">Select mirror</string>
     <string name="option_gutenberg_use_cloudfare">Use caching (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">Caching should improve speed dramatically for the first \'most downloaded\' pages.</string>
 

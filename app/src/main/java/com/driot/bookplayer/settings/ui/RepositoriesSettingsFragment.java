@@ -45,6 +45,45 @@ public class RepositoriesSettingsFragment extends LoggingFragment {
         etLibrivoxNbResults = root.findViewById(R.id.et_librivox_api_nb_results);
         etLibrivoxNbResults.setText(String.valueOf(Option.getLibrivoxApiNbResults()));
 
+        // Use mirror for lists and search
+        CheckBox chk_gutendex_use_list_mirror = root.findViewById(R.id.chk_option_gutendex_use_list_mirror);
+        LinearLayout ll_gutendex_use_list_mirror = root.findViewById(R.id.ll_option_gutendex_use_list_mirror);
+        View ll_gutendex_list_mirror_selection = root.findViewById(R.id.ll_gutendex_list_mirror_selection);
+        Spinner spListMirror = root.findViewById(R.id.sp_gutendex_list_mirror);
+
+        chk_gutendex_use_list_mirror.setChecked(Option.getGutendexUseListMirror());
+        ll_gutendex_list_mirror_selection.setVisibility(Option.getGutendexUseListMirror() ? View.VISIBLE : View.GONE);
+
+        ll_gutendex_use_list_mirror.setOnClickListener(v -> chk_gutendex_use_list_mirror.toggle());
+        chk_gutendex_use_list_mirror.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setGutendexUseListMirror(isChecked);
+            ll_gutendex_list_mirror_selection.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        ArrayAdapter<String> listMirrorAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, Option.GUTENDEX_LIST_MIRROR_NAMES);
+        listMirrorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spListMirror.setAdapter(listMirrorAdapter);
+
+        String currentListMirrorUrl = Option.getGutendexListMirrorUrl();
+        for (int i = 0; i < Option.GUTENDEX_LIST_MIRROR_URLS.length; i++) {
+            if (Option.GUTENDEX_LIST_MIRROR_URLS[i].equals(currentListMirrorUrl)) {
+                spListMirror.setSelection(i);
+                break;
+            }
+        }
+
+        spListMirror.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Option.setGutendexListMirrorUrl(Option.GUTENDEX_LIST_MIRROR_URLS[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         CheckBox chk_gutenberg_use_cloudfare = root.findViewById(R.id.chk_option_gutenberg_use_cloudfare);
         LinearLayout ll_gutenberg_use_cloudfare = root.findViewById(R.id.ll_option_gutenberg_use_cloudfare);
         chk_gutenberg_use_cloudfare.setChecked(Option.getGutenbergUseCloudflare());
