@@ -34,6 +34,9 @@ import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -171,9 +174,53 @@ public class EbookDetailActivity extends FullActivity {
 
         bGet.setOnClickListener(v -> {
             bGet.setEnabled(false);
-            myLogI("------> USER CLICKS - GET -        GUTENDEX EBOOK");
-            checkThenDownload(epubUrl);
+            tvStatus.setText(getString(R.string.checking_availability));
+            myLogI("------> USER CLICKS - GET - GUTENDEX EBOOK");
+            final List<String> candidates = GutendexMapper.buildDownloadCandidates(epubUrl, gutendexId);
+            myLog("candidates : " + String.join(", ", candidates));
+            new Thread(() -> {
+                String workingUrl = findFirstWorkingUrl(candidates);
+                runOnUiThread(() -> {
+                    if (workingUrl != null) {
+                        tvStatus.setText("");
+                        checkThenDownload(workingUrl);
+                    } else {
+                        myLogE("No working mirror found for gutendexId=" + gutendexId);
+                        tvStatus.setText(getString(R.string.an_error_occurred));
+                        bGet.setEnabled(true);
+                    }
+                });
+            }).start();
         });
+    }
+
+    /** HEAD-checks each candidate URL in order; returns the first that answers 2xx/3xx, or null. */
+    @Nullable
+    private String findFirstWorkingUrl(List<String> candidates) {
+        for (String urlStr : candidates) {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+                conn.setConnectTimeout(5_000);
+                conn.setReadTimeout(5_000);
+                conn.setRequestMethod("HEAD");
+                conn.setInstanceFollowRedirects(true);
+                conn.connect();
+                int code = conn.getResponseCode();
+                conn.disconnect();
+                myLogD("HEAD " + code + " <- " + urlStr);
+                if (code == HttpURLConnection.HTTP_OK
+                        || code == HttpURLConnection.HTTP_PARTIAL
+                        || code == HttpURLConnection.HTTP_MOVED_PERM
+                        || code == HttpURLConnection.HTTP_MOVED_TEMP
+                        || code == 307 || code == 308) {
+                    myLogI("Using mirror: " + urlStr);
+                    return urlStr;
+                }
+            } catch (Exception e) {
+                myLogD("HEAD failed for " + urlStr + ": " + e.getMessage());
+            }
+        }
+        return null;
     }
 
     @Override

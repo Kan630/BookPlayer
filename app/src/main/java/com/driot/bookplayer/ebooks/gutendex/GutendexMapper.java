@@ -5,69 +5,88 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.global.Option;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GutendexMapper {
 
+    private static final String GUTENBERG_CACHE_PREFIX = "https://www.gutenberg.org/cache/epub/";
+    private static final String GUTENBERG_EBOOKS_PREFIX = "https://www.gutenberg.org/ebooks/";
+
     @Nullable
     public static String findBestEpubUrl(GutendexBook book) {
         if (book == null || book.formats == null) return null;
-
-        // Prefer any key starting with application/epub+zip
+        // Return the raw gutenberg.org URL — rewriting happens at download time
         for (Map.Entry<String, String> e : book.formats.entrySet()) {
             String key = e.getKey();
             if (key != null && key.startsWith("application/epub+zip")) {
-                return rewriteUrlForMirror(e.getValue(), book.id);
+                return e.getValue();
             }
         }
         return null;
     }
 
+    /**
+     * Rewrites a raw gutenberg.org URL to use a specific mirror base.
+     * If mirrorBase is the direct URL, the original URL is returned unchanged.
+     */
     @Nullable
-    public static String rewriteUrlForMirror(String url, int bookId) {
-        if (url == null) {
-            return null;
+    public static String rewriteWithMirror(String url, int bookId, String mirrorBase) {
+        if (url == null || mirrorBase == null || mirrorBase.isEmpty()) return url;
+
+        if (url.startsWith(GUTENBERG_CACHE_PREFIX)) {
+            return url.replace(GUTENBERG_CACHE_PREFIX, mirrorBase);
         }
 
-        String mirrorBase = Option.getGutenbergMirrorUrl();
-        if (mirrorBase == null || mirrorBase.isEmpty()) {
-            myLogE("mirrorBase is null");
-            return url;
-        }
-
-        // Pattern 1: Standard cache pattern
-        // https://www.gutenberg.org/cache/epub/ -> https://mirror.cs.odu.edu/gutenberg-epub/
-        String cachePattern = "https://www.gutenberg.org/cache/epub/";
-        if (url.startsWith(cachePattern)) {
-            String newUrl = url.replace(cachePattern, mirrorBase);
-            //myLog("using mirror : " + url + " => " + newUrl);
-            return newUrl;
-        }
-
-        // Pattern 2: Ebooks redirector pattern (common in Gutendex)
-        // https://www.gutenberg.org/ebooks/ID.epub3.images -> mirror/ID/pgID-images-3.epub
-        String ebooksPattern = "https://www.gutenberg.org/ebooks/";
-        if (url.startsWith(ebooksPattern)) {
-            String newUrl = null;
+        if (url.startsWith(GUTENBERG_EBOOKS_PREFIX)) {
             if (url.endsWith(".epub3.images")) {
-                newUrl = mirrorBase + bookId + "/pg" + bookId + "-images-3.epub";
+                return mirrorBase + bookId + "/pg" + bookId + "-images-3.epub";
             } else if (url.endsWith(".epub.images")) {
-                newUrl = mirrorBase + bookId + "/pg" + bookId + "-images.epub";
+                return mirrorBase + bookId + "/pg" + bookId + "-images.epub";
             } else if (url.endsWith(".epub.noimages")) {
-                newUrl = mirrorBase + bookId + "/pg" + bookId + ".epub";
-            }
-
-            if (newUrl != null) {
-                //myLog("using mirror (ebooks redirector) : " + url + " => " + newUrl);
-                return newUrl;
+                return mirrorBase + bookId + "/pg" + bookId + ".epub";
             }
         }
 
-        // If we reach here and it's still a gutenberg.org URL, it's an unhandled pattern
         if (url.contains("gutenberg.org")) {
             myLogD("unhandled gutenberg pattern : " + url);
         }
         return url;
+    }
+
+    /**
+     * Builds an ordered list of candidate download URLs for the given raw URL:
+     * 1. Currently selected mirror (first)
+     * 2. All other mirrors
+     * 3. Raw URL as last resort
+     */
+    public static List<String> buildDownloadCandidates(String rawUrl, int bookId) {
+        List<String> candidates = new ArrayList<>();
+        if (rawUrl == null || rawUrl.isEmpty()) return candidates;
+
+        String selected = Option.getGutenbergMirrorUrl();
+
+        // Selected mirror first
+        String first = rewriteWithMirror(rawUrl, bookId, selected);
+        if (first != null) candidates.add(first);
+
+        // All other mirrors
+        for (String mirrorBase : Option.GUTENBERG_MIRROR_URLS) {
+            if (!mirrorBase.equals(selected)) {
+                String candidate = rewriteWithMirror(rawUrl, bookId, mirrorBase);
+                if (candidate != null && !candidates.contains(candidate)) {
+                    candidates.add(candidate);
+                }
+            }
+        }
+
+        // Raw URL as final fallback (in case none of the mirrors match the pattern)
+        if (!candidates.contains(rawUrl)) {
+            candidates.add(rawUrl);
+        }
+
+        return candidates;
     }
 
     @Nullable

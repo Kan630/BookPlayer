@@ -455,6 +455,7 @@
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>
 
+    <string name="checking_availability">Checking availability…</string>
     <string name="option_split_m4b">.m4b splitting</string>
     <string name="option_split_m4b_text">Extract chapters from M4B.</string>
     <string name="option_copy_file_special_zip">zip and split m4b are always copied</string>
