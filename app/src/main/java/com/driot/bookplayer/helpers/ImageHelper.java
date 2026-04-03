@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -254,30 +255,37 @@ public class ImageHelper {
     }
 
     public static String getOrDownloadGutendexImage(Context context, int gutendexId, String imageUrl) {
-        String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
-        File imageFile = new File(StorageHelper.getImageFolder(context, true), imagePath);
-
+        File imageFile = getGutendexImageFile(context, gutendexId);
         if (imageFile.exists()) {
             myLogD("Gutendex image already exists: " + imageFile.getAbsolutePath());
             return imageFile.getAbsolutePath();
         }
-
         myLogDD("Downloading Gutendex image for id=" + gutendexId);
-        String result = downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
-        if (result != null) {
-            saveGutendexCoverUrl(context, gutendexId, imageUrl);
-        }
-        return result;
+        return downloadGutendexImageWithMirrors(context, gutendexId, imageUrl);
     }
 
     public static String forceDownloadGutendexImage(Context context, int gutendexId, String imageUrl) {
-        String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
         myLogD("Force re-downloading Gutendex image for id=" + gutendexId);
-        String result = downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
-        if (result != null) {
-            saveGutendexCoverUrl(context, gutendexId, imageUrl);
+        return downloadGutendexImageWithMirrors(context, gutendexId, imageUrl);
+    }
+
+    /**
+     * Tries the selected mirror first, then all others, then the raw URL.
+     * Saves the sidecar URL file on success (always stores the original URL for change-detection).
+     */
+    private static String downloadGutendexImageWithMirrors(Context context, int gutendexId, String imageUrl) {
+        String imagePath = IMAGE_PREFIX_FOR_GUTENDEX_COVERS + gutendexId + ".jpg";
+        List<String> candidates = GutendexMapper.buildDownloadCandidates(imageUrl, gutendexId);
+        for (String candidate : candidates) {
+            myLogD("Trying cover mirror: " + candidate);
+            String result = downloadAndMaybeCompressImage(context, candidate, imagePath, true);
+            if (result != null) {
+                saveGutendexCoverUrl(context, gutendexId, imageUrl); // store original for change detection
+                return result;
+            }
         }
-        return result;
+        myLogE("All cover mirrors failed for gutendexId=" + gutendexId);
+        return null;
     }
 
     public static File getGutendexImageFile(Context context, int gutendexId) {
