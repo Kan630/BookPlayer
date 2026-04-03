@@ -1315,6 +1315,8 @@
     <string name="MB_taken_by_cached_images">" MB taken by cached images"</string>
     <string name="lists_and_search">Lists and search</string>
     <string name="select_source">Select source</string>
+    <string name="option_gutenberg_use_cloudfare">deprecated</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">deprecated</string>
 
 
 </resources>
