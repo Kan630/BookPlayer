@@ -1261,11 +1261,11 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">Usa mirror per il download</string>
-    <string name="option_gutenberg_mirror_selection">Seleziona mirror</string>
-    <string name="option_gutenberg_mirror_explain">L\'uso dei mirror dovrebbe migliorare l\'esperienza di download e aiutare a evitare di sovraccaricare il sito principale gutenberg.org.</string>
-    <string name="option_gutenberg_use_cloudfare">Usa cache (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">La memorizzazione nella cache dovrebbe migliorare drasticamente la velocità per le prime pagine "più scaricate".\nSono memorizzate nella cache e aggiornate ogni 9 ore per le lingue principali.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Usa mirror per il download</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Seleziona mirror</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">L\'uso dei mirror dovrebbe migliorare l\'esperienza di download e aiutare a evitare di sovraccaricare il sito principale gutenberg.org.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">Usa cache (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">La memorizzazione nella cache dovrebbe migliorare drasticamente la velocità per le prime pagine "più scaricate".\nSono memorizzate nella cache e aggiornate ogni 9 ore per le lingue principali.</string>
     <string name="option_tts_overlay_timeout_explain">Sui dispositivi recenti e/o per voci usate spesso, potrebbe essere così veloce che non vedrai nemmeno il messaggio di caricamento.</string>
     <string name="option_tts_use_theme_color_for_cursor">Usa colore del tema per il cursore</string>
     <string name="option_tts_fullscreen_text_size">Dimensione testo</string>

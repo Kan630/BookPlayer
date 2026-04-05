@@ -1262,11 +1262,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">Spiegel für Download verwenden</string>
-    <string name="option_gutenberg_mirror_selection">Spiegel auswählen</string>
-    <string name="option_gutenberg_mirror_explain">Die Verwendung von Spiegeln verbessert das Download-Erlebnis und hilft, den Hauptserver gutenberg.org nicht zu überlasten.</string>
-    <string name="option_gutenberg_use_cloudfare">Caching verwenden (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">Caching sollte die Geschwindigkeit für die am häufigsten heruntergeladenen Seiten drastisch verbessern.\nSie werden alle 9 Stunden für wichtige Sprachen zwischengespeichert und aktualisiert.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Spiegel für Download verwenden</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Spiegel auswählen</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">Die Verwendung von Spiegeln verbessert das Download-Erlebnis und hilft, den Hauptserver gutenberg.org nicht zu überlasten.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">Caching verwenden (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">Caching sollte die Geschwindigkeit für die am häufigsten heruntergeladenen Seiten drastisch verbessern.\nSie werden alle 9 Stunden für wichtige Sprachen zwischengespeichert und aktualisiert.</string>
     <string name="option_tts_overlay_timeout_explain">Auf neueren Geräten und/oder bei häufig verwendeten Stimmen kann es so schnell gehen, dass Sie die Lade-Meldung gar nicht erst sehen.</string>
     <string name="option_tts_use_theme_color_for_cursor">Themenfarbe für Cursor verwenden</string>
     <string name="option_tts_fullscreen_text_size">Textgröße</string>

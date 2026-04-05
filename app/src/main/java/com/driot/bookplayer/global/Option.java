@@ -101,18 +101,7 @@ public class Option {
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
 
-    // Gutendex source for lists & search
-    public static final String[] GUTENDEX_SOURCE_NAMES = {
-            "BookPlayer mirror",   // gutendex.driot.com docker
-            "gutendex.org cached",     // gutenberg.driot.com cloudflare worker
-            "gutendex.org direct",     // gutendex.com
-    };
-    public static final String[] GUTENDEX_SOURCE_URLS = {
-            BuildConfig.GUTENDEX_BASE_URL_MIRROR,    // gutendex.driot.com
-            BuildConfig.GUTENDEX_BASE_URL_ORIGINAL,  // gutenberg.driot.com
-            "https://gutendex.com/",
-    };
-    public static final String DEFAULT_GUTENDEX_SOURCE_URL = BuildConfig.GUTENDEX_BASE_URL_MIRROR;
+    public static final boolean DEFAULT_GUTENDEX_USE_MIRROR = true;
 
     // Gutenberg download mirror
     public static final String GUTENBERG_DIRECT_URL = "https://www.gutenberg.org/cache/epub/";
@@ -310,12 +299,17 @@ public class Option {
     }
 
     /////////////////// GUTENBERG ///////////////////
-    public static String getGutenbergBaseUrl() {
-        return prefs.getString("GUTENDEX_SOURCE_URL", DEFAULT_GUTENDEX_SOURCE_URL);
+    public static boolean getGutendexUseMirror() { return prefs.getBoolean("GUTENDEX_USE_MIRROR", DEFAULT_GUTENDEX_USE_MIRROR); }
+    public static void setGutendexUseMirror(Boolean value) {
+        prefs.edit().putBoolean("GUTENDEX_USE_MIRROR", value).apply();
     }
 
-    public static void setGutenbergBaseUrl(String url) {
-        prefs.edit().putString("GUTENDEX_SOURCE_URL", url).apply();
+    public static String getGutendexBaseUrl() {
+        if (getGutendexUseMirror()) {
+            return BuildConfig.GUTENDEX_BASE_URL;
+        } else {
+            return "https://gutendex.com/";
+        }
     }
 
     public static String getGutenbergMirrorUrl() {

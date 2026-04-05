@@ -1260,11 +1260,11 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">Utilizar espelho para download</string>
-    <string name="option_gutenberg_mirror_selection">Selecionar espelho</string>
-    <string name="option_gutenberg_mirror_explain">A utilização de espelhos deve melhorar a experiência de download e ajudar a evitar sobrecarregar o site principal gutenberg.org.</string>
-    <string name="option_gutenberg_use_cloudfare">Utilizar cache (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">A memorização em cache deve melhorar drasticamente a velocidade para as primeiras páginas "mais descarregadas".\nSão memorizadas em cache e atualizadas a cada 9 horas para os principais idiomas.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Utilizar espelho para download</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Selecionar espelho</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">A utilização de espelhos deve melhorar a experiência de download e ajudar a evitar sobrecarregar o site principal gutenberg.org.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">Utilizar cache (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">A memorização em cache deve melhorar drasticamente a velocidade para as primeiras páginas "mais descarregadas".\nSão memorizadas em cache e atualizadas a cada 9 horas para os principais idiomas.</string>
     <string name="option_tts_overlay_timeout_explain">Em dispositivos recentes e/ou para vozes usadas com frequência, pode ser tão rápido que nem verá a mensagem de carregamento.</string>
     <string name="option_tts_use_theme_color_for_cursor">Utilizar cor do tema para o cursor</string>
     <string name="option_tts_fullscreen_text_size">Tamanho do texto</string>

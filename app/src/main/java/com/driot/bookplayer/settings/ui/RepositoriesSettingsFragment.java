@@ -38,22 +38,6 @@ public class RepositoriesSettingsFragment extends LoggingFragment {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
 
-        // Lists & search source
-        Spinner spListMirror = root.findViewById(R.id.sp_gutendex_list_mirror);
-        ArrayAdapter<String> listMirrorAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, Option.GUTENDEX_SOURCE_NAMES);
-        listMirrorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spListMirror.setAdapter(listMirrorAdapter);
-        int listIdx = Arrays.asList(Option.GUTENDEX_SOURCE_URLS).indexOf(Option.getGutenbergBaseUrl());
-        if (listIdx >= 0) spListMirror.setSelection(listIdx);
-        spListMirror.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Option.setGutenbergBaseUrl(Option.GUTENDEX_SOURCE_URLS[position]);
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
         // Pixabay
         CheckBox chk_use_pixabay = root.findViewById(R.id.chk_option_use_pixabay);
         LinearLayout ll_use_pixabay = root.findViewById(R.id.ll_option_use_pixabay);
@@ -80,10 +64,16 @@ public class RepositoriesSettingsFragment extends LoggingFragment {
         LinearLayout ll_use_google_images = root.findViewById(R.id.ll_option_use_google_images);
         chk_use_google_images.setChecked(Option.getUseGoogleImages());
         ll_use_google_images.setOnClickListener(v -> chk_use_google_images.toggle());
-        chk_use_google_images
-                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseGoogleImages(isChecked));
+        chk_use_google_images.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseGoogleImages(isChecked));
 
-        // Download mirror
+        // Gutendex
+        CheckBox chk_option_gutendex_use_mirror = root.findViewById(R.id.chk_option_gutendex_use_mirror);
+        LinearLayout ll_option_gutendex_use_mirror = root.findViewById(R.id.ll_option_gutendex_use_mirror);
+        chk_option_gutendex_use_mirror.setChecked(Option.getGutendexUseMirror());
+        ll_option_gutendex_use_mirror.setOnClickListener(v -> chk_option_gutendex_use_mirror.toggle());
+        chk_option_gutendex_use_mirror.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setGutendexUseMirror(isChecked));
+
+        // Gutenberg ebook Download mirror
         Spinner spMirror = root.findViewById(R.id.sp_gutenberg_mirror);
         ArrayAdapter<String> mirrorAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, Option.GUTENBERG_MIRROR_NAMES);

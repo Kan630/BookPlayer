@@ -1306,18 +1306,22 @@
         <item quantity="other">%d days ago</item>
     </plurals>
 
-    <string name="option_gutenberg_use_mirror">Use mirror for download</string>
-    <string name="option_gutenberg_mirror_selection">Select Mirror</string>
-    <string name="option_gutenberg_mirror_explain">Using mirrors should improve the download experience and help avoid overloading the main gutenberg.org website.</string>
     <string name="since">since</string> //depuis
     <string name="available_since">available since</string> //depuis
     <string name="Filter_Tags">Filter Tags</string>
 
+    <string name="deprecated_option_gutenberg_use_cloudfare">deprecated</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">deprecated</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Use mirror for download</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Select Mirror</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">Using mirrors should improve the download experience and help avoid overloading the main gutenberg.org website.</string>
+
     <string name="MB_taken_by_cached_images">" MB taken by cached images"</string>
     <string name="lists_and_search">Lists and search</string>
     <string name="select_source">Select source</string>
-    <string name="option_gutenberg_use_cloudfare">deprecated</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">deprecated</string>
+    <string name="option_gutendex_use_mirrors_and_cache">Use mirror and cache.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [Keep checked] to improve speed : It will use a BookPlayer dedicated server for indexes, and CloudFare caches (7 days).\n* [Uncheck] if you encounter a problem, or if cloudfare is down, or to hit directly gutendex.com. You will get most up-to-date results, but it may be very slow.</string>
+
 
 
 </resources>

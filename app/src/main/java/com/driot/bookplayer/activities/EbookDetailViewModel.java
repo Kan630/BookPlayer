@@ -52,7 +52,7 @@ public class EbookDetailViewModel extends LoggingAndroidViewModel {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Option.getGutenbergBaseUrl())
+                .baseUrl(Option.getGutendexBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

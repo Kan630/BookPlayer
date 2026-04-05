@@ -1259,11 +1259,11 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">Usar espejo para la descarga</string>
-    <string name="option_gutenberg_mirror_selection">Seleccionar espejo</string>
-    <string name="option_gutenberg_mirror_explain">El uso de espejos debería mejorar la experiencia de descarga y ayudar a evitar sobrecargar el sitio principal gutenberg.org.</string>
-    <string name="option_gutenberg_use_cloudfare">Usar caché (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">El almacenamiento en caché debería mejorar drásticamente la velocidad de las primeras páginas "más descargadas".\nSe almacenan en caché y se actualizan cada 9 horas para los idiomas principales.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Usar espejo para la descarga</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Seleccionar espejo</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">El uso de espejos debería mejorar la experiencia de descarga y ayudar a evitar sobrecargar el sitio principal gutenberg.org.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">Usar caché (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">El almacenamiento en caché debería mejorar drásticamente la velocidad de las primeras páginas "más descargadas".\nSe almacenan en caché y se actualizan cada 9 horas para los idiomas principales.</string>
     <string name="option_tts_overlay_timeout_explain">En dispositivos recientes y/o para voces de uso frecuente, puede ser tan rápido que ni siquiera verá el mensaje de carga.</string>
     <string name="option_tts_use_theme_color_for_cursor">Usar color del tema para el cursor</string>
     <string name="option_tts_fullscreen_text_size">Tamaño del texto</string>

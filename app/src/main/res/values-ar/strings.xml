@@ -1255,11 +1255,11 @@
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">استخدام مرآة للتنزيل</string>
-    <string name="option_gutenberg_mirror_selection">اختيار مرآة</string>
-    <string name="option_gutenberg_mirror_explain">استخدام المرايا يحسّن تجربة التنزيل ويساعد على تجنّب الضغط الزائد على موقع gutenberg.org الرئيسي.</string>
-    <string name="option_gutenberg_use_cloudfare">استخدام التخزين المؤقت (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">يجب أن يؤدي التخزين المؤقت إلى تحسين السرعة بشكل كبير للأجزاء الأولى "الأكثر تنزيلاً". يتم تخزينها وتحديثها كل 9 ساعات للغات الرئيسية.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">استخدام مرآة للتنزيل</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">اختيار مرآة</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">استخدام المرايا يحسّن تجربة التنزيل ويساعد على تجنّب الضغط الزائد على موقع gutenberg.org الرئيسي.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">استخدام التخزين المؤقت (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">يجب أن يؤدي التخزين المؤقت إلى تحسين السرعة بشكل كبير للأجزاء الأولى "الأكثر تنزيلاً". يتم تخزينها وتحديثها كل 9 ساعات للغات الرئيسية.</string>
     <string name="option_tts_overlay_timeout_explain">على الأجهزة الحديثة و/أو للأصوات المستخدمة كثيراً، قد يكون الأمر سريعاً جداً لدرجة أنك لن ترى رسالة التحميل تلك.</string>
     <string name="option_tts_use_theme_color_for_cursor">استخدم لون السمة للمؤشر</string>
     <string name="option_tts_fullscreen_text_size">حجم النص</string>

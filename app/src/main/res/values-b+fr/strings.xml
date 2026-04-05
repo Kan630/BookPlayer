@@ -1269,11 +1269,11 @@ avec la langue [%2$s]</string>
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">Utiliser un miroir pour le téléchargement</string>
-    <string name="option_gutenberg_mirror_selection">Choisir un miroir</string>
-    <string name="option_gutenberg_mirror_explain">L\'utilisation de miroirs devrait améliorer le téléchargement et éviter de surcharger le site principal gutenberg.org.</string>
-    <string name="option_gutenberg_use_cloudfare">Utiliser le cache (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">Le cache devrait améliorer considérablement la vitesse pour les premières pages "les plus téléchargées".\nElles sont mises en cache et mises à jour toutes les 9 heures pour les langues majeures.</string>
+    <string name="deprecated_option_gutenberg_use_mirror">Utiliser un miroir pour le téléchargement</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">Choisir un miroir</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">L\'utilisation de miroirs devrait améliorer le téléchargement et éviter de surcharger le site principal gutenberg.org.</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">Utiliser le cache (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">Le cache devrait améliorer considérablement la vitesse pour les premières pages "les plus téléchargées".\nElles sont mises en cache et mises à jour toutes les 9 heures pour les langues majeures.</string>
     <string name="option_ebook_remove_references">Supprimer les marqueurs de référence (notes de bas de page)</string>
     <string name="option_tts_overlay_timeout_explain">Sur les appareils récents et/ou pour les voix souvent utilisées, cela peut être si rapide que vous ne verrez même pas ce message de chargement.</string>
     <string name="option_tts_use_theme_color_for_cursor">Utiliser la couleur du thème pour le curseur</string>

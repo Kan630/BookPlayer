@@ -1259,11 +1259,11 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
-    <string name="option_gutenberg_use_mirror">डाउनलोड के लिए मिरर उपयोग करें</string>
-    <string name="option_gutenberg_mirror_selection">मिरर चुनें</string>
-    <string name="option_gutenberg_mirror_explain">मिरर का उपयोग करने से डाउनलोड अनुभव बेहतर होना चाहिए और gutenberg.org मुख्य साइट पर अधिभार से बचने में मदद मिलेगी।</string>
-    <string name="option_gutenberg_use_cloudfare">कैशिंग का उपयोग करें (Cloudflare)</string>
-    <string name="option_gutenberg_use_cloudfare_subtitle">"कैशिंग से 'सबसे अधिक डाउनलोड किए गए' पृष्ठों के लिए गति में नाटकीय रूप से सुधार होना चाहिए।\nवे प्रमुख भाषाओं के लिए हर 9 घंटे में कैश्ड और अपडेट किए जाते हैं।"</string>
+    <string name="deprecated_option_gutenberg_use_mirror">डाउनलोड के लिए मिरर उपयोग करें</string>
+    <string name="deprecated_option_gutenberg_mirror_selection">मिरर चुनें</string>
+    <string name="deprecated_option_gutenberg_mirror_explain">मिरर का उपयोग करने से डाउनलोड अनुभव बेहतर होना चाहिए और gutenberg.org मुख्य साइट पर अधिभार से बचने में मदद मिलेगी।</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare">कैशिंग का उपयोग करें (Cloudflare)</string>
+    <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">"कैशिंग से 'सबसे अधिक डाउनलोड किए गए' पृष्ठों के लिए गति में नाटकीय रूप से सुधार होना चाहिए।\nवे प्रमुख भाषाओं के लिए हर 9 घंटे में कैश्ड और अपडेट किए जाते हैं।"</string>
     <string name="option_tts_overlay_timeout_explain">हाल के उपकरणों और/या अक्सर उपयोग की जाने वाली आवाजों के लिए, यह इतना तेज़ हो सकता है कि आपको लोडिंग संदेश भी दिखाई नहीं देगा।</string>
     <string name="option_tts_use_theme_color_for_cursor">कर्सर के लिए थीम रंग का उपयोग करें</string>
     <string name="option_tts_fullscreen_text_size">पाठ का आकार</string>

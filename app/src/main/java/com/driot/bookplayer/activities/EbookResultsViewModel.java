@@ -111,7 +111,7 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
 
         OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Option.getGutenbergBaseUrl())
+                .baseUrl(Option.getGutendexBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -189,7 +189,7 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
 
         OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Option.getGutenbergBaseUrl())
+                .baseUrl(Option.getGutendexBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -283,7 +283,7 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
 
     private String rewriteNextUrl(String next) {
         if (next == null) return null;
-        String base = Option.getGutenbergBaseUrl();
+        String base = Option.getGutendexBaseUrl();
         return next.replaceFirst("^https://gutendex\\.com/", base);
     }
 

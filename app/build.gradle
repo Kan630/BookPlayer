@@ -17,10 +17,9 @@ android {
         //testInstrumentationRunnerArguments clearPackageData: "false"
 
         buildConfigField "String", "LIBRIVOX_PROXY_BASE_URL", "\"https://librivox.driot.com\"";
-        buildConfigField "String", "GUTENDEX_BASE_URL_ORIGINAL", "\"https://gutenberg.driot.com/\""  // cloudfare worker: cache for gutendex.com
-        buildConfigField "String", "GUTENDEX_BASE_URL_MIRROR", "\"https://gutendex.driot.com/\""  // cloudfare tunnel to driot.com
-        buildConfigField "String", "PIXABAY_BASE_URL",      "\"https://pixabay.driot.com\""
-        buildConfigField "String", "PODCASTINDEX_BASE_URL",  "\"https://podcastindex.driot.com/\""
+        buildConfigField "String", "GUTENDEX_BASE_URL", "\"https://gutenberg.driot.com/\"" // cloudfare worker (deals with caches, will first try docker tunnel hosted gutendex.driot.com)
+        buildConfigField "String", "PIXABAY_BASE_URL",      "\"https://pixabay.driot.com\"" // cloudfare holds api key
+        buildConfigField "String", "PODCASTINDEX_BASE_URL",  "\"https://podcastindex.driot.com/\"" // cloudfare holds api key
         buildConfigField "String", "RADIO_PROXY_BASE_URL", "\"https://radio.driot.com\""
         buildConfigField "String", "APP_TOKEN", "\"bookplayer_petit_mais_costaud\""
 
