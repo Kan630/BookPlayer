@@ -79,8 +79,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 295
-        versionName = "295 - Midnight Raccoon"
+        versionCode = 296
+        versionName = "296 - Midnight Raccoon"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -100,9 +100,10 @@ android {
 /*
     signingConfigs {
         release {
-            //storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
             //storeFile file('C:/Users/adrio/StudioProjects/keystore/ccc.jks')
-            storeFile file('C:/Users/adrio/StudioProjects/BookPlayer ressources/keystore/bbb.jks')
+            //storeFile file('C:/Users/adrio/StudioProjects/BookPlayer ressources/keystore/bbb.jks')
+            //storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
+            storeFile file('/home/kan/StudioProjects/keystore/bbb.jks')
             storePassword '****'
             keyAlias 'key0'
             keyPassword '****'
