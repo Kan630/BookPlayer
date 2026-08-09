@@ -39,6 +39,7 @@ public final class PlaybackNotificationManager {
         NotificationChannel ch = new NotificationChannel(
                     channelId, channelName, NotificationManager.IMPORTANCE_LOW);
         ch.setDescription(channelDesc);
+        ch.setShowBadge(false);
         nm.createNotificationChannel(ch);
     }
 

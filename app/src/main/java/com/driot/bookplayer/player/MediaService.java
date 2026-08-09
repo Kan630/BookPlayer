@@ -942,12 +942,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             } else {
                 myLog("MediaService start\n" + strCallLog);
             }
-        } else { // happens when Android restarts your sticky service after it was killed, no
-                 // 5-second foreground requirement in this case because the system didn’t just
-                 // call startForegroundService(...) on your behalf;
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", "no intent");
-            myLogW("MediaService start with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
-            return START_STICKY;
+        } else {
+            // Android restarted our sticky service after killing it — all in-memory state
+            // (playlist, engine) is gone. Shutting down cleanly removes the stale
+            // "Please wait" notification the OS shows while waiting for startForeground().
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", "no intent - shutdown zombie");
+            myLogW("MediaService start with no intent - shutting down to avoid zombie notification");
+            shutdown(false);
+            return START_NOT_STICKY;
         }
 
         Bundle b = intent.getExtras();
@@ -2527,9 +2529,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("loadAndPlay()");
         PlayList.createFromStorage(this, true, pl -> {
             if (pl == null) {
-                myLogEE(null, "error creating playlist from storage (pl == null)");
-                // optionally stop service or update notification
-                alertError("create playlist from storage", "could not recreate playlist");
+                myLogEE(null, "loadAndPlay: no stored playlist to restore, shutting down");
+                main.post(() -> shutdown(false));
                 return;
             }
 
