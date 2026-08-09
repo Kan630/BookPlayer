@@ -69,6 +69,8 @@ public class LibrivoxDetailActivity extends FullActivity {
     private ImageView coverView;
     private Button bGet;
     private TextView tvLinkArchive, tvLinkLibrivox, tvDownloadLink;
+    private View llWaitMessage;
+    private TextView tvWaitMain, tvWaitDetail;
     private NetworkStatusMonitor networkMonitor;
     private boolean isCurrentlyOnline = false;
 
@@ -104,6 +106,9 @@ public class LibrivoxDetailActivity extends FullActivity {
         tvLinkArchive = findViewById(R.id.tvLinkArchive);
         tvLinkLibrivox = findViewById(R.id.tvLinkLibrivox);
         tvDownloadLink = findViewById(R.id.tvDownloadLink);
+        llWaitMessage = findViewById(R.id.ll_wait_message);
+        tvWaitMain = findViewById(R.id.tvWaitMain);
+        tvWaitDetail = findViewById(R.id.tvWaitDetail);
 
         // Init ViewModel
         viewModel = new ViewModelProvider(this).get(LibrivoxDetailViewModel.class);
@@ -307,11 +312,13 @@ public class LibrivoxDetailActivity extends FullActivity {
                 bGet.setEnabled(!running && viewModel.download_link.getValue() != null
                         && !viewModel.download_link.getValue().isEmpty());
                 if (running) {
-                    String waitMessage = "\n❌ " + getString(R.string.please_wait_another_book);
-                    String currentText = tvDownloadLink.getText().toString();
-                    if (!currentText.contains(waitMessage)) {
-                        tvDownloadLink.setText(currentText + waitMessage);
-                    }
+                    String full = getString(R.string.please_wait_another_book);
+                    String[] parts = full.split("\n\n", 2);
+                    tvWaitMain.setText("⏳ " + parts[0]);
+                    tvWaitDetail.setText(parts.length > 1 ? parts[1] : "");
+                    llWaitMessage.setVisibility(View.VISIBLE);
+                } else {
+                    llWaitMessage.setVisibility(View.GONE);
                 }
             });
         });
