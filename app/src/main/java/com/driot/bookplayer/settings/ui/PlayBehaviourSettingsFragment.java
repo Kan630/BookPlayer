@@ -38,6 +38,9 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private TextView txVisualizerOn;
     private TextView tvScreensaverPermission;
 
+    private LinearLayout llAutoPlayNextChapter;
+    private MaterialCheckBox chkAutoPlayNextChapter;
+
     private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llOpenPlayActivity;
     private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp,
             chkOpenPlayActivity;
@@ -71,6 +74,13 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         View titleContainer = root.findViewById(R.id.ll_title);
         if (titleContainer != null)
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
+
+        // ---- Auto-play next chapter
+        llAutoPlayNextChapter = root.findViewById(R.id.ll_autoplay_next_chapter);
+        chkAutoPlayNextChapter = root.findViewById(R.id.chk_autoplay_next_chapter);
+        chkAutoPlayNextChapter.setChecked(Option.getAutoPlayNextChapter());
+        llAutoPlayNextChapter.setOnClickListener(v -> chkAutoPlayNextChapter.toggle());
+        chkAutoPlayNextChapter.setOnCheckedChangeListener((b, isChecked) -> Option.setAutoPlayNextChapter(isChecked));
 
         // ---- Bind numeric fields
         etTimeBeforeSleep = root.findViewById(R.id.etTimeBeforeSleep);

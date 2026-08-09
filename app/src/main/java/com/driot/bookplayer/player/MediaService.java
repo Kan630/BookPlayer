@@ -1953,6 +1953,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     playBeep("3beeps");
                 alertPlaylistFinished();
                 shutdown(false);
+            } else if (!Option.getAutoPlayNextChapter()) {
+                shutdown(false);
             } else {
                 nextTrack();
             }

@@ -37,6 +37,7 @@ public class Option {
     private static final boolean DEFAULT_BEEP_AUTOSTOP = true;
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     private static final boolean DEFAULT_VISUALIZER_ON = true;
+    private static final boolean DEFAULT_AUTOPLAY_NEXT_CHAPTER = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     private static final boolean DEFAULT_START_AT_ZERO_NEXT_TRACK = true;
     private static final boolean DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP = true;
@@ -553,6 +554,14 @@ public class Option {
     }
 
     /////////////////// PLAY BEHAVIOUR ///////////////////
+    public static void setAutoPlayNextChapter(boolean bool) {
+        prefs.edit().putBoolean("AUTOPLAY_NEXT_CHAPTER", bool).apply();
+    }
+
+    public static boolean getAutoPlayNextChapter() {
+        return prefs.getBoolean("AUTOPLAY_NEXT_CHAPTER", DEFAULT_AUTOPLAY_NEXT_CHAPTER);
+    }
+
     public static void setRewindAfterPause(boolean bool) {
         prefs.edit().putBoolean("REWIND_AFTER_PAUSE", bool).apply();
     }

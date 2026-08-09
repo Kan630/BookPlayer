@@ -16,6 +16,25 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+        <!-- Auto-play next chapter -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_autoplay_next_chapter" />
+            <LinearLayout
+                android:id="@+id/ll_autoplay_next_chapter"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_autoplay_next_chapter"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_autoplay_next_chapter_text" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <!-- Time before sleep -->
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp"

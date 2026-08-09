@@ -423,6 +423,8 @@
     <string name="option_copy_file_title">Copy files internally</string>
     <string name="option_backward_forward_title">Backward/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
+    <string name="option_autoplay_next_chapter">Auto-play next chapter</string>
+    <string name="option_autoplay_next_chapter_text">Automatically start the next chapter when the current one ends.</string>
     <string name="option_rewind_after_pause_text">"Rewind audio a few seconds before resuming playback (e.g., a 5-min pause rewinds 3s; a 1-hour pause rewinds 5s…)"</string>
     <string name="option_pick_theme_color_title">Pick your app color theme</string>
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
