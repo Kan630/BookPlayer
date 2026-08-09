@@ -6,9 +6,9 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:9.3.1'
-        classpath 'com.google.gms:google-services:4.4.4'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
-        classpath "com.google.dagger:hilt-android-gradle-plugin:2.59.1"
+        classpath 'com.google.gms:google-services:4.5.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.7'
+        classpath "com.google.dagger:hilt-android-gradle-plugin:2.60.1"
 
         // Required -- JUnit 4 framework
         //testImplementation 'junit:junit:4.13.1'
