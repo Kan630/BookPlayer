@@ -108,8 +108,15 @@ public class DeleteFolderWorker extends LoggingWorker {
 
         NotificationManager nm = (NotificationManager) getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE);
+        // Channel settings are immutable once created - force a recreate so setShowBadge(false)
+        // actually takes effect on installs that already created this channel before the fix.
+        NotificationChannel existing = nm.getNotificationChannel(CHANNEL_ID);
+        if (existing != null && existing.canShowBadge()) {
+            nm.deleteNotificationChannel(CHANNEL_ID);
+        }
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_ID, "Deletions", NotificationManager.IMPORTANCE_LOW);
+        ch.setShowBadge(false);
         nm.createNotificationChannel(ch);
 
         int smallIcon = R.drawable.ic_delete_24;

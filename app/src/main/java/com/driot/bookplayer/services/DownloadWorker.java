@@ -639,11 +639,21 @@ public class DownloadWorker extends ImportWorker {
     }
 
     private void createNotificationChannel(Context ctx) {
+        NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null)
+            return;
+
+        // Channel settings are immutable once created - force a recreate so setShowBadge(false)
+        // actually takes effect on installs that already created this channel before the fix.
+        NotificationChannel existing = nm.getNotificationChannel(CHANNEL_ID);
+        if (existing != null && existing.canShowBadge()) {
+            nm.deleteNotificationChannel(CHANNEL_ID);
+        }
+
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_ID, "Download Channel", NotificationManager.IMPORTANCE_LOW);
-        NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm != null)
-            nm.createNotificationChannel(ch);
+        ch.setShowBadge(false);
+        nm.createNotificationChannel(ch);
     }
 
     private static long getContentLengthLongCompat(HttpURLConnection conn) {

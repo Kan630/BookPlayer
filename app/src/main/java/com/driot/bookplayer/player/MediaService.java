@@ -956,10 +956,20 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
         } else {
             // Android restarted our sticky service after killing it — all in-memory state
-            // (playlist, engine) is gone. Shutting down cleanly removes the stale
-            // "Please wait" notification the OS shows while waiting for startForeground().
+            // (playlist, engine) is gone. The OS still expects a startForeground() call on
+            // this restart (the original launch used startForegroundService()); skipping
+            // straight to shutdown() left that contract unmet, so the OS kept showing its
+            // own "waiting to start" placeholder since our stopForeground() was a no-op on
+            // a service that had never actually entered the foreground state. Satisfy the
+            // contract with a throwaway notification, then tear it down immediately.
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", "no intent - shutdown zombie");
             myLogW("MediaService start with no intent - shutting down to avoid zombie notification");
+            try {
+                startForegroundWithBuildCheck(
+                        notif.buildPreparing("BookPlayer", "Stopped", NavHelper.navigateToMain(this)));
+            } catch (Throwable t) {
+                myLogEE(t, "onStartCommand(null): throwaway startForeground failed");
+            }
             shutdown(false);
             return START_NOT_STICKY;
         }
@@ -1265,7 +1275,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void goForegroundPreparing(@Nullable CharSequence title, @Nullable CharSequence text) {
         try {
             CharSequence t = (title != null) ? title : "Preparing…";
-            CharSequence s = (text != null) ? text : "Please wait";
+            CharSequence s = (text != null) ? text : "Loading…";
 
             PlaybackNotificationManager.ActionProvider minimal = new PlaybackNotificationManager.ActionProvider() {
                 @Override
