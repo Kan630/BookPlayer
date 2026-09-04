@@ -34,6 +34,28 @@
             android:text="Delete Logs"
              />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <Button
+                android:id="@+id/bFlushLogsToDownloads"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4CAF50"
+                android:text="Flush logs to Downloads, last N days"/>
+            <EditText
+                android:id="@+id/etLogDaysToFlush"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:padding="8dp"
+                android:layout_marginStart="10dp"
+                android:hint="days"
+                android:text="7"/>
+        </LinearLayout>
+
         <View style="@style/GetResourceHorizontalBar" />
 
         <Button

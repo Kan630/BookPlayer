@@ -1,10 +1,16 @@
 package com.driot.bookplayer.activities;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +20,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -28,20 +37,33 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class AdminActivity extends BaseActivity {
 
     private static final int REQ_DELETE_LOGS = 2001;
+    private static final int REQ_WRITE_STORAGE_FOR_LOG_FLUSH = 2002;
+    private static final String LOG_FLUSH_DOWNLOADS_FOLDER = "BookPlayerLogs";
+
+    private int pendingLogFlushDays = 7;
 
     private LinearLayout btnContainer;
     private ListView listActivities;
@@ -114,6 +136,8 @@ public class AdminActivity extends BaseActivity {
         });
 
         findViewById(R.id.bDeleteLogs).setOnClickListener(v -> deleteLogsClick());
+
+        findViewById(R.id.bFlushLogsToDownloads).setOnClickListener(v -> flushLogsToDownloadsClick());
 
         findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {
@@ -325,6 +349,122 @@ public class AdminActivity extends BaseActivity {
         File dir = new File(this.getFilesDir(), "log");
         FileHelper.recursiveRemove(dir);
         recreate();
+    }
+
+    private void flushLogsToDownloadsClick() {
+        EditText etDays = findViewById(R.id.etLogDaysToFlush);
+        String daysStr = etDays.getText().toString().trim();
+        int days = 7;
+        if (!daysStr.isEmpty()) {
+            try {
+                days = Math.max(0, Integer.parseInt(daysStr));
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid number of days", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        pendingLogFlushDays = days;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, REQ_WRITE_STORAGE_FOR_LOG_FLUSH);
+            return;
+        }
+
+        flushLogsToDownloads(pendingLogFlushDays);
+    }
+
+    private void flushLogsToDownloads(int days) {
+        new Thread(() -> {
+            File logDir = new File(getFilesDir(), "log");
+            File[] files = logDir.listFiles();
+            if (files == null || files.length == 0) {
+                runOnUiThread(() -> Toast.makeText(this, "No log files found", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            long cutoffMillis = System.currentTimeMillis() - (days * 24L * 60L * 60L * 1000L);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+            int copied = 0;
+            for (File f : files) {
+                if (!f.isFile()) continue;
+
+                MyFile myFile = new MyFile(f.getName());
+                Date fileDate;
+                try {
+                    fileDate = sdf.parse(myFile.getDate());
+                } catch (Exception e) {
+                    fileDate = null;
+                }
+                if (fileDate == null || fileDate.getTime() < cutoffMillis) continue;
+
+                if (copyLogFileToDownloads(f)) copied++;
+            }
+
+            int finalCopied = copied;
+            runOnUiThread(() -> Toast.makeText(this,
+                    "Copied " + finalCopied + " log file(s) to Downloads/" + LOG_FLUSH_DOWNLOADS_FOLDER,
+                    Toast.LENGTH_LONG).show());
+        }).start();
+    }
+
+    private boolean copyLogFileToDownloads(File src) {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File targetDir = new File(downloadsDir, LOG_FLUSH_DOWNLOADS_FOLDER);
+                if (!targetDir.exists() && !targetDir.mkdirs()) {
+                    myLogE("flushLogsToDownloads: failed to create " + targetDir);
+                    return false;
+                }
+                try (InputStream in = new FileInputStream(src);
+                        OutputStream out = new FileOutputStream(new File(targetDir, src.getName()))) {
+                    copyStream(in, out);
+                }
+            } else {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, src.getName());
+                values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
+                values.put(MediaStore.Downloads.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS + "/" + LOG_FLUSH_DOWNLOADS_FOLDER);
+
+                Uri destUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (destUri == null) {
+                    myLogE("flushLogsToDownloads: MediaStore insert returned null for " + src.getName());
+                    return false;
+                }
+                try (InputStream in = new FileInputStream(src);
+                        OutputStream out = getContentResolver().openOutputStream(destUri)) {
+                    copyStream(in, out);
+                }
+            }
+            return true;
+        } catch (IOException e) {
+            myLogEE(e, "copyLogFileToDownloads " + src.getName());
+            return false;
+        }
+    }
+
+    private static void copyStream(InputStream in, OutputStream out) throws IOException {
+        byte[] buf = new byte[8192];
+        int len;
+        while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_WRITE_STORAGE_FOR_LOG_FLUSH) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                flushLogsToDownloads(pendingLogFlushDays);
+            } else {
+                Toast.makeText(this, "Permission denied, cannot copy logs to Downloads.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
