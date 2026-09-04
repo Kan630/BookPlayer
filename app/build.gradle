@@ -68,7 +68,7 @@ android {
         //  34   = android 14.0 Upside Down Cake        2023
         //  35   = android 15.0 Vanilla Ice Cream       2025
         //  36   = android 16.0 Baklava                 2025
-        //  37   = android 17.0                          2026
+        //  37   = android 17.0                         2026
 
         minSdk = 26
         //24 seems to be minimum for ZipFile
@@ -81,8 +81,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 297
-        versionName = "297 - Revived Capybara"
+        versionCode = 298
+        versionName = "298 - Revived Capybara"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -235,15 +235,15 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.1.0'
 
     implementation 'com.google.firebase:firebase-crashlytics:20.1.0'
-    implementation platform('com.google.firebase:firebase-bom:34.17.0')
+    implementation platform('com.google.firebase:firebase-bom:34.18.0')
     implementation 'com.google.firebase:firebase-analytics'
 
     implementation 'com.google.code.gson:gson:2.14.0'
-    implementation 'org.jsoup:jsoup:1.23.1'
+    implementation 'org.jsoup:jsoup:1.23.2'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.4.0'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.4.0'  //for cookies in radio
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.5.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.5.0'  //for cookies in radio
     implementation 'com.github.bumptech.glide:glide:5.0.9'
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
@@ -267,7 +267,7 @@ dependencies {
     annotationProcessor "com.google.dagger:hilt-compiler:2.60.1"
 
     // Nearby Connections for phone-to-phone sharing
-    implementation 'com.google.android.gms:play-services-nearby:19.4.0'
+    implementation 'com.google.android.gms:play-services-nearby:19.5.0'
 
     androidTestUtil "androidx.test:orchestrator:1.6.1"
 
