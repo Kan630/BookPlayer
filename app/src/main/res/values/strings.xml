@@ -12,7 +12,7 @@
     <string name="Librivox" translatable="false">LibriVox</string>
 
     <string name="three_dots" translatable="false">…</string>
-
+    <string name="admin" translatable="false">Admin</string>
 
     <string name="play" translatable="false"><![CDATA[>]]></string>
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>

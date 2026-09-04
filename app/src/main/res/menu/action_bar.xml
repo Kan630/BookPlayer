@@ -76,6 +76,12 @@
                 app:showAsAction="ifRoom"
                 />
 
+            <item android:id="@+id/menu_admin"
+                android:title="@string/admin"
+                android:icon="@drawable/ic_service_toolbox_24"
+                app:showAsAction="ifRoom"
+                />
+
         </menu>
     </item>
 </menu>

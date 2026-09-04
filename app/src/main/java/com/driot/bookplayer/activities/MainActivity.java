@@ -245,6 +245,7 @@ public class MainActivity extends FullActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        invalidateOptionsMenu(); // refresh Admin menu item visibility after toggling admin mode on the Stats page
         handleRequestedNavFromIntent(getIntent());
         sendBroadcast(new Intent(Intents.ACTION_PING_UI));
         LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx,
@@ -277,9 +278,13 @@ public class MainActivity extends FullActivity {
         MenuItem radioItem = menu.findItem(R.id.menu_radio);
         MenuItem podcastItem = menu.findItem(R.id.menu_podcast);
         boolean showInMenu = !Option.getDisplayAppNavBar() && !Tonio.isPure(this);
-        
+
         if (radioItem != null) radioItem.setVisible(showInMenu);
         if (podcastItem != null) podcastItem.setVisible(showInMenu);
+
+        // Only show Admin item once admin mode has been unlocked (secret triple-tap on Stats page)
+        MenuItem adminItem = menu.findItem(R.id.menu_admin);
+        if (adminItem != null) adminItem.setVisible(Tonio.isAdmin());
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -335,6 +340,9 @@ public class MainActivity extends FullActivity {
         } else if (itemId == R.id.menu_podcast) {
             myLogI("--- USER clicks MENU : PODCAST ---");
             navHelper.handleAppNavBarClick(this, R.id.nav_podcast);
+        } else if (itemId == R.id.menu_admin) {
+            myLogI("--- USER clicks MENU : ADMIN ---");
+            startActivity(new Intent(this, AdminActivity.class));
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
