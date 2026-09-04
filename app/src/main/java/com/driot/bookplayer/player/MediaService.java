@@ -2,9 +2,15 @@ package com.driot.bookplayer.player;
 
 import com.driot.bookplayer.R;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -15,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -328,7 +335,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
             KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-            myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Received command = " + ke);
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            boolean interactive = pm != null && pm.isInteractive();
+            myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- screenInteractive=" + interactive
+                    + " -- Received command = " + ke);
             return super.onMediaButtonEvent(mediaButtonIntent);
         }
 
@@ -600,6 +610,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         }
                     }
                 });
+
+        registerWakeDiagnosticsReceiver();
 
         myLogD("onCreate() - END");
     }
@@ -1458,8 +1470,63 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Override
     public void onDestroy() {
         myLog("onDestroy()");
+        unregisterWakeDiagnosticsReceiver();
         shutdown(true);
         super.onDestroy();
+    }
+
+    private BroadcastReceiver wakeDiagnosticsReceiver;
+
+    // Diagnostics for the "headset button needs 2 presses after idle" report: correlates
+    // screen on/off and Bluetooth link connect/disconnect timing against onMediaButtonEvent below.
+    private void registerWakeDiagnosticsReceiver() {
+        wakeDiagnosticsReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action == null)
+                    return;
+                if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)
+                        || BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                    String deviceInfo = "unknown";
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    if (device != null) {
+                        try {
+                            if (ContextCompat.checkSelfPermission(MediaService.this,
+                                    Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                                deviceInfo = device.getName() + " (" + device.getAddress() + ")";
+                            } else {
+                                deviceInfo = device.getAddress();
+                            }
+                        } catch (SecurityException e) {
+                            deviceInfo = "(no BLUETOOTH_CONNECT permission)";
+                        }
+                    }
+                    myLogW("WAKE_DIAGNOSTICS: " + action + " - device=" + deviceInfo);
+                } else {
+                    myLogW("WAKE_DIAGNOSTICS: " + action);
+                }
+            }
+        };
+
+        IntentFilter f = new IntentFilter();
+        f.addAction(Intent.ACTION_SCREEN_ON);
+        f.addAction(Intent.ACTION_SCREEN_OFF);
+        f.addAction(Intent.ACTION_USER_PRESENT);
+        f.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        f.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        ContextCompat.registerReceiver(this, wakeDiagnosticsReceiver, f, ContextCompat.RECEIVER_NOT_EXPORTED);
+    }
+
+    private void unregisterWakeDiagnosticsReceiver() {
+        if (wakeDiagnosticsReceiver != null) {
+            try {
+                unregisterReceiver(wakeDiagnosticsReceiver);
+            } catch (IllegalArgumentException ignored) {
+                // already unregistered
+            }
+            wakeDiagnosticsReceiver = null;
+        }
     }
 
     @Nullable

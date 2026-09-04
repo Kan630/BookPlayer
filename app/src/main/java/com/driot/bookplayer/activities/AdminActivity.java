@@ -1,11 +1,14 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
+import android.app.DownloadManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -136,6 +140,31 @@ public class AdminActivity extends BaseActivity {
         });
 
         findViewById(R.id.bDeleteLogs).setOnClickListener(v -> deleteLogsClick());
+
+        // Flush last logs to Downloads: slider range is 1 day .. age (in days) of the oldest stored log file
+        SeekBar seekBarLogFlush = findViewById(R.id.seekbarLogFlushDays);
+        TextView tvLogFlushDays = findViewById(R.id.tvLogFlushDays);
+        int maxLogAgeDays = computeMaxLogAgeDays();
+        seekBarLogFlush.setMin(1);
+        seekBarLogFlush.setMax(maxLogAgeDays);
+        pendingLogFlushDays = Math.min(7, maxLogAgeDays);
+        seekBarLogFlush.setProgress(pendingLogFlushDays);
+        tvLogFlushDays.setText(formatLogFlushDaysLabel(pendingLogFlushDays));
+        seekBarLogFlush.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pendingLogFlushDays = Math.max(1, progress);
+                tvLogFlushDays.setText(formatLogFlushDaysLabel(pendingLogFlushDays));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
         findViewById(R.id.bFlushLogsToDownloads).setOnClickListener(v -> flushLogsToDownloadsClick());
 
@@ -351,20 +380,38 @@ public class AdminActivity extends BaseActivity {
         recreate();
     }
 
-    private void flushLogsToDownloadsClick() {
-        EditText etDays = findViewById(R.id.etLogDaysToFlush);
-        String daysStr = etDays.getText().toString().trim();
-        int days = 7;
-        if (!daysStr.isEmpty()) {
+    private String formatLogFlushDaysLabel(int days) {
+        return "Last " + days + " day" + (days > 1 ? "s" : "");
+    }
+
+    private int computeMaxLogAgeDays() {
+        File logDir = new File(getFilesDir(), "log");
+        File[] files = logDir.listFiles();
+        if (files == null || files.length == 0) return 7;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        long nowMillis = System.currentTimeMillis();
+        long oldestMillis = nowMillis;
+        boolean found = false;
+        for (File f : files) {
+            if (!f.isFile()) continue;
+            MyFile myFile = new MyFile(f.getName());
             try {
-                days = Math.max(0, Integer.parseInt(daysStr));
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Invalid number of days", Toast.LENGTH_SHORT).show();
-                return;
+                Date d = sdf.parse(myFile.getDate());
+                if (d != null && d.getTime() < oldestMillis) {
+                    oldestMillis = d.getTime();
+                    found = true;
+                }
+            } catch (Exception ignored) {
             }
         }
-        pendingLogFlushDays = days;
+        if (!found) return 7;
 
+        long ageDays = (nowMillis - oldestMillis) / (24L * 60L * 60L * 1000L) + 1; // include the oldest day itself
+        return (int) Math.max(1, ageDays);
+    }
+
+    private void flushLogsToDownloadsClick() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -405,10 +452,23 @@ public class AdminActivity extends BaseActivity {
             }
 
             int finalCopied = copied;
-            runOnUiThread(() -> Toast.makeText(this,
-                    "Copied " + finalCopied + " log file(s) to Downloads/" + LOG_FLUSH_DOWNLOADS_FOLDER,
-                    Toast.LENGTH_LONG).show());
+            runOnUiThread(() -> {
+                Toast.makeText(this,
+                        "Copied " + finalCopied + " log file(s) to Downloads/" + LOG_FLUSH_DOWNLOADS_FOLDER,
+                        Toast.LENGTH_LONG).show();
+                if (finalCopied > 0) openDownloadsFolder();
+            });
         }).start();
+    }
+
+    private void openDownloadsFolder() {
+        try {
+            Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogW("openDownloadsFolder: no app found to open Downloads");
+        }
     }
 
     private boolean copyLogFileToDownloads(File src) {
@@ -425,11 +485,18 @@ public class AdminActivity extends BaseActivity {
                     copyStream(in, out);
                 }
             } else {
+                String relativePath = Environment.DIRECTORY_DOWNLOADS + "/" + LOG_FLUSH_DOWNLOADS_FOLDER + "/";
+
+                // Delete any previous copy of this file so re-flushing overwrites instead of "(1)"-suffixing
+                Uri existing = findExistingDownloadUri(src.getName(), relativePath);
+                if (existing != null) {
+                    getContentResolver().delete(existing, null, null);
+                }
+
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Downloads.DISPLAY_NAME, src.getName());
                 values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-                values.put(MediaStore.Downloads.RELATIVE_PATH,
-                        Environment.DIRECTORY_DOWNLOADS + "/" + LOG_FLUSH_DOWNLOADS_FOLDER);
+                values.put(MediaStore.Downloads.RELATIVE_PATH, relativePath);
 
                 Uri destUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
                 if (destUri == null) {
@@ -452,6 +519,21 @@ public class AdminActivity extends BaseActivity {
         byte[] buf = new byte[8192];
         int len;
         while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private Uri findExistingDownloadUri(String displayName, String relativePath) {
+        Uri collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        String[] projection = { MediaStore.Downloads._ID };
+        String selection = MediaStore.Downloads.DISPLAY_NAME + "=? AND " + MediaStore.Downloads.RELATIVE_PATH + "=?";
+        String[] selectionArgs = { displayName, relativePath };
+        try (Cursor cursor = getContentResolver().query(collection, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID));
+                return ContentUris.withAppendedId(collection, id);
+            }
+        }
+        return null;
     }
 
     @Override
