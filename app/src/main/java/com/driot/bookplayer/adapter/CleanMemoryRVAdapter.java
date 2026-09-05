@@ -37,11 +37,14 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
 
     private List<FolderWithSummary> filesWithSummary;
     private final OnDeleteClickListener onDeleteClickListener;
+    private final OnItemClickListener onItemClickListener;
 
     private final Context context;
 
-    public CleanMemoryRVAdapter(Context context, OnDeleteClickListener onDeleteClickListener) {
+    public CleanMemoryRVAdapter(Context context, OnDeleteClickListener onDeleteClickListener,
+            OnItemClickListener onItemClickListener) {
         this.onDeleteClickListener = onDeleteClickListener;
+        this.onItemClickListener = onItemClickListener;
         this.context = context;
     }
 
@@ -88,6 +91,11 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
             myLog("Delete Click on " + file.getName());
             onDeleteClickListener.onDeleteClick(file, position);
         });
+
+        holder.itemView.setOnClickListener(v -> {
+            myLog("User clicks on " + file.getName());
+            onItemClickListener.onItemClick(item, position);
+        });
     }
 
     @Override
@@ -117,6 +125,10 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
 
     public interface OnDeleteClickListener {
         void onDeleteClick(File file, int position);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(FolderWithSummary item, int position);
     }
 
  }

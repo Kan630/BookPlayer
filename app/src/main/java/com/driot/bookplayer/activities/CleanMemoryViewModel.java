@@ -183,6 +183,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
             String playType = summary != null ? summary.playType : "";
             String image = summary != null ? summary.image : "";
             String folderName = (summary != null && summary.name != null) ? summary.name : null;
+            long idFolder = summary != null ? summary.id : -1;
 
             long folderSizeBytes = folderSizeCache.containsKey(file.getPath())
                     ? folderSizeCache.get(file.getPath())
@@ -190,7 +191,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                     : StorageHelper.getFolderSize(file)); // fallback for cache miss
             folderSizeCache.putIfAbsent(file.getPath(), folderSizeBytes);
 
-            enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image, folderName));
+            enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image, folderName, idFolder));
         }
         enriched.sort(Comparator.comparingLong(f -> f.folderSizeInBytes));
         Collections.reverse(enriched);

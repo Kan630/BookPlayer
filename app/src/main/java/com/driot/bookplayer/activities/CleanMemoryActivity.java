@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.nav.FullActivity;
@@ -31,7 +33,8 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CleanMemoryActivity extends FullActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
+public class CleanMemoryActivity extends FullActivity
+        implements CleanMemoryRVAdapter.OnDeleteClickListener, CleanMemoryRVAdapter.OnItemClickListener {
     private static final int REQ_DELETE_AUDIO = 3001;
     private File pendingFileToDelete;
     private CleanMemoryRVAdapter cacheFilesAdapter;
@@ -91,7 +94,7 @@ public class CleanMemoryActivity extends FullActivity implements CleanMemoryRVAd
 
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
-        cacheFilesAdapter = new CleanMemoryRVAdapter(this, this);
+        cacheFilesAdapter = new CleanMemoryRVAdapter(this, this, this);
         recyclerViewCacheFiles.setAdapter(cacheFilesAdapter);
         recyclerViewCacheFiles.setLayoutManager(new LinearLayoutManager(this));
 
@@ -254,6 +257,17 @@ public class CleanMemoryActivity extends FullActivity implements CleanMemoryRVAd
                 Tonio.formatMemPadding(this.getApplicationContext(), MB_deviceMemory) + " " + MB_label_memory;
 
         statsTextView.setText(zeText);
+    }
+
+    @Override
+    public void onItemClick(FolderWithSummary item, int position) {
+        myLogI("Item Click on [" + item.file.getName() + "]");
+        if (item.idFolder <= 0) {
+            myLogE("onItemClick: no Folder in DB for this path, nothing to open - [" + item.file.getName() + "]");
+            return;
+        }
+        startActivity(new Intent(this, ZikFileActivity.class)
+                .putExtra(Intents.EXTRA_FOLDER_ID, item.idFolder));
     }
 
     @Override
