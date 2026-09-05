@@ -13,7 +13,12 @@ import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DbClean {
 
@@ -113,6 +118,61 @@ public class DbClean {
                     myLogW(header + "\n\nDetails:" + masterMsg);
                     FirebaseAnalyticsHelper.tellDbKo("audio", nbFatalError, nbInvalid, nbZikFiles, nbRewritten, nbStillBad, masterMsg);
                 }
+
+                // CHECK DUPLICATE ZIKFILE PATHS - detect only, never auto-delete: two rows on the
+                // same file can carry different listening progress, so picking which to remove
+                // is a decision for a human, not this background check.
+                Map<String, List<ZikFile>> byPath = new HashMap<>();
+                for (ZikFile zikFile : list) {
+                    String p = zikFile.getPath();
+                    if (p == null || p.isEmpty()) continue;
+                    List<ZikFile> group = byPath.get(p);
+                    if (group == null) {
+                        group = new ArrayList<>();
+                        byPath.put(p, group);
+                    }
+                    group.add(zikFile);
+                }
+
+                int nbDuplicateGroups = 0;
+                int nbDuplicateRows = 0;
+                StringBuilder dupMsg = new StringBuilder();
+                for (Map.Entry<String, List<ZikFile>> entry : byPath.entrySet()) {
+                    List<ZikFile> dups = entry.getValue();
+                    if (dups.size() <= 1) continue;
+                    nbDuplicateGroups++;
+                    nbDuplicateRows += dups.size();
+
+                    // Recommendation only, nothing is deleted here: prefer flagging rows with
+                    // no listening progress (safe to drop); if every row has progress, flag all
+                    // but the oldest (date_added) instead, since a duplicate is more likely to
+                    // be the accidental re-download than the original entry.
+                    Set<Long> deleteCandidateIds = pickDuplicateDeleteCandidates(dups);
+
+                    StringBuilder rowsDesc = new StringBuilder();
+                    for (ZikFile z : dups) {
+                        String verdict = deleteCandidateIds.contains(z.getId()) ? "PROSPECTED DELETE" : "keep";
+                        rowsDesc.append("\n    [").append(verdict).append("] id=").append(z.getId())
+                                .append(" folder=[").append(z.getFolderName()).append("]")
+                                .append(" name=[").append(z.getDisplayName()).append("]")
+                                .append(" position=").append(z.getPosition())
+                                .append(" percentdone=").append(z.getPercentdone())
+                                .append(" date_added=").append(z.date_added);
+                    }
+                    dupMsg.append("\n\nDUPLICATE PATH [").append(entry.getKey()).append("] - ")
+                            .append(dups.size()).append(" ZikFile rows:").append(rowsDesc);
+                }
+
+                if (nbDuplicateGroups == 0) {
+                    myLog("CHECK DUPLICATE ZIKFILE PATHS : no duplicate found among " + nbZikFiles + " zikFiles.");
+                } else {
+                    String dupHeader = "CHECK DUPLICATE ZIKFILE PATHS : "
+                            + "\n" + nbDuplicateGroups + " duplicate path group(s), "
+                            + nbDuplicateRows + " ZikFile rows affected (out of " + nbZikFiles + " total).";
+                    myLogE(dupHeader + "\n\nDetails:" + dupMsg);
+                    FirebaseAnalyticsHelper.tellDbKo("duplicate_path", nbDuplicateGroups, nbDuplicateRows, nbZikFiles,
+                            0, nbDuplicateRows, dupMsg.toString());
+                }
             });
         }
 
@@ -207,5 +267,32 @@ public class DbClean {
                 }
             });
         }
+    }
+
+    // Recommendation only - the caller only logs this, nothing is deleted automatically.
+    // Rows with no listening progress are safe to flag; if every row in the group has
+    // progress, flag all but the oldest one instead (a duplicate is more likely to be the
+    // accidental re-download than the original entry).
+    private static Set<Long> pickDuplicateDeleteCandidates(List<ZikFile> dups) {
+        Set<Long> candidates = new HashSet<>();
+        for (ZikFile z : dups) {
+            if (z.getPosition() <= 0.0 && z.getPercentdone() <= 0.0) {
+                candidates.add(z.getId());
+            }
+        }
+        if (candidates.isEmpty()) {
+            ZikFile oldest = dups.get(0);
+            for (ZikFile z : dups) {
+                if (z.date_added < oldest.date_added) {
+                    oldest = z;
+                }
+            }
+            for (ZikFile z : dups) {
+                if (z.getId() != oldest.getId()) {
+                    candidates.add(z.getId());
+                }
+            }
+        }
+        return candidates;
     }
 }

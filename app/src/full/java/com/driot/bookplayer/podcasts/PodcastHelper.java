@@ -280,7 +280,7 @@ public class PodcastHelper {
                         // Already gone from disk - nothing left to delete there, but still
                         // fall through to the DB cleanup below so this row stops being
                         // re-selected by getListenedPodcastEpisodesToDelete() on every run.
-                        myLogW("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
+                        myLogE("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
                         file = null;
                     } else {
                         myLogW("legacy paths : path/name"); // 2025-10-09 (some 2 months old podcasts stays in my phone)
@@ -362,39 +362,59 @@ public class PodcastHelper {
                 if (!podcastFolder.exists())
                     podcastFolder.mkdirs();
 
-                List<PodcastEpisode> newEpisodes = new ArrayList<>();
-                int i = 0;
+                // Everything below reads/writes the DB (dedup lookup + insert), so it all
+                // runs on the DB executor rather than whatever thread the network callback fires on.
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    EpisodeDao episodeDao = AppDatabase.getDatabase(context).episodeDao();
+                    List<Episode> existingEpisodesForPodcast = episodeDao.getByPodcastId(podcast.getId());
 
-                for (PodcastEpisode episode : podcastEpisodes) {
-                    /// EPISODES LOOP ////////////////////////////////////////////////////////
-                    i++;
-                    if (i > maxEpisode)
-                        break;
+                    List<PodcastEpisode> newEpisodes = new ArrayList<>();
+                    int i = 0;
 
-                    String episodeLabel = buildPodcastEpisodeName(episode);
-                    String fileName = buildPodcastEpisodeFileName(episode);
-                    File destFile = new File(podcastFolder, fileName);
+                    for (PodcastEpisode episode : podcastEpisodes) {
+                        /// EPISODES LOOP ////////////////////////////////////////////////////////
+                        i++;
+                        if (i > maxEpisode)
+                            break;
 
-                    if (!destFile.exists()) {
+                        String episodeLabel = buildPodcastEpisodeName(episode);
+                        String fileName = buildPodcastEpisodeFileName(episode);
+                        File destFile = new File(podcastFolder, fileName);
+
+                        if (destFile.exists()) {
+                            myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title
+                                    + "] - [" + episodeLabel + "] - [" + fileName + "]");
+                            continue;
+                        }
+
+                        // PodcastIndex sometimes reassigns a new episode id to the same actual
+                        // episode on re-crawl (e.g. unstable feed guids). That defeats every check
+                        // above, which is keyed on episode.id, and silently re-downloads a duplicate.
+                        // Catch it here by comparing title + declared enclosure size against episodes
+                        // of this podcast that are already downloaded.
+                        Episode duplicate = findDuplicateByTitleAndSize(existingEpisodesForPodcast, episode.title,
+                                episode.enclosureLength);
+                        if (duplicate != null) {
+                            myLogE("Auto-download SKIPPED - duplicate of already-downloaded episode idEpisode="
+                                    + duplicate.idEpisode + " idZikFile=" + duplicate.idZikFile
+                                    + " (title+size match) for [" + podcast.title + "] - [" + episodeLabel
+                                    + "] - new idEpisode=" + episode.id);
+                            continue;
+                        }
+
                         myLogD("Auto-download episode n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - ["
                                 + episodeLabel + "] - [" + fileName + "]");
                         newEpisodes.add(episode);
-                    } else {
-                        myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - ["
-                                + episodeLabel + "] - [" + fileName + "]");
+                        /// EPISODES LOOP ////////////////////////////////////////////////////////
                     }
-                    /// EPISODES LOOP ////////////////////////////////////////////////////////
-                }
 
-                if (!newEpisodes.isEmpty()) {
-                    AppDatabase.databaseWriteExecutor.execute(() -> { // maybe Executors.newSingleThreadExecutor() will
-                                                                      // be better, or some background thread
+                    if (!newEpisodes.isEmpty()) {
                         List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcast.getId());
-                        AppDatabase.getDatabase(context).episodeDao().insertAll(toSave);
+                        episodeDao.insertAll(toSave);
                         PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder,
                                 null);
-                    });
-                }
+                    }
+                });
                 updateLastCheck(context, podcast.feedId);
 
             }
@@ -404,6 +424,27 @@ public class PodcastHelper {
                 myLogEE(e, "Auto-download error for feedId " + podcast.feedId);
             }
         });
+    }
+
+    // Matches on normalized title + declared enclosure byte size against episodes of the same
+    // podcast that are already linked to a downloaded ZikFile (idZikFile != null). Requires a
+    // positive size on both sides so two episodes with unknown/zero declared length never match
+    // on title alone.
+    private static Episode findDuplicateByTitleAndSize(List<Episode> existingEpisodes, String title,
+            long enclosureLength) {
+        if (title == null || enclosureLength <= 0)
+            return null;
+        String normalizedTitle = title.trim();
+        for (Episode existing : existingEpisodes) {
+            if (existing.idZikFile == null)
+                continue;
+            if (existing.enclosureLength != enclosureLength)
+                continue;
+            if (existing.title != null && normalizedTitle.equalsIgnoreCase(existing.title.trim())) {
+                return existing;
+            }
+        }
+        return null;
     }
 
     public static void cancelAutoDownload(Context c, long folderId) {

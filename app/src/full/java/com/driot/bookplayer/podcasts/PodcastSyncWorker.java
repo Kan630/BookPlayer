@@ -31,6 +31,8 @@ import android.content.Intent;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PodcastSyncWorker extends LoggingWorker {
 
@@ -105,6 +107,10 @@ public class PodcastSyncWorker extends LoggingWorker {
             return Result.success();
         }
 
+        // Loaded once so the per-file duplicate check below doesn't re-query for every file.
+        List<Episode> existingEpisodesForPodcast = (podcastId != null) ? episodeDao.getByPodcastId(podcastId)
+                : new ArrayList<>();
+
         int newFilesCount = 0;
         for (File file : files) {
             myLogD("file : [" +  file.getName() + ']');
@@ -137,6 +143,20 @@ public class PodcastSyncWorker extends LoggingWorker {
                     if (audioInfo != null) duration = audioInfo.durationMs;
 
                     if (duration > 0) {
+                        // Same defense as PodcastHelper's pre-download check, but here it also
+                        // catches manual single-episode downloads (which don't go through that
+                        // check) and files that already made it to disk before this fix existed.
+                        long fileSize = file.length();
+                        Episode duplicate = findDuplicateByTitleAndSize(existingEpisodesForPodcast, episode.title,
+                                fileSize, zikFileDao);
+                        if (duplicate != null) {
+                            myLogE("PodcastSyncWorker => SKIPPED duplicate import (title+size match with existing idEpisode="
+                                    + duplicate.idEpisode + " idZikFile=" + duplicate.idZikFile + ") for file ["
+                                    + file.getName() + "] - deleting redundant downloaded file");
+                            file.delete();
+                            continue;
+                        }
+
                         ZikFile zikFile = new ZikFile();
                         zikFile.setIdFolder(idFolder);
                         zikFile.setName(file.getName());
@@ -149,6 +169,7 @@ public class PodcastSyncWorker extends LoggingWorker {
                         zikFile.setIszipfile(false);
                         zikFile.setFinished(false);
                         zikFile.setDuration(duration);
+                        zikFile.setSize(fileSize);
                         zikFile.date_added = System.currentTimeMillis();
                         newZikFileId = zikFileDao.insert(zikFile);
                         myLogD("ZikFile inserted with ID: " + newZikFileId + " - [" + trackTitle + "]");
@@ -197,6 +218,33 @@ public class PodcastSyncWorker extends LoggingWorker {
         }
 
         return Result.success();
+    }
+
+    // Matches on normalized title + actual on-disk byte size against episodes of the same
+    // podcast already linked to a downloaded ZikFile (idZikFile != null). Stats the existing
+    // episode's file directly rather than trusting ZikFile.size, since that field may still be
+    // unpopulated (0) on older rows. Requires a positive size on both sides so two episodes with
+    // unknown/zero size never match on title alone.
+    private Episode findDuplicateByTitleAndSize(List<Episode> existingEpisodes, String title, long fileSize,
+            CommonZikFileDao zikFileDao) {
+        if (title == null || fileSize <= 0)
+            return null;
+        String normalizedTitle = title.trim();
+        for (Episode existing : existingEpisodes) {
+            if (existing.idZikFile == null)
+                continue;
+            if (existing.title == null || !normalizedTitle.equalsIgnoreCase(existing.title.trim()))
+                continue;
+
+            ZikFile existingZik = zikFileDao.getById(existing.idZikFile);
+            if (existingZik == null || existingZik.getPath() == null)
+                continue;
+            File existingFile = new File(existingZik.getPath());
+            if (existingFile.exists() && existingFile.length() == fileSize) {
+                return existing;
+            }
+        }
+        return null;
     }
 
 }
