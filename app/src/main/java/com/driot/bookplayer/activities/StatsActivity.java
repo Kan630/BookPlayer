@@ -31,7 +31,6 @@ import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -303,17 +302,12 @@ public class StatsActivity extends BaseActivity {
     }
 
     private void deleteSystemCache() {
-        // Never delete files directly under getCacheDir() as raw filesystem operations:
-        // Glide keeps its own disk cache there (open in-process, tracked by an internal
-        // journal) and deleting its files out from under it desyncs the journal, breaking
-        // image loads until the app restarts. Ask Glide to clear its own cache instead,
-        // and only raw-delete the subfolders we manage ourselves.
+        // Only raw-delete the subfolder(s) under getCacheDir() that we manage ourselves.
+        // Never touch Glide's own disk cache directory there: it's open in-process with
+        // its own journal, and deleting its files out from under it desyncs the journal,
+        // breaking image loads until the app restarts.
         Context appCtx = getApplicationContext();
-        Glide.get(appCtx).clearMemory(); // must run on main thread
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            Glide.get(appCtx).clearDiskCache(); // must run off main thread
-            FileHelper.deleteFolderChildren(ImageHelper.getEpisodeCoverOsCacheDir(appCtx));
-        });
+        AppDatabase.databaseReadExecutor.execute(() -> FileHelper.deleteFolderChildren(ImageHelper.getEpisodeCoverOsCacheDir(appCtx)));
     }
 
     private void resetApp() {

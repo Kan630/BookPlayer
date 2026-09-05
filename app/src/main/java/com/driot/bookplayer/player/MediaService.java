@@ -623,13 +623,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private boolean showForegroundNotification(boolean playing) {
 
-        if ("radio".equals(getPlayMode())) {
+        if (isStream()) {
             // 1) Limit session capabilities
             updateSessionState(playing);
 
+            boolean isPodcastStream = Var.PLAY_MODE_PODCAST.equals(getPlayMode());
+            String modeLabel = isPodcastStream ? getString(R.string.podcasts) : getString(R.string.live_radio);
+
             PlayList pl = PlayList.getInstance();
             long trackId = (pl != null && pl.getTrackId() > 0) ? pl.getTrackId() : -1;
-            String streamTitle = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_radio);
+            String streamTitle = (pl != null && pl.getTitle() != null) ? pl.getTitle() : modeLabel;
             String streamImageUrl = (pl != null) ? pl.getImageUrl() : null;
 
             // 2) (Async) fetch cover, then set metadata & update notif
@@ -640,8 +643,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             Notification n = notif.build(
                     media.session(),
                     playing,
-                    streamTitle != null ? streamTitle : getString(R.string.live_radio),
-                    getString(R.string.live_radio),
+                    streamTitle != null ? streamTitle : modeLabel,
+                    modeLabel,
                     new PlaybackNotificationManager.ActionProvider() {
                         @NonNull
                         @Override
@@ -672,7 +675,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @NonNull
                         @Override
                         public PendingIntent content() {
-                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
+                            return isPodcastStream
+                                    ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
+                                    : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
                         }
                     });
             if (!startForegroundWithBuildCheck(n))
@@ -688,13 +693,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             public void onResourceReady(@NonNull Bitmap bmp,
                                     com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
                                 media.setMetadataRadio(
-                                        streamTitle != null ? streamTitle : getString(R.string.live_radio), "", "",
+                                        streamTitle != null ? streamTitle : modeLabel, "", "",
                                         bmp);
                                 // rebuild/update the notification so largeIcon shows
                                 Notification updated = notif.build(
                                         media.session(), playing,
-                                        streamTitle != null ? streamTitle : getString(R.string.live_radio),
-                                        getString(R.string.live_radio),
+                                        streamTitle != null ? streamTitle : modeLabel,
+                                        modeLabel,
                                         /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
                                             @NonNull
                                             @Override
@@ -725,8 +730,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                             @NonNull
                                             @Override
                                             public PendingIntent content() {
-                                                return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this,
-                                                        trackId);
+                                                return isPodcastStream
+                                                        ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
+                                                        : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this,
+                                                                trackId);
                                             }
                                         });
                                 startForegroundWithBuildCheck(updated);
