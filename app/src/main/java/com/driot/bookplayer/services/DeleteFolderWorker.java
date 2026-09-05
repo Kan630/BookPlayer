@@ -15,16 +15,12 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
-import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
-import java.util.List;
 
 public class DeleteFolderWorker extends LoggingWorker {
 
@@ -108,15 +104,8 @@ public class DeleteFolderWorker extends LoggingWorker {
 
         NotificationManager nm = (NotificationManager) getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        // Channel settings are immutable once created - force a recreate so setShowBadge(false)
-        // actually takes effect on installs that already created this channel before the fix.
-        NotificationChannel existing = nm.getNotificationChannel(CHANNEL_ID);
-        if (existing != null && existing.canShowBadge()) {
-            nm.deleteNotificationChannel(CHANNEL_ID);
-        }
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_ID, "Deletions", NotificationManager.IMPORTANCE_LOW);
-        ch.setShowBadge(false);
         nm.createNotificationChannel(ch);
 
         int smallIcon = R.drawable.ic_delete_24;

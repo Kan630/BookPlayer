@@ -4,6 +4,7 @@ import com.driot.bookplayer.R;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -23,6 +24,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -956,20 +958,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
         } else {
             // Android restarted our sticky service after killing it — all in-memory state
-            // (playlist, engine) is gone. The OS still expects a startForeground() call on
-            // this restart (the original launch used startForegroundService()); skipping
-            // straight to shutdown() left that contract unmet, so the OS kept showing its
-            // own "waiting to start" placeholder since our stopForeground() was a no-op on
-            // a service that had never actually entered the foreground state. Satisfy the
-            // contract with a throwaway notification, then tear it down immediately.
+            // (playlist, engine) is gone. Shutting down cleanly removes the stale
+            // "Please wait" notification the OS shows while waiting for startForeground().
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", "no intent - shutdown zombie");
             myLogW("MediaService start with no intent - shutting down to avoid zombie notification");
-            try {
-                startForegroundWithBuildCheck(
-                        notif.buildPreparing("BookPlayer", "Stopped", NavHelper.navigateToMain(this)));
-            } catch (Throwable t) {
-                myLogEE(t, "onStartCommand(null): throwaway startForeground failed");
-            }
             shutdown(false);
             return START_NOT_STICKY;
         }
@@ -1013,6 +1005,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 default:
                     myLogI("onStartCommand: promoting to foreground for action: " + action);
                     goForegroundPreparing("BookPlayer", null);
+                    logActiveNotification("generic-promote:" + action);
                     break;
             }
         }
@@ -1187,6 +1180,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     });
                 } else {
                     myLogW("Podcast download completed, but currently not playing that stream.");
+                    logActiveNotification("podcast-download-completed-not-current-stream");
                 }
                 return START_STICKY;
             }
@@ -1275,7 +1269,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void goForegroundPreparing(@Nullable CharSequence title, @Nullable CharSequence text) {
         try {
             CharSequence t = (title != null) ? title : "Preparing…";
-            CharSequence s = (text != null) ? text : "Loading…";
+            CharSequence s = (text != null) ? text : "Please wait";
 
             PlaybackNotificationManager.ActionProvider minimal = new PlaybackNotificationManager.ActionProvider() {
                 @Override
@@ -1536,6 +1530,33 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 // already unregistered
             }
             wakeDiagnosticsReceiver = null;
+        }
+    }
+
+    // Diagnostics for the "stuck Preparing/Please wait notification" report: dumps the
+    // actual title/text of whatever is currently shown for our foreground notification id,
+    // so the log shows directly (not by inference) what the user sees at a given moment.
+    private void logActiveNotification(String context) {
+        try {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null)
+                return;
+            StatusBarNotification[] active = nm.getActiveNotifications();
+            boolean found = false;
+            for (StatusBarNotification sbn : active) {
+                if (sbn.getId() == ID_NOTIFICATION_PLAY_AUDIO_INT) {
+                    Notification n = sbn.getNotification();
+                    CharSequence title = n.extras.getCharSequence(Notification.EXTRA_TITLE);
+                    CharSequence text = n.extras.getCharSequence(Notification.EXTRA_TEXT);
+                    myLogW("DIAG_NOTIF[" + context + "]: title=[" + title + "] text=[" + text + "]");
+                    found = true;
+                }
+            }
+            if (!found) {
+                myLogW("DIAG_NOTIF[" + context + "]: no active notification with id=" + ID_NOTIFICATION_PLAY_AUDIO_INT);
+            }
+        } catch (Throwable t) {
+            myLogEE(t, "logActiveNotification(" + context + ") failed");
         }
     }
 
@@ -1953,6 +1974,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
         updateSessionState(false);
         Pref.setPaused(why, System.currentTimeMillis());
+        logActiveNotification("enginePause:" + why);
     }
 
     @SuppressWarnings("IfCanBeSwitch")

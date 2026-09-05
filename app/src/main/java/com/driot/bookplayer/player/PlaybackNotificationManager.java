@@ -36,16 +36,6 @@ public final class PlaybackNotificationManager {
     public void ensureChannel(@NonNull String channelName, @NonNull String channelDesc) {
         NotificationManager nm = app.getSystemService(NotificationManager.class);
         if (nm == null) return;
-
-        // NotificationChannel settings are immutable once created — calling
-        // createNotificationChannel() again with setShowBadge(false) is a silent no-op on
-        // installs that already created this channel (pre-badge-fix). Force a one-time
-        // recreate so the badge setting actually takes effect for existing installs.
-        NotificationChannel existing = nm.getNotificationChannel(channelId);
-        if (existing != null && existing.canShowBadge()) {
-            nm.deleteNotificationChannel(channelId);
-        }
-
         NotificationChannel ch = new NotificationChannel(
                     channelId, channelName, NotificationManager.IMPORTANCE_LOW);
         ch.setDescription(channelDesc);
