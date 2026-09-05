@@ -135,6 +135,9 @@
         <activity android:name=".podcasts.PodcastEpisodeActivity"
             android:launchMode="singleTop"
             />
+        <activity android:name=".podcasts.PodcastDownloadSettingsActivity"
+            android:parentActivityName=".podcasts.PodcastEpisodeActivity"
+            />
 
         <activity
             android:name=".activities.SettingsHostActivity"

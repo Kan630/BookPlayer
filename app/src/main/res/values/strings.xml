@@ -578,6 +578,12 @@
     <string name="podcast_favorite_add">Added to favorites</string>
     <string name="podcast_autodownload_add">Added to auto-download</string>
     <string name="podcast_new_episodes">new episodes</string>
+    <string name="filter_never_downloaded">Show only never-downloaded episodes</string>
+    <string name="podcast_download_settings_title">Download settings</string>
+    <string name="podcast_total_storage_used">Storage used by downloaded episodes</string>
+    <string name="podcast_download_last_n_episodes">Download last %1$d episodes</string>
+    <string name="podcast_no_undownloaded_episodes">All known episodes are already downloaded</string>
+    <string name="podcast_download_last_n_started">Downloading %1$d episode(s)…</string>
 
 
     <string name="Error_Import_IsNotFolder">This doesn’t look like a folder</string>

@@ -26,8 +26,6 @@
         android:layout_height="wrap_content"
         android:textSize="13sp"
         android:textColor="?attr/colorOutline"
-        android:maxLines="3"
-        android:ellipsize="end"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/switcher"/>

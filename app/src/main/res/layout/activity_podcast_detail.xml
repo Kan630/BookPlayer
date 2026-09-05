@@ -81,6 +81,12 @@
                             style="@style/PodcastImageButton"/>
 
                         <ImageButton
+                            android:id="@+id/btnFilterOverlay"
+                            android:contentDescription="@string/filter_never_downloaded"
+                            android:src="@drawable/ic_filter_list_24"
+                            style="@style/PodcastImageButton"/>
+
+                        <ImageButton
                             android:id="@+id/btnCollapseOverlay"
                             android:contentDescription="@string/collapse"
                             android:src="@drawable/ic_content_expand_24"
@@ -221,6 +227,12 @@
                         android:id="@+id/btnSortToolbar"
                         android:contentDescription="@string/sort"
                         android:src="@drawable/ic_sort_swap_vert_24"
+                        style="@style/PodcastHeaderImageButton"/>
+
+                    <ImageButton
+                        android:id="@+id/btnFilterToolbar"
+                        android:contentDescription="@string/filter_never_downloaded"
+                        android:src="@drawable/ic_filter_list_24"
                         style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton

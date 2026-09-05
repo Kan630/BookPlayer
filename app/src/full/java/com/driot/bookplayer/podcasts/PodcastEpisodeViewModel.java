@@ -33,6 +33,7 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<String> apiErrorLive = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isExpandedLive = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> sortNewestFirstLive = new MutableLiveData<>(true);
+    private final MutableLiveData<Boolean> showOnlyNeverDownloadedLive = new MutableLiveData<>(false);
     private final MutableLiveData<DisplayableEpisode> currentEpisodeLive = new MutableLiveData<>();
     private final java.util.Set<Long> enqueuedEpisodeIds = new java.util.HashSet<>();
 
@@ -159,6 +160,10 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
 
     public MutableLiveData<Boolean> getSortNewestFirstLive() {
         return sortNewestFirstLive;
+    }
+
+    public MutableLiveData<Boolean> getShowOnlyNeverDownloadedLive() {
+        return showOnlyNeverDownloadedLive;
     }
 
     public MutableLiveData<DisplayableEpisode> getCurrentEpisodeLive() {

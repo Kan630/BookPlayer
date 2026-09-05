@@ -1,6 +1,5 @@
 package com.driot.bookplayer.podcasts;
 
-import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.TonioCommonStuff.parseMaybeHtml;
 
 import android.animation.Animator;
@@ -70,9 +69,9 @@ public class PodcastEpisodeActivity extends FullActivity
 
     // ADD these:
     private ImageButton btnFavoriteToolbar, btnAutoDownloadToolbar, btnSearchToolbar, btnRefreshToolbar, btnSortToolbar,
-            btnCollapseToolbar;
+            btnFilterToolbar, btnCollapseToolbar;
     private ImageButton btnFavoriteOverlay, btnAutoDownloadOverlay, btnSearchOverlay, btnRefreshOverlay, btnSortOverlay,
-            btnCollapseOverlay;
+            btnFilterOverlay, btnCollapseOverlay;
 
     private PodcastDao podcastDao;
 
@@ -166,6 +165,7 @@ public class PodcastEpisodeActivity extends FullActivity
         btnSearchToolbar = findViewById(R.id.btnSearchToolbar);
         btnRefreshToolbar = findViewById(R.id.btnRefreshToolbar);
         btnSortToolbar = findViewById(R.id.btnSortToolbar);
+        btnFilterToolbar = findViewById(R.id.btnFilterToolbar);
         btnCollapseToolbar = findViewById(R.id.btnCollapseToolbar);
 
         // OVERLAY actions on top of the big cover
@@ -174,6 +174,7 @@ public class PodcastEpisodeActivity extends FullActivity
         btnSearchOverlay = findViewById(R.id.btnSearchOverlay);
         btnRefreshOverlay = findViewById(R.id.btnRefreshOverlay);
         btnSortOverlay = findViewById(R.id.btnSortOverlay);
+        btnFilterOverlay = findViewById(R.id.btnFilterOverlay);
         btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
 
         layoutSearch = findViewById(R.id.layoutSearch);
@@ -217,7 +218,9 @@ public class PodcastEpisodeActivity extends FullActivity
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
             if (updatedPodcast != null) {
                 this.podcast = updatedPodcast;
-                // update UI here if needed
+                // Auto-download can now also be toggled from PodcastDownloadSettingsActivity,
+                // so keep the icon in sync whenever the Podcast row changes.
+                updateAutoDownloadIconColor(updatedPodcast.autoDownload);
             }
         });
 
@@ -241,6 +244,11 @@ public class PodcastEpisodeActivity extends FullActivity
 
         podcastEpisodeViewModel.getSortNewestFirstLive().observe(this, sort -> {
             this.sortNewestFirst = sort;
+        });
+
+        podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().observe(this, showOnlyNeverDownloaded -> {
+            updateFilterIconColor(Boolean.TRUE.equals(showOnlyNeverDownloaded));
+            filterAndUpdateList();
         });
 
         podcastEpisodeViewModel.getIsExpandedLive().observe(this, expanded -> {
@@ -285,6 +293,7 @@ public class PodcastEpisodeActivity extends FullActivity
 
         updateFavoriteIconColor(isFavorite);
         updateAutoDownloadIconColor(isAutoDownload);
+        updateFilterIconColor(Boolean.TRUE.equals(podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().getValue()));
         int vis = isFavorite ? View.VISIBLE : View.GONE;
         btnAutoDownloadToolbar.setVisibility(vis);
         btnAutoDownloadOverlay.setVisibility(vis);
@@ -312,7 +321,9 @@ public class PodcastEpisodeActivity extends FullActivity
         }
 
         View.OnClickListener favoriteClick = v -> toggleFavorite();
-        View.OnClickListener autoDownloadClick = v -> toggleAutoDownload();
+        View.OnClickListener autoDownloadClick = v -> startActivity(
+                new Intent(this, PodcastDownloadSettingsActivity.class).putExtra("podcast", podcast));
+        View.OnClickListener filterClick = v -> toggleNeverDownloadedFilter();
         View.OnClickListener searchClick = v -> toggleSearch();
         View.OnClickListener refreshClick = v -> {
             FirebaseAnalyticsHelper.tellAnalyticsPodcastRefresh(podcastFeed.title);
@@ -328,6 +339,7 @@ public class PodcastEpisodeActivity extends FullActivity
         btnSearchToolbar.setOnClickListener(searchClick);
         btnRefreshToolbar.setOnClickListener(refreshClick);
         btnSortToolbar.setOnClickListener(sortClick);
+        btnFilterToolbar.setOnClickListener(filterClick);
         btnCollapseToolbar.setOnClickListener(collapseClick);
 
         // Overlay
@@ -336,6 +348,7 @@ public class PodcastEpisodeActivity extends FullActivity
         btnSearchOverlay.setOnClickListener(searchClick);
         btnRefreshOverlay.setOnClickListener(refreshClick);
         btnSortOverlay.setOnClickListener(sortClick);
+        btnFilterOverlay.setOnClickListener(filterClick);
         btnCollapseOverlay.setOnClickListener(collapseClick);
         appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             // verticalOffset is 0 when fully expanded; negative as you scroll up.
@@ -471,22 +484,19 @@ public class PodcastEpisodeActivity extends FullActivity
         });
     }
 
-    private void toggleAutoDownload() {
-        myLogI("--- USER CLICKS set AUTO DOWNLOAD");
-        Pref.stopAnimateButtons(Pref.AnimatedButton.AUTO_DOWNLOAD);
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
-            podcast.autoDownload = !podcast.autoDownload;
-            podcastDao.update(podcast);
-            if (podcast.autoDownload) {
-                myLog("---> On");
-                myToast(getString(R.string.podcast_autodownload_add));
-                downloadAllEpisodesToFolder(podcast, PODCAST_INDEX_ORG_SINCE);
-                FirebaseAnalyticsHelper.tellAnalyticsPodcastAutoDownload(podcast.title, podcast.language);
-            }
-            runOnUiThread(() -> {
-                updateAutoDownloadIconColor(podcast.autoDownload);
-            });
+    private void toggleNeverDownloadedFilter() {
+        boolean newValue = !Boolean.TRUE.equals(podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().getValue());
+        myLogI("-------- USER CLICKS FILTER (never downloaded) -- newValue= " + newValue);
+        podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().setValue(newValue);
+
+        // Episodes downloaded via the per-item download button only update their idZikFile in
+        // the DB and in the adapter's own per-item live ZikFile observer - the allEpisodes list
+        // held here is never refreshed for that, so it can still show a since-downloaded episode
+        // as never-downloaded. Re-fetch from DB on toggle, same fix toggleSort() already uses.
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
+            List<DisplayableEpisode> refreshed = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+            runOnUiThread(() -> updateAdapter(refreshed));
         });
     }
 
@@ -528,8 +538,13 @@ public class PodcastEpisodeActivity extends FullActivity
             btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
-    private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
-        PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);
+    private void updateFilterIconColor(boolean isOn) {
+        int colorResId = isOn ? R.color.green_300 : R.color.gray_500;
+        int color = ContextCompat.getColor(this, colorResId);
+        if (btnFilterToolbar != null)
+            btnFilterToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnFilterOverlay != null)
+            btnFilterOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
     private void goToPlaySection() {
@@ -624,6 +639,16 @@ public class PodcastEpisodeActivity extends FullActivity
                     filtered.add(ep);
                 }
             }
+        }
+
+        if (Boolean.TRUE.equals(podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().getValue())) {
+            List<DisplayableEpisode> neverDownloaded = new ArrayList<>();
+            for (DisplayableEpisode ep : filtered) {
+                if (ep.idZikFile == null) {
+                    neverDownloaded.add(ep);
+                }
+            }
+            filtered = neverDownloaded;
         }
 
         adapter.setItems(filtered);
