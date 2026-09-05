@@ -277,21 +277,26 @@ public class PodcastHelper {
                     // legacy
                     file = new File(path + "/" + zikFile.getName());
                     if (!file.exists() || !file.isFile()) {
-                        myLogE("AutoDelete => Failed to locate file: " + path);
-                        continue;
+                        // Already gone from disk - nothing left to delete there, but still
+                        // fall through to the DB cleanup below so this row stops being
+                        // re-selected by getListenedPodcastEpisodesToDelete() on every run.
+                        myLogW("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
+                        file = null;
                     } else {
                         myLogW("legacy paths : path/name"); // 2025-10-09 (some 2 months old podcasts stays in my phone)
                     }
                 }
 
-                if (!file.delete()) {
-                    myLogE("AutoDelete => Failed to delete file " + fsDeleted + 1 + "/" + deleteListSize + ": " + path);
-                    continue;
-                }
+                if (file != null) {
+                    if (!file.delete()) {
+                        myLogE("AutoDelete => Failed to delete file " + fsDeleted + 1 + "/" + deleteListSize + ": " + path);
+                        continue;
+                    }
 
-                // At this point, file was deleted
-                myLogD("AutoDelete => Deleted file: " + path);
-                fsDeleted++;
+                    // At this point, file was deleted
+                    myLogD("AutoDelete => Deleted file: " + path);
+                    fsDeleted++;
+                }
 
                 long fileId = zikFile.getId();
 
