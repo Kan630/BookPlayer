@@ -522,4 +522,14 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_31_32 = new Migration(31, 32) { // 2026-09-05
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 31 => 32");
+            if (tableExists(db, "Podcast")) {
+                db.execSQL("ALTER TABLE Podcast ADD COLUMN episodeCoverStatus INTEGER NOT NULL DEFAULT 0");
+            }
+        }
+    };
+
 }

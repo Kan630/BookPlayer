@@ -268,7 +268,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
             String subTitle = (z != null) ? z.getDisplayName() : "";
-            String cover = (f != null) ? f.image : "";
+            String cover = resolveCover(f);
+            if (cover == null)
+                cover = "";
 
             // Be defensive around engine readiness to avoid 0/0 churn if you want
             long trackId = (z != null) ? z.getId() : 0;
@@ -891,6 +893,49 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         });
     }
 
+    // When set (a podcast episode with its own distinct cover), takes priority over the
+    // folder/podcast cover everywhere a "current track" cover is shown: notification, PlayActivity,
+    // mini-player. Resolved async per-track by resolveEpisodeCoverOverride() since it needs a DB
+    // lookup PodcastHelper.getEpisodeCoverForZikFile() keeps flavor-agnostic (see there for why).
+    private volatile String currentEpisodeCoverOverride = null;
+
+    private String resolveCover(Folder f) {
+        return (currentEpisodeCoverOverride != null) ? currentEpisodeCoverOverride : (f != null ? f.image : null);
+    }
+
+    private void resolveEpisodeCoverOverride(ZikFile zf) {
+        currentEpisodeCoverOverride = null; // reset so a previous track's episode cover never lingers
+        if (zf == null)
+            return;
+        final long zikFileId = zf.getId();
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            String img = PodcastHelper.getEpisodeCoverForZikFile(getApplicationContext(), zikFileId);
+            if (img == null)
+                return;
+            // Guard: a newer track may have already loaded while this lookup was in flight.
+            PlayList pl = PlayList.getInstance();
+            ZikFile current = (pl != null) ? pl.getZikFile() : null;
+            if (current != null && current.getId() == zikFileId) {
+                currentEpisodeCoverOverride = img;
+                refreshMetadataAndNotificationCover();
+                broadcastUiState("resolveEpisodeCoverOverride");
+            }
+        });
+    }
+
+    // Re-applies the (now-resolved) episode cover to the media session metadata + notification,
+    // without touching playback state - alertNewTrack()/onEnginePrepared() already did that.
+    private void refreshMetadataAndNotificationCover() {
+        PlayList pl = PlayList.getInstance();
+        ZikFile z = (pl != null) ? pl.getZikFile() : null;
+        if (z == null)
+            return;
+        String cover = resolveCover(pl.getFolder());
+        media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(),
+                (engine != null ? engine.getDuration() : 0L), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+        showForegroundNotification(isPlaying());
+    }
+
     private void alertNewTrack() {
         myLog("alertNewTrack()");
         PlayList pl = PlayList.getInstance();
@@ -898,9 +943,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogEE(null, "playlist null on newTrack");
             return;
         }
-        String cover = null;
-        if (pl.getFolder() != null)
-            cover = pl.getFolder().image;
+        String cover = resolveCover(pl.getFolder());
         ZikFile z = pl.getZikFile();
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
@@ -1675,6 +1718,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("loadFile() - playMode=[" + playMode + "] - directPlay=" + directPlay +
                 "\nuri = [" + src + "]");
 
+        // Async (DB lookup) - resolves shortly after via refreshMetadataAndNotificationCover()/
+        // broadcastUiState() if this track turns out to be a podcast episode with its own cover.
+        resolveEpisodeCoverOverride(zf);
+
         // New generation (guards async callbacks)
         engineGen++;
         long gen = engineGen;
@@ -2023,7 +2070,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (pl != null) {
                     ZikFile zf = pl.getZikFile();
                     if (zf != null) {
-                        String cover = (pl.getFolder() == null ? null : pl.getFolder().image);
+                        String cover = resolveCover(pl.getFolder());
                         media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(),
                                 engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
                     } else {

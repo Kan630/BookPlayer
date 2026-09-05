@@ -758,8 +758,14 @@
     <string name="saving_track">registering track</string>
     <string name="MB_taken_by_images">" MB taken by images"</string>
     <string name="delete_cache">Delete cache</string>
+    <string name="delete_cache_explanation">Deletes downloaded cover images (books/podcasts) that are no longer linked to anything in your library.</string>
     <string name="DeleteCache_AskConfirm">"You are about to delete cached items.
         This will save space but may affect performance.
+        Are you sure ?"</string>
+    <string name="delete_system_cache">Delete system cache</string>
+    <string name="delete_system_cache_explanation">Clears the Android system cache used for temporary files, such as not-yet-downloaded podcast episode covers. Android recreates it automatically as needed.</string>
+    <string name="DeleteSystemCache_AskConfirm">"You are about to clear the app\'s system cache.
+        This is safe and will save space, temporary files will be recreated as needed.
         Are you sure ?"</string>
     <string name="too_low">too low</string>
     <string name="too_high">too high</string>

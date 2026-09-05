@@ -15,9 +15,11 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
@@ -124,6 +126,60 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
 
     public Long getLastPublishedForPodcastSync(long podcastId) {
         return episodeDao.getMaxDatePublishedForPodcast(podcastId);
+    }
+
+    // Runs once per podcast (guarded by the UNKNOWN->CHECKING claim below) - see
+    // ImageHelper.determineEpisodeCoverStatus() for the actual hash-comparison logic.
+    private void maybeDetermineEpisodeCoverStatus(android.content.Context context, Podcast podcast,
+            List<PodcastEpisode> apiEpisodes) {
+        Podcast dbPodcast = podcastDao.getPodcastByFeedId(podcast.feedId);
+        if (dbPodcast == null) {
+            // fetchEpisodes() runs on every podcast page open, whether or not the podcast has
+            // ever been favorited/downloaded - create the row on demand here too (same as
+            // toggleFavorite()/onDownloadEpisode() already do), otherwise there's nowhere to
+            // persist the determination and this silently never runs.
+            PodcastHelper.addPodcastToDB(context,
+                    new PodcastFeed(podcast.feedId, podcast.title, podcast.image, podcast.description));
+            dbPodcast = podcastDao.getPodcastByFeedId(podcast.feedId);
+            if (dbPodcast == null) {
+                myLogE("maybeDetermineEpisodeCoverStatus: could not create Podcast row for feedId=" + podcast.feedId);
+                return;
+            }
+        }
+        if (dbPodcast.episodeCoverStatus != Podcast.EPISODE_COVER_STATUS_UNKNOWN) {
+            return; // already checking, or already concluded
+        }
+        podcastDao.updateEpisodeCoverStatus(podcast.feedId, Podcast.EPISODE_COVER_STATUS_CHECKING);
+
+        // CHECKING blocks every future attempt (see the guard above), so if anything below
+        // throws unexpectedly, fall back to UNKNOWN rather than leaving the podcast stuck
+        // forever with no way to retry.
+        int finalStatus = Podcast.EPISODE_COVER_STATUS_UNKNOWN;
+        try {
+            List<String> candidateUrls = new ArrayList<>();
+            for (PodcastEpisode pe : apiEpisodes) {
+                if (pe.image != null && !pe.image.isEmpty()) {
+                    candidateUrls.add(pe.image);
+                }
+            }
+
+            String podcastImageUrl = dbPodcast.imageOriginalUrl != null ? dbPodcast.imageOriginalUrl
+                    : dbPodcast.image;
+            myLogI("episode cover check for [" + dbPodcast.title + "]: podcastImageUrl=[" + podcastImageUrl + "] "
+                    + candidateUrls.size() + "/" + apiEpisodes.size() + " episodes have a non-empty image");
+            int status = ImageHelper.determineEpisodeCoverStatus(podcastImageUrl, candidateUrls);
+            // ImageHelper is shared with the "pure" flavor and can't reference Podcast directly -
+            // translate its flavor-neutral result here instead.
+            if (status == ImageHelper.COVER_STATUS_DISTINCT) {
+                finalStatus = Podcast.EPISODE_COVER_STATUS_DISTINCT;
+            } else if (status == ImageHelper.COVER_STATUS_NOT_DISTINCT) {
+                finalStatus = Podcast.EPISODE_COVER_STATUS_NOT_DISTINCT;
+            } // else inconclusive - stays UNKNOWN, retried on a future fetch
+        } catch (Throwable t) {
+            myLogEE(t, "maybeDetermineEpisodeCoverStatus failed for [" + dbPodcast.title + "]");
+        }
+        podcastDao.updateEpisodeCoverStatus(podcast.feedId, finalStatus);
+        myLogI("episode cover status for [" + dbPodcast.title + "] = " + finalStatus);
     }
 
     // ---------------------------------
@@ -244,6 +300,11 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
 
                                 episodesLive.postValue(fullList);
                                 isFetchingLive.postValue(false);
+
+                                // Fire-and-forget: needs up to 6 image downloads to hash, so it
+                                // runs on its own thread rather than delaying the episode list.
+                                new Thread(() -> maybeDetermineEpisodeCoverStatus(context, podcast, apiEpisodes))
+                                        .start();
                             }).start();
                         }
 

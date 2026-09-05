@@ -37,6 +37,11 @@ public class PodcastHelper {
         return null;
     }
 
+    @androidx.annotation.Nullable
+    public static String getEpisodeCoverForZikFile(Context context, long zikFileId) {
+        return null;
+    }
+
     public static void handlePodcastImages(Context context, long currentTime) {
         myLog("stub!");
     }

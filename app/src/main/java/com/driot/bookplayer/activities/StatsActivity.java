@@ -26,12 +26,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.MsgBox;
@@ -50,6 +53,7 @@ import java.util.TimeZone;
 public class StatsActivity extends BaseActivity {
 
     private static final int REQ_DELETE_CACHE = 2002;
+    private static final int REQ_DELETE_SYSTEM_CACHE = 2003;
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;
@@ -238,6 +242,7 @@ public class StatsActivity extends BaseActivity {
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_DeleteCache).setOnClickListener(v -> deleteCacheClick());
+        findViewById(R.id.bt_DeleteSystemCache).setOnClickListener(v -> deleteSystemCacheClick());
         findViewById(R.id.bt_04).setOnClickListener(v -> resetApp());
 
     }
@@ -284,6 +289,31 @@ public class StatsActivity extends BaseActivity {
         File dir = new File(this.getFilesDir(), "images");
         FileHelper.RemoveCachedImages(this, dir);
         recreate();
+    }
+
+    private void deleteSystemCacheClick() {
+        myLogI("--- user clicks DELETE SYSTEM CACHE ---");
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteSystemCache_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_SYSTEM_CACHE);
+    }
+
+    private void deleteSystemCache() {
+        // Never delete files directly under getCacheDir() as raw filesystem operations:
+        // Glide keeps its own disk cache there (open in-process, tracked by an internal
+        // journal) and deleting its files out from under it desyncs the journal, breaking
+        // image loads until the app restarts. Ask Glide to clear its own cache instead,
+        // and only raw-delete the subfolders we manage ourselves.
+        Context appCtx = getApplicationContext();
+        Glide.get(appCtx).clearMemory(); // must run on main thread
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            Glide.get(appCtx).clearDiskCache(); // must run off main thread
+            FileHelper.deleteFolderChildren(ImageHelper.getEpisodeCoverOsCacheDir(appCtx));
+        });
     }
 
     private void resetApp() {
@@ -651,6 +681,8 @@ public class StatsActivity extends BaseActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQ_DELETE_CACHE) {
                 deleteCachedImages();
+            } else if (requestCode == REQ_DELETE_SYSTEM_CACHE) {
+                deleteSystemCache();
             }
         }
     }

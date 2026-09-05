@@ -585,6 +585,19 @@ public class PodcastHelper {
         return null;
     }
 
+    // Lets MediaService (shared/"main" source set, no Episode/EpisodeDao access) show the
+    // episode-specific cover - when it has one - instead of the podcast/folder cover, without
+    // MediaService needing to know Episode exists at all. Blocking DB call - call off the main thread.
+    @androidx.annotation.Nullable
+    public static String getEpisodeCoverForZikFile(Context context, long zikFileId) {
+        Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao()
+                .getByZikFileId(zikFileId);
+        if (episode != null && episode.image != null && !episode.image.isEmpty()) {
+            return episode.image;
+        }
+        return null;
+    }
+
     public static void handlePodcastImages(Context context, long currentTime) {
         if (NetworkHelper.hasInternet(context)) {
             AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());

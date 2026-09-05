@@ -50,10 +50,23 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:duplicateParentState="true"
                 >
+                <ImageView
+                    android:id="@+id/ivZikFileCover"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_top"
+                    android:layout_marginStart="@dimen/recyclerview_elements_sides"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@null"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/textViewFilePercent" />
+
                 <TextView
                     android:id="@+id/tvBookName"
                     android:text="@string/audio_tracks"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingVertical="0dp"
                     android:paddingHorizontal="5dp"
@@ -62,6 +75,9 @@
                     android:layout_marginRight="@dimen/recyclerview_elements_sides"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ivZikFileCover"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
                     />
 

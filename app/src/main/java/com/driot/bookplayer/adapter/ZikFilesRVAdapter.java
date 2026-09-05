@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -15,10 +16,12 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
 import com.driot.bookplayer.player.heatmaps.PlayTickDao;
 import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
@@ -229,6 +232,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             holder.mProgressBar.setVisibility(View.VISIBLE);
             holder.heatMapView.setVisibility(View.GONE);
         }
+
+        holder.updateEpisodeCover(zikFile);
     }
 
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -237,6 +242,36 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         ProgressBar mProgressBar;
         TextView ibSort;
         PlayHeatMapView heatMapView;
+        ImageView ivZikFileCover;
+
+        void updateEpisodeCover(ZikFile zikFile) {
+            if (ivZikFileCover == null) return;
+
+            final long zikFileId = zikFile.getId();
+            final Context appCtx = itemView.getContext().getApplicationContext();
+
+            ivZikFileCover.setVisibility(View.GONE);
+
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                String cover = PodcastHelper.getEpisodeCoverForZikFile(appCtx, zikFileId);
+
+                itemView.post(() -> {
+                    int pos = getBindingAdapterPosition();
+                    if (pos == RecyclerView.NO_POSITION) return;
+
+                    ZikFile current = ZikFilesRVAdapter.this.getItem(pos);
+                    if (current == null || current.getId() != zikFileId) return;
+
+                    if (cover != null && !cover.isEmpty()) {
+                        ivZikFileCover.setVisibility(View.VISIBLE);
+                        Glide.with(ivZikFileCover.getContext()).load(cover).into(ivZikFileCover);
+                    } else {
+                        ivZikFileCover.setVisibility(View.GONE);
+                        Glide.with(ivZikFileCover.getContext()).clear(ivZikFileCover);
+                    }
+                });
+            });
+        }
 
         void updateHeatMap(ZikFile zikFile, boolean isCurrentTrack, float playingPositionNorm) {
             if (heatMapView == null) return;
@@ -310,6 +345,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             textViewDuration = itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
             heatMapView = itemView.findViewById(R.id.heatMapView);
+            ivZikFileCover = itemView.findViewById(R.id.ivZikFileCover);
             ibSort = itemView.findViewById(R.id.ib_drag_sort);
             if (ibSort != null) {
                 if (activateReOrder) {

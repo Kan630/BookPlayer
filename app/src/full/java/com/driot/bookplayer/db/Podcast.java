@@ -18,6 +18,14 @@ import com.driot.bookplayer.global.Option;
 })
 public class Podcast implements Parcelable {
 
+    // Whether episodes of this podcast have their own distinct cover art, determined once by
+    // hashing a handful of downloaded episode images (see ImageHelper.determineEpisodeCoverStatus).
+    // Not just an enum name for readability - stored as int since Room columns need a primitive.
+    public static final int EPISODE_COVER_STATUS_UNKNOWN = 0;
+    public static final int EPISODE_COVER_STATUS_CHECKING = 1;
+    public static final int EPISODE_COVER_STATUS_DISTINCT = 2;
+    public static final int EPISODE_COVER_STATUS_NOT_DISTINCT = 3;
+
     @PrimaryKey(autoGenerate = true)
     private int id;
 
@@ -47,6 +55,9 @@ public class Podcast implements Parcelable {
 
     @ColumnInfo(defaultValue = "0")
     public long timeListened;
+
+    @ColumnInfo(defaultValue = "0")
+    public int episodeCoverStatus;
 
     // -------------------------------------------------------
 
@@ -89,6 +100,7 @@ public class Podcast implements Parcelable {
         date_maj = in.readLong();
         sort_newest_top = in.readByte() != 0;
         timeListened = in.readLong();
+        episodeCoverStatus = in.readInt();
     }
 
     public static final Creator<Podcast> CREATOR = new Creator<Podcast>() {
@@ -126,6 +138,7 @@ public class Podcast implements Parcelable {
         parcel.writeLong(date_maj);
         parcel.writeByte((byte) (sort_newest_top ? 1 : 0));
         parcel.writeLong(timeListened);
+        parcel.writeInt(episodeCoverStatus);
     }
 
     @Override

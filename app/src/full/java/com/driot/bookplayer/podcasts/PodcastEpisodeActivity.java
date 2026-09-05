@@ -228,6 +228,9 @@ public class PodcastEpisodeActivity extends FullActivity
                 // Auto-download can now also be toggled from PodcastDownloadSettingsActivity,
                 // so keep the icon in sync whenever the Podcast row changes.
                 updateAutoDownloadIconColor(updatedPodcast.autoDownload);
+                if (adapter != null) {
+                    adapter.setEpisodeCoverStatus(updatedPodcast.episodeCoverStatus);
+                }
             }
         });
 

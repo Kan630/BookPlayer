@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -50,6 +51,11 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
     public static final String IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER = "saved_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
+    public static final String IMAGE_PREFIX_FOR_PODCAST_EPISODE_COVERS = "podcast_episode_";
+
+    // How many episode covers to sample when checking whether a podcast actually has distinct
+    // per-episode artwork (vs. every episode reusing the same generic image under different URLs).
+    public static final int EPISODE_COVER_SAMPLE_SIZE = 5;
 
     public static final boolean VERBOSE_DEBUG = false;
     private static void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
@@ -57,6 +63,12 @@ public class ImageHelper {
     // TODO ASYNC...
     public static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath,
             boolean isCached) {
+        return downloadAndMaybeCompressImage(imageUrl, StorageHelper.getImageFolder(context, isCached), imagePath);
+    }
+
+    // Same as above but targeting an arbitrary folder - lets episode covers use the OS-managed
+    // cache dir (context.getCacheDir()) instead of either of the app's own two image folders.
+    private static String downloadAndMaybeCompressImage(String imageUrl, File dir, String imagePath) {
         try {
             byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
             if (imageBytes == null)
@@ -69,7 +81,7 @@ public class ImageHelper {
                 return null;
             }
 
-            return compressAndSaveImage(context, imageBytes, imagePath, isCached);
+            return compressAndSaveImage(imageBytes, dir, imagePath);
 
         } catch (Throwable t) {
             myLogE("downloadAndMaybeCompressImage() failed for: " + imageUrl);
@@ -104,7 +116,10 @@ public class ImageHelper {
 
     private static String saveBytesToFile(Context context, byte[] data, String imagePath, boolean isCached)
             throws IOException {
-        File dir = StorageHelper.getImageFolder(context, isCached);
+        return saveBytesToFile(data, StorageHelper.getImageFolder(context, isCached), imagePath);
+    }
+
+    private static String saveBytesToFile(byte[] data, File dir, String imagePath) throws IOException {
         if (!dir.exists())
             dir.mkdirs();
         File imageFile = new File(dir, imagePath);
@@ -209,6 +224,159 @@ public class ImageHelper {
             RadioHelper.handleRadioImages(context, currentTime);
 
         });
+    }
+
+    // Episode covers for episodes not downloaded yet live in the real Android system cache
+    // (context.getCacheDir()), not the app's own "cached_images" folder - the OS can reclaim it
+    // under storage pressure on its own, which is the right behavior for art nobody may ever
+    // need again, and needs no pruning logic of our own (unlike the app-managed cache folder).
+    public static File getEpisodeCoverOsCacheDir(Context context) {
+        File dir = new File(context.getCacheDir(), Var.FOLDER_CACHED_IMAGE);
+        if (!dir.exists())
+            dir.mkdirs();
+        return dir;
+    }
+
+    /**
+     * Same "check local file by deterministic name, else download" shape as
+     * getOrDownloadLibrivoxImage(). isCached=true (episode not downloaded yet) targets the OS
+     * cache dir; isCached=false (episode already has a local ZikFile) targets the app's
+     * persistent images/ folder, matching how Folder covers are handled.
+     */
+    public static String getOrDownloadEpisodeImage(Context context, long idEpisode, String imageUrl,
+            boolean isCached) {
+        String imagePath = IMAGE_PREFIX_FOR_PODCAST_EPISODE_COVERS + idEpisode + ".jpg";
+        File dir = isCached ? getEpisodeCoverOsCacheDir(context) : StorageHelper.getImageFolder(context, false);
+        File imageFile = new File(dir, imagePath);
+
+        if (imageFile.exists()) {
+            myLogDD("Episode image already exists: " + imageFile.getAbsolutePath());
+            return imageFile.getAbsolutePath();
+        }
+
+        myLogDD("Downloading episode image for idEpisode=" + idEpisode);
+        return downloadAndMaybeCompressImage(imageUrl, dir, imagePath);
+    }
+
+    /**
+     * Promotes an episode's cover from the OS cache dir to the persistent images/ folder once
+     * the episode has been downloaded - call right after linking a ZikFile to the episode.
+     * No-op (returns null) if currentPath isn't actually in the OS cache dir.
+     */
+    public static @Nullable String promoteEpisodeImageFromOsCache(Context context, String currentPath) {
+        if (currentPath == null || currentPath.isEmpty())
+            return null;
+        if (currentPath.startsWith("content://") || currentPath.startsWith("file://"))
+            return null;
+
+        File osCacheDir = getEpisodeCoverOsCacheDir(context);
+        if (!currentPath.startsWith(osCacheDir.getAbsolutePath()))
+            return null; // not in the OS cache - nothing to promote
+
+        File src = new File(currentPath);
+        File imagesDir = StorageHelper.getImageFolder(context, false);
+        if (!imagesDir.exists() && !imagesDir.mkdirs()) {
+            myLogE("promoteEpisodeImageFromOsCache: could not create images dir: " + imagesDir.getAbsolutePath());
+            return null;
+        }
+
+        File dst = new File(imagesDir, src.getName());
+        if (!src.exists()) {
+            // The OS may have already reclaimed it under storage pressure - not fatal, the
+            // episode simply re-downloads its cover next time it's shown.
+            if (dst.exists())
+                return dst.getAbsolutePath();
+            myLogW("promoteEpisodeImageFromOsCache: source missing (likely OS-evicted): " + currentPath);
+            return null;
+        }
+
+        if (dst.exists() && !dst.delete()) {
+            myLogE("promoteEpisodeImageFromOsCache: target exists and cannot delete: " + dst.getAbsolutePath());
+            return null;
+        }
+
+        // renameTo() can fail across filesystems - getCacheDir() and getFilesDir() aren't
+        // guaranteed to be on the same one on every device, so fall back to copy+delete.
+        if (src.renameTo(dst)) {
+            return dst.getAbsolutePath();
+        }
+        try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) != -1)
+                out.write(buf, 0, n);
+        } catch (IOException e) {
+            myLogEE(e, "promoteEpisodeImageFromOsCache: copy failed");
+            return null;
+        }
+        try {
+            src.delete();
+        } catch (Exception ignored) {
+        }
+        return dst.getAbsolutePath();
+    }
+
+    // ImageHelper is shared between the "full" and "pure" flavors, but Podcast (like Episode)
+    // only exists in "full" - so this can't return/depend on Podcast.EPISODE_COVER_STATUS_*
+    // directly. Local, flavor-neutral result constants; the full-flavor-only caller
+    // (PodcastEpisodeViewModel) translates these to the Podcast ones before persisting.
+    public static final int COVER_STATUS_INCONCLUSIVE = -1;
+    public static final int COVER_STATUS_DISTINCT = 1;
+    public static final int COVER_STATUS_NOT_DISTINCT = 2;
+
+    /**
+     * Determines whether a podcast's episodes have genuinely distinct cover art, by comparing
+     * content hashes - not URLs - of the podcast's own cover against up to
+     * EPISODE_COVER_SAMPLE_SIZE downloaded episode covers, and the episode covers against each
+     * other. Needed because some hosting CDNs serve the exact same underlying artwork through a
+     * different URL per episode (e.g. a per-episode cache token), which defeats any URL-based
+     * uniqueness check. Purely a read-only probe - nothing is written to disk here.
+     *
+     * Returns COVER_STATUS_DISTINCT / _NOT_DISTINCT, or COVER_STATUS_INCONCLUSIVE if there
+     * wasn't enough valid image data to reach a conclusion (caller should leave the status as
+     * UNKNOWN and retry later rather than persisting "inconclusive").
+     */
+    public static int determineEpisodeCoverStatus(String podcastImageUrl, List<String> candidateEpisodeImageUrls) {
+        if (podcastImageUrl == null || podcastImageUrl.isEmpty() || !podcastImageUrl.startsWith("http")) {
+            return COVER_STATUS_INCONCLUSIVE;
+        }
+
+        byte[] podcastBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(podcastImageUrl);
+        if (podcastBytes == null || !isLikelyImage(podcastBytes)) {
+            myLogW("determineEpisodeCoverStatus: could not fetch/validate podcast cover");
+            return COVER_STATUS_INCONCLUSIVE;
+        }
+        String podcastHash = md5Hex(podcastBytes);
+
+        java.util.Set<String> seenHashes = new java.util.HashSet<>();
+        int checked = 0;
+        if (candidateEpisodeImageUrls != null) {
+            for (String url : candidateEpisodeImageUrls) {
+                if (checked >= EPISODE_COVER_SAMPLE_SIZE)
+                    break;
+                if (url == null || url.isEmpty() || !url.startsWith("http"))
+                    continue;
+
+                byte[] epBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(url);
+                if (epBytes == null || !isLikelyImage(epBytes))
+                    continue; // doesn't count as a valid sample
+
+                checked++;
+                String epHash = md5Hex(epBytes);
+                if (epHash.equals(podcastHash) || !seenHashes.add(epHash)) {
+                    myLogI("determineEpisodeCoverStatus: collision after " + checked + " episode(s) - NOT_DISTINCT");
+                    return COVER_STATUS_NOT_DISTINCT;
+                }
+            }
+        }
+
+        if (checked < 2) {
+            myLogD("determineEpisodeCoverStatus: only " + checked + " valid sample(s), staying UNKNOWN");
+            return COVER_STATUS_INCONCLUSIVE;
+        }
+
+        myLogI("determineEpisodeCoverStatus: " + checked + " distinct episode cover(s), no collisions - DISTINCT");
+        return COVER_STATUS_DISTINCT;
     }
 
     public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl,
@@ -456,8 +624,13 @@ public class ImageHelper {
 
     private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName,
             boolean isCached) throws IOException {
+        return compressAndSaveImage(imageBytes, StorageHelper.getImageFolder(context, isCached), outputFileName);
+    }
+
+    private static String compressAndSaveImage(byte[] imageBytes, File dir, String outputFileName)
+            throws IOException {
         if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
-            return saveBytesToFile(context, imageBytes, outputFileName, isCached);
+            return saveBytesToFile(imageBytes, dir, outputFileName);
         }
 
         myLogD("Image too big (" + imageBytes.length / 1024 + "KB), compressing...");
@@ -504,7 +677,7 @@ public class ImageHelper {
             resizedBitmap.recycle();
         }
 
-        return saveBytesToFile(context, compressedBytes, outputFileName, isCached);
+        return saveBytesToFile(compressedBytes, dir, outputFileName);
     }
 
     private static Bitmap resizeIfNeeded(Bitmap original) {
@@ -749,6 +922,21 @@ public class ImageHelper {
         }
     }
 
+    // Content hash of raw downloaded bytes - used to detect "same underlying image, different
+    // URL" (e.g. a CDN cache-token) which a URL string comparison can never catch.
+    private static String md5Hex(byte[] data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] b = md.digest(data);
+            StringBuilder sb = new StringBuilder(b.length * 2);
+            for (byte x : b)
+                sb.append(String.format(Locale.US, "%02x", x));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return Integer.toHexString(java.util.Arrays.hashCode(data));
+        }
+    }
+
     public static String saveGeneratedInitialsCoverVersioned(
             Context context, long folderId,
             String initials, int color, boolean rounded, int textSize, Bitmap bmp) throws IOException {
@@ -812,7 +1000,7 @@ public class ImageHelper {
         return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
     }
 
-    private static @Nullable String moveCachedImageToPermanent(Context context, String currentAbsPath) {
+    public static @Nullable String moveCachedImageToPermanent(Context context, String currentAbsPath) {
         if (currentAbsPath == null || currentAbsPath.isEmpty())
             return null;
 

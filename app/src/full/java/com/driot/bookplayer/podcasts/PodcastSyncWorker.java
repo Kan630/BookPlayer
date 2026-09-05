@@ -178,6 +178,16 @@ public class PodcastSyncWorker extends LoggingWorker {
                         if (podcastId != null) {
                             episode.idZikFile = newZikFileId;
                             episode.date_import = System.currentTimeMillis();
+
+                            // Episode just got downloaded - if its cover was sitting in the OS
+                            // cache dir, promote it to the persistent folder (same idea as
+                            // Folder covers, which use the app's own cache instead).
+                            String promotedImage = ImageHelper.promoteEpisodeImageFromOsCache(getApplicationContext(),
+                                    episode.image);
+                            if (promotedImage != null) {
+                                episode.image = promotedImage;
+                            }
+
                             int updateResult = episodeDao.update(episode);
                             myLog("[" + updateResult + "] - episode updated for zikFile link " + newZikFileId + " and podcast " + podcastId);
                             if (updateResult != 1) {

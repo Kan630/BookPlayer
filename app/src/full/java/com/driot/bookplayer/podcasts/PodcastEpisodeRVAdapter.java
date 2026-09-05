@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,10 +23,14 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.TonioCommonStuff;
@@ -39,6 +44,16 @@ import java.util.Locale;
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
     private List<DisplayableEpisode> items = new ArrayList<>();
+    // Whether this podcast's episodes actually have distinct cover art of their own - determined
+    // once by ImageHelper.determineEpisodeCoverStatus() (content-hash based, see PodcastEpisodeViewModel).
+    private int episodeCoverStatus = Podcast.EPISODE_COVER_STATUS_UNKNOWN;
+
+    public void setEpisodeCoverStatus(int status) {
+        if (this.episodeCoverStatus != status) {
+            this.episodeCoverStatus = status;
+            notifyDataSetChanged();
+        }
+    }
 
     public DisplayableEpisode getItem(int position) {
         return (items != null && position >= 0 && position < items.size()) ? items.get(position) : null;
@@ -133,6 +148,57 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         this.items = episodes;
     }
 
+    // Shows the episode's own cover next to its title, but only once this podcast has been
+    // confirmed to have genuinely distinct per-episode art (see ImageHelper.determineEpisodeCoverStatus).
+    // Caches the image on first display: temp cache while the episode isn't downloaded yet,
+    // persistent once it is (PodcastSyncWorker promotes it the moment a download completes) -
+    // same "get or download, off the UI thread" shape as the existing Librivox cover adapters.
+    private void bindEpisodeCover(ViewHolder holder, DisplayableEpisode episode, boolean isDownloaded) {
+        String image = episode.image;
+        if (episodeCoverStatus != Podcast.EPISODE_COVER_STATUS_DISTINCT || image == null || image.isEmpty()) {
+            holder.ivEpisodeCover.setVisibility(View.GONE);
+            holder.ivEpisodeCover.setTag(null);
+            return;
+        }
+
+        holder.ivEpisodeCover.setVisibility(View.VISIBLE);
+        holder.ivEpisodeCover.setTag(episode.idEpisode);
+
+        if (!image.startsWith("http")) {
+            // Already cached/promoted to a local file.
+            Glide.with(context).load(new File(image)).into(holder.ivEpisodeCover);
+            return;
+        }
+
+        long idEpisode = episode.idEpisode;
+        Long dbId = episode.id;
+        boolean cacheAsTemp = !isDownloaded;
+        new Thread(() -> {
+            String localPath = ImageHelper.getOrDownloadEpisodeImage(context, idEpisode, image, cacheAsTemp);
+            if (localPath == null)
+                return;
+
+            if (dbId != null) {
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    Episode dbEpisode = AppDatabase.getDatabase(context).episodeDao().getById(dbId);
+                    if (dbEpisode != null) {
+                        dbEpisode.image = localPath;
+                        AppDatabase.getDatabase(context).episodeDao().update(dbEpisode);
+                    }
+                });
+            }
+
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).runOnUiThread(() -> {
+                    Object tag = holder.ivEpisodeCover.getTag();
+                    if (tag instanceof Long && (Long) tag == idEpisode) {
+                        Glide.with(context).load(new File(localPath)).into(holder.ivEpisodeCover);
+                    }
+                });
+            }
+        }).start();
+    }
+
     @NonNull
     @Override
     public PodcastEpisodeRVAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -146,6 +212,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         DisplayableEpisode episode = items.get(position);
         // myLog(episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
+
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
         String stats = Tonio.formatTime(episode.duration * 1000)
                 + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
@@ -192,6 +259,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isDownloaded = (downloadedFile != null);
         boolean isDeleted = episode.date_delete != null;
         boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
+
+        bindEpisodeCover(holder, episode, isDownloaded);
 
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title),
                 episodeFileName);
@@ -310,6 +379,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats, tvEpisodeDesc;
+        ImageView ivEpisodeCover;
         ImageButton icon_download;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
@@ -321,6 +391,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             super(itemView);
             tvEpisodeDesc = itemView.findViewById(R.id.tvEpisodeDesc);
             tvTitle = itemView.findViewById(R.id.tvEpisodeTitle);
+            ivEpisodeCover = itemView.findViewById(R.id.ivEpisodeCover);
             tvDate = itemView.findViewById(R.id.tvEpisodeDate);
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);

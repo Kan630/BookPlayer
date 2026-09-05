@@ -74,4 +74,7 @@ public interface PodcastDao {
     @Query("UPDATE Podcast SET image = :imagePath WHERE idFolder = :folderId")
     void updateImageForFolderId(long folderId, String imagePath);
 
+    @Query("UPDATE Podcast SET episodeCoverStatus = :status WHERE feedId = :feedId")
+    void updateEpisodeCoverStatus(long feedId, int status);
+
 }
