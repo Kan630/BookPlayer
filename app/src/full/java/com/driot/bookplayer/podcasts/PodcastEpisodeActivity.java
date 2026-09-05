@@ -294,9 +294,6 @@ public class PodcastEpisodeActivity extends FullActivity
         updateFavoriteIconColor(isFavorite);
         updateAutoDownloadIconColor(isAutoDownload);
         updateFilterIconColor(Boolean.TRUE.equals(podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().getValue()));
-        int vis = isFavorite ? View.VISIBLE : View.GONE;
-        btnAutoDownloadToolbar.setVisibility(vis);
-        btnAutoDownloadOverlay.setVisibility(vis);
 
         ivCover.setOnClickListener(view -> {
             myLogI("---- USER CLICK IMAGE ----");
@@ -463,22 +460,16 @@ public class PodcastEpisodeActivity extends FullActivity
             }
 
             podcast.isFavorite = !podcast.isFavorite;
-            if (!podcast.isFavorite) {
-                podcast.autoDownload = false; // reset autoDownload if unfavorited
-            } else {
+            if (podcast.isFavorite) {
                 myToast(getString(R.string.podcast_favorite_add));
             }
+            // Auto-download no longer requires favoriting first (and isn't reset by
+            // unfavoriting) - the two are only linked the other way, in setAutoDownload().
             podcastDao.update(podcast);
 
             boolean favoriteState = podcast.isFavorite;
-            boolean autoDownloadState = podcast.autoDownload;
 
-            runOnUiThread(() -> {
-                updateFavoriteIconColor(favoriteState);
-                updateAutoDownloadIconColor(autoDownloadState);
-                btnAutoDownloadOverlay.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
-                btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
-            });
+            runOnUiThread(() -> updateFavoriteIconColor(favoriteState));
             ImageHelper.processPendingImages(this, System.currentTimeMillis(), "podcast episode activity toggle favorites");
             FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(podcast.title, podcast.language);
         });

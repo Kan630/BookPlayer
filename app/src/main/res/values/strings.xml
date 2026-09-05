@@ -500,7 +500,7 @@
     <string name="option_podcast_open_favorites_first">Open favorites first</string>
     <string name="option_podcast_open_favorites_first_subtitle">When you tap Podcast in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more podcasts.</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
-    <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
+    <string name="option_podcast_autodownload_subtitle">"BookPlayer will check for new episodes, both periodically and at startup, and download them."</string>
     <string name="option_playing_behaviour_title">Play behaviour</string>
 
     <string name="option_start_next_track_at_zero_title_text">When a track finishes, start the next track from the beginning, even if it was partly listened to before.</string>

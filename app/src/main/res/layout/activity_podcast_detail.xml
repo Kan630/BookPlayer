@@ -61,12 +61,6 @@
                         android:gravity="start"
                         android:layout_margin="8dp">
 
-                        <ImageButton
-                            android:id="@+id/btnRefreshOverlay"
-                            android:contentDescription="@string/refresh"
-                            android:src="@drawable/ic_refresh_24"
-                            style="@style/PodcastImageButton"/>
-
                         <TextView
                             android:id="@+id/tvPodcastStat"
                             style="@style/simpleText"
@@ -75,15 +69,15 @@
                             android:text="xx.ep" />
 
                         <ImageButton
-                            android:id="@+id/btnSortOverlay"
-                            android:contentDescription="@string/sort"
-                            android:src="@drawable/ic_sort_swap_vert_24"
+                            android:id="@+id/btnRefreshOverlay"
+                            android:contentDescription="@string/refresh"
+                            android:src="@drawable/ic_refresh_24"
                             style="@style/PodcastImageButton"/>
 
                         <ImageButton
-                            android:id="@+id/btnFilterOverlay"
-                            android:contentDescription="@string/filter_never_downloaded"
-                            android:src="@drawable/ic_filter_list_24"
+                            android:id="@+id/btnSortOverlay"
+                            android:contentDescription="@string/sort"
+                            android:src="@drawable/ic_sort_swap_vert_24"
                             style="@style/PodcastImageButton"/>
 
                         <ImageButton
@@ -108,22 +102,27 @@
                             android:id="@+id/btnFavoriteOverlay"
                             android:contentDescription="@string/Add_to_favorite"
                             android:src="@drawable/ic_favorite"
-                            android:layout_marginBottom="8dp"
                             style="@style/PodcastImageButton"/>
-
 
                         <ImageButton
                             android:id="@+id/btnAutoDownloadOverlay"
                             android:contentDescription="@string/Auto_Download_episodes"
                             android:src="@drawable/ic_download_action_24"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="-3dp"
                             style="@style/PodcastImageButton"/>
 
                         <ImageButton
                             android:id="@+id/btnSearchOverlay"
                             android:contentDescription="@string/Search"
                             android:src="@drawable/ic_search_24px"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="-3dp"
+                            style="@style/PodcastImageButton"/>
+
+                        <ImageButton
+                            android:id="@+id/btnFilterOverlay"
+                            android:contentDescription="@string/filter_never_downloaded"
+                            android:src="@drawable/ic_filter_list_24"
+                            android:layout_marginTop="-3dp"
                             style="@style/PodcastImageButton"/>
 
                     </LinearLayout>
