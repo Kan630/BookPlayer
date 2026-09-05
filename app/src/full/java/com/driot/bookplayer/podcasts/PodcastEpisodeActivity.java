@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -96,27 +97,6 @@ public class PodcastEpisodeActivity extends FullActivity
     private Toolbar toolbar;
 
     @Override
-    public void onBackPressed() {
-        if (layoutSearch != null && layoutSearch.getVisibility() == View.VISIBLE) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastBackPressTime < 5000) {
-                backPressCount++;
-            } else {
-                backPressCount = 1;
-            }
-            lastBackPressTime = currentTime;
-
-            if (backPressCount >= 3) {
-                super.onBackPressed();
-            } else {
-                toggleSearch();
-            }
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     protected int getNavSectionId() {
         return R.id.nav_podcast;
     }
@@ -141,6 +121,33 @@ public class PodcastEpisodeActivity extends FullActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
+
+        // Registered after super.onCreate() so it fires before BaseActivity's own back
+        // callback (OnBackPressedDispatcher runs the most-recently-added callback first).
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (layoutSearch != null && layoutSearch.getVisibility() == View.VISIBLE) {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - lastBackPressTime < 5000) {
+                        backPressCount++;
+                    } else {
+                        backPressCount = 1;
+                    }
+                    lastBackPressTime = currentTime;
+
+                    if (backPressCount >= 3) {
+                        setEnabled(false);
+                        getOnBackPressedDispatcher().onBackPressed();
+                    } else {
+                        toggleSearch();
+                    }
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
 
         if (Option.getScreenOrientationLock()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
