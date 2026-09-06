@@ -144,6 +144,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private MediaSessionController media;
     private AudioFocusHelper focus;
     private PlayTimer playTimer;
+    private MediaServiceDiagnostics diagnostics;
+    private EpisodeCoverOverride episodeCover;
 
     private final Runnable stopRunnable = () -> {
         if (boundClientCount.get() == 0) {
@@ -266,7 +268,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
             String subTitle = (z != null) ? z.getDisplayName() : "";
-            String cover = resolveCover(f);
+            String cover = episodeCover.resolve(f);
             if (cover == null)
                 cover = "";
 
@@ -553,7 +555,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onFocusLost(int change) {
-                        logFocusChange(change);
+                        diagnostics.logFocusChange(change);
 
                         // Stop-on-exit check
                         if (Option.getAutomotiveStopOnExit() && change == AudioManager.AUDIOFOCUS_LOSS
@@ -595,7 +597,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     }
                 });
 
-        registerWakeDiagnosticsReceiver();
+        diagnostics = new MediaServiceDiagnostics(this, ID_NOTIFICATION_PLAY_AUDIO_INT);
+        diagnostics.register();
+
+        episodeCover = new EpisodeCoverOverride(this, () -> {
+            refreshMetadataAndNotificationCover();
+            broadcastUiState("resolveEpisodeCoverOverride");
+        });
 
         myLogD("onCreate() - END");
     }
@@ -849,36 +857,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         });
     }
 
-    // When set (a podcast episode with its own distinct cover), takes priority over the
-    // folder/podcast cover everywhere a "current track" cover is shown: notification, PlayActivity,
-    // mini-player. Resolved async per-track by resolveEpisodeCoverOverride() since it needs a DB
-    // lookup PodcastHelper.getEpisodeCoverForZikFile() keeps flavor-agnostic (see there for why).
-    private volatile String currentEpisodeCoverOverride = null;
-
-    private String resolveCover(Folder f) {
-        return (currentEpisodeCoverOverride != null) ? currentEpisodeCoverOverride : (f != null ? f.image : null);
-    }
-
-    private void resolveEpisodeCoverOverride(ZikFile zf) {
-        currentEpisodeCoverOverride = null; // reset so a previous track's episode cover never lingers
-        if (zf == null)
-            return;
-        final long zikFileId = zf.getId();
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            String img = PodcastHelper.getEpisodeCoverForZikFile(getApplicationContext(), zikFileId);
-            if (img == null)
-                return;
-            // Guard: a newer track may have already loaded while this lookup was in flight.
-            PlayList pl = PlayList.getInstance();
-            ZikFile current = (pl != null) ? pl.getZikFile() : null;
-            if (current != null && current.getId() == zikFileId) {
-                currentEpisodeCoverOverride = img;
-                refreshMetadataAndNotificationCover();
-                broadcastUiState("resolveEpisodeCoverOverride");
-            }
-        });
-    }
-
     // Re-applies the (now-resolved) episode cover to the media session metadata + notification,
     // without touching playback state - alertNewTrack()/onEnginePrepared() already did that.
     private void refreshMetadataAndNotificationCover() {
@@ -886,7 +864,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
         if (z == null)
             return;
-        String cover = resolveCover(pl.getFolder());
+        String cover = episodeCover.resolve(pl.getFolder());
         media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(),
                 (engine != null ? engine.getDuration() : 0L), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
         showForegroundNotification(isPlaying());
@@ -899,7 +877,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogEE(null, "playlist null on newTrack");
             return;
         }
-        String cover = resolveCover(pl.getFolder());
+        String cover = episodeCover.resolve(pl.getFolder());
         ZikFile z = pl.getZikFile();
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
@@ -1004,59 +982,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 default:
                     myLogI("onStartCommand: promoting to foreground for action: " + action);
                     goForegroundPreparing("BookPlayer", null);
-                    logActiveNotification("generic-promote:" + action);
+                    diagnostics.logActiveNotification("generic-promote:" + action);
                     break;
             }
         }
 
         switch (action) {
-            case Intents.ACTION_PLAY_FROM_TRACK: {
-                // Enter foreground *before* async work to satisfy the 5s rule
-                goForegroundPreparing("Preparing…", "Loading selected track");
+            case Intents.ACTION_PLAY_FROM_TRACK:
+                return handlePlayFromTrack(intent);
 
-                final long trackId = intent.getLongExtra(Intents.EXTRA_TRACK_ID, -1);
-                final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
-                final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
-                myLog("ACTION_PLAY_FROM_TRACK => trackId : [" + trackId + "] - isPodcast : [" + isPodcast
-                        + "] - newestFirst : [" + newestFirst + "]");
-
-                ZikFile zikFile = intent.getParcelableExtra(Intents.EXTRA_ZIKFILE);
-                if (zikFile == null) {
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        ZikFile newZikFile = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
-                        if (newZikFile == null) {
-                            myLogE("zikFile is Null");
-                        } else {
-                            boolean ok = loadAndPlayTrack(newZikFile, isPodcast, newestFirst);
-                            if (!ok) {
-                                myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [newZikFile]");
-                            }
-                        }
-                    });
-                } else {
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        boolean ok = loadAndPlayTrack(zikFile, isPodcast, newestFirst);
-                        if (!ok) {
-                            myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [ZikFile]");
-                        }
-                    });
-                }
-                return START_STICKY;
-
-            }
-
-            case Intents.ACTION_PLAY_FROM_FOLDER: {
-                goForegroundPreparing("Preparing…", "Loading folder");
-
-                final long folderId = intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
-                if (folderId > 0) {
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
-                        loadAndPlayFolder(folder);
-                    });
-                }
-                return START_STICKY;
-            }
+            case Intents.ACTION_PLAY_FROM_FOLDER:
+                return handlePlayFromFolder(intent);
 
             case "CMD_STOP": { // keep string CMD_STOP here as can be called by others than app
                 myLog("CMD_STOP");
@@ -1101,134 +1037,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
-            case Intent.ACTION_MEDIA_BUTTON: {
-                KeyEvent ke = intent.hasExtra(Intent.EXTRA_KEY_EVENT)
-                        ? intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
-                        : null;
-                String keyEventString = (ke != null) ? ke.getCharacters() : "no key event";
-                myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON : " + keyEventString);
-                FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand() - ACTION_MEDIA_BUTTON",
-                        keyEventString);
+            case Intent.ACTION_MEDIA_BUTTON:
+                return handleMediaButton(intent);
 
-                goForegroundPreparing(getString(R.string.media_button_action), null);
-                MediaButtonReceiver.handleIntent(media.session(), intent);
+            case Intents.ACTION_PLAY_STREAM:
+                return handlePlayStream(intent);
 
-                // Optional: if handling didn’t start playback, keep or drop FG deliberately
-                main.postDelayed(() -> {
-                    boolean playing = (engine != null && engine.isPlaying());
-                    if (!playing) {
-                        // either keep a paused notif…
-                        showForegroundNotification(false);
-                        // …or drop foreground if you prefer:
-                        // stopForeground(false);
-                    }
-                }, 200);
+            case Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED:
+                return handlePodcastDownloadCompleted(intent);
 
-                return START_STICKY;
-            }
-
-            case Intents.ACTION_PLAY_STREAM: {
-                // Enter foreground ASAP (5s rule)
-                goForegroundPreparing(getString(R.string.loading), null);
-
-                final String playMode = intent.getStringExtra(Intents.EXTRA_PLAY_MODE);
-                final String url = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
-                // Note: PlayList is already created by StartPlayHelper.playStream() before
-                // the intent is fired. We just need to re-play the engine.
-
-                if (url == null || url.isEmpty()) {
-                    myLogE("ACTION_PLAY_STREAM without url");
-                    return START_NOT_STICKY;
-                }
-                if (playMode == null || playMode.isEmpty()) {
-                    myLogE("ACTION_PLAY_STREAM without playMode");
-                    return START_NOT_STICKY;
-                }
-
-                if (engine != null)
-                    engine.stop();
-                playStream(playMode, url);
-                return START_STICKY;
-            }
-
-            case Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED: {
-                long episodeId = intent.getLongExtra(Intents.EXTRA_EPISODE_ID, -1);
-                long zikFileId = intent.getLongExtra(Intents.EXTRA_ZIKFILE_ID, -1);
-                myLog("Podcast download completed, episodeId=" + episodeId + "-zikfileId=" + zikFileId);
-
-                String playMode = getPlayMode();
-                PlayList pl = PlayList.getInstance();
-                if (pl == null)
-                    return START_STICKY;
-
-                myLog("Podcast download completed, playMode=" + playMode + "-" + pl.getTrackId());
-                if (Var.PLAY_MODE_PODCAST.equals(playMode) && pl.getTrackId() == episodeId && engine != null && isPlaying()) {
-                    myLogI("Podcast download completed while playing stream! Switching to play local source.");
-                    long currentPos = engine.getCurrentPosition();
-
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        ZikFileDao dao = AppDatabase.getDatabase(MediaService.this).zikFileDao();
-                        ZikFile zikFile = dao.getById(zikFileId);
-                        if (zikFile != null) {
-                            zikFile.setPosition(currentPos);
-                            dao.update(zikFile);
-                            loadAndPlayTrack(zikFile, true, false);
-                        } else {
-                            myLogEE(null, "Podcast download completed but downloaded zikfile null");
-                        }
-                    });
-                } else {
-                    myLogW("Podcast download completed, but currently not playing that stream.");
-                    logActiveNotification("podcast-download-completed-not-current-stream");
-                }
-                return START_STICKY;
-            }
-
-            case Intents.CMD_TTS_SET_VOICE: {
-                if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
-                    goForegroundPreparing("Changing voice...", null);
-                }
-                final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
-                if (voiceName == null) {
-                    myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
-                    return START_STICKY;
-                }
-                try {
-                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_VOICE);
-                    if (engine instanceof TtsEngine) {
-                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
-                        myLog("Voice change to " + voiceName + ", success = " + ok);
-                        if (ok) {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_LOADED);
-                            myLog("CMD_TTS_SET_VOICE: voice changed successfully, forcing engine start for recovery");
-                            startPlayWithEngine();
-                        } else {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
-                        }
-                    } else {
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
-                        myLogW("CMD_TTS_SET_VOICE: engine is null or not TTS, attempting to re-init");
-                        PlayList pl = PlayList.getInstance();
-                        if (pl != null && pl.isZikFile()) {
-                            loadAndPlayTrack(pl.getZikFile(), false, false);
-                        } else {
-                            myLogW("CMD_TTS_SET_VOICE: playlist null, attempting restore from storage");
-                            PlayList.createFromStorage(this, true, restoredPl -> {
-                                if (restoredPl != null && restoredPl.isZikFile()) {
-                                    main.post(() -> loadAndPlayTrack(restoredPl.getZikFile(), false, false));
-                                } else {
-                                    myLogE("CMD_TTS_SET_VOICE: cannot re-init, playlist restore failed");
-                                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
-                                }
-                            });
-                        }
-                    }
-                } catch (Throwable t) {
-                    myLogEE(t, "CMD_TTS_SET_VOICE failed");
-                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
-                }
-                return START_STICKY;
-            }
+            case Intents.CMD_TTS_SET_VOICE:
+                return handleTtsSetVoice(intent);
 
             case Intents.CMD_TTS_SET_START: {
                 int ch = intent.getIntExtra(Intents.EXTRA_TTS_START_OFFSET, -1);
@@ -1257,6 +1076,182 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 }
                 return START_STICKY;
         }
+    }
+
+    private int handlePlayFromTrack(Intent intent) {
+        // Enter foreground *before* async work to satisfy the 5s rule
+        goForegroundPreparing("Preparing…", "Loading selected track");
+
+        final long trackId = intent.getLongExtra(Intents.EXTRA_TRACK_ID, -1);
+        final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
+        final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
+        myLog("ACTION_PLAY_FROM_TRACK => trackId : [" + trackId + "] - isPodcast : [" + isPodcast
+                + "] - newestFirst : [" + newestFirst + "]");
+
+        ZikFile zikFile = intent.getParcelableExtra(Intents.EXTRA_ZIKFILE);
+        if (zikFile == null) {
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                ZikFile newZikFile = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
+                if (newZikFile == null) {
+                    myLogE("zikFile is Null");
+                } else {
+                    boolean ok = loadAndPlayTrack(newZikFile, isPodcast, newestFirst);
+                    if (!ok) {
+                        myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [newZikFile]");
+                    }
+                }
+            });
+        } else {
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                boolean ok = loadAndPlayTrack(zikFile, isPodcast, newestFirst);
+                if (!ok) {
+                    myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [ZikFile]");
+                }
+            });
+        }
+        return START_STICKY;
+    }
+
+    private int handlePlayFromFolder(Intent intent) {
+        goForegroundPreparing("Preparing…", "Loading folder");
+
+        final long folderId = intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
+        if (folderId > 0) {
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
+                loadAndPlayFolder(folder);
+            });
+        }
+        return START_STICKY;
+    }
+
+    private int handleMediaButton(Intent intent) {
+        KeyEvent ke = intent.hasExtra(Intent.EXTRA_KEY_EVENT)
+                ? intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
+                : null;
+        String keyEventString = (ke != null) ? ke.getCharacters() : "no key event";
+        myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON : " + keyEventString);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand() - ACTION_MEDIA_BUTTON",
+                keyEventString);
+
+        goForegroundPreparing(getString(R.string.media_button_action), null);
+        MediaButtonReceiver.handleIntent(media.session(), intent);
+
+        // Optional: if handling didn’t start playback, keep or drop FG deliberately
+        main.postDelayed(() -> {
+            boolean playing = (engine != null && engine.isPlaying());
+            if (!playing) {
+                // either keep a paused notif…
+                showForegroundNotification(false);
+                // …or drop foreground if you prefer:
+                // stopForeground(false);
+            }
+        }, 200);
+
+        return START_STICKY;
+    }
+
+    private int handlePlayStream(Intent intent) {
+        // Enter foreground ASAP (5s rule)
+        goForegroundPreparing(getString(R.string.loading), null);
+
+        final String playMode = intent.getStringExtra(Intents.EXTRA_PLAY_MODE);
+        final String url = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
+        // Note: PlayList is already created by StartPlayHelper.playStream() before
+        // the intent is fired. We just need to re-play the engine.
+
+        if (url == null || url.isEmpty()) {
+            myLogE("ACTION_PLAY_STREAM without url");
+            return START_NOT_STICKY;
+        }
+        if (playMode == null || playMode.isEmpty()) {
+            myLogE("ACTION_PLAY_STREAM without playMode");
+            return START_NOT_STICKY;
+        }
+
+        if (engine != null)
+            engine.stop();
+        playStream(playMode, url);
+        return START_STICKY;
+    }
+
+    private int handlePodcastDownloadCompleted(Intent intent) {
+        long episodeId = intent.getLongExtra(Intents.EXTRA_EPISODE_ID, -1);
+        long zikFileId = intent.getLongExtra(Intents.EXTRA_ZIKFILE_ID, -1);
+        myLog("Podcast download completed, episodeId=" + episodeId + "-zikfileId=" + zikFileId);
+
+        String playMode = getPlayMode();
+        PlayList pl = PlayList.getInstance();
+        if (pl == null)
+            return START_STICKY;
+
+        myLog("Podcast download completed, playMode=" + playMode + "-" + pl.getTrackId());
+        if (Var.PLAY_MODE_PODCAST.equals(playMode) && pl.getTrackId() == episodeId && engine != null && isPlaying()) {
+            myLogI("Podcast download completed while playing stream! Switching to play local source.");
+            long currentPos = engine.getCurrentPosition();
+
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                ZikFileDao dao = AppDatabase.getDatabase(MediaService.this).zikFileDao();
+                ZikFile zikFile = dao.getById(zikFileId);
+                if (zikFile != null) {
+                    zikFile.setPosition(currentPos);
+                    dao.update(zikFile);
+                    loadAndPlayTrack(zikFile, true, false);
+                } else {
+                    myLogEE(null, "Podcast download completed but downloaded zikfile null");
+                }
+            });
+        } else {
+            myLogW("Podcast download completed, but currently not playing that stream.");
+            diagnostics.logActiveNotification("podcast-download-completed-not-current-stream");
+        }
+        return START_STICKY;
+    }
+
+    private int handleTtsSetVoice(Intent intent) {
+        if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
+            goForegroundPreparing("Changing voice...", null);
+        }
+        final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
+        if (voiceName == null) {
+            myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
+            return START_STICKY;
+        }
+        try {
+            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_VOICE);
+            if (engine instanceof TtsEngine) {
+                boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                myLog("Voice change to " + voiceName + ", success = " + ok);
+                if (ok) {
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_LOADED);
+                    myLog("CMD_TTS_SET_VOICE: voice changed successfully, forcing engine start for recovery");
+                    startPlayWithEngine();
+                } else {
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                }
+            } else {
+                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
+                myLogW("CMD_TTS_SET_VOICE: engine is null or not TTS, attempting to re-init");
+                PlayList pl = PlayList.getInstance();
+                if (pl != null && pl.isZikFile()) {
+                    loadAndPlayTrack(pl.getZikFile(), false, false);
+                } else {
+                    myLogW("CMD_TTS_SET_VOICE: playlist null, attempting restore from storage");
+                    PlayList.createFromStorage(this, true, restoredPl -> {
+                        if (restoredPl != null && restoredPl.isZikFile()) {
+                            main.post(() -> loadAndPlayTrack(restoredPl.getZikFile(), false, false));
+                        } else {
+                            myLogE("CMD_TTS_SET_VOICE: cannot re-init, playlist restore failed");
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                        }
+                    });
+                }
+            }
+        } catch (Throwable t) {
+            myLogEE(t, "CMD_TTS_SET_VOICE failed");
+            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+        }
+        return START_STICKY;
     }
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1473,90 +1468,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Override
     public void onDestroy() {
         myLog("onDestroy()");
-        unregisterWakeDiagnosticsReceiver();
+        diagnostics.unregister();
         shutdown(true);
         super.onDestroy();
-    }
-
-    private BroadcastReceiver wakeDiagnosticsReceiver;
-
-    // Diagnostics for the "headset button needs 2 presses after idle" report: correlates
-    // screen on/off and Bluetooth link connect/disconnect timing against onMediaButtonEvent below.
-    private void registerWakeDiagnosticsReceiver() {
-        wakeDiagnosticsReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (action == null)
-                    return;
-                if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)
-                        || BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                    String deviceInfo = "unknown";
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if (device != null) {
-                        try {
-                            if (ContextCompat.checkSelfPermission(MediaService.this,
-                                    Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                                deviceInfo = device.getName() + " (" + device.getAddress() + ")";
-                            } else {
-                                deviceInfo = device.getAddress();
-                            }
-                        } catch (SecurityException e) {
-                            deviceInfo = "(no BLUETOOTH_CONNECT permission)";
-                        }
-                    }
-                    myLogW("WAKE_DIAGNOSTICS: " + action + " - device=" + deviceInfo);
-                } else {
-                    myLogW("WAKE_DIAGNOSTICS: " + action);
-                }
-            }
-        };
-
-        IntentFilter f = new IntentFilter();
-        f.addAction(Intent.ACTION_SCREEN_ON);
-        f.addAction(Intent.ACTION_SCREEN_OFF);
-        f.addAction(Intent.ACTION_USER_PRESENT);
-        f.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        f.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        ContextCompat.registerReceiver(this, wakeDiagnosticsReceiver, f, ContextCompat.RECEIVER_NOT_EXPORTED);
-    }
-
-    private void unregisterWakeDiagnosticsReceiver() {
-        if (wakeDiagnosticsReceiver != null) {
-            try {
-                unregisterReceiver(wakeDiagnosticsReceiver);
-            } catch (IllegalArgumentException ignored) {
-                // already unregistered
-            }
-            wakeDiagnosticsReceiver = null;
-        }
-    }
-
-    // Diagnostics for the "stuck Preparing/Please wait notification" report: dumps the
-    // actual title/text of whatever is currently shown for our foreground notification id,
-    // so the log shows directly (not by inference) what the user sees at a given moment.
-    private void logActiveNotification(String context) {
-        try {
-            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (nm == null)
-                return;
-            StatusBarNotification[] active = nm.getActiveNotifications();
-            boolean found = false;
-            for (StatusBarNotification sbn : active) {
-                if (sbn.getId() == ID_NOTIFICATION_PLAY_AUDIO_INT) {
-                    Notification n = sbn.getNotification();
-                    CharSequence title = n.extras.getCharSequence(Notification.EXTRA_TITLE);
-                    CharSequence text = n.extras.getCharSequence(Notification.EXTRA_TEXT);
-                    myLogW("DIAG_NOTIF[" + context + "]: title=[" + title + "] text=[" + text + "]");
-                    found = true;
-                }
-            }
-            if (!found) {
-                myLogW("DIAG_NOTIF[" + context + "]: no active notification with id=" + ID_NOTIFICATION_PLAY_AUDIO_INT);
-            }
-        } catch (Throwable t) {
-            myLogEE(t, "logActiveNotification(" + context + ") failed");
-        }
     }
 
     @Nullable
@@ -1676,7 +1590,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Async (DB lookup) - resolves shortly after via refreshMetadataAndNotificationCover()/
         // broadcastUiState() if this track turns out to be a podcast episode with its own cover.
-        resolveEpisodeCoverOverride(zf);
+        episodeCover.resolveForZikFile(zf);
 
         // New generation (guards async callbacks)
         engineGen++;
@@ -1970,7 +1884,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
         updateSessionState(false);
         Pref.setPaused(why, System.currentTimeMillis());
-        logActiveNotification("enginePause:" + why);
+        diagnostics.logActiveNotification("enginePause:" + why);
     }
 
     @SuppressWarnings("IfCanBeSwitch")
@@ -2019,7 +1933,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (pl != null) {
                     ZikFile zf = pl.getZikFile();
                     if (zf != null) {
-                        String cover = resolveCover(pl.getFolder());
+                        String cover = episodeCover.resolve(pl.getFolder());
                         media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(),
                                 engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
                     } else {
@@ -2210,28 +2124,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 engine.getCurrentPosition(),
                 playing ? (float) getSpeed() : 0f,
                 ACTIONS_FILE);
-    }
-
-    private void logFocusChange(int change) {
-        String changeStr;
-        switch (change) {
-            case AudioManager.AUDIOFOCUS_LOSS:
-                changeStr = "AUDIOFOCUS_LOSS";
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                changeStr = "AUDIOFOCUS_LOSS_TRANSIENT";
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                changeStr = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
-                break;
-            case AudioManager.AUDIOFOCUS_GAIN:
-                changeStr = "AUDIOFOCUS_GAIN";
-                break;
-            default:
-                changeStr = "UNKNOWN(" + change + ")";
-                break;
-        }
-        myLogI("Audio Focus Change: " + changeStr + " (" + change + ")");
     }
 
     private void setPositionPlayStart() {

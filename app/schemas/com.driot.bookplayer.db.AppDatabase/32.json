@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 32,
-    "identityHash": "1f1fb988947020be42daa475f66c64f6",
+    "identityHash": "5617c0e4c0577fb1424cdcf37fac8c5c",
     "entities": [
       {
         "tableName": "Folder",
@@ -924,11 +924,489 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "Podcast",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `source` TEXT, `feedId` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT, `imageOriginalUrl` TEXT, `description` TEXT, `language` TEXT, `isFavorite` INTEGER NOT NULL, `autoDownload` INTEGER NOT NULL, `idFolder` INTEGER, `date_added` INTEGER NOT NULL, `autoDelete` INTEGER NOT NULL, `lastCheck` INTEGER NOT NULL, `date_maj` INTEGER NOT NULL, `sort_newest_top` INTEGER NOT NULL, `timeListened` INTEGER NOT NULL DEFAULT 0, `episodeCoverStatus` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`idFolder`) REFERENCES `Folder`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "feedId",
+            "columnName": "feedId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageOriginalUrl",
+            "columnName": "imageOriginalUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoDownload",
+            "columnName": "autoDownload",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idFolder",
+            "columnName": "idFolder",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_added",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoDelete",
+            "columnName": "autoDelete",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastCheck",
+            "columnName": "lastCheck",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_maj",
+            "columnName": "date_maj",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sort_newest_top",
+            "columnName": "sort_newest_top",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeListened",
+            "columnName": "timeListened",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "episodeCoverStatus",
+            "columnName": "episodeCoverStatus",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Podcast_idFolder",
+            "unique": true,
+            "columnNames": [
+              "idFolder"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Podcast_idFolder` ON `${TABLE_NAME}` (`idFolder`)"
+          },
+          {
+            "name": "index_Podcast_feedId",
+            "unique": true,
+            "columnNames": [
+              "feedId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Podcast_feedId` ON `${TABLE_NAME}` (`feedId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Folder",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idFolder"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Episode",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idPodcast` INTEGER NOT NULL, `date_add` INTEGER NOT NULL, `idZikFile` INTEGER, `date_import` INTEGER, `date_delete` INTEGER, `lastAccess` INTEGER, `idEpisode` INTEGER NOT NULL, `title` TEXT, `description` TEXT, `duration` INTEGER NOT NULL, `image` TEXT, `imageOriginalUrl` TEXT, `guid` TEXT, `podcastGuid` TEXT, `enclosureUrl` TEXT, `datePublished` TEXT, `enclosureLength` INTEGER NOT NULL, `timeListened` INTEGER NOT NULL, FOREIGN KEY(`idPodcast`) REFERENCES `Podcast`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`idZikFile`) REFERENCES `ZikFile`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idPodcast",
+            "columnName": "idPodcast",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_add",
+            "columnName": "date_add",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idZikFile",
+            "columnName": "idZikFile",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_import",
+            "columnName": "date_import",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_delete",
+            "columnName": "date_delete",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastAccess",
+            "columnName": "lastAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "idEpisode",
+            "columnName": "idEpisode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageOriginalUrl",
+            "columnName": "imageOriginalUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "podcastGuid",
+            "columnName": "podcastGuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "enclosureUrl",
+            "columnName": "enclosureUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "datePublished",
+            "columnName": "datePublished",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "enclosureLength",
+            "columnName": "enclosureLength",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeListened",
+            "columnName": "timeListened",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Episode_idPodcast",
+            "unique": false,
+            "columnNames": [
+              "idPodcast"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Episode_idPodcast` ON `${TABLE_NAME}` (`idPodcast`)"
+          },
+          {
+            "name": "index_Episode_idZikFile",
+            "unique": true,
+            "columnNames": [
+              "idZikFile"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Episode_idZikFile` ON `${TABLE_NAME}` (`idZikFile`)"
+          },
+          {
+            "name": "index_Episode_idEpisode",
+            "unique": true,
+            "columnNames": [
+              "idEpisode"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Episode_idEpisode` ON `${TABLE_NAME}` (`idEpisode`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Podcast",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idPodcast"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "ZikFile",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idZikFile"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "RadioStation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `stationuuid` TEXT NOT NULL, `name` TEXT, `url` TEXT, `url_resolved` TEXT, `codec` TEXT, `bitrate` INTEGER NOT NULL DEFAULT 0, `hls` INTEGER NOT NULL DEFAULT 0, `favicon` TEXT, `country` TEXT, `countrycode` TEXT, `language` TEXT, `tags` TEXT, `clickcount` INTEGER NOT NULL DEFAULT 0, `lastcheckok` INTEGER NOT NULL DEFAULT 0, `display_order` INTEGER NOT NULL DEFAULT 0, `isFavorite` INTEGER NOT NULL DEFAULT 0, `date_last_played` INTEGER, `date_added` INTEGER NOT NULL DEFAULT 0, `date_maj` INTEGER NOT NULL DEFAULT 0, `state` TEXT, `iso_3166_2` TEXT, `votes` TEXT, `homepage` TEXT, `imageOriginalUrl` TEXT, `timeListened` INTEGER NOT NULL DEFAULT 0)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stationuuid",
+            "columnName": "stationuuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "url_resolved",
+            "columnName": "url_resolved",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codec",
+            "columnName": "codec",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "bitrate",
+            "columnName": "bitrate",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "hls",
+            "columnName": "hls",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "favicon",
+            "columnName": "favicon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "countrycode",
+            "columnName": "countrycode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "clickcount",
+            "columnName": "clickcount",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lastcheckok",
+            "columnName": "lastcheckok",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "display_order",
+            "columnName": "display_order",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "date_last_played",
+            "columnName": "date_last_played",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_added",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "date_maj",
+            "columnName": "date_maj",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "iso_3166_2",
+            "columnName": "iso_3166_2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "votes",
+            "columnName": "votes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "homepage",
+            "columnName": "homepage",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageOriginalUrl",
+            "columnName": "imageOriginalUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timeListened",
+            "columnName": "timeListened",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1f1fb988947020be42daa475f66c64f6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5617c0e4c0577fb1424cdcf37fac8c5c')"
     ]
   }
 }
