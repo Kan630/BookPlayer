@@ -645,7 +645,7 @@ public class PodcastEpisodeActivity extends FullActivity
         if (Boolean.TRUE.equals(podcastEpisodeViewModel.getShowOnlyNeverDownloadedLive().getValue())) {
             List<DisplayableEpisode> neverDownloaded = new ArrayList<>();
             for (DisplayableEpisode ep : filtered) {
-                if (ep.idZikFile == null) {
+                if (ep.idZikFile == null && ep.date_delete == null) {
                     neverDownloaded.add(ep);
                 }
             }
