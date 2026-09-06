@@ -2,16 +2,10 @@ package com.driot.bookplayer.player;
 
 import com.driot.bookplayer.R;
 
-import android.Manifest;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -24,7 +18,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
-import android.service.notification.StatusBarNotification;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -1182,8 +1175,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         String playMode = getPlayMode();
         PlayList pl = PlayList.getInstance();
-        if (pl == null)
+        if (pl == null) {
+            // Woken up via startForegroundService() just for this one-off event, and nothing is
+            // playing - goForegroundPreparing() already put up a "Please wait" placeholder to
+            // satisfy the 5s foreground rule, but nothing will ever replace it if we stop here.
+            // Release the foreground state now instead of leaving it stuck.
+            shutdown(false);
             return START_STICKY;
+        }
 
         myLog("Podcast download completed, playMode=" + playMode + "-" + pl.getTrackId());
         if (Var.PLAY_MODE_PODCAST.equals(playMode) && pl.getTrackId() == episodeId && engine != null && isPlaying()) {
@@ -1204,6 +1203,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } else {
             myLogW("Podcast download completed, but currently not playing that stream.");
             diagnostics.logActiveNotification("podcast-download-completed-not-current-stream");
+            // Same placeholder-notification leak as above, but here something else IS loaded
+            // (just not this episode) - refresh the notification with its real content instead
+            // of leaving "Please wait" stuck.
+            showForegroundNotification(isPlaying());
         }
         return START_STICKY;
     }
