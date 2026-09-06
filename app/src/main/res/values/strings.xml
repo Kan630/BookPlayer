@@ -586,9 +586,9 @@
     <string name="podcast_no_undownloaded_episodes">All known episodes are already downloaded</string>
     <string name="podcast_download_last_n_started">Downloading %1$d episode(s)…</string>
     <string name="podcast_episode_status_total">Total: %1$d episode(s)</string>
-    <string name="podcast_episode_status_never_downloaded">Not downloaded</string>
+    <string name="podcast_episode_status_never_downloaded">Never downloaded</string>
     <string name="podcast_episode_status_downloaded">Downloaded</string>
-    <string name="podcast_episode_status_orphan">Downloaded (file found, not linked)</string>
+    <string name="podcast_episode_status_orphan">Downloaded (not registered in app)</string>
     <string name="podcast_episode_status_deleted">Downloaded, then deleted</string>
 
 
