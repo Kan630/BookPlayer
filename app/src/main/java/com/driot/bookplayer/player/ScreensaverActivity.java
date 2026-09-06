@@ -70,6 +70,14 @@ public class ScreensaverActivity extends BaseActivity {
     private void updateVisualizer(@Nullable PlaybackUiState s) {
         if (s == null) return;
 
+        if (!s.playing) {
+            // Playback stopped on its own (track finished, auto-sleep, etc) while the
+            // screensaver was showing - don't leave a stale black screen requiring a tap.
+            myLogI("Screensaver auto-dismissed: playback stopped");
+            finish();
+            return;
+        }
+
         int sessionId = -1;
         if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
             sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
