@@ -2,6 +2,8 @@ package com.driot.bookplayer.librivox;
 
 import androidx.annotation.Keep;
 
+import com.google.gson.annotations.JsonAdapter;
+
 import java.util.List;
 
 @Keep
@@ -12,6 +14,8 @@ public class ItemMetadata {
     @Keep
     public static class Metadata {
         public String title;
+        // Same archive.org string-or-array quirk as ArchiveItem.creator - see FlexibleStringAdapter.
+        @JsonAdapter(FlexibleStringAdapter.class)
         public String creator;
         public String date;
         public String description;

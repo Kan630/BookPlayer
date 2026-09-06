@@ -2,10 +2,15 @@ package com.driot.bookplayer.librivox;
 
 import androidx.annotation.Keep;
 
+import com.google.gson.annotations.JsonAdapter;
+
 @Keep
 public class ArchiveItem {
     public String identifier;
     public String title;
+    // archive.org returns this as a plain string OR a JSON array (multiple creators) -
+    // see FlexibleStringAdapter for why a custom adapter is needed here.
+    @JsonAdapter(FlexibleStringAdapter.class)
     public String creator;
     public String author;
     public String date;
