@@ -86,6 +86,156 @@
                 android:layout_marginTop="2dp"
                 android:text="…" />
 
+            <TextView
+                android:id="@+id/tvStatusTotal"
+                style="@style/simpleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp"
+                android:text="" />
+
+            <LinearLayout
+                android:id="@+id/rowStatusNeverDownloaded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_download_action_24"
+                    android:tint="@android:color/holo_blue_bright"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@string/podcast_episode_status_never_downloaded" />
+
+                <TextView
+                    android:id="@+id/tvStatusNeverDownloadedCount"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:text="0" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowStatusDownloaded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_download_done_24"
+                    android:tint="@color/green_300"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@string/podcast_episode_status_downloaded" />
+
+                <TextView
+                    android:id="@+id/tvStatusDownloadedCount"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:text="0" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowStatusOrphan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_download_done_24"
+                    android:tint="@color/orange_500"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@string/podcast_episode_status_orphan" />
+
+                <TextView
+                    android:id="@+id/tvStatusOrphanCount"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:text="0" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowStatusDeleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_download_action_24"
+                    android:tint="@color/brown_500"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@string/podcast_episode_status_deleted" />
+
+                <TextView
+                    android:id="@+id/tvStatusDeletedCount"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:text="0" />
+
+            </LinearLayout>
+
             <View style="@style/GetResourceHorizontalBar" />
 
             <LinearLayout
@@ -128,6 +278,16 @@
                         android:gravity="center"
                         android:text="10" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDownloadLastNSize"
+                    style="@style/simpleText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:alpha="0.7"
+                    android:layout_marginTop="4dp"
+                    android:text="" />
 
                 <Button
                     android:id="@+id/btnDownloadLastN"

@@ -28,7 +28,10 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
     private Podcast podcast;
     private PodcastDownloadSettingsViewModel viewModel;
 
-    private TextView tvPodcastName, tvTotalStorageValue, tvDownloadLastN;
+    private TextView tvPodcastName, tvTotalStorageValue, tvDownloadLastN, tvDownloadLastNSize;
+    private TextView tvStatusDownloadedCount, tvStatusOrphanCount, tvStatusNeverDownloadedCount,
+            tvStatusDeletedCount, tvStatusTotal;
+    private View rowStatusDownloaded, rowStatusOrphan, rowStatusNeverDownloaded, rowStatusDeleted;
     private ImageView ivPodcastCover;
     private SettingSwitchRow rowAutoDownload;
     private SeekBar seekbarDownloadLastN;
@@ -37,6 +40,7 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
 
     private int pendingDownloadLastN = 10;
     private int downloadLastNMax = 10;
+    private long[] undownloadedSizesPrefixSum = new long[0];
     private boolean syncingDownloadLastNUI = false;
     private TextWatcher downloadLastNWatcher;
 
@@ -73,11 +77,21 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
         tvPodcastName = findViewById(R.id.tvDownloadSettingsPodcastName);
         tvTotalStorageValue = findViewById(R.id.tvTotalStorageValue);
         tvDownloadLastN = findViewById(R.id.tvDownloadLastN);
+        tvDownloadLastNSize = findViewById(R.id.tvDownloadLastNSize);
         ivPodcastCover = findViewById(R.id.ivDownloadSettingsPodcastCover);
         rowAutoDownload = findViewById(R.id.rowAutoDownload);
         seekbarDownloadLastN = findViewById(R.id.seekbarDownloadLastN);
         etDownloadLastN = findViewById(R.id.etDownloadLastN);
         btnDownloadLastN = findViewById(R.id.btnDownloadLastN);
+        tvStatusDownloadedCount = findViewById(R.id.tvStatusDownloadedCount);
+        tvStatusOrphanCount = findViewById(R.id.tvStatusOrphanCount);
+        tvStatusNeverDownloadedCount = findViewById(R.id.tvStatusNeverDownloadedCount);
+        tvStatusDeletedCount = findViewById(R.id.tvStatusDeletedCount);
+        tvStatusTotal = findViewById(R.id.tvStatusTotal);
+        rowStatusDownloaded = findViewById(R.id.rowStatusDownloaded);
+        rowStatusOrphan = findViewById(R.id.rowStatusOrphan);
+        rowStatusNeverDownloaded = findViewById(R.id.rowStatusNeverDownloaded);
+        rowStatusDeleted = findViewById(R.id.rowStatusDeleted);
 
         tvPodcastName.setText(podcast.title);
         Glide.with(ivPodcastCover.getContext()).load(podcast.image).into(ivPodcastCover);
@@ -97,6 +111,26 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
 
         viewModel.getUndownloadedCountLive().observe(this, count -> {
             setupDownloadLastNControl(count != null ? count : 0);
+        });
+
+        viewModel.getUndownloadedSizesPrefixSumLive().observe(this, prefixSums -> {
+            undownloadedSizesPrefixSum = prefixSums != null ? prefixSums : new long[0];
+            setDownloadLastNValue(pendingDownloadLastN);
+        });
+
+        viewModel.getEpisodeStatusCountsLive().observe(this, counts -> {
+            if (counts == null)
+                return;
+            tvStatusDownloadedCount.setText(String.valueOf(counts.downloadedTracked));
+            tvStatusOrphanCount.setText(String.valueOf(counts.orphanOnDisk));
+            tvStatusNeverDownloadedCount.setText(String.valueOf(counts.neverDownloaded));
+            tvStatusDeletedCount.setText(String.valueOf(counts.deleted));
+            tvStatusTotal.setText(getString(R.string.podcast_episode_status_total, counts.total));
+
+            rowStatusDownloaded.setVisibility(counts.downloadedTracked > 0 ? View.VISIBLE : View.GONE);
+            rowStatusOrphan.setVisibility(counts.orphanOnDisk > 0 ? View.VISIBLE : View.GONE);
+            rowStatusNeverDownloaded.setVisibility(counts.neverDownloaded > 0 ? View.VISIBLE : View.GONE);
+            rowStatusDeleted.setVisibility(counts.deleted > 0 ? View.VISIBLE : View.GONE);
         });
 
         btnDownloadLastN.setOnClickListener(v -> {
@@ -192,5 +226,13 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
         }
         syncingDownloadLastNUI = false;
         tvDownloadLastN.setText(getString(R.string.podcast_download_last_n_episodes, value));
+
+        int idx = value - 1;
+        if (idx >= 0 && idx < undownloadedSizesPrefixSum.length) {
+            tvDownloadLastNSize.setText(getString(R.string.podcast_download_last_n_size,
+                    Tonio.getReadableSize(undownloadedSizesPrefixSum[idx])));
+        } else {
+            tvDownloadLastNSize.setText("");
+        }
     }
 }

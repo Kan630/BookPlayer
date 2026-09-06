@@ -582,8 +582,14 @@
     <string name="podcast_download_settings_title">Download settings</string>
     <string name="podcast_total_storage_used">Storage used by downloaded episodes</string>
     <string name="podcast_download_last_n_episodes">Download last %1$d episodes</string>
+    <string name="podcast_download_last_n_size">Estimated size: %1$s</string>
     <string name="podcast_no_undownloaded_episodes">All known episodes are already downloaded</string>
     <string name="podcast_download_last_n_started">Downloading %1$d episode(s)…</string>
+    <string name="podcast_episode_status_total">Total: %1$d episode(s)</string>
+    <string name="podcast_episode_status_never_downloaded">Not downloaded</string>
+    <string name="podcast_episode_status_downloaded">Downloaded</string>
+    <string name="podcast_episode_status_orphan">Downloaded (file found, not linked)</string>
+    <string name="podcast_episode_status_deleted">Downloaded, then deleted</string>
 
 
     <string name="Error_Import_IsNotFolder">This doesn’t look like a folder</string>
