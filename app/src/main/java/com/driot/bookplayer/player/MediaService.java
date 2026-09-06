@@ -131,8 +131,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private int lastCustomSleepMinutes = 0;
 
     // cache for Android Auto Bitmaps
-    public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(
-            8);
     public static final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(
             24); // (Least Recently Used) cache with a maximum size of 24
 
@@ -556,24 +554,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     @Override
                     public void onFocusLost(int change) {
                         logFocusChange(change);
-                        /*
-                         * Useless Shit, removed on 2026-03-07, kept because you never know...
-                         * 
-                         * - first : focus lost is before onGetRoot, so we're never in grace
-                         * - second : we cant steal back ausio focus from AA, thats AA standard
-                         * behaviour for security with cars and audio
-                         * 
-                         * boolean inGrace = CarSignals.withinCarConnectGrace(2500);
-                         * 
-                         * if (inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-                         * || change == AudioManager.AUDIOFOCUS_LOSS)) {
-                         * myLogW("AA connection focus steal - fighting back (ducking instead of pause)"
-                         * );
-                         * // treat transient like duck during grace window (don’t pause)
-                         * startDuck();
-                         * return;
-                         * }
-                         */
 
                         // Stop-on-exit check
                         if (Option.getAutomotiveStopOnExit() && change == AudioManager.AUDIOFOCUS_LOSS
@@ -640,46 +620,48 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             media.setMetadataRadio(streamTitle, "", "",
                     currentArt);
 
+            PlaybackNotificationManager.ActionProvider streamActionProvider = new PlaybackNotificationManager.ActionProvider() {
+                @NonNull
+                @Override
+                public PendingIntent rewind() {
+                    return null;
+                } // no-op
+
+                @NonNull
+                @Override
+                public PendingIntent fastForward() {
+                    return null;
+                } // no-op
+
+                @NonNull
+                @Override
+                public PendingIntent play() {
+                    return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this,
+                            PlaybackStateCompat.ACTION_PLAY);
+                }
+
+                @NonNull
+                @Override
+                public PendingIntent pause() {
+                    return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this,
+                            PlaybackStateCompat.ACTION_PAUSE);
+                }
+
+                @NonNull
+                @Override
+                public PendingIntent content() {
+                    return isPodcastStream
+                            ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
+                            : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
+                }
+            };
+
             Notification n = notif.build(
                     media.session(),
                     playing,
                     streamTitle != null ? streamTitle : modeLabel,
                     modeLabel,
-                    new PlaybackNotificationManager.ActionProvider() {
-                        @NonNull
-                        @Override
-                        public PendingIntent rewind() {
-                            return null;
-                        } // no-op
-
-                        @NonNull
-                        @Override
-                        public PendingIntent fastForward() {
-                            return null;
-                        } // no-op
-
-                        @NonNull
-                        @Override
-                        public PendingIntent play() {
-                            return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this,
-                                    PlaybackStateCompat.ACTION_PLAY);
-                        }
-
-                        @NonNull
-                        @Override
-                        public PendingIntent pause() {
-                            return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this,
-                                    PlaybackStateCompat.ACTION_PAUSE);
-                        }
-
-                        @NonNull
-                        @Override
-                        public PendingIntent content() {
-                            return isPodcastStream
-                                    ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
-                                    : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
-                        }
-                    });
+                    streamActionProvider);
             if (!startForegroundWithBuildCheck(n))
                 return false;
 
@@ -700,42 +682,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                         media.session(), playing,
                                         streamTitle != null ? streamTitle : modeLabel,
                                         modeLabel,
-                                        /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
-                                            @NonNull
-                                            @Override
-                                            public PendingIntent rewind() {
-                                                return null;
-                                            }
-
-                                            @NonNull
-                                            @Override
-                                            public PendingIntent fastForward() {
-                                                return null;
-                                            }
-
-                                            @NonNull
-                                            @Override
-                                            public PendingIntent play() {
-                                                return MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                                        MediaService.this, PlaybackStateCompat.ACTION_PLAY);
-                                            }
-
-                                            @NonNull
-                                            @Override
-                                            public PendingIntent pause() {
-                                                return MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                                        MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
-                                            }
-
-                                            @NonNull
-                                            @Override
-                                            public PendingIntent content() {
-                                                return isPodcastStream
-                                                        ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
-                                                        : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this,
-                                                                trackId);
-                                            }
-                                        });
+                                        streamActionProvider);
                                 startForegroundWithBuildCheck(updated);
                             }
 
@@ -747,8 +694,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return true;
         }
 
-        CharSequence title = "---";
-        CharSequence text = "---";
+        PlayList pl = PlayList.getInstance();
+        ZikFile z = (pl != null) ? pl.getZikFile() : null;
+        CharSequence title = (z != null) ? z.getFolderName() : "";
+        CharSequence text = (z != null) ? z.getDisplayName() : "";
         Notification n = notif.build(
                 media.session(),
                 playing,
@@ -1757,13 +1706,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // Update media session metadata early (title/sub), set BUFFERING, show paused
         // notif
         media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
-
-        // String cover = (pl.getFolder()==null) ? null : pl.getFolder().image;
-        // media.setMetadata(zf.getDisplayName(), zf.getFolderName(),
-        // zf.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover,
-        // 512));
-
-        // showForegroundNotification(isPlaying()); // Already done above
 
         try {
             engine.reset();
