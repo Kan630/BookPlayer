@@ -30,6 +30,8 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
+import com.driot.bookplayer.player.RadioRecordingHelper;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -439,7 +441,21 @@ public class ZikFileActivity extends FullActivity {
     private void goUserClickHeader() {
         if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
             PodcastHelper.openPodcastEpisodeActivityFromActivity(folder, this);
+        } else if (Var.SOURCE_LOCATION_RADIO_RECORDING.equals(folder.getSourceLocation())) {
+            playLiveRadioForThisFolder();
         }
+    }
+
+    private void playLiveRadioForThisFolder() {
+        String streamUrl = RadioRecordingHelper.getRadioStreamUrl(folder);
+        if (streamUrl == null || streamUrl.isEmpty()) {
+            myToastE(getString(R.string.radio_recording_no_live_stream));
+            return;
+        }
+        long stationId = RadioRecordingHelper.getRadioStationId(folder);
+        myLogI("--- User plays live radio from ZikFileActivity header --- station=" + folder.getName());
+        StartPlayHelper.playStream(this, Var.PLAY_MODE_RADIO, streamUrl, stationId, folder.getName(), folder.image,
+                "ZikFileActivity.coverClick");
     }
 
     private final ActivityResultLauncher<Intent> modifyLauncher = registerForActivityResult(

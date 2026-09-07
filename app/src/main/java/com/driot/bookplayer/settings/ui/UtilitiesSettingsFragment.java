@@ -96,7 +96,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
                 Option.setOpenWith_all(true);
                 Option.setStopAudioIfUserClosesApp(false);
                 Option.setOpenPlayActivity(false);
-                Option.setRadioOpenFavoritesFirst(true);
+                Option.setRadioLandingScreen(Option.RADIO_LANDING_FAVORITES);
                 Option.setPodcastOpenFavoritesFirst(true);
                 startActivity(restartIntent); // reopen app fresh
             }, 150);

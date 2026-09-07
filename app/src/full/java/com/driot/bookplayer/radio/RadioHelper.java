@@ -449,6 +449,11 @@ public class RadioHelper {
 		return new Intent(context, RadioFavoritesActivity.class);
 	}
 
+	public static Intent getHistorySectionIntent(Context context) {
+		return new Intent(context, RadioFavoritesActivity.class)
+				.putExtra(Intents.EXTRA_START_IN_HISTORY, true);
+	}
+
 	public static void openRadioStationActivity(Context context, long trackId) {
 		if (trackId <= 0) {
 			myLogE("openRadioStationActivity => no trackId");
@@ -513,7 +518,7 @@ public class RadioHelper {
 			myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
 		}
 
-		if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
+		if (Option.getRadioLandingScreen() != Option.RADIO_LANDING_SEARCH && hasFavOrHistory) {
 			TaskStackBuilder tsb = TaskStackBuilder.create(context);
 			tsb.addNextIntent(new Intent(context, MainActivity.class));
 			tsb.addNextIntent(new Intent(context, GetRadioActivity.class));

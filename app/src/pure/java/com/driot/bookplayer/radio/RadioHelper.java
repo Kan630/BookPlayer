@@ -62,6 +62,10 @@ public class RadioHelper {
         return null;
     }
 
+    public static Intent getHistorySectionIntent(Context context) {
+        return null;
+    }
+
     public static void openRadioStationActivity(Context context, long trackId) {
         myLog("stub!");
     }

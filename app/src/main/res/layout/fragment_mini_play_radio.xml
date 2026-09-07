@@ -62,6 +62,34 @@
         android:layout_gravity="center"
         android:layout_marginStart="8dp"
         />
+    <LinearLayout
+        android:id="@+id/llRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivRecordDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/shape_red_dot"
+            android:contentDescription="@string/radio_recording" />
+
+        <TextView
+            android:id="@+id/tvRecordInfo"
+            style="@style/simpleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textSize="10sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:visibility="gone" />
+    </LinearLayout>
     <ImageButton
         android:id="@+id/bMiniPlayPause"
         android:layout_width="40dp"

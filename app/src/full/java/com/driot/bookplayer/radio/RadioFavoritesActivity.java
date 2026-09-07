@@ -294,7 +294,15 @@ public class RadioFavoritesActivity extends FullActivity {
                 adapter.setPlayingRadioStation(state.trackId);
         });
 
-        viewModel.initMode(this);
+        // initMode() picks favorites-vs-history itself (asynchronously, based on which has rows)
+        // - that would race with (and could silently overwrite) an explicit request to land on
+        // history, so skip it entirely when the caller already knows what it wants.
+        if (getIntent().getBooleanExtra(Intents.EXTRA_START_IN_HISTORY, false)) {
+            myLogI("--- opening directly in history mode (radio landing screen setting) ---");
+            viewModel.loadHistory(this);
+        } else {
+            viewModel.initMode(this);
+        }
 
         // Enable dragging
         FavoritesTouchHelperCallback cb = new FavoritesTouchHelperCallback(recyclerView, dropZone, adapter);

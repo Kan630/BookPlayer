@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.*;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.player.PlaybackCommands;
@@ -16,6 +19,7 @@ import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.UiHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.Objects;
@@ -26,6 +30,9 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     private ImageView ivCover, ivNoInternet;
     private TextView tvTitle, tvSubTitle;
     private ImageButton ibPlayPause, ibClose;
+    private View llRecord;
+    private ImageView ivRecordDot;
+    private TextView tvRecordInfo;
 
     private PlaybackUiState lastState;
     private Boolean hasInternet = null;
@@ -45,6 +52,9 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
         ibClose = v.findViewById(R.id.bMiniClose);
         ivNoInternet = v.findViewById(R.id.ivNoInternet);
+        llRecord = v.findViewById(R.id.llRecord);
+        ivRecordDot = v.findViewById(R.id.ivRecordDot);
+        tvRecordInfo = v.findViewById(R.id.tvRecordInfo);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
@@ -74,6 +84,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 myLogD("phase changed => " + s.loadPhase);
             lastState = vm.getState().getValue();
             refreshUi();
+
+            updateRecordingUi(s);
         });
 
         try {
@@ -99,6 +111,12 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             vm.stop();
         });
 
+        llRecord.setOnClickListener(_v -> {
+            myLogI("---- user press RECORD button ----");
+            PlaybackCommands.resetLastUserAction(requireContext());
+            PlaybackCommands.toggleRadioRecording(requireContext());
+        });
+
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");
             PlaybackCommands.resetLastUserAction(requireContext());
@@ -117,6 +135,41 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             return;
         UiHelper.FillUiBasic(lastState, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null, ivNoInternet,
                 hasInternet);
+    }
+
+    private void updateRecordingUi(PlaybackUiState s) {
+        boolean recordingFeatureEnabled = Option.getRadioRecordingEnabled();
+        Bundle extras = s.extras;
+        boolean available = extras != null && extras.getBoolean(Intents.EXTRA_RADIO_RECORDING_AVAILABLE, false);
+        boolean active = extras != null && extras.getBoolean(Intents.EXTRA_RADIO_RECORDING_ACTIVE, false);
+
+        // The record dot is gated by the setting; the info text next to it (recording elapsed
+        // time/size, or - when idle - the buffered-ahead seconds) is shown regardless, since
+        // buffer health is useful even with recording turned off.
+        llRecord.setVisibility(View.VISIBLE);
+        llRecord.setClickable(recordingFeatureEnabled);
+        ivRecordDot.setVisibility(recordingFeatureEnabled ? View.VISIBLE : View.GONE);
+        if (recordingFeatureEnabled) {
+            ivRecordDot.setAlpha((available || active) ? 1f : 0.4f);
+            int dotColor = ContextCompat.getColor(requireContext(), active ? R.color.red_500 : R.color.gray_500);
+            ivRecordDot.setColorFilter(dotColor, android.graphics.PorterDuff.Mode.SRC_IN);
+        }
+
+        if (active) {
+            long elapsedMs = extras.getLong(Intents.EXTRA_RADIO_RECORDING_ELAPSED_MS, 0);
+            long bytes = extras.getLong(Intents.EXTRA_RADIO_RECORDING_BYTES, 0);
+            tvRecordInfo.setText(getString(R.string.radio_recording_info,
+                    Tonio.formatTime(elapsedMs), Tonio.getReadableSize(bytes)));
+            tvRecordInfo.setVisibility(View.VISIBLE);
+        } else {
+            long bufferedMs = extras != null ? extras.getLong(Intents.EXTRA_RADIO_BUFFERED_MS, 0) : 0;
+            if (bufferedMs > 0) {
+                tvRecordInfo.setText(getString(R.string.radio_buffer_info, Tonio.formatTime(bufferedMs)));
+                tvRecordInfo.setVisibility(View.VISIBLE);
+            } else {
+                tvRecordInfo.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override

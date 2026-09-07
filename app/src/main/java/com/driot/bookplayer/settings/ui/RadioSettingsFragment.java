@@ -25,11 +25,9 @@ public class RadioSettingsFragment extends LoggingFragment {
     private CheckBox chk_option_radio_sleep_copy;
     private CheckBox chk_option_radio_remove_duplicates;
     private CheckBox chk_option_radio_remove_dubious;
-    private CheckBox chk_option_radio_open_favorites_first;
     private LinearLayout ll_option_radio_sleep_value;
     private LinearLayout ll_option_radio_remove_duplicates;
     private LinearLayout ll_option_radio_remove_dubious;
-    private LinearLayout ll_option_radio_open_favorites_first;
 
 
     @Nullable @Override
@@ -74,11 +72,44 @@ public class RadioSettingsFragment extends LoggingFragment {
         ll_option_radio_remove_dubious.setOnClickListener(v -> chk_option_radio_remove_dubious.toggle());
         chk_option_radio_remove_dubious.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRemoveDubiousStations(isChecked));
 
-        ll_option_radio_open_favorites_first = root.findViewById(R.id.ll_option_radio_open_favorites_first);
-        chk_option_radio_open_favorites_first = root.findViewById(R.id.chk_option_radio_open_favorites_first);
-        chk_option_radio_open_favorites_first.setChecked(Option.getRadioOpenFavoritesFirst());
-        ll_option_radio_open_favorites_first.setOnClickListener(v -> chk_option_radio_open_favorites_first.toggle());
-        chk_option_radio_open_favorites_first.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioOpenFavoritesFirst(isChecked));
+        com.google.android.material.button.MaterialButtonToggleGroup groupRadioLandingScreen =
+                root.findViewById(R.id.groupRadioLandingScreen);
+        int checkedId;
+        switch (Option.getRadioLandingScreen()) {
+            case Option.RADIO_LANDING_FAVORITES:
+                checkedId = R.id.btnRadioLandingFavorites;
+                break;
+            case Option.RADIO_LANDING_HISTORY:
+                checkedId = R.id.btnRadioLandingHistory;
+                break;
+            default:
+                checkedId = R.id.btnRadioLandingSearch;
+                break;
+        }
+        groupRadioLandingScreen.check(checkedId);
+        groupRadioLandingScreen.addOnButtonCheckedListener((group, checkedButtonId, isChecked) -> {
+            if (!isChecked)
+                return;
+            if (checkedButtonId == R.id.btnRadioLandingFavorites) {
+                Option.setRadioLandingScreen(Option.RADIO_LANDING_FAVORITES);
+            } else if (checkedButtonId == R.id.btnRadioLandingHistory) {
+                Option.setRadioLandingScreen(Option.RADIO_LANDING_HISTORY);
+            } else {
+                Option.setRadioLandingScreen(Option.RADIO_LANDING_SEARCH);
+            }
+        });
+
+        LinearLayout ll_option_radio_recording_enabled = root.findViewById(R.id.ll_option_radio_recording_enabled);
+        CheckBox chk_option_radio_recording_enabled = root.findViewById(R.id.chk_option_radio_recording_enabled);
+        chk_option_radio_recording_enabled.setChecked(Option.getRadioRecordingEnabled());
+        ll_option_radio_recording_enabled.setOnClickListener(v -> chk_option_radio_recording_enabled.toggle());
+        chk_option_radio_recording_enabled.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRecordingEnabled(isChecked));
+
+        LinearLayout ll_option_radio_recording_as_music = root.findViewById(R.id.ll_option_radio_recording_as_music);
+        CheckBox chk_option_radio_recording_as_music = root.findViewById(R.id.chk_option_radio_recording_as_music);
+        chk_option_radio_recording_as_music.setChecked(Option.getRadioRecordingAsMusic());
+        ll_option_radio_recording_as_music.setOnClickListener(v -> chk_option_radio_recording_as_music.toggle());
+        chk_option_radio_recording_as_music.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRecordingAsMusic(isChecked));
 
         chk_option_radio_sleep_copy = root.findViewById(R.id.chk_option_radio_sleep_copy);
         LinearLayout ll_option_radio_sleep_copy = root.findViewById(R.id.ll_option_radio_sleep_copy);

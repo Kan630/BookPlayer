@@ -139,6 +139,19 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private PlayTimer playTimer;
     private MediaServiceDiagnostics diagnostics;
     private EpisodeCoverOverride episodeCover;
+    private RadioRecorder radioRecorder;
+
+    /** Drives the mini radio player's live-updating info (recording elapsed time/size while
+     * recording, buffered-ahead seconds otherwise) - self-stops once radio is no longer playing. */
+    private final Runnable radioMiniTickRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isRadio()) {
+                broadcastUiState("radioMiniTick");
+                main.postDelayed(this, DELAY_CHECK_TIMER_SLEEP);
+            }
+        }
+    };
 
     private final Runnable stopRunnable = () -> {
         if (boundClientCount.get() == 0) {
@@ -219,6 +232,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putDouble(Intents.EXTRA_SPEED, getSpeed()); // TODO check that getSpeed, looks weird, ask Prefs... (every
                                                            // second since we are updating UI...)
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
+        extras.putBoolean(Intents.EXTRA_RADIO_RECORDING_ACTIVE, radioRecorder.isRecording());
+        extras.putLong(Intents.EXTRA_RADIO_RECORDING_ELAPSED_MS, radioRecorder.getElapsedMs());
+        extras.putLong(Intents.EXTRA_RADIO_RECORDING_BYTES, radioRecorder.getBytesWritten());
 
         if (Var.PLAY_MODE_RADIO.equals(playMode) || isRadio()) {
             PlayList pl = PlayList.getInstance();
@@ -227,13 +243,20 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String cover = (pl != null && pl.getImageUrl() != null) ? pl.getImageUrl() : "";
             long trackId = (pl != null) ? pl.getTrackId() : 0;
 
+            extras.putBoolean(Intents.EXTRA_RADIO_RECORDING_AVAILABLE,
+                    pl != null && RadioRecorder.canRecord(pl.getUrl()));
+            long bufferedMs = (engine instanceof ExoRadioPlayerEngine)
+                    ? ((ExoRadioPlayerEngine) engine).getBufferedDurationMs()
+                    : 0;
+            extras.putLong(Intents.EXTRA_RADIO_BUFFERED_MS, bufferedMs);
+
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
                     0, 0, getSleepLeftMs(),
                     title, text, cover,
                     trackId,
                     /* folderId */ 0,
-                    "MediaService.broadcastUiState() - radio " + fromWhere, -10, null);
+                    "MediaService.broadcastUiState() - radio " + fromWhere, -10, extras);
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
             PlayList pl = PlayList.getInstance();
             String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_podcast);
@@ -404,6 +427,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     double s = extras != null ? extras.getDouble(Intents.EXTRA_SPEED, 1.0) : 1.0;
                     setSpeed(s); // your engine.setSpeed(...)
                     updateSessionState(isPlaying()); // reflect new speed in PlaybackState
+                    break;
+                }
+                case Intents.CMD_RADIO_RECORD_TOGGLE: {
+                    handleRadioRecordToggle();
                     break;
                 }
                 case Intents.CMD_TTS_SET_VOICE: {
@@ -612,6 +639,21 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         episodeCover = new EpisodeCoverOverride(this, () -> {
             refreshMetadataAndNotificationCover();
             broadcastUiState("resolveEpisodeCoverOverride");
+        });
+
+        radioRecorder = new RadioRecorder(this, (file, stationName, coverUrl, streamUrl, stationId, elapsedMs, bytesWritten) -> {
+            if (file != null) {
+                RadioRecordingHelper.finalizeRecording(getApplicationContext(), file, stationName, coverUrl,
+                        streamUrl, stationId, elapsedMs);
+            }
+            main.post(() -> {
+                if (file != null) {
+                    myToast(getString(R.string.radio_recording_saved, stationName, Tonio.formatTime(elapsedMs)));
+                } else if (bytesWritten <= 0) {
+                    myToastE(getString(R.string.radio_recording_failed));
+                }
+                broadcastUiState("radioRecordingFinished");
+            });
         });
 
         myLogD("onCreate() - END");
@@ -873,6 +915,29 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlayList pl = PlayList.getInstance();
         Folder f = (pl != null) ? pl.getFolder() : null;
         return f != null && Var.PLAY_TYPE_MUSIC.equals(f.playType);
+    }
+
+    private void handleRadioRecordToggle() {
+        if (radioRecorder.isRecording()) {
+            myLogI("--- USER TOGGLES radio recording OFF ---");
+            radioRecorder.stop();
+        } else {
+            PlayList pl = PlayList.getInstance();
+            if (pl == null || !Var.PLAY_MODE_RADIO.equals(pl.getPlayMode())) {
+                myLogW("handleRadioRecordToggle: not currently playing radio, ignoring");
+                return;
+            }
+            String url = pl.getUrl();
+            String stationName = pl.getTitle();
+            String coverUrl = pl.getImageUrl();
+            long stationId = pl.getTrackId();
+            myLogI("--- USER TOGGLES radio recording ON --- station=" + stationName);
+            boolean started = radioRecorder.start(url, stationName, coverUrl, stationId);
+            if (!started) {
+                myToastE(getString(R.string.radio_recording_not_available));
+            }
+        }
+        broadcastUiState("handleRadioRecordToggle");
     }
 
     private void previousTrack() {
@@ -1138,6 +1203,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private int handlePlayFromTrack(Intent intent) {
         // Enter foreground *before* async work to satisfy the 5s rule
         goForegroundPreparing("Preparing…", "Loading selected track");
+        radioRecorder.stop();
 
         final long trackId = intent.getLongExtra(Intents.EXTRA_TRACK_ID, -1);
         final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
@@ -1171,6 +1237,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private int handlePlayFromFolder(Intent intent) {
         goForegroundPreparing("Preparing…", "Loading folder");
+        radioRecorder.stop();
 
         final long folderId = intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
         if (folderId > 0) {
@@ -1411,6 +1478,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         final boolean first = beginShutdown();
         myLogI("shutdown(" + fromDestroy + ") first=" + first + " state=" + state.get());
 
+        radioRecorder.stop();
         stopAsyncWork();
         PlaybackUiBus.get().clear();
         progress.resetSession();
@@ -2309,6 +2377,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         String title = (pl != null) ? pl.getTitle() : null;
         myLogI("playStream " + playMode + " - title=[" + title + "] - url=[" + url + "]");
 
+        // Switching to a new stream (or leaving radio for a book/podcast) invalidates whatever
+        // was being recorded - stop it before swapping the engine.
+        radioRecorder.stop();
+
         if (playTimer != null) {
             // Always stop timer when starting a stream (Radio/Podcast) to pick up new sleep
             // settings
@@ -2332,7 +2404,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             playModeString = getString(R.string.podcasts);
         } else if (Var.PLAY_MODE_RADIO.equals(playMode)) {
             playModeString = getString(R.string.radio);
-            fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
+            fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen, radioRecorder);
+            main.post(radioMiniTickRunnable);
         } else {
             myToastEE(null, "unknown playMode " + playMode);
             return;

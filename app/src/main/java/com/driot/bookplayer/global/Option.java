@@ -117,7 +117,8 @@ public class Option {
             GUTENBERG_DIRECT_URL,
     };
     public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
-    private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
+    private static final boolean DEFAULT_RADIO_RECORDING_ENABLED = true;
+    private static final boolean DEFAULT_RADIO_RECORDING_AS_MUSIC = true;
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
@@ -291,12 +292,32 @@ public class Option {
         prefs.edit().putBoolean("RADIO_REMOVE_DUBIOUS_STATIONS", bool).apply();
     }
 
-    public static boolean getRadioOpenFavoritesFirst() {
-        return prefs.getBoolean("RADIO_OPEN_FAVORITES_FIRST", DEFAULT_RADIO_OPEN_FAVORITES_FIRST);
+    public static final int RADIO_LANDING_SEARCH = 0;
+    public static final int RADIO_LANDING_FAVORITES = 1;
+    public static final int RADIO_LANDING_HISTORY = 2;
+
+    public static int getRadioLandingScreen() {
+        return prefs.getInt("RADIO_LANDING_SCREEN", RADIO_LANDING_SEARCH);
     }
 
-    public static void setRadioOpenFavoritesFirst(boolean bool) {
-        prefs.edit().putBoolean("RADIO_OPEN_FAVORITES_FIRST", bool).apply();
+    public static void setRadioLandingScreen(int value) {
+        prefs.edit().putInt("RADIO_LANDING_SCREEN", value).apply();
+    }
+
+    public static boolean getRadioRecordingEnabled() {
+        return prefs.getBoolean("RADIO_RECORDING_ENABLED", DEFAULT_RADIO_RECORDING_ENABLED);
+    }
+
+    public static void setRadioRecordingEnabled(boolean bool) {
+        prefs.edit().putBoolean("RADIO_RECORDING_ENABLED", bool).apply();
+    }
+
+    public static boolean getRadioRecordingAsMusic() {
+        return prefs.getBoolean("RADIO_RECORDING_AS_MUSIC", DEFAULT_RADIO_RECORDING_AS_MUSIC);
+    }
+
+    public static void setRadioRecordingAsMusic(boolean bool) {
+        prefs.edit().putBoolean("RADIO_RECORDING_AS_MUSIC", bool).apply();
     }
 
     /////////////////// GUTENBERG ///////////////////

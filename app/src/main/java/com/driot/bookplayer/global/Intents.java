@@ -10,6 +10,7 @@ public class Intents {
 
     public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID"; // used in deeplink
     public static final String EXTRA_OPEN_FROM_TRACK_ID = "EXTRA_OPEN_FROM_TRACK_ID";
+    public static final String EXTRA_START_IN_HISTORY = "EXTRA_START_IN_HISTORY";
 
     public static final String EXTRA_CALLER = "EXTRA_CALLER";
     public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";
@@ -66,6 +67,13 @@ public class Intents {
     public static final String EXTRA_CUSTOM_SLEEP_MINUTES = "EXTRA_CUSTOM_SLEEP_MINUTES";
     public static final String CMD_SET_SPEED = "CMD_SET_SPEED";
     public static final String EXTRA_SPEED = "EXTRA_SPEED";
+
+    public static final String CMD_RADIO_RECORD_TOGGLE = "CMD_RADIO_RECORD_TOGGLE";
+    public static final String EXTRA_RADIO_RECORDING_ACTIVE = "EXTRA_RADIO_RECORDING_ACTIVE";
+    public static final String EXTRA_RADIO_RECORDING_AVAILABLE = "EXTRA_RADIO_RECORDING_AVAILABLE";
+    public static final String EXTRA_RADIO_RECORDING_ELAPSED_MS = "EXTRA_RADIO_RECORDING_ELAPSED_MS";
+    public static final String EXTRA_RADIO_RECORDING_BYTES = "EXTRA_RADIO_RECORDING_BYTES";
+    public static final String EXTRA_RADIO_BUFFERED_MS = "EXTRA_RADIO_BUFFERED_MS";
 
     public static final String CMD_TTS_SET_START = "CMD_TTS_SET_START";
     public static final String EXTRA_TTS_START_OFFSET = "EXTRA_TTS_START_OFFSET";

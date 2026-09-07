@@ -658,6 +658,19 @@
     <string name="MakeMusicTypeSubtitle">"Replaces the forward/backward buttons with next/previous track while playing."</string>
     <string name="next_track">Next</string>
     <string name="previous_track">Previous</string>
+
+    <string name="Recording">Recording</string>
+    <string name="option_radio_recording_enabled">Allow radio recording</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"Shows a record button on the radio mini player. Turn off to hide it."</i></string>
+    <string name="option_radio_recording_as_music">Save recordings as Music type</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"New recordings get the Music book type (next/previous track buttons instead of forward/backward). Turn off to save them as regular audiobooks instead."</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">Recording isn\'t available for this station.</string>
+    <string name="radio_recording_no_live_stream">Couldn\'t find the live station for this recording.</string>
+    <string name="radio_recording_saved">Recording saved: %1$s (%2$s)</string>
+    <string name="radio_recording_failed">Recording failed.</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">Buffer: %1$s</string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>
@@ -1131,8 +1144,8 @@
     <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
     <string name="option_radio_remove_dubious">Remove dubious stations</string>
     <string name="option_radio_remove_dubious_subtitle">Some stations were incorrectly added to every country or tag; hide them from results.</string>
-    <string name="option_radio_open_favorites_first">Open favorites first</string>
-    <string name="option_radio_open_favorites_first_subtitle">When you tap Radio in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more stations.</string>
+    <string name="option_radio_landing_screen">When you tap Radio in the bottom bar, open:</string>
+    <string name="option_radio_landing_screen_subtitle">Press Back to reach the other radio screens from there.</string>
     <string name="option_radio_sleep_copy_subtitle">If checked, the auto-sleep value will be the same as in the general settings.\nIf unchecked, you can specify a custom value for radio. Since there is no progress saving here, it doesn’t matter if you fall asleep and you could set a huge value.</string>
     <string name="no_results_found">no results found</string>
     <string name="getting_first_results_from">Getting first results from</string>

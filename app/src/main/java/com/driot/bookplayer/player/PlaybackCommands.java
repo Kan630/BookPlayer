@@ -172,6 +172,16 @@ public final class PlaybackCommands {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
+    public static void toggleRadioRecording(Context ctx) {
+        MediaControllerCompat mc = mcOrNull(ctx);
+        FirebaseAnalyticsHelper.tellAnalyticsPlayAction("radio_record_toggle", "");
+        if (mc != null) {
+            mc.getTransportControls().sendCustomAction(Intents.CMD_RADIO_RECORD_TOGGLE, null);
+            return;
+        }
+        myLogE("toggleRadioRecording: MediaControllerCompat is null");
+    }
+
     public static void updateSleepTimer(Context ctx, int minutes) {
         MediaControllerCompat mc = mcOrNull(ctx);
         if (mc != null) {

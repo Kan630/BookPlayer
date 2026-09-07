@@ -4,10 +4,12 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
+import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
@@ -62,6 +64,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     private final long gen;
 
     private final Context appCtx;
+    @Nullable private final RadioRecorder radioRecorder;
     private ExoPlayer player;
 
     private volatile boolean prepared  = false;
@@ -77,11 +80,13 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
 
     public ExoRadioPlayerEngine(@NonNull Context ctx,
                                 @NonNull EngineListener engineListener,
-                                long generationToken) {
+                                long generationToken,
+                                @Nullable RadioRecorder radioRecorder) {
         super(ExoRadioPlayerEngine.class);
         this.appCtx   = ctx.getApplicationContext();
         this.listener = engineListener;
         this.gen      = generationToken;
+        this.radioRecorder = radioRecorder;
         initPlayer();
     }
 
@@ -129,13 +134,21 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         OkHttpDataSource.Factory httpDataSourceFactory =
                 new OkHttpDataSource.Factory(okHttpClient);
 
+        // Wrap so radio recording (when active) taps the exact bytes ExoPlayer itself reads for
+        // playback, instead of opening a second, independent HTTP connection. This is what makes
+        // a recording byte-for-byte what's actually playing: no separate connection means no
+        // separate server-side "burst", no drift between what you hear and what gets saved.
+        DataSource.Factory tappedDataSourceFactory = (radioRecorder != null)
+                ? new RecordingTapDataSource.Factory(httpDataSourceFactory, radioRecorder)
+                : httpDataSourceFactory;
+
         // --- DefaultMediaSourceFactory auto-selects the right parser ---
         // HLS  → url ends in .m3u8  (or Content-Type: application/vnd.apple.mpegurl)
         // DASH → url ends in .mpd
         // Progressive → MP3, AAC, OGG, FLAC, …
         // No need to set a MimeType on the MediaItem; let ExoPlayer sniff.
         MediaSource.Factory mediaSourceFactory =
-                new DefaultMediaSourceFactory(httpDataSourceFactory);
+                new DefaultMediaSourceFactory(tappedDataSourceFactory);
 
         player = new ExoPlayer.Builder(appCtx)
                 .setMediaSourceFactory(mediaSourceFactory)
@@ -244,7 +257,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         currentItem = builder.build();
     }
 
-    private static boolean isHlsUrl(String url) {
+    public static boolean isHlsUrl(String url) {
         // Direct .m3u8 URL
         if (url.contains(".m3u8")) return true;
         // Proxy-wrapped: the real URL is in a query param — check its value too
@@ -319,6 +332,18 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
 
     @Override public boolean isPlaying() { return player != null && player.isPlaying(); }
     @Override public boolean isReady()   { return prepared && !preparing; }
+
+    /** How much audio ExoPlayer already has downloaded ahead of the current playback position -
+     * useful as a stream-health indicator (0 if unprepared/unknown). */
+    public long getBufferedDurationMs() {
+        if (!prepared || player == null)
+            return 0;
+        try {
+            return Math.max(0, player.getBufferedPosition() - player.getCurrentPosition());
+        } catch (Throwable e) {
+            return 0;
+        }
+    }
 
     @Override
     public long getCurrentPosition() {

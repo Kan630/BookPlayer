@@ -138,28 +138,33 @@ public class NavHelper {
 
     /**
      * Starts the section for the first time (no saved state).
-     * When "open favorites first" is ON for radio/podcast, uses TaskStackBuilder to place
-     * the true root (GetRadioActivity / GetPodcastActivity) below the favorites screen,
-     * so the system back button navigates correctly:
-     *   PodcastFavoritesActivity → GetPodcastActivity → MainActivity
-     * When OFF, starts the root activity directly.
+     * Radio has a 3-way landing preference (Search/Favorites/History, Option.getRadioLandingScreen()).
+     * Podcast still has the older boolean "open favorites first". Either way, when landing on
+     * favorites/history, uses TaskStackBuilder to place the true root (GetRadioActivity /
+     * GetPodcastActivity) below it, so the system back button navigates correctly:
+     *   RadioFavoritesActivity → GetRadioActivity → MainActivity
+     * When landing on search, starts the root activity directly.
      */
     private void startFreshSectionRoot(Activity activity, int itemId) {
-        boolean favFirst = (itemId == R.id.nav_radio && Option.getRadioOpenFavoritesFirst())
-                        || (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst());
-
-        if (favFirst) {
-            myLogDD("start fresh => favorite first");
-            Intent favIntent = (itemId == R.id.nav_radio)
-                    ? RadioHelper.getFavoritesSectionIntent(activity)
-                    : PodcastHelper.getFavoritesSectionIntent(activity);
-            if (favIntent != null) {
-                TaskStackBuilder.create(activity)
-                        .addNextIntent(favIntent)
-                        .startActivities();
+        Intent favIntent = null;
+        if (itemId == R.id.nav_radio) {
+            int landing = Option.getRadioLandingScreen();
+            if (landing == Option.RADIO_LANDING_FAVORITES) {
+                favIntent = RadioHelper.getFavoritesSectionIntent(activity);
+            } else if (landing == Option.RADIO_LANDING_HISTORY) {
+                favIntent = RadioHelper.getHistorySectionIntent(activity);
             }
+        } else if (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst()) {
+            favIntent = PodcastHelper.getFavoritesSectionIntent(activity);
+        }
+
+        if (favIntent != null) {
+            myLogDD("start fresh => favorite/history first");
+            TaskStackBuilder.create(activity)
+                    .addNextIntent(favIntent)
+                    .startActivities();
         } else {
-            myLogDD("start fresh => no favorite first option");
+            myLogDD("start fresh => search/root screen");
             Intent rootIntent = buildSectionRootIntent(activity, itemId);
             if (rootIntent != null) {
                 rootIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
