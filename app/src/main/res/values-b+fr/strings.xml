@@ -997,8 +997,6 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_radio_remove_duplicates_subtitle">Si le nom de la station apparaît plus de 3 fois, les suivantes ne sont pas affichées afin d\'éviter d\'encombrer la liste avec des doublons.</string>
     <string name="option_radio_remove_dubious">Supprimer les stations douteuses</string>
     <string name="option_radio_remove_dubious_subtitle">Certaines stations ont été incorrectement ajoutées à chaque pays ou tag ; les masquer des résultats.</string>
-    <string name="option_radio_open_favorites_first">Ouvrir les favoris en premier</string>
-    <string name="option_radio_open_favorites_first_subtitle">Lorsque vous appuyez sur Radio dans la barre du bas, L\'écran Favoris s\'ouvre en premier. Appuyez sur Retour pour accéder à la recherche pour découvrir d\'autres stations de radio.</string>
     <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l\'arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n\'est pas grave si vous vous endormez !</string>
     <string name="no_results_found">aucun résultat</string>
     <string name="getting_first_results_from">Premiers résultats depuis</string>

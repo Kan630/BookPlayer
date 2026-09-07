@@ -986,8 +986,6 @@
     <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
     <string name="option_radio_remove_dubious">إزالة المحطات المشكوك فيها</string>
     <string name="option_radio_remove_dubious_subtitle">تمت إضافة بعض المحطات بالخطأ إلى كل بلد أو وسم؛ إخفاؤها من النتائج.</string>
-    <string name="option_radio_open_favorites_first">فتح المفضلة أولاً</string>
-    <string name="option_radio_open_favorites_first_subtitle">عند النقر على الراديو في الشريط السفلي، افتح شاشة المفضلة أولاً. اضغط رجوع للوصول إلى البحث واستعراض المزيد من المحطات.</string>
     <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
     <string name="no_results_found">لا توجد نتائج</string>
     <string name="getting_first_results_from">أول النتائج من</string>

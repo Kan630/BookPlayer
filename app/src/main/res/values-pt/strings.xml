@@ -991,8 +991,6 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_radio_remove_duplicates_subtitle">Se o nome da estação aparecer mais de 3 vezes, as próximas não são exibidas para evitar poluir a lista com duplicados.</string>
     <string name="option_radio_remove_dubious">Remover estações duvidosas</string>
     <string name="option_radio_remove_dubious_subtitle">Algumas estações foram incorretamente adicionadas a cada país ou etiqueta; ocultá-las dos resultados.</string>
-    <string name="option_radio_open_favorites_first">Abrir favoritos primeiro</string>
-    <string name="option_radio_open_favorites_first_subtitle">Quando tocar em Rádio na barra inferior, abrir primeiro o ecrã Favoritos. Toque em Voltar para ir à pesquisa e explorar mais estações.</string>
     <string name="option_radio_sleep_copy_subtitle">Aqui você pode definir um valor personalizado para o auto-sleep do rádio. Como não salvamos o progresso do rádio, não tem problema se você dormir!</string>
     <string name="no_results_found">nenhum resultado</string>
     <string name="getting_first_results_from">Primeiros resultados de</string>

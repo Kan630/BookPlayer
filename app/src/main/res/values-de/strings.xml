@@ -993,8 +993,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_radio_remove_duplicates_subtitle">Wenn der Sendername mehr als 3‑mal vorkommt, werden weitere Treffer ausgeblendet, um die Liste nicht mit Duplikaten zu überladen.</string>
     <string name="option_radio_remove_dubious">Fragwürdige Sender entfernen</string>
     <string name="option_radio_remove_dubious_subtitle">Einige Sender wurden fälschlich jedem Land oder Tag hinzugefügt; sie aus den Ergebnissen ausblenden.</string>
-    <string name="option_radio_open_favorites_first">Zuerst Favoriten öffnen</string>
-    <string name="option_radio_open_favorites_first_subtitle">Beim Tippen auf Radio in der unteren Leiste zuerst den Favoriten-Bildschirm öffnen. Zurück tippen, um zur Suche zu gelangen und weitere Sender zu durchsuchen.</string>
     <string name="option_radio_sleep_copy_subtitle">Hier kannst du einen eigenen Wert für das Radio-Autosleep angeben. Da wir beim Radio keinen Fortschritt speichern, ist es egal, wenn du einschläfst!</string>
     <string name="no_results_found">keine Ergebnisse</string>
     <string name="getting_first_results_from">Erste Ergebnisse von</string>
