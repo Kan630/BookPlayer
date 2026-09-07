@@ -41,6 +41,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
@@ -52,6 +53,7 @@ import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
+import com.driot.bookplayer.views.SettingSwitchRow;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
@@ -79,6 +81,9 @@ public class ModifyFolderActivity extends BaseActivity {
     private Button bDelete, bReset, bExport, bShare;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch, bResetToOriginal;
     private LinearLayout ll_zikfile_resolve_error;
+    private ImageView ivBookType;
+    private TextView tvBookType;
+    private SettingSwitchRow rowMusicType;
 
     EditText etIntroCut;
     EditText etEndCut;
@@ -159,6 +164,11 @@ public class ModifyFolderActivity extends BaseActivity {
             myLogI("user clicks - storage icon");
             openFolderInFileExplorer(folder.getUri());
         });
+
+        ivBookType = findViewById(R.id.ivBookType);
+        tvBookType = findViewById(R.id.tvBookType);
+        rowMusicType = findViewById(R.id.rowMusicType);
+        setupBookTypeSection();
 
         checkZikFilesReadable();
 
@@ -272,6 +282,32 @@ public class ModifyFolderActivity extends BaseActivity {
             public void afterTextChanged(Editable s) {
                 updateTitleBorder(s.toString().trim());
             }
+        });
+    }
+
+    private void setupBookTypeSection() {
+        String sourceLocation = folder.getSourceLocation();
+        String playType = folder.playType;
+
+        ivBookType.setImageResource(IconHelper.getBookTypeIcon(sourceLocation, playType));
+        tvBookType.setText(IconHelper.getBookTypeLabel(sourceLocation, playType));
+
+        if (IconHelper.isSpecificBookType(sourceLocation, playType)) {
+            // Type was determined automatically at import time (podcast, LibriVox, TTS) - not
+            // user-togglable.
+            rowMusicType.setVisibility(View.GONE);
+            return;
+        }
+
+        rowMusicType.setVisibility(View.VISIBLE);
+        rowMusicType.setChecked(Var.PLAY_TYPE_MUSIC.equals(playType));
+        rowMusicType.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            myLogI("--- USER TOGGLES music type --- isChecked=" + isChecked);
+            folder.playType = isChecked ? Var.PLAY_TYPE_MUSIC : Var.PLAY_TYPE_AUDIO;
+            tvBookType.setText(IconHelper.getBookTypeLabel(sourceLocation, folder.playType));
+            ivBookType.setImageResource(IconHelper.getBookTypeIcon(sourceLocation, folder.playType));
+            AppDatabase.databaseWriteExecutor.execute(() ->
+                    AppDatabase.getDatabase(this).folderDao().updatePlayType(folder.getId(), folder.playType));
         });
     }
 

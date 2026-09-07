@@ -648,6 +648,16 @@
     <string name="AskRename_popupTitle">Confirm Rename</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
     <string name="EndCutText"><i>"Stops playback a few seconds before each chapter ends."</i></string>
+    <string name="BookType">"Book Type"</string>
+    <string name="book_type_podcast">Podcast</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">Text-to-speech</string>
+    <string name="book_type_music">Music</string>
+    <string name="book_type_audiobook">Audiobook</string>
+    <string name="MakeMusicType">Music</string>
+    <string name="MakeMusicTypeSubtitle">"Replaces the forward/backward buttons with next/previous track while playing."</string>
+    <string name="next_track">Next</string>
+    <string name="previous_track">Previous</string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>

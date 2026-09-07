@@ -95,6 +95,9 @@ public interface FolderDao {
     @Query("UPDATE Folder SET image = :imagePath WHERE id = :id")
     void updateImage(long id, String imagePath);
 
+    @Query("UPDATE Folder SET playType = :playType WHERE id = :id")
+    void updatePlayType(long id, String playType);
+
     @Query("SELECT COUNT(*) FROM Folder WHERE hash = :hash")
     boolean hashExists(String hash);
 

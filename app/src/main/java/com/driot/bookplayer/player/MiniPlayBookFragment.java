@@ -16,7 +16,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
 
@@ -26,6 +28,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
     private TextView tvTitle, tvSubTitle, tvMiniTime;
     private Slider sbMiniSeek;
     private ImageButton ibPrev, ibPlayPause, ibNext, ibClose;
+    private Boolean lastIsMusic = null;
 
     @Nullable
     @Override
@@ -58,6 +61,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 return;
             UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek, null,
                     false);
+            updateSkipIcons();
         });
 
         v.setOnClickListener(_x -> {
@@ -91,6 +95,20 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 getActivity().finish();
             }
         });
+    }
+
+    /** Swaps the prev/next mini-player icons between seek (fast rewind/forward) and actual
+     * track skip, matching the currently loaded folder's type. Cheap no-op once per unchanged
+     * value since this runs on every playback state tick. */
+    private void updateSkipIcons() {
+        PlayList pl = PlayList.getInstance();
+        Folder f = (pl != null) ? pl.getFolder() : null;
+        boolean isMusic = f != null && Var.PLAY_TYPE_MUSIC.equals(f.playType);
+        if (lastIsMusic != null && lastIsMusic == isMusic)
+            return;
+        lastIsMusic = isMusic;
+        ibPrev.setImageResource(isMusic ? R.drawable.ic_skip_previous_24px : R.drawable.ic_media_fast_rewind_24);
+        ibNext.setImageResource(isMusic ? R.drawable.ic_skip_next_24px : R.drawable.ic_media_fast_forward_24);
     }
 
     @Override

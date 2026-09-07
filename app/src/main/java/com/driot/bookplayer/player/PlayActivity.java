@@ -127,6 +127,7 @@ public class PlayActivity extends BaseActivity {
     private long resumeScreensaverGraceUntilRealtime = 0L;
     private boolean isTextBook = false;
     private boolean isPodcast = false;
+    private boolean isMusic = false;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -180,6 +181,7 @@ public class PlayActivity extends BaseActivity {
         }
         isTextBook = Var.PLAY_TYPE_TEXT.equalsIgnoreCase(folder.playType);
         isPodcast = Var.SOURCE_LOCATION_PODCAST.equalsIgnoreCase(folder.getSourceLocation());
+        isMusic = Var.PLAY_TYPE_MUSIC.equalsIgnoreCase(folder.playType);
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
@@ -241,11 +243,20 @@ public class PlayActivity extends BaseActivity {
         }
 
         // BUTTONS
-        String nbSec = String.valueOf(Option.get_ForwardSeconds());
-        String bRewindText = "-" + nbSec + " " + getString(R.string.sec);
-        bRewind.setText(bRewindText);
-        String bForwardText = "-" + nbSec + " " + getString(R.string.sec);
-        bForward.setText(bForwardText);
+        if (isMusic) {
+            bRewind.setText(R.string.previous_track);
+            bRewind.setIconResource(R.drawable.ic_skip_previous_24px);
+            bRewind.setContentDescription(getString(R.string.previous_track));
+            bForward.setText(R.string.next_track);
+            bForward.setIconResource(R.drawable.ic_skip_next_24px);
+            bForward.setContentDescription(getString(R.string.next_track));
+        } else {
+            String nbSec = String.valueOf(Option.get_ForwardSeconds());
+            String bRewindText = "-" + nbSec + " " + getString(R.string.sec);
+            bRewind.setText(bRewindText);
+            String bForwardText = "-" + nbSec + " " + getString(R.string.sec);
+            bForward.setText(bForwardText);
+        }
         bPlayPause.setOnClickListener(v -> {
             myLogI("--- user press PLAY/PAUSE ---");
             vm.playPause();

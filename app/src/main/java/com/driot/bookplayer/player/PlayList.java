@@ -243,6 +243,20 @@ public final class PlayList {
         }
     }
 
+    public ZikFile previousTrack() {
+        synchronized (lock) {
+            if (index > 0) {
+                index--;
+                saveToStorage();
+                myLogD("previousTrack() index=" + getNumZikFile());
+                return zikFilesList.get(index);
+            } else {
+                myLogW("previousTrack() return null");
+                return null;
+            }
+        }
+    }
+
     public boolean isLastTrack() {
         synchronized (lock) {
             return !zikFilesList.isEmpty() && index == zikFilesList.size() - 1;

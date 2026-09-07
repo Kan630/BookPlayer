@@ -342,7 +342,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public void onFastForward() {
             myLog("MediaSessionCompat.Callback - onFastForward()");
-            forwardAudio();
+            if (isCurrentFolderMusic()) {
+                nextTrack();
+            } else {
+                forwardAudio();
+            }
             // super.onFastForward();
         }
 
@@ -355,7 +359,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public void onRewind() {
             myLog("MediaSessionCompat.Callback - onRewind()");
-            backwardAudio();
+            if (isCurrentFolderMusic()) {
+                previousTrack();
+            } else {
+                backwardAudio();
+            }
             // super.onRewind();
         }
 
@@ -368,15 +376,23 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         @Override
         public void onSkipToNext() {
-            forwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToNext()");
+            if (isCurrentFolderMusic()) {
+                nextTrack();
+            } else {
+                forwardAudio();
+            }
             // super.onSkipToNext();
         }
 
         @Override
         public void onSkipToPrevious() {
-            backwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToPrevious()");
+            if (isCurrentFolderMusic()) {
+                previousTrack();
+            } else {
+                backwardAudio();
+            }
             // super.onSkipToPrevious();
         }
 
@@ -847,6 +863,54 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(null, "error loading next track");
             }
 
+        });
+    }
+
+    /** True when the currently loaded folder is a "Music" type folder - in that case the
+     * forward/backward/skip transport controls jump to the actual previous/next track instead of
+     * seeking a few seconds within the current one. */
+    private boolean isCurrentFolderMusic() {
+        PlayList pl = PlayList.getInstance();
+        Folder f = (pl != null) ? pl.getFolder() : null;
+        return f != null && Var.PLAY_TYPE_MUSIC.equals(f.playType);
+    }
+
+    private void previousTrack() {
+        myLog("Previous track");
+
+        PlayList pl = PlayList.getInstance();
+        if (pl == null) {
+            alertError("previousTrack", "previousTrack : error getting playlist");
+            loadFileKO(null);
+            return;
+        }
+        final ZikFile prevZikFile = pl.previousTrack();
+        if (prevZikFile == null) {
+            myLogW("previousTrack : already at first track");
+            return;
+        }
+
+        if (engine != null) {
+            try {
+                engine.stop();
+                engine.reset();
+            } catch (Exception ignored) {
+            }
+        }
+
+        myLog("loading previous track : n°" + PlayList.getInstance().getNumSlashTotal());
+
+        if (Option.getBeepChapter())
+            playBeep("1beep");
+
+        progress.resetSession();
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            if (loadAndPlayTrack(prevZikFile)) {
+                alertNewTrack();
+            } else {
+                myLogEE(null, "error loading previous track");
+            }
         });
     }
 

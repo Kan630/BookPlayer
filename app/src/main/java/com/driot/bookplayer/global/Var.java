@@ -84,6 +84,7 @@ public class Var {
 
         public static final String PLAY_TYPE_TEXT = "text";
         public static final String PLAY_TYPE_AUDIO = "audio";
+        public static final String PLAY_TYPE_MUSIC = "music";
 
         public static final String PLAY_MODE_BOOK = "book";
         public static final String PLAY_MODE_TTS = "tts";

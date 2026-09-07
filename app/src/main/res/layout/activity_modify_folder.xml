@@ -302,6 +302,53 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/BookType"
+                android:textSize="20sp"
+                android:textStyle="normal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:id="@+id/ivBookType"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/tvBookType"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.driot.bookplayer.views.SettingSwitchRow
+                android:id="@+id/rowMusicType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/rounded_corner_surface_variant"
+                app:title="@string/MakeMusicType"
+                app:subtitle="@string/MakeMusicTypeSubtitle" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar"
+                android:layout_marginTop="20dp" />
+
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
