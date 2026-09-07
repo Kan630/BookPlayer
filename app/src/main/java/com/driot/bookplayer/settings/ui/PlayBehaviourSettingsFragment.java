@@ -320,6 +320,12 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkStopAudioIfUserClosesApp
                 .setOnCheckedChangeListener((b, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
 
+        LinearLayout llAlwaysOpenTrackList = root.findViewById(R.id.ll_always_open_track_list);
+        MaterialCheckBox chkAlwaysOpenTrackList = root.findViewById(R.id.chk_always_open_track_list);
+        chkAlwaysOpenTrackList.setChecked(Option.getAlwaysOpenTrackList());
+        llAlwaysOpenTrackList.setOnClickListener(v -> chkAlwaysOpenTrackList.toggle());
+        chkAlwaysOpenTrackList.setOnCheckedChangeListener((b, isChecked) -> Option.setAlwaysOpenTrackList(isChecked));
+
         llOpenPlayActivity = root.findViewById(R.id.ll_open_play_activity);
         chkOpenPlayActivity = root.findViewById(R.id.chk_open_play_activity);
         chkOpenPlayActivity.setChecked(Option.getOpenPlayActivity());

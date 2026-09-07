@@ -126,7 +126,6 @@
             style="@style/OptionTitle"
             android:text="@string/Track_View" />
 
-        <TextView style="@style/betatest"/>
         <LinearLayout
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
             android:id="@+id/ll_use_heatmap_for_tracks_activity"
@@ -143,6 +142,22 @@
         <TextView
             style="@style/OptionExplainText"
             android:text="@string/option_use_heatmap_for_tracks_activity_subtitle"
+            android:layout_marginBottom="5dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/ll_always_open_track_list"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_always_open_track_list"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_always_open_track_list" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_always_open_track_list_subtitle"
             android:layout_marginBottom="5dp"
             />
 

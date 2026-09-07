@@ -42,6 +42,7 @@ public class Option {
     private static final boolean DEFAULT_START_AT_ZERO_NEXT_TRACK = true;
     private static final boolean DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP = true;
     private static final boolean DEFAULT_OPEN_PLAY_ACTIVITY = true;
+    private static final boolean DEFAULT_ALWAYS_OPEN_TRACK_LIST = false;
     private static final boolean DEFAULT_RELOAD_PLAYLIST_FROM_STORAGE = true;
     private static final String DEFAULT_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_LEGACY;
     private static final String DEFAULT_THEME_KEY = "purple"; // needs a string as resource ID are not stables between
@@ -613,6 +614,14 @@ public class Option {
 
     public static boolean getOpenPlayActivity() {
         return prefs.getBoolean("OPEN_PLAY_ACTIVITY", DEFAULT_OPEN_PLAY_ACTIVITY);
+    }
+
+    public static void setAlwaysOpenTrackList(boolean bool) {
+        prefs.edit().putBoolean("ALWAYS_OPEN_TRACK_LIST", bool).apply();
+    }
+
+    public static boolean getAlwaysOpenTrackList() {
+        return prefs.getBoolean("ALWAYS_OPEN_TRACK_LIST", DEFAULT_ALWAYS_OPEN_TRACK_LIST);
     }
 
     public static void setIfPlayListNullInLoadFileThenLoadFromStorage(boolean bool) {

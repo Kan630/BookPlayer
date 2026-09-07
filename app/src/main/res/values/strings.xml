@@ -507,6 +507,8 @@
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
     <string name="option_network_preference_subtext">An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming.</string>
     <string name="option_automotive_let_car_autoplay">Auto-Play on Connect</string>
+    <string name="option_always_open_track_list">Open track list even for single-track books</string>
+    <string name="option_always_open_track_list_subtitle"><i>"Off (default): tapping a book with only one track starts playing it directly. On: always opens the track list first, like books with several tracks."</i></string>
     <string name="option_open_play_activity">Open [Player View] when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>

@@ -73,7 +73,7 @@ public class StartPlayHelper {
                                 || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))) {
                     PodcastHelper.startPlayOpenPodcast(clickedFolder, context);
                 } else {
-                    if (zikFilesList.size() > 1) {
+                    if (zikFilesList.size() > 1 || Option.getAlwaysOpenTrackList()) {
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             context.startActivity(new Intent(context, ZikFileActivity.class)
                                     .putExtra(Intents.EXTRA_FOLDER, clickedFolder));

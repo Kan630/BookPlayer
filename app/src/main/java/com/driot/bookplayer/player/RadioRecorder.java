@@ -104,8 +104,9 @@ public class RadioRecorder extends LoggerHelper {
     }
 
     /** Called by {@link RecordingTapDataSource} - on ExoPlayer's own loading thread, not the main
-     * thread - with bytes it just read for playback. Cheap no-op when not recording. */
-    void feed(byte[] buffer, int offset, int length) {
+     * thread - with bytes it just read for playback (already stripped of any interleaved ICY
+     * metadata). Cheap no-op when not recording. */
+    void feed(int instanceId, byte[] buffer, int offset, int length) {
         if (!active)
             return;
         synchronized (lock) {
