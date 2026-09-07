@@ -672,7 +672,7 @@
     <string name="radio_recording_saved">Recording saved: %1$s (%2$s)</string>
     <string name="radio_recording_failed">Recording failed.</string>
     <string name="radio_recording_info">%1$s · %2$s</string>
-    <string name="radio_buffer_info">Buffer: %1$s</string>
+    <string name="radio_buffer_info">Buffer\n%1$s</string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>

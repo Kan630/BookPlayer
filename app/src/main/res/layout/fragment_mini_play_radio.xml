@@ -82,6 +82,9 @@
             android:layout_marginEnd="4dp"
             android:textSize="10sp"
             android:textColor="?attr/colorOnPrimary"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:lineSpacingExtra="-2sp"
             android:visibility="gone" />
 
         <ImageView

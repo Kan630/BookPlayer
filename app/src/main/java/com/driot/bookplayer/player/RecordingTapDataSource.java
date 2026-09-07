@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * at that raw layer, so without de-interleaving it here too, every recording would have those
  * blocks (as little as one stray length byte, or a real title string) spliced into the audio,
  * corrupting frame alignment for everything downstream of each insertion. */
+@androidx.annotation.OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
 final class RecordingTapDataSource implements DataSource {
 
     private static final AtomicInteger instanceCounter = new AtomicInteger(0);
@@ -118,18 +119,20 @@ final class RecordingTapDataSource implements DataSource {
                 // isRecording()) was the bug: the cycle position would start from scratch at
                 // whatever point recording happened to begin, out of sync with where the server
                 // really was - corrupting the very first metadata boundary the recording crossed.
-                processIcyInterleaving(buffer, offset, n, radioRecorder.isRecording());
-            } else if (radioRecorder.isRecording()) {
-                radioRecorder.feed(instanceId, buffer, offset, n);
+                processIcyInterleaving(buffer, offset, n);
+            } else {
+                // radioRecorder.observe() itself decides whether to write to an active recording
+                // or just top up the rewind buffer - always call it, same reasoning as above.
+                radioRecorder.observe(instanceId, buffer, offset, n);
             }
         }
         return n;
     }
 
-    /** Walks [offset, offset+length) tracking the ICY audio/metadata cycle, feeding each
-     * audio-only sub-range to the recorder (only when {@code recording} is true) and always
-     * advancing the cycle position regardless. */
-    private void processIcyInterleaving(byte[] buffer, int offset, int length, boolean recording) {
+    /** Walks [offset, offset+length) tracking the ICY audio/metadata cycle, handing each
+     * audio-only sub-range to the recorder (which itself decides whether to write it to an active
+     * recording or just keep it in the rewind buffer) and always advancing the cycle position. */
+    private void processIcyInterleaving(byte[] buffer, int offset, int length) {
         int pos = offset;
         int end = offset + length;
         while (pos < end) {
@@ -141,9 +144,7 @@ final class RecordingTapDataSource implements DataSource {
             }
             if (audioBytesUntilMarker > 0) {
                 int chunk = (int) Math.min(audioBytesUntilMarker, end - pos);
-                if (recording) {
-                    radioRecorder.feed(instanceId, buffer, pos, chunk);
-                }
+                radioRecorder.observe(instanceId, buffer, pos, chunk);
                 pos += chunk;
                 audioBytesUntilMarker -= chunk;
                 continue;

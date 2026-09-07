@@ -151,8 +151,14 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         ivRecordDot.setVisibility(recordingFeatureEnabled ? View.VISIBLE : View.GONE);
         if (recordingFeatureEnabled) {
             ivRecordDot.setAlpha((available || active) ? 1f : 0.4f);
-            int dotColor = ContextCompat.getColor(requireContext(), active ? R.color.red_500 : R.color.gray_500);
-            ivRecordDot.setColorFilter(dotColor, android.graphics.PorterDuff.Mode.SRC_IN);
+            if (active) {
+                int dotColor = ContextCompat.getColor(requireContext(), R.color.red_500);
+                ivRecordDot.setColorFilter(dotColor, android.graphics.PorterDuff.Mode.SRC_IN);
+            } else {
+                // Let the drawable's own ?attr/colorControlNormal tint show, same as the other
+                // mini-player buttons (play/pause, close), instead of forcing a gray override.
+                ivRecordDot.clearColorFilter();
+            }
         }
 
         if (active) {

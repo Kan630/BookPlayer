@@ -918,9 +918,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void handleRadioRecordToggle() {
+        long bufferedMs = (engine instanceof ExoRadioPlayerEngine)
+                ? ((ExoRadioPlayerEngine) engine).getBufferedDurationMs()
+                : 0;
         if (radioRecorder.isRecording()) {
-            myLogI("--- USER TOGGLES radio recording OFF ---");
-            radioRecorder.stop();
+            myLogI("--- USER TOGGLES radio recording OFF --- bufferedMs=" + bufferedMs);
+            radioRecorder.stop(bufferedMs);
         } else {
             PlayList pl = PlayList.getInstance();
             if (pl == null || !Var.PLAY_MODE_RADIO.equals(pl.getPlayMode())) {
@@ -931,8 +934,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String stationName = pl.getTitle();
             String coverUrl = pl.getImageUrl();
             long stationId = pl.getTrackId();
-            myLogI("--- USER TOGGLES radio recording ON --- station=" + stationName);
-            boolean started = radioRecorder.start(url, stationName, coverUrl, stationId);
+            myLogI("--- USER TOGGLES radio recording ON --- station=" + stationName + " bufferedMs=" + bufferedMs);
+            boolean started = radioRecorder.start(url, stationName, coverUrl, stationId, bufferedMs);
             if (!started) {
                 myToastE(getString(R.string.radio_recording_not_available));
             }
@@ -1203,7 +1206,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private int handlePlayFromTrack(Intent intent) {
         // Enter foreground *before* async work to satisfy the 5s rule
         goForegroundPreparing("Preparing…", "Loading selected track");
-        radioRecorder.stop();
+        radioRecorder.stop(0);
 
         final long trackId = intent.getLongExtra(Intents.EXTRA_TRACK_ID, -1);
         final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
@@ -1237,7 +1240,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private int handlePlayFromFolder(Intent intent) {
         goForegroundPreparing("Preparing…", "Loading folder");
-        radioRecorder.stop();
+        radioRecorder.stop(0);
 
         final long folderId = intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
         if (folderId > 0) {
@@ -1478,7 +1481,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         final boolean first = beginShutdown();
         myLogI("shutdown(" + fromDestroy + ") first=" + first + " state=" + state.get());
 
-        radioRecorder.stop();
+        radioRecorder.stop(0);
         stopAsyncWork();
         PlaybackUiBus.get().clear();
         progress.resetSession();
@@ -2379,7 +2382,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Switching to a new stream (or leaving radio for a book/podcast) invalidates whatever
         // was being recorded - stop it before swapping the engine.
-        radioRecorder.stop();
+        radioRecorder.stop(0);
 
         if (playTimer != null) {
             // Always stop timer when starting a stream (Radio/Podcast) to pick up new sleep
