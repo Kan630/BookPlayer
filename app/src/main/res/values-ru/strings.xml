@@ -65,6 +65,7 @@
     <string name="favorite">избранное</string>
     <string name="favorites">избранное</string>
     <string name="Favorites">Избранное</string>
+    <string name="favorites_slash_history">Избранное / История</string>
     <string name="File">файл</string>
     <string name="File_and_icon">📄 файл</string>
     <string name="flag">флаг</string> //means country flag

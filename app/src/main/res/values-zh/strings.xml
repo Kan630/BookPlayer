@@ -65,6 +65,7 @@
     <string name="favorite">收藏</string>
     <string name="favorites">收藏夹</string>
     <string name="Favorites">收藏</string>
+    <string name="favorites_slash_history">收藏 / 历史</string>
     <string name="File">文件</string>
     <string name="File_and_icon">📄 文件</string>
     <string name="flag">旗帜</string> //means country flag

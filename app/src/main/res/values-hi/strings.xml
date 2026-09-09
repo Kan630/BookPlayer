@@ -65,6 +65,7 @@
     <string name="favorite">पसंदीदा</string>
     <string name="favorites">पसंदीदा</string>
     <string name="Favorites">पसंदीदा</string>
+    <string name="favorites_slash_history">पसंदीदा / इतिहास</string>
     <string name="File">फ़ाइल</string>
     <string name="File_and_icon">📄 फ़ाइल</string>
     <string name="flag">फ़्लैग</string> //means country flag

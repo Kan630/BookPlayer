@@ -65,6 +65,7 @@
     <string name="favorite">favorito</string>
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
+    <string name="favorites_slash_history">Favoritos / Historial</string>
     <string name="File">Archivo</string>
     <string name="File_and_icon">📄 Archivo</string>
     <string name="flag">bandera</string> //means country flag
