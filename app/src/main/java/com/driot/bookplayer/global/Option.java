@@ -97,7 +97,7 @@ public class Option {
     public static final int DEFAULT_TTS_OVERLAY_TIMEOUT_SEC = 8;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_USE_HEATMAP_FOR_TRACKS_ACTIVITY = true;
-    private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
+    private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = true;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
