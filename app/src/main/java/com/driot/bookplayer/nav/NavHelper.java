@@ -138,8 +138,8 @@ public class NavHelper {
 
     /**
      * Starts the section for the first time (no saved state).
-     * Radio has a 3-way landing preference (Search/Favorites/History, Option.getRadioLandingScreen()).
-     * Podcast still has the older boolean "open favorites first". Either way, when landing on
+     * Both Radio and Podcast have a 3-way landing preference (Search/Favorites/History,
+     * Option.getRadioLandingScreen()/getPodcastLandingScreen()). When landing on
      * favorites/history, uses TaskStackBuilder to place the true root (GetRadioActivity /
      * GetPodcastActivity) below it, so the system back button navigates correctly:
      *   RadioFavoritesActivity → GetRadioActivity → MainActivity
@@ -154,8 +154,13 @@ public class NavHelper {
             } else if (landing == Option.RADIO_LANDING_HISTORY) {
                 favIntent = RadioHelper.getHistorySectionIntent(activity);
             }
-        } else if (itemId == R.id.nav_podcast && Option.getPodcastOpenFavoritesFirst()) {
-            favIntent = PodcastHelper.getFavoritesSectionIntent(activity);
+        } else if (itemId == R.id.nav_podcast) {
+            int landing = Option.getPodcastLandingScreen();
+            if (landing == Option.PODCAST_LANDING_FAVORITES) {
+                favIntent = PodcastHelper.getFavoritesSectionIntent(activity);
+            } else if (landing == Option.PODCAST_LANDING_HISTORY) {
+                favIntent = PodcastHelper.getHistorySectionIntent(activity);
+            }
         }
 
         if (favIntent != null) {

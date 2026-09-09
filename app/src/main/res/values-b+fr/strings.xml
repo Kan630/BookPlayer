@@ -95,6 +95,7 @@
     <string name="linked">lié</string>
     <string name="links">liens</string>
     <string name="listened">écouté</string>
+    <string name="podcast_listened_for">Écouté pendant %1$s</string>
     <string name="loading">chargement</string>
     <string name="loading_step_1">Initialisation…</string>
     <string name="loading_step_2">Analyse de la couverture, de la taille et du nombre de pistes…\nVous n’avez pas besoin d’attendre, vous pouvez appuyer sur le bouton confirmer.</string>
@@ -446,8 +447,8 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
     <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Note : Vous pouvez basculer entre ces vues en tapotant ou double-tapotant l\'image de couverture.</string>
-    <string name="option_podcast_open_favorites_first">Ouvrir les favoris en premier</string>
-    <string name="option_podcast_open_favorites_first_subtitle">Lorsque vous appuyez sur Podcast dans la barre du bas, L\'écran Favoris s\'ouvre en premier. Appuyez sur Retour pour accéder à la recherche et parcourir d\'autres podcasts.</string>
+        <string name="option_podcast_landing_screen">Lorsque vous appuyez sur Podcast dans la barre du bas, ouvrir :</string>
+    <string name="option_podcast_landing_screen_subtitle">Appuyez sur Retour pour accéder aux autres écrans podcast depuis là.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer vérifiera les nouveaux épisodes, à la fois périodiquement et au démarrage, puis les téléchargera."</string>
     <string name="option_playing_behaviour_title">Lecture</string>

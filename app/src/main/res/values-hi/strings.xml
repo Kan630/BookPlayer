@@ -95,6 +95,7 @@
     <string name="linked">लिंक्ड</string>
     <string name="links">लिंक</string>
     <string name="listened">"सुना गया"</string>
+    <string name="podcast_listened_for">%1$s सुना गया</string>
     <string name="loading">लोड हो रहा है</string>
     <string name="loading_step_2">कवर, आकार और ट्रैक की संख्या को स्कैन किया जा रहा है…\nप्रतीक्षा आवश्यक नहीं है, आप पुष्टि बटन दबा सकते हैं।</string>
     <string name="Location">स्थान</string>
@@ -426,8 +427,8 @@
     <string name="option_podcast_open_specific_view">लाइव व्यू खोलें</string>
     <string name="option_podcast_open_specific_view_subtitle">किसी \'पॉडकास्ट\' आइटम पर क्लिक करने पर, क्या सभी एपिसोड वाले स्ट्रीम पॉडकास्ट व्यू खुले, या डाउनलोड किए गए एपिसोड के साथ \'किताब\' व्यू?</string>
     <string name="option_podcast_open_specific_view_subtitle2">कवर पर डबल-क्लिक करके इन दृश्यों के बीच स्विच कर सकते हैं।</string>
-    <string name="option_podcast_open_favorites_first">पहले पसंदीदा खोलें</string>
-    <string name="option_podcast_open_favorites_first_subtitle">नीचे की पट्टी में पॉडकास्ट पर टैप करने पर पहले पसंदीदा स्क्रीन खोलें। खोज पर जाने और अधिक पॉडकास्ट देखने के लिए वापस दबाएँ।</string>
+        <string name="option_podcast_landing_screen">नीचे की पट्टी में पॉडकास्ट पर टैप करने पर खोलें:</string>
+    <string name="option_podcast_landing_screen_subtitle">वहां से अन्य पॉडकास्ट स्क्रीन तक पहुंचने के लिए वापस दबाएं।</string>
     <string name="option_podcast_autodownloaded_at_the_top">जब नए एपिसोड डाउनलोड हों, तो पॉडकास्ट को ऑडियोबुक्स सूची के शीर्ष पर ले जाएँ।</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer समय-समय पर और स्टार्टअप पर नए एपिसोड की जाँच करेगा और उन्हें डाउनलोड करेगा।"</string>
     <string name="option_playing_behaviour_title">प्लेबैक व्यवहार</string>

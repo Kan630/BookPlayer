@@ -85,7 +85,7 @@
 
                     <Button
                         android:id="@+id/bFavorite"
-                        android:text="@string/Favorites"
+                        android:text="@string/favorites_slash_history"
                         style="@style/GetResourceButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

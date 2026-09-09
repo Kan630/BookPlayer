@@ -95,6 +95,7 @@
     <string name="linked">связанные</string>
     <string name="links">ссылки</string>
     <string name="listened">"прослушано"</string>
+    <string name="podcast_listened_for">Прослушано: %1$s</string>
     <string name="loading">загрузка</string>
     <string name="loading_step_1">Инициализация…</string>
     <string name="loading_step_2">Сканирование обложки, размера и количества треков…\nОжидание не обязательно, вы можете нажать кнопку подтверждения.</string>
@@ -430,8 +431,8 @@
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Переключаться между этими видами можно двойным нажатием на обложку.</string>
-    <string name="option_podcast_open_favorites_first">Сначала открывать избранное</string>
-    <string name="option_podcast_open_favorites_first_subtitle">При нажатии «Подкасты» в нижней панели сначала открывать экран «Избранное». Нажмите «Назад», чтобы перейти к поиску и просмотреть другие подкасты.</string>
+        <string name="option_podcast_landing_screen">При нажатии «Подкаст» на нижней панели открывать:</string>
+    <string name="option_podcast_landing_screen_subtitle">Нажмите «Назад», чтобы перейти к другим экранам подкастов.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Когда новые эпизоды загружены, переместить подкаст в начало списка аудиокниг.</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer будет проверять новые эпизоды — как периодически, так и при запуске — и загружать их."</string>
     <string name="option_playing_behaviour_title">Поведение воспроизведения</string>

@@ -120,7 +120,6 @@ public class Option {
     public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
     private static final boolean DEFAULT_RADIO_RECORDING_ENABLED = true;
     private static final boolean DEFAULT_RADIO_RECORDING_AS_MUSIC = true;
-    private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
     private static final int MIN_SCREENSAVER_DELAY_SECONDS = 10;
@@ -303,6 +302,18 @@ public class Option {
 
     public static void setRadioLandingScreen(int value) {
         prefs.edit().putInt("RADIO_LANDING_SCREEN", value).apply();
+    }
+
+    public static final int PODCAST_LANDING_SEARCH = 0;
+    public static final int PODCAST_LANDING_FAVORITES = 1;
+    public static final int PODCAST_LANDING_HISTORY = 2;
+
+    public static int getPodcastLandingScreen() {
+        return prefs.getInt("PODCAST_LANDING_SCREEN", PODCAST_LANDING_SEARCH);
+    }
+
+    public static void setPodcastLandingScreen(int value) {
+        prefs.edit().putInt("PODCAST_LANDING_SCREEN", value).apply();
     }
 
     public static boolean getRadioRecordingEnabled() {
@@ -880,14 +891,6 @@ public class Option {
 
     public static boolean getPodcastOpenSpecificView() {
         return prefs.getBoolean("PODCAST_OPEN_SPECIFIC_VIEW", DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW);
-    }
-
-    public static boolean getPodcastOpenFavoritesFirst() {
-        return prefs.getBoolean("PODCAST_OPEN_FAVORITES_FIRST", DEFAULT_PODCAST_OPEN_FAVORITES_FIRST);
-    }
-
-    public static void setPodcastOpenFavoritesFirst(boolean bool) {
-        prefs.edit().putBoolean("PODCAST_OPEN_FAVORITES_FIRST", bool).apply();
     }
 
     public static void setPodcastAddDateToEpisodeName(boolean bool) {

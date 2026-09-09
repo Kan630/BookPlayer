@@ -27,7 +27,6 @@ public class PodcastSettingsFragment extends LoggingFragment {
     private CheckBox chk_podcast_episodes_expand;
     private CheckBox chk_podcast_autodownloaded_at_the_top;
     private CheckBox chk_podcast_open_specific_view;
-    private CheckBox chk_podcast_open_favorites_first;
     private CheckBox chk_podcast_add_date_to_episode_name;
 
     private LinearLayout ll_podcast_auto_delete;
@@ -35,7 +34,6 @@ public class PodcastSettingsFragment extends LoggingFragment {
     private LinearLayout ll_podcast_episodes_expand;
     private LinearLayout ll_podcast_autodownloaded_at_the_top;
     private LinearLayout ll_podcast_open_specific_view;
-    private LinearLayout ll_podcast_open_favorites_first;
     private LinearLayout ll_podcast_add_date_to_episode_name;
 
 
@@ -57,12 +55,38 @@ public class PodcastSettingsFragment extends LoggingFragment {
         View root = inflater.inflate(R.layout.fragment_settings_podcast, container, false);
 
         // ====== CHECKBOXES ======
-        chk_podcast_open_favorites_first = root.findViewById(R.id.chk_podcast_open_favorites_first);
-        ll_podcast_open_favorites_first  = root.findViewById(R.id.ll_podcast_open_favorites_first);
-        chk_podcast_open_favorites_first.setChecked(Option.getPodcastOpenFavoritesFirst());
-        ll_podcast_open_favorites_first.setOnClickListener(v -> chk_podcast_open_favorites_first.toggle());
-        chk_podcast_open_favorites_first.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Option.setPodcastOpenFavoritesFirst(isChecked));
+        com.google.android.material.button.MaterialButtonToggleGroup groupPodcastLandingScreen =
+                root.findViewById(R.id.groupPodcastLandingScreen);
+        View tvPodcastLandingScreenSubtitle = root.findViewById(R.id.tvPodcastLandingScreenSubtitle);
+        int podcastLandingCheckedId;
+        switch (Option.getPodcastLandingScreen()) {
+            case Option.PODCAST_LANDING_FAVORITES:
+                podcastLandingCheckedId = R.id.btnPodcastLandingFavorites;
+                break;
+            case Option.PODCAST_LANDING_HISTORY:
+                podcastLandingCheckedId = R.id.btnPodcastLandingHistory;
+                break;
+            default:
+                podcastLandingCheckedId = R.id.btnPodcastLandingSearch;
+                break;
+        }
+        groupPodcastLandingScreen.check(podcastLandingCheckedId);
+        tvPodcastLandingScreenSubtitle.setVisibility(
+                podcastLandingCheckedId == R.id.btnPodcastLandingSearch ? View.GONE : View.VISIBLE);
+        groupPodcastLandingScreen.addOnButtonCheckedListener((group, checkedButtonId, isChecked) -> {
+            if (!isChecked)
+                return;
+            if (checkedButtonId == R.id.btnPodcastLandingFavorites) {
+                Option.setPodcastLandingScreen(Option.PODCAST_LANDING_FAVORITES);
+                tvPodcastLandingScreenSubtitle.setVisibility(View.VISIBLE);
+            } else if (checkedButtonId == R.id.btnPodcastLandingHistory) {
+                Option.setPodcastLandingScreen(Option.PODCAST_LANDING_HISTORY);
+                tvPodcastLandingScreenSubtitle.setVisibility(View.VISIBLE);
+            } else {
+                Option.setPodcastLandingScreen(Option.PODCAST_LANDING_SEARCH);
+                tvPodcastLandingScreenSubtitle.setVisibility(View.GONE);
+            }
+        });
 
         chk_podcast_open_specific_view = root.findViewById(R.id.chk_podcast_open_specific_view);
         ll_podcast_open_specific_view  = root.findViewById(R.id.ll_podcast_open_specific_view);

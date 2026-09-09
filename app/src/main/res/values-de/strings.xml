@@ -95,6 +95,7 @@
     <string name="linked">verlinkt</string>
     <string name="links">Links</string>
     <string name="listened">"gehört"</string>
+    <string name="podcast_listened_for">%1$s gehört</string>
     <string name="loading">laden</string>
     <string name="loading_step_1">Initialisierung…</string>
     <string name="loading_step_2">Cover, Größe und Anzahl der Titel werden gescannt…\nSie müssen nicht warten, Sie können die Bestätigungstaste drücken.</string>
@@ -433,8 +434,8 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Sie können zwischen diesen Ansichten wechseln, indem Sie doppelt auf das Cover tippen.</string>
-    <string name="option_podcast_open_favorites_first">Zuerst Favoriten öffnen</string>
-    <string name="option_podcast_open_favorites_first_subtitle">Beim Tippen auf Podcast in der unteren Leiste zuerst den Favoriten-Bildschirm öffnen. Zurück tippen, um zur Suche zu gelangen und weitere Podcasts zu durchsuchen.</string>
+        <string name="option_podcast_landing_screen">Beim Tippen auf Podcast in der unteren Leiste öffnen:</string>
+    <string name="option_podcast_landing_screen_subtitle">Zurück tippen, um von dort aus zu den anderen Podcast-Bildschirmen zu gelangen.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Wenn neue Episoden heruntergeladen werden, den Podcast oben in der Hörbuchliste anzeigen.</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer prüft auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>
     <string name="option_playing_behaviour_title">Wiedergabeverhalten</string>

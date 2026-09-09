@@ -721,4 +721,9 @@ public class PodcastHelper {
         return new android.content.Intent(context, PodcastFavoritesActivity.class);
     }
 
+    public static android.content.Intent getHistorySectionIntent(android.content.Context context) {
+        return new android.content.Intent(context, PodcastFavoritesActivity.class)
+                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_START_IN_HISTORY, true);
+    }
+
 }

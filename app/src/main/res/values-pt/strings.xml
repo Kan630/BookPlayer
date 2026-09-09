@@ -95,6 +95,7 @@
     <string name="linked">vinculados</string>
     <string name="links">links</string>
     <string name="listened">"ouvido"</string>
+    <string name="podcast_listened_for">Ouvido: %1$s</string>
     <string name="loading">carregando</string>
     <string name="loading_step_1">Inicializando…</string>
     <string name="loading_step_2">Escaneando capa, tamanho e número de faixas…\nNão é necessário esperar, você pode tocar no botão confirmar.</string>
@@ -431,8 +432,8 @@
     <string name="option_podcast_open_specific_view">Abrir visualização específica</string>
     <string name="option_podcast_open_specific_view_subtitle">Ao tocar em um livro \'podcast\', deve abrir a visualização do podcast com todos os episódios ou a visualização do livro com apenas os baixados?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Pode alternar entre estas vistas tocando duas vezes na capa.</string>
-    <string name="option_podcast_open_favorites_first">Abrir favoritos primeiro</string>
-    <string name="option_podcast_open_favorites_first_subtitle">Quando tocar em Podcast na barra inferior, abrir primeiro o ecrã Favoritos. Toque em Voltar para ir à pesquisa e explorar mais podcasts.</string>
+        <string name="option_podcast_landing_screen">Ao tocar em Podcast na barra inferior, abrir:</string>
+    <string name="option_podcast_landing_screen_subtitle">Toque em Voltar para aceder aos outros ecrãs de podcast a partir daí.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Quando novos episódios forem baixados, mover o podcast para o topo da lista de audiolivros.</string>
     <string name="option_podcast_autodownload_subtitle">"O BookPlayer verificará novos episódios — periodicamente e na inicialização — e fará o download."</string>
     <string name="option_playing_behaviour_title">Comportamento de reprodução</string>

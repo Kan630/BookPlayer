@@ -26,6 +26,7 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
 
     private String lastQuery, lastLang;
     private LiveData<List<Podcast>> favoritePodcastsLive;
+    private LiveData<List<Podcast>> listenedPodcastsLive;
 
     public PodcastSearchResultsViewModel(@NonNull Application application) {
         super(application);
@@ -63,6 +64,15 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
                     .getFavoritePodcastsLive();
         }
         return favoritePodcastsLive;
+    }
+
+    public LiveData<List<Podcast>> getListenedPodcastsLive() {
+        if (listenedPodcastsLive == null) {
+            listenedPodcastsLive = AppDatabase.getDatabase(getApplication())
+                    .podcastDao()
+                    .getListenedPodcastsLive();
+        }
+        return listenedPodcastsLive;
     }
 
     // ============================================================

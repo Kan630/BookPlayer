@@ -35,6 +35,27 @@ public interface PodcastDao {
     @Query("SELECT * FROM Podcast WHERE isFavorite = 1 ORDER BY date_added DESC")
     LiveData<List<Podcast>> getFavoritePodcastsLive();
 
+    // Listening time lives in two places depending on how an episode was played: downloaded
+    // episodes tick ZikFile.timeListened (rolled up into Folder.timeListened, same as any other
+    // book), while streamed-only episodes tick Episode.timeListened directly. Sum both per
+    // podcast so history covers "listened to at least 1s, downloaded or streamed" either way.
+    @Query("SELECT p.* FROM Podcast p " +
+            "LEFT JOIN Folder f ON f.id = p.idFolder " +
+            "LEFT JOIN (SELECT idPodcast, SUM(timeListened) AS sumEpisodeTime FROM Episode GROUP BY idPodcast) e " +
+            "  ON e.idPodcast = p.id " +
+            "WHERE (COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0)) > 0 " +
+            "ORDER BY (COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0)) DESC")
+    LiveData<List<Podcast>> getListenedPodcastsLive();
+
+    // Same combined downloaded+streamed total as getListenedPodcastsLive(), scoped to one
+    // podcast - used to show "Listened for Xh Ym" on a single row. Returns seconds.
+    @Query("SELECT COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0) FROM Podcast p " +
+            "LEFT JOIN Folder f ON f.id = p.idFolder " +
+            "LEFT JOIN (SELECT idPodcast, SUM(timeListened) AS sumEpisodeTime FROM Episode GROUP BY idPodcast) e " +
+            "  ON e.idPodcast = p.id " +
+            "WHERE p.id = :podcastId")
+    long getTotalTimeListenedForPodcast(long podcastId);
+
     @Query("SELECT * FROM Podcast WHERE autoDownload = 1")
     List<Podcast> getAutoDownloads();
 

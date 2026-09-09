@@ -1,7 +1,11 @@
 package com.driot.bookplayer.podcasts;
 
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +24,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,44 +37,31 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     private static final int VIEW_TYPE_ITEM = 1;
 
     private List<Podcast> items = new ArrayList<>();
-    private final OnItemClickListener onItemClickListener;
+    private final OnActionListener listener;
+    private boolean historyMode;
 
-    private String headerQuery = "";
-    private String headerLang = "";
-    private String headerCount = "";
-
-    public interface OnItemClickListener {
+    public interface OnActionListener {
         void onItemClick(Podcast podcast);
+
+        void onToggleFavorites();
+
+        void onToggleHistory();
     }
 
-    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public PodcastFavoritesRVAdapter(OnActionListener listener) {
+        this(listener, false);
     }
 
-    public void setHeaderSearch(String query) {
-        this.headerQuery = query;
-        notifyItemChanged(0);
+    public PodcastFavoritesRVAdapter(OnActionListener listener, boolean initialHistoryMode) {
+        this.listener = listener;
+        this.historyMode = initialHistoryMode;
     }
 
-    public void setHeaderLang(String lang) {
-        this.headerLang = lang;
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderCount(String count) {
-        this.headerCount = count;
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderInfo(String query, String lang, String count) {
-        this.headerQuery = query;
-        this.headerLang = lang;
-        this.headerCount = count;
-        notifyItemChanged(0);
-    }
-
-    public void setItems(List<Podcast> items) {
-        this.items = items;
+    /** Items and mode always arrive together, so the header (toggle + count) and the list below
+     * it never show a mismatched pairing while a mode switch is loading. */
+    public void setItems(List<Podcast> newItems, boolean isHistoryMode) {
+        this.items = newItems != null ? newItems : new ArrayList<>();
+        this.historyMode = isHistoryMode;
         notifyDataSetChanged();
     }
 
@@ -77,7 +70,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_search_header, parent, false);
+                    .inflate(R.layout.recyclerview_podcast_favorites_header, parent, false);
             return new HeaderViewHolder(view);
         } else {
             View v = LayoutInflater.from(parent.getContext())
@@ -90,19 +83,24 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder h = (HeaderViewHolder) holder;
-            h.tvSearchTerms.setText(headerQuery);
-            h.tvSearchTerms.setVisibility(headerQuery.isEmpty() ? View.GONE : View.VISIBLE);
+            String resultsCount = items.size() + " "
+                    + (historyMode ? h.itemView.getContext().getString(R.string.in_history)
+                            : h.itemView.getContext().getString(R.string.favorites));
+            h.tvResultsCount.setText(resultsCount);
 
-            h.tvLanguage.setText(headerLang);
-            h.tvLanguage.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
-
-            h.tvResultsCount.setText(headerCount);
-            h.tvResultsCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
-
-            h.tvCountryTag.setVisibility(View.GONE);
+            h.group.clearOnButtonCheckedListeners();
+            h.group.check(historyMode ? R.id.btnPodcastHistory : R.id.btnPodcastFavorites);
+            h.group.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked) return;
+                if (checkedId == R.id.btnPodcastFavorites) {
+                    listener.onToggleFavorites();
+                } else if (checkedId == R.id.btnPodcastHistory) {
+                    listener.onToggleHistory();
+                }
+            });
         } else {
             Podcast podcast = items.get(position - 1);
-            ((PodcastViewHolder) holder).bind(podcast, onItemClickListener);
+            ((PodcastViewHolder) holder).bind(podcast, listener);
         }
     }
 
@@ -117,14 +115,13 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        final TextView tvSearchTerms, tvLanguage, tvResultsCount, tvCountryTag;
+        final TextView tvResultsCount;
+        final MaterialButtonToggleGroup group;
 
         HeaderViewHolder(View v) {
             super(v);
-            tvSearchTerms = v.findViewById(R.id.tvSearchTerms);
-            tvLanguage = v.findViewById(R.id.tvLanguage);
             tvResultsCount = v.findViewById(R.id.tvResultsCount);
-            tvCountryTag = v.findViewById(R.id.tvCountryTag);
+            group = v.findViewById(R.id.groupPodcastFavoriteVsHistory);
         }
     }
 
@@ -142,7 +139,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             folderStats = v.findViewById(R.id.podcast_folder_stats);
         }
 
-        void bind(Podcast podcast, OnItemClickListener listener) {
+        void bind(Podcast podcast, OnActionListener listener) {
 
             title.setText(podcast.title);
             // desc.setText(podcast.language); // placeholder (you could fetch/show `feedId`
@@ -157,30 +154,58 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             autoDownloadContainer.setVisibility(podcast.autoDownload ? View.VISIBLE : View.GONE);
 
             /// STATS
-            if (podcast.idFolder != null && podcast.idFolder > 0) {
-                AppDatabase.databaseWriteExecutor.execute(() -> {
-                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).folderDao()
-                            .getById(podcast.idFolder);
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                Folder folder = (podcast.idFolder != null && podcast.idFolder > 0)
+                        ? AppDatabase.getDatabase(itemView.getContext()).folderDao().getById(podcast.idFolder)
+                        : null;
+                long timeListenedSec = AppDatabase.getDatabase(itemView.getContext()).podcastDao()
+                        .getTotalTimeListenedForPodcast(podcast.getId());
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    String listenedFor = timeListenedSec > 0
+                            ? itemView.getContext().getString(R.string.podcast_listened_for,
+                                    Tonio.formatTime(timeListenedSec * 1000))
+                            : null;
+
                     if (folder != null) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            String nbFile = folder.nbZikFile + " tracks";
-                            String duration = Tonio.formatTime(folder.getDuration());
-                            String percentDone = String.format(Locale.US, "%.0f", folder.getPercentdone());
-                            String lastAdded = "Updated : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm",
-                                    folder.date_last_zikfile_added);
-                            String stats = nbFile + " · " + duration + " · " + percentDone + "% done"
-                                    + "\n" + lastAdded;
-                            folderStats.setText(stats);
-                        });
+                        String nbFile = folder.nbZikFile + " tracks";
+                        String duration = Tonio.formatTime(folder.getDuration());
+                        String percentDone = String.format(Locale.US, "%.0f", folder.getPercentdone());
+                        String line1 = nbFile + " · " + duration + " · " + percentDone + "% done";
+                        setStatsText(folderStats, line1, listenedFor);
+                    } else if (listenedFor != null) {
+                        setStatsText(folderStats, null, listenedFor);
                     } else {
                         folderStats.setText(com.driot.bookplayer.R.string.no_episode_downloaded);
                     }
                 });
-            } else {
-                folderStats.setText(com.driot.bookplayer.R.string.no_episode_downloaded);
-            }
+            });
 
             itemView.setOnClickListener(v -> listener.onItemClick(podcast));
+        }
+
+        /** Combines an optional plain first line with an optional "Listened for..." second line,
+         * italicizing only that second line. */
+        private static void setStatsText(TextView tv, @Nullable String line1, @Nullable String listenedForLine) {
+            if (line1 == null) {
+                if (listenedForLine == null) {
+                    tv.setText("");
+                    return;
+                }
+                SpannableString s = new SpannableString(listenedForLine);
+                s.setSpan(new StyleSpan(Typeface.ITALIC), 0, listenedForLine.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tv.setText(s);
+                return;
+            }
+            if (listenedForLine == null) {
+                tv.setText(line1);
+                return;
+            }
+            String full = line1 + "\n" + listenedForLine;
+            SpannableString s = new SpannableString(full);
+            int start = line1.length() + 1;
+            s.setSpan(new StyleSpan(Typeface.ITALIC), start, full.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tv.setText(s);
         }
     }
 }

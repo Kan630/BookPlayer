@@ -95,6 +95,7 @@
     <string name="linked">collegati</string>
     <string name="links">link</string>
     <string name="listened">"ascoltato"</string>
+    <string name="podcast_listened_for">Ascoltato per %1$s</string>
     <string name="loading">caricamento</string>
     <string name="loading_step_1">Inizializzazione…</string>
     <string name="loading_step_2">Scansione copertina, dimensioni e numero di tracce…\nNon è necessario attendere, puoi premere il pulsante conferma.</string>
@@ -432,8 +433,8 @@
     <string name="option_podcast_open_specific_view">Apri vista specifica</string>
     <string name="option_podcast_open_specific_view_subtitle">Quando tocchi un libro \'podcast\', deve aprire la vista podcast con tutti gli episodi o la vista libro con solo quelli scaricati?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Puoi passare tra queste viste toccando due volte sulla copertina.</string>
-    <string name="option_podcast_open_favorites_first">Apri prima i preferiti</string>
-    <string name="option_podcast_open_favorites_first_subtitle">Quando tocchi Podcast nella barra in basso, apri prima la schermata Preferiti. Tocca Indietro per raggiungere la ricerca e sfogliare altri podcast.</string>
+        <string name="option_podcast_landing_screen">Quando tocchi Podcast nella barra in basso, apri:</string>
+    <string name="option_podcast_landing_screen_subtitle">Tocca Indietro per raggiungere le altre schermate podcast da lì.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Quando vengono scaricati nuovi episodi, sposta il podcast in cima all\'elenco degli audiolibri.</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer controllerà i nuovi episodi, sia periodicamente sia all\'avvio, e li scaricherà."</string>
     <string name="option_playing_behaviour_title">Comportamento di riproduzione</string>

@@ -130,6 +130,7 @@
     <string name="linked">linked</string>
     <string name="links">links</string>
     <string name="listened">"listened"</string>
+    <string name="podcast_listened_for">Listened for %1$s</string>
     <string name="loading">loading</string>
     <string name="loading_step_1">Initializing…</string>
     <string name="loading_step_2">Now scanning for cover picture, size and count of tracks…\nYou do not need to wait, you can tap the confirm button.</string>
@@ -499,8 +500,8 @@
     <string name="option_podcast_open_specific_view">Live view is default</string>
     <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>
     <string name="option_podcast_open_specific_view_subtitle2">Note: You can switch between these views by tapping or double-tapping the cover image.</string>
-    <string name="option_podcast_open_favorites_first">Open favorites first</string>
-    <string name="option_podcast_open_favorites_first_subtitle">When you tap Podcast in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more podcasts.</string>
+    <string name="option_podcast_landing_screen">When you tap Podcast in the bottom bar, open:</string>
+    <string name="option_podcast_landing_screen_subtitle">Press Back to reach the other podcast screens from there.</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
     <string name="option_podcast_autodownload_subtitle">"BookPlayer will check for new episodes, both periodically and at startup, and download them."</string>
     <string name="option_playing_behaviour_title">Play behaviour</string>

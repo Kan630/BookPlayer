@@ -95,6 +95,7 @@
     <string name="linked">مرتبط</string>
     <string name="links">روابط</string>
     <string name="listened">"تم الاستماع"</string>
+    <string name="podcast_listened_for">تم الاستماع لمدة %1$s</string>
     <string name="loading">جار التحميل</string>
     <string name="loading_step_1">جارٍ التهيئة…</string>
     <string name="loading_step_2">جارٍ فحص الغلاف والحجم وعدد المقاطع…\nلا يلزم الانتظار، يمكنك الضغط على زر التأكيد.</string>
@@ -426,8 +427,8 @@
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
     <string name="option_podcast_open_specific_view_subtitle2">يمكنك التبديل بين هذه العروض بالنقر المزدوج على الغلاف.</string>
-    <string name="option_podcast_open_favorites_first">فتح المفضلة أولاً</string>
-    <string name="option_podcast_open_favorites_first_subtitle">عند النقر على البودكاست في الشريط السفلي، افتح شاشة المفضلة أولاً. اضغط رجوع للوصول إلى البحث واستعراض المزيد من البودكاست.</string>
+        <string name="option_podcast_landing_screen">عند النقر على البودكاست في الشريط السفلي، افتح:</string>
+    <string name="option_podcast_landing_screen_subtitle">اضغط رجوع للوصول إلى شاشات البودكاست الأخرى من هناك.</string>
     <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
     <string name="option_podcast_autodownload_subtitle">"سيتحقق BookPlayer من الحلقات الجديدة — دورياً وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
     <string name="option_playing_behaviour_title">سلوك التشغيل</string>

@@ -7,18 +7,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 
-import java.util.Collections;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -29,8 +31,15 @@ public class PodcastFavoritesActivity extends FullActivity {
     private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
+    private TextView emptyMessage;
     private PodcastFavoritesRVAdapter adapter;
+
+    // Favorites and history are two different Room LiveData queries (see PodcastDao); this
+    // Mediator switches which one feeds the list, so the toggle just swaps the source instead of
+    // needing separate manually-managed LiveData plumbing.
+    private final MediatorLiveData<List<Podcast>> itemsLive = new MediatorLiveData<>();
+    private LiveData<List<Podcast>> currentSource;
+    private boolean isHistoryMode = false;
 
     /** Back from favorites goes up to the podcast search root, not straight to MainActivity. */
     @Override
@@ -74,38 +83,54 @@ public class PodcastFavoritesActivity extends FullActivity {
                 finish();
         });
 
-        adapter = new PodcastFavoritesRVAdapter(
-                item -> {
-                    myLogI(" --- user clicks podcast ---");
-                    Intent intent = new Intent(this, PodcastEpisodeActivity.class);
-                    intent.putExtra("podcast", item);
-                    startActivity(intent);
-                });
+        // Known upfront (from the landing-screen setting) so the header's very first bind shows
+        // the intended mode immediately, instead of always starting as "Favorites" and correcting
+        // itself once the query resolves.
+        isHistoryMode = getIntent().getBooleanExtra(Intents.EXTRA_START_IN_HISTORY, false);
+
+        adapter = new PodcastFavoritesRVAdapter(new PodcastFavoritesRVAdapter.OnActionListener() {
+            @Override
+            public void onItemClick(Podcast item) {
+                myLogI(" --- user clicks podcast ---");
+                Intent intent = new Intent(PodcastFavoritesActivity.this, PodcastEpisodeActivity.class);
+                intent.putExtra("podcast", item);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onToggleFavorites() {
+                myLogI("--- user clicks favorites ---");
+                setMode(false);
+            }
+
+            @Override
+            public void onToggleHistory() {
+                myLogI("--- user clicks history ---");
+                setMode(true);
+            }
+        }, isHistoryMode);
         recyclerView.setAdapter(adapter);
 
-        viewModel.getFavoritePodcastsLive().observe(this, favorites -> {
-            if (favorites == null || favorites.isEmpty()) {
-                myToast(getString(com.driot.bookplayer.R.string.no_favorite_podcasts_found));
-                adapter.setItems(Collections.emptyList());
-                adapter.notifyDataSetChanged();
-                finish();
-            } else {
-                showResults(favorites, "Favorites", "");
-            }
-        });
+        itemsLive.observe(this, this::applyResults);
+        setMode(isHistoryMode);
     }
 
-    private void showResults(List<Podcast> podcastList, String query, String lang) {
-        adapter.setItems(podcastList);
+    private void setMode(boolean history) {
+        isHistoryMode = history;
+        if (currentSource != null) {
+            itemsLive.removeSource(currentSource);
+        }
+        currentSource = history ? viewModel.getListenedPodcastsLive() : viewModel.getFavoritePodcastsLive();
+        itemsLive.addSource(currentSource, itemsLive::setValue);
+    }
+
+    private void applyResults(List<Podcast> podcastList) {
+        if (podcastList == null)
+            return;
+        adapter.setItems(podcastList, isHistoryMode);
         progressBar.setVisibility(View.GONE);
+        emptyMessage.setText(isHistoryMode ? R.string.detailed_stats_empty : R.string.no_favorite_podcasts_found);
         emptyMessage.setVisibility(podcastList.isEmpty() ? View.VISIBLE : View.GONE);
-
-        // Construct Header Strings
-        String queryStr = ""; // Hide Search for favorites
-        String langStr = ""; // Hide Language for favorites
-        String countStr = podcastList.size() + " " + getString(R.string.favorites);
-
-        adapter.setHeaderInfo(queryStr, langStr, countStr);
     }
 
 }

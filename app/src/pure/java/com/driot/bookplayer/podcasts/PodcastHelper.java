@@ -90,4 +90,8 @@ public class PodcastHelper {
         return null;
     }
 
+    public static Intent getHistorySectionIntent(Context context) {
+        return null;
+    }
+
 }
