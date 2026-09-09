@@ -110,7 +110,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_action_24"
-                    android:tint="@android:color/holo_blue_bright"
+                    app:tint="@android:color/holo_blue_bright"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -145,7 +145,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_done_24"
-                    android:tint="@color/green_300"
+                    app:tint="@color/green_300"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -180,7 +180,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_done_24"
-                    android:tint="@color/green_700"
+                    app:tint="@color/green_700"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -215,7 +215,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_done_24"
-                    android:tint="@color/brown_500"
+                    app:tint="@color/brown_500"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -250,7 +250,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_done_24"
-                    android:tint="@color/orange_500"
+                    app:tint="@color/orange_500"
                     android:contentDescription="@null" />
 
                 <TextView
@@ -285,7 +285,7 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_action_24"
-                    android:tint="@color/brown_500"
+                    app:tint="@color/brown_500"
                     android:contentDescription="@null" />
 
                 <TextView
