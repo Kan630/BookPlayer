@@ -65,6 +65,13 @@ public class ScreensaverActivity extends BaseActivity {
 
         // Observe playback state to update visualizer session ID
         vm.getState().observe(this, this::updateVisualizer);
+
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish(); // dismiss the screensaver on back, same as a touch
+            }
+        });
     }
 
     private void updateVisualizer(@Nullable PlaybackUiState s) {
@@ -114,12 +121,6 @@ public class ScreensaverActivity extends BaseActivity {
             return true;
         }
         return super.onTouchEvent(event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 
     @Override

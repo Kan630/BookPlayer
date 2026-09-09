@@ -44,6 +44,7 @@ import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.utils.KanMail;
@@ -217,6 +218,7 @@ public class MainActivity extends FullActivity {
 
         if (savedInstanceState == null) {
             ShareHelper.handleDeepLink(this, getIntent());
+            handleMediaSearchIntentIfAny(getIntent());
         }
 
         // InAppMsgManager.deleteInAppMsgCache(this);
@@ -240,6 +242,22 @@ public class MainActivity extends FullActivity {
             mainVm.requestScrollToTopNow();
         }
         ShareHelper.handleDeepLink(this, getIntent());
+        handleMediaSearchIntentIfAny(intent);
+    }
+
+    // Voice search ("Hey Google, play <query> on BookPlayer") launched as a plain activity
+    // intent - e.g. from the phone's Assistant when the app isn't already the active media
+    // session. When a session IS already connected (typically Android Auto), the same voice
+    // command instead arrives via MediaSessionCompat.Callback.onPlayFromSearch() in MediaService,
+    // which shares the same matching/playback logic (StartPlayHelper.carOnPlayFromSearch()).
+    private void handleMediaSearchIntentIfAny(Intent intent) {
+        if (intent == null
+                || !android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH.equals(intent.getAction())) {
+            return;
+        }
+        String query = intent.getStringExtra(android.app.SearchManager.QUERY);
+        myLog("handleMediaSearchIntentIfAny: query=[" + query + "]");
+        StartPlayHelper.carOnPlayFromSearch(this, query, intent.getExtras());
     }
 
     @Override

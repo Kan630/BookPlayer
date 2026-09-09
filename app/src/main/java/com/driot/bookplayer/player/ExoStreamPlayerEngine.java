@@ -4,11 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -19,6 +21,10 @@ import com.driot.bookplayer.utils.log.LoggerHelper;
 import java.util.HashMap;
 import java.util.Map;
 
+// DefaultHttpDataSource / ProgressiveMediaSource / getAudioSessionId() are all @UnstableApi in
+// Media3 (Google may change them without notice) - this class knowingly depends on them, so the
+// whole class opts in rather than scattering the annotation over every call site.
+@OptIn(markerClass = UnstableApi.class)
 public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerEngine {
 
     private final EngineListener listener;

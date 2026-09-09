@@ -330,6 +330,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             StartPlayHelper.carOnPlayFromMediaId(MediaService.this, mediaId, extras);
         }
 
+        // Voice search ("Hey Google, play <query> on BookPlayer") from Android Auto/Assistant.
+        @Override
+        public void onPlayFromSearch(String query, Bundle extras) {
+            StartPlayHelper.carOnPlayFromSearch(MediaService.this, query, extras);
+        }
+
         @Override
         public void onPause() {
             var info = MediaCallerHelper.getCallerInfo(MediaService.this);

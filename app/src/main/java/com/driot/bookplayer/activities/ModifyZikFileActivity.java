@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
@@ -112,6 +113,25 @@ public class ModifyZikFileActivity extends BaseActivity {
         bDelete.setOnClickListener(view -> bDeleteClick());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
+                if (!newName.equals(zikFile.getDisplayName())) {
+                    pendingNewName = newName;
+                    MsgBox.ask(ModifyZikFileActivity.this,
+                            getString(R.string.AskRename_popupTitle),
+                            getString(R.string.AskRename_Track) + "\n[ " + newName + " ]",
+                            null,
+                            getString(R.string.Yes),
+                            getString(R.string.No),
+                            REQ_RENAME_TRACK);
+                } else {
+                    finish(); // No changes, just leave
+                }
+            }
+        });
     }
 
     private void bDeleteClick() {
@@ -230,23 +250,6 @@ public class ModifyZikFileActivity extends BaseActivity {
         }).start();
     }
 
-    @Override
-    public void onBackPressed() {
-        String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
-        if (!newName.equals(zikFile.getDisplayName())) {
-            this.pendingNewName = newName;
-            MsgBox.ask(this,
-                    getString(R.string.AskRename_popupTitle),
-                    getString(R.string.AskRename_Track) + "\n[ " + newName + " ]",
-                    null,
-                    getString(R.string.Yes),
-                    getString(R.string.No),
-                    REQ_RENAME_TRACK);
-        } else {
-            super.onBackPressed(); // No changes, just leave
-        }
-    }
-
     private void renameTrack(String newDisplayName) {
         if (newDisplayName.length() < 2) {
             myToast(getString(R.string.Error_NameTooShort));
@@ -279,7 +282,7 @@ public class ModifyZikFileActivity extends BaseActivity {
                 }
             }
         } else if (resultCode == RESULT_CANCELED && requestCode == REQ_RENAME_TRACK) {
-            super.onBackPressed();
+            finish(); // user declined the rename prompt - just leave, discarding it
         }
     }
 }

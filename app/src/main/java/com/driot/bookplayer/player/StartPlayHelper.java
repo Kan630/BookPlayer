@@ -589,6 +589,80 @@ public class StartPlayHelper {
 
     }
 
+    /**
+     * Voice search ("Hey Google, play <query> on BookPlayer") - unlike doSearch() above (which
+     * returns a list to browse), this must immediately start playing the single best match.
+     * Ranks folder (book) names first - "play <title>" almost always means "start that book" -
+     * then falls back to track names for a query that only matches a chapter/track title.
+     * Reuses carOnPlayFromMediaId() to actually start playback, the same path a user tapping that
+     * item in the browsable UI goes through, so there's no separate playback logic to maintain
+     * here.
+     */
+    public static void carOnPlayFromSearch(Context context, @Nullable String query, Bundle extras) {
+        myLogI("carOnPlayFromSearch q=[" + query + "]");
+        if (query == null || query.trim().isEmpty()) {
+            // No usable query (e.g. a blank "just play something" voice command) - same as a
+            // plain Play command.
+            carOnPlay(context);
+            return;
+        }
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            String q = query.toLowerCase(Locale.US).trim();
+            AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+
+            List<String> folderNames = new ArrayList<>();
+            List<String> folderMediaIds = new ArrayList<>();
+            for (Folder f : db.folderDao().getAll()) {
+                folderNames.add(f.getName());
+                folderMediaIds.add(PREFIX_FOLDER + f.getId());
+            }
+            String bestMediaId = bestMatchAmong(folderNames, folderMediaIds, q);
+
+            if (bestMediaId == null) {
+                List<String> trackNames = new ArrayList<>();
+                List<String> trackMediaIds = new ArrayList<>();
+                for (ZikFile z : db.zikFileDao().getAll()) {
+                    trackNames.add(z.getDisplayName());
+                    trackMediaIds.add(PREFIX_TRACK + z.getId());
+                }
+                bestMediaId = bestMatchAmong(trackNames, trackMediaIds, q);
+            }
+
+            if (bestMediaId != null) {
+                myLogI("carOnPlayFromSearch: matched [" + bestMediaId + "] for query [" + query + "]");
+                carOnPlayFromMediaId(context, bestMediaId, extras);
+            } else {
+                myLogI("carOnPlayFromSearch: no match for [" + query + "] - falling back to plain Play");
+                carOnPlay(context);
+            }
+        });
+    }
+
+    /** Exact match wins outright; otherwise prefers a "starts with" match over a mere "contains". */
+    @Nullable
+    private static String bestMatchAmong(List<String> names, List<String> mediaIds, String lowerCaseQuery) {
+        String startsWithMatch = null;
+        String containsMatch = null;
+        for (int i = 0; i < names.size(); i++) {
+            String name = names.get(i);
+            if (name == null || name.isEmpty()) {
+                continue;
+            }
+            String lowerName = name.toLowerCase(Locale.US);
+            if (lowerName.equals(lowerCaseQuery)) {
+                return mediaIds.get(i);
+            }
+            if (startsWithMatch == null && lowerName.startsWith(lowerCaseQuery)) {
+                startsWithMatch = mediaIds.get(i);
+            }
+            if (containsMatch == null && lowerName.contains(lowerCaseQuery)) {
+                containsMatch = mediaIds.get(i);
+            }
+        }
+        return startsWithMatch != null ? startsWithMatch : containsMatch;
+    }
+
     private static void sendCmdPlay(Context context) {
         FirebaseAnalyticsHelper.tellCarSendCmd("CMD_PLAY");
         ContextCompat.startForegroundService(

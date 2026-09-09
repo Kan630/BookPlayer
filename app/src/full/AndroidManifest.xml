@@ -31,6 +31,16 @@
                 <data android:scheme="bookplayer" android:host="radio" />
             </intent-filter>
 
+            <!-- Voice search ("Hey Google, play <query> on BookPlayer") launched directly as an
+                 activity intent (e.g. from the phone's Assistant when the app isn't already the
+                 active media session) - see MainActivity.handleMediaSearchIntentIfAny() and the
+                 MediaSessionCompat.Callback.onPlayFromSearch() path in MediaService, which covers
+                 the same voice command when a session is already connected (Android Auto). -->
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
         </activity>
     </application>
 

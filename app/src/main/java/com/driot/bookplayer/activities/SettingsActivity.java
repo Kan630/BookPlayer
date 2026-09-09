@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ScrollView;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -158,23 +160,25 @@ public class SettingsActivity extends FullActivity {
                 MassiveImportSettingsFragment::new,
                 savedInstanceState, false);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // If a section is currently expanded, collapse it instead of closing the activity
+                if (currentlyExpanded != null) {
+                    collapseSection(currentlyExpanded, false);
+                } else {
+                    // No section expanded - defer to the next callback in the chain (e.g.
+                    // BaseActivity's nav-section-aware back handling).
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // If a section is currently expanded, collapse it instead of closing the
-        // activity
-        if (currentlyExpanded != null) {
-            collapseSection(currentlyExpanded, false);
-        } else {
-            // No section expanded, proceed with default back behavior
-            super.onBackPressed();
-        }
     }
 
     // PERMISSIONS REMOVAL
