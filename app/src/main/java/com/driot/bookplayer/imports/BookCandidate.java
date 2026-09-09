@@ -274,6 +274,38 @@ public class BookCandidate implements Parcelable {
         }
     }
 
+    private String friendlySourceTypeLabel(Context context) {
+        switch (sourceType) {
+            case "Folder":
+                return context.getString(R.string.source_type_folder);
+            case "Audio File":
+                return context.getString(R.string.source_type_audio);
+            case "M4B":
+                return context.getString(R.string.source_type_m4b);
+            case "Archive":
+                return context.getString(R.string.source_type_archive);
+            case "Ebook":
+                return context.getString(R.string.source_type_ebook);
+            default:
+                return sourceType; // safety net for any type not covered above
+        }
+    }
+
+    private String friendlySourceLocationLabel(Context context) {
+        switch (sourceLocation) {
+            case "local":
+                return context.getString(R.string.source_location_local);
+            case "sdcard":
+                return context.getString(R.string.source_location_sdcard);
+            case "cloud":
+                return context.getString(R.string.source_location_cloud);
+            case "web":
+                return context.getString(R.string.source_location_web);
+            default:
+                return context.getString(R.string.source_location_unknown);
+        }
+    }
+
     public void loadEasyMetadata(Context context) {
         if (isEasyLoaded)
             return;
@@ -341,17 +373,22 @@ public class BookCandidate implements Parcelable {
             this.selected = false;
         }
 
-        // Extra info fields
+        // Extra info fields - user-facing, so plain wording instead of the raw
+        // type/location/mime codes (e.g. "Folder from SD card" rather than
+        // "Folder - Location: [sdcard]").
         this.sourceLocation = Tonio.getSourceLocation(context, uri);
         this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
-        this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
+        this.infoLine1 = context.getString(R.string.import_source_summary,
+                friendlySourceTypeLabel(context), friendlySourceLocationLabel(context));
 
         if ("Folder".equals(sourceType)) {
-            this.infoMimeExtension = "[" + "Folder" + "]";
+            this.infoMimeExtension = ""; // nothing extra to add - already said "Folder" above
             this.infoMimeExtensionSmall = "init...";
         } else {
             this.playType = SupportedFilesHelper.getPlayType(name);
-            this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            String extUpper = Objects.toString(fileExtension, "").toUpperCase(Locale.ROOT);
+            this.infoMimeExtension = extUpper.isEmpty() ? ""
+                    : context.getString(R.string.import_file_format_line, extUpper);
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
         }
 

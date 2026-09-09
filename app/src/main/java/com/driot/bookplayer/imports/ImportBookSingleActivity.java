@@ -239,7 +239,10 @@ public class ImportBookSingleActivity extends FullActivity {
                 ivCover.setImageResource(R.drawable.no_image_icon);
             }
             tvInfoLine1.setText(bookCandidate.infoLine1);
+            boolean hasFormatLine = bookCandidate.infoMimeExtension != null
+                    && !bookCandidate.infoMimeExtension.isEmpty();
             tvMimeExtension.setText(bookCandidate.infoMimeExtension);
+            tvMimeExtension.setVisibility(hasFormatLine ? View.VISIBLE : View.GONE);
 
             if (!detailMode) {
                 // Now that candidate is ready, activate UI
