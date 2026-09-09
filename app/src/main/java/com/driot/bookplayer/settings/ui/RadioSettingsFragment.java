@@ -74,6 +74,7 @@ public class RadioSettingsFragment extends LoggingFragment {
 
         com.google.android.material.button.MaterialButtonToggleGroup groupRadioLandingScreen =
                 root.findViewById(R.id.groupRadioLandingScreen);
+        View tvRadioLandingScreenSubtitle = root.findViewById(R.id.tvRadioLandingScreenSubtitle);
         int checkedId;
         switch (Option.getRadioLandingScreen()) {
             case Option.RADIO_LANDING_FAVORITES:
@@ -87,15 +88,19 @@ public class RadioSettingsFragment extends LoggingFragment {
                 break;
         }
         groupRadioLandingScreen.check(checkedId);
+        tvRadioLandingScreenSubtitle.setVisibility(checkedId == R.id.btnRadioLandingSearch ? View.GONE : View.VISIBLE);
         groupRadioLandingScreen.addOnButtonCheckedListener((group, checkedButtonId, isChecked) -> {
             if (!isChecked)
                 return;
             if (checkedButtonId == R.id.btnRadioLandingFavorites) {
                 Option.setRadioLandingScreen(Option.RADIO_LANDING_FAVORITES);
+                tvRadioLandingScreenSubtitle.setVisibility(View.VISIBLE);
             } else if (checkedButtonId == R.id.btnRadioLandingHistory) {
                 Option.setRadioLandingScreen(Option.RADIO_LANDING_HISTORY);
+                tvRadioLandingScreenSubtitle.setVisibility(View.VISIBLE);
             } else {
                 Option.setRadioLandingScreen(Option.RADIO_LANDING_SEARCH);
+                tvRadioLandingScreenSubtitle.setVisibility(View.GONE);
             }
         });
 

@@ -14,6 +14,7 @@
     <string name="Auto_Delete">Exclusão automática</string>
     <string name="Auto_Download">Download automático</string>
     <string name="auto_download">download automático</string>
+    <string name="auto_download_short">auto</string>
     <string name="Automotive">Automotivo</string> //Auto section of settings
     <string name="bars">barras</string>
     <string name="Bitrate">Taxa de bits</string>
@@ -364,6 +365,8 @@
     <string name="option_copy_file_title">Copiar arquivos internamente</string>
     <string name="option_backward_forward_title">Botões Retroceder/Avançar</string>
     <string name="option_backward_forward_text">intervalo :</string>
+    <string name="option_autoplay_next_chapter">Reproduzir automaticamente o próximo capítulo</string>
+    <string name="option_autoplay_next_chapter_text">Inicia automaticamente o próximo capítulo quando o atual termina.</string>
     <string name="option_rewind_after_pause_text">"Rebobinar alguns segundos antes de retomar a reprodução (pausa de 5 min → 3 s de retrocesso, pausa de 1 h → 5 s, …)"</string>
     <string name="option_pick_theme_color_title">Escolha o tema de cores do app</string>
     <string name="option_delete_source_file_title">Exclusão automática do arquivo de origem</string>
@@ -429,14 +432,16 @@
     <string name="option_podcast_open_favorites_first">Abrir favoritos primeiro</string>
     <string name="option_podcast_open_favorites_first_subtitle">Quando tocar em Podcast na barra inferior, abrir primeiro o ecrã Favoritos. Toque em Voltar para ir à pesquisa e explorar mais podcasts.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Quando novos episódios forem baixados, mover o podcast para o topo da lista de audiolivros.</string>
-    <string name="option_podcast_autodownload_subtitle">"Se você marcar um podcast como favorito, também pode ativar a opção \'download automático\'.\nO BookPlayer verificará novos episódios — periodicamente e na inicialização — e fará o download."</string>
+    <string name="option_podcast_autodownload_subtitle">"O BookPlayer verificará novos episódios — periodicamente e na inicialização — e fará o download."</string>
     <string name="option_playing_behaviour_title">Comportamento de reprodução</string>
 
     <string name="option_start_next_track_at_zero_title_text">Quando uma faixa termina, iniciar a seguinte desde o início, mesmo que já tenha sido parcialmente ouvida.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Parar o áudio quando você fechar o app.</string>
     <string name="option_network_preference_subtext">"Uma conexão não limitada significa que você não está usando dados móveis (por exemplo, Wi-Fi, Ethernet ou algumas VPNs).\nRoaming significa estar no exterior - até o Wi-Fi de hotel no exterior conta como roaming."</string>
     <string name="option_automotive_let_car_autoplay">Auto-Play ao conectar</string>
-    <string name="option_open_play_activity">Abrir a tela de reprodução quando a reprodução começar.</string>
+    <string name="option_always_open_track_list">Abrir lista de faixas mesmo para livros com uma só faixa</string>
+    <string name="option_always_open_track_list_subtitle"><i>"Desativado (padrão): tocar num livro com apenas uma faixa inicia a reprodução diretamente. Ativado: abre sempre primeiro a lista de faixas, como em livros com várias faixas."</i></string>
+    <string name="option_open_play_activity">Abrir a [tela de reprodução] quando a reprodução começar.</string>
     <string name="tts_settings">Configurações de TTS</string>
     <string name="option_tts_language_text">Idioma padrão de TTS para novos e-books.</string>
     <string name="option_tts_highlight_delay_title">Destaque de palavras.</string>
@@ -502,6 +507,18 @@
     <string name="podcast_favorite_add">Adicionado aos favoritos</string>
     <string name="podcast_autodownload_add">Adicionado ao download automático</string>
     <string name="podcast_new_episodes">novos episódios</string>
+    <string name="filter_never_downloaded">Mostrar apenas episódios nunca transferidos</string>
+    <string name="podcast_download_settings_title">Definições de transferência</string>
+    <string name="podcast_total_storage_used">Armazenamento utilizado pelos episódios transferidos</string>
+    <string name="podcast_download_last_n_episodes">Transferir os últimos %1$d episódios</string>
+    <string name="podcast_download_last_n_size">Tamanho estimado: %1$s</string>
+    <string name="podcast_no_undownloaded_episodes">Todos os episódios conhecidos já foram transferidos</string>
+    <string name="podcast_download_last_n_started">A transferir %1$d episódio(s)…</string>
+    <string name="podcast_episode_status_total">Total: %1$d episódio(s)</string>
+    <string name="podcast_episode_status_never_downloaded">Nunca transferido</string>
+    <string name="podcast_episode_status_downloaded">Transferido</string>
+    <string name="podcast_episode_status_orphan">Transferido (não registado na aplicação)</string>
+    <string name="podcast_episode_status_deleted">Transferido e depois eliminado</string>
 
 
     <string name="Error_Import_IsNotFolder">Isto não parece uma pasta</string>
@@ -692,8 +709,18 @@
     <string name="stats_audio_time">Tempo total de reprodução</string>
     <string name="stats_book_time">* Audiolivro</string>
     <string name="stats_tts_time">* E-book</string>
-    <string name="stats_radio_time">* Rádio</string>
-    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_music_time">* Música</string>
+    <string name="stats_radio_time">* Rádio (direto)</string>
+    <string name="stats_radio_recording_time">* Rádio (gravações)</string>
+    <string name="stats_podcast_time">* Podcast (stream)</string>
+    <string name="stats_podcast_downloaded_time">* Podcast (transferido)</string>
+    <string name="detailed_stats">Estatísticas detalhadas</string>
+    <string name="detailed_stats_empty">Ainda não há dados de audição.</string>
+    <string name="stats_category_book">Audiolivro</string>
+    <string name="stats_category_tts">E-book</string>
+    <string name="stats_category_music">Música</string>
+    <string name="stats_category_podcast_downloaded">Podcast</string>
+    <string name="stats_category_radio_recording">Gravação de rádio</string>
     <string name="stats_note">(Estas estatísticas começaram em 2025 (out-nov)</string>
     <string name="stats_install_date_label">Data de instalação : </string>
     <string name="bMassImport">📁 Importação em massa</string>
@@ -902,6 +929,28 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_tts_overlay_timeout_text">Tempo máx de carga :</string>
     <string name="EndCut">Cortar final</string>
     <string name="EndCutText"><i>"Interrompe a reprodução alguns segundos antes do fim de cada capítulo."</i></string>
+    <string name="BookType">"Tipo de livro"</string>
+    <string name="book_type_podcast">Podcast</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">Texto para voz</string>
+    <string name="book_type_music">Música</string>
+    <string name="book_type_audiobook">Audiolivro</string>
+    <string name="MakeMusicType">Música</string>
+    <string name="MakeMusicTypeSubtitle"><i>"Substitui os botões de avançar/recuar pelos de faixa seguinte/anterior durante a reprodução."</i></string>
+    <string name="next_track">Seguinte</string>
+    <string name="previous_track">Anterior</string>
+    <string name="Recording">Gravação</string>
+    <string name="option_radio_recording_enabled">Permitir gravação de rádio</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"Mostra um botão de gravação no mini leitor de rádio. Desative para o ocultar."</i></string>
+    <string name="option_radio_recording_as_music">Guardar gravações como tipo Música</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"As novas gravações recebem o tipo de livro Música (botões de faixa seguinte/anterior em vez de avançar/recuar). Desative para as guardar como audiolivros normais."</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">A gravação não está disponível para esta estação.</string>
+    <string name="radio_recording_no_live_stream">Não foi possível encontrar a estação em direto para esta gravação.</string>
+    <string name="radio_recording_saved">Gravação guardada: %1$s (%2$s)</string>
+    <string name="radio_recording_failed">Falha na gravação.</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">Buffer\n%1$s</string>
 
     <string name="Import_Progress_chapter_title">"Titulo da faixa"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"o nome do arquivo exportado deve ter pelo menos 3 caracteres"</string>
@@ -957,7 +1006,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="AskReset_popupText_order">Você está prestes a redefinir a ordem das faixas.\nTem certeza?</string>
     <string name="zikFiles_not_readable">algumas faixas têm erros e não podem ser reproduzidas:</string>
     <string name="All_zikFiles_not_readable">Este livro está com problema. Nenhuma faixa pode ser reproduzida.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">As barras de progresso das faixas mostrarão exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ As barras de progresso mostram exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.\n❎ Se desativado, as barras de progresso são preenchidas apenas até à última posição de audição. (clássico)</string>
     <string name="option_use_heatmap_for_tracks_activity">mostrar mapas de calor</string>
     <string name="option_use_heatmap_seekbar_in_play_activity">Substituir barra de progresso clássica pela barra de mapa de calor</string>
     <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicador de progresso visual que mostra quanto de cada parte da faixa foi ouvida, com um marcador de reprodução arrastável.</string>
@@ -991,6 +1040,8 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_radio_remove_duplicates_subtitle">Se o nome da estação aparecer mais de 3 vezes, as próximas não são exibidas para evitar poluir a lista com duplicados.</string>
     <string name="option_radio_remove_dubious">Remover estações duvidosas</string>
     <string name="option_radio_remove_dubious_subtitle">Algumas estações foram incorretamente adicionadas a cada país ou etiqueta; ocultá-las dos resultados.</string>
+    <string name="option_radio_landing_screen">Ao tocar em Rádio na barra inferior, abrir:</string>
+    <string name="option_radio_landing_screen_subtitle">Toque em Voltar para aceder aos outros ecrãs de rádio a partir daí.</string>
     <string name="option_radio_sleep_copy_subtitle">Aqui você pode definir um valor personalizado para o auto-sleep do rádio. Como não salvamos o progresso do rádio, não tem problema se você dormir!</string>
     <string name="no_results_found">nenhum resultado</string>
     <string name="getting_first_results_from">Primeiros resultados de</string>
@@ -1245,6 +1296,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="AutoTest_b3_text">m4b (9MB)</string>
     <string name="Librivox">LibriVox</string>
     <string name="three_dots">…</string>
+    <string name="admin">Admin</string>
     <string name="play">&gt;</string>
     <string name="rewind">&lt;&lt;</string>
     <string name="forward">&gt;&gt;</string>
@@ -1272,7 +1324,11 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirmar redefinição desta faixa (apenas)"</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Está prestes a redefinir a progressão desta faixa.\nTem a certeza?"</string>
     <string name="delete_cache">Eliminar cache</string>
+    <string name="delete_cache_explanation">Elimina imagens de capa transferidas (livros/podcasts) que já não estão associadas a nada na sua biblioteca.</string>
     <string name="DeleteCache_AskConfirm">"Está prestes a eliminar os itens em cache.\nIsto poupará espaço, mas poderá afetar o desempenho.\nTem a certeza?"</string>
+    <string name="delete_system_cache">Eliminar cache do sistema</string>
+    <string name="delete_system_cache_explanation">Limpa a cache do sistema Android utilizada para ficheiros temporários, como capas de episódios de podcast ainda não transferidos. O Android recria-a automaticamente conforme necessário.</string>
+    <string name="DeleteSystemCache_AskConfirm">"Está prestes a limpar a cache do sistema da aplicação.\nIsto é seguro e poupará espaço, os ficheiros temporários serão recriados conforme necessário.\nTem a certeza?"</string>
     <string name="option_metadata_titles">Títulos de capítulos de metadatos</string>
     <string name="option_metadata_titles_text">Tente utilizar títulos de metadatos (etiquetas) em vez de nomes de ficheiros para criar nomes de capítulos.</string>
     <string name="import_export_backup_note">Nota: Esta cópia de segurança exclui audiolivros locais. Para os guardar, utilize a opção de partilha ou exportação nas páginas de informações individuais dos livros.</string>

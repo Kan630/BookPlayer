@@ -2723,9 +2723,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return;
             }
 
+            Folder currentFolder = pl.getFolder();
+
             // Cut End (book option): skip to next track a few seconds before the end
-            if (!bFinished && dur > 0 && pl.getFolder() != null) {
-                int cutEnd = pl.getFolder().cutEnd * 1000;
+            if (!bFinished && dur > 0 && currentFolder != null) {
+                int cutEnd = currentFolder.cutEnd * 1000;
                 if (cutEnd > 0 && pos >= (dur - cutEnd)) {
                     myLogI("=> End Cut: pos=" + pos + " dur=" + dur + " cutEnd=" + cutEnd
                             + " => triggering completion");
@@ -2742,7 +2744,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         myLog("TTS Session START (auto from tick): " + sessionStartPosition);
                     }
                 }
-                progress.update(zf, bFinished, pos, dur, enginePlayMode, timestamp);
+                progress.update(zf, currentFolder, bFinished, pos, dur, enginePlayMode, timestamp);
             } catch (Exception e) {
                 myLogEE(e, "do_1sec_stuff-updateZikFileStateInDB - progress");
             }

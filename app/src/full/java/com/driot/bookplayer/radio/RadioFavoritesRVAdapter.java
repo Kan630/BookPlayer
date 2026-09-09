@@ -64,7 +64,12 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     public RadioFavoritesRVAdapter(@NonNull OnActionListener l) {
+        this(l, false);
+    }
+
+    public RadioFavoritesRVAdapter(@NonNull OnActionListener l, boolean initialHistoryMode) {
         this.listener = l;
+        this.historyMode = initialHistoryMode;
         setHasStableIds(true);
     }
 
@@ -308,7 +313,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     public void setHistoryMode(boolean history) {
+        if (this.historyMode == history)
+            return;
         this.historyMode = history;
+        notifyItemChanged(0);
     }
 
     public void setPlayingRadioStation(long trackId) {

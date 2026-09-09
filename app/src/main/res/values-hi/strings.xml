@@ -14,6 +14,7 @@
     <string name="Auto_Delete">स्वतः हटाएँ</string>
     <string name="Auto_Download">स्वतः डाउनलोड</string>
     <string name="auto_download">स्वतः डाउनलोड</string>
+    <string name="auto_download_short">ऑटो</string>
     <string name="Automotive">ऑटोमोटिव</string> //Auto section of settings
     <string name="bars">बार्स</string>
     <string name="Bitrate">बिटरेट</string>
@@ -359,6 +360,8 @@
     <string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
     <string name="option_backward_forward_title">बैकवर्ड/फ़ॉरवर्ड बटन</string>
     <string name="option_backward_forward_text">टाइमलैप्स :</string>
+    <string name="option_autoplay_next_chapter">अगला अध्याय अपने आप चलाएं</string>
+    <string name="option_autoplay_next_chapter_text">मौजूदा अध्याय समाप्त होने पर अगला अध्याय अपने आप शुरू करें।</string>
     <string name="option_rewind_after_pause_text">"प्ले फिर शुरू करने से कुछ सेकंड पहले ऑडियो रिवाइंड करें, (5 मिनट के विराम पर 3 सेकंड का रिवाइंड, 1 घंटे के विराम पर 5 सेकंड, …)"</string>
     <string name="option_pick_theme_color_title">अपना ऐप रंग थीम चुनें</string>
     <string name="option_delete_source_file_title">स्रोत फ़ाइल का स्वतः मिटाना</string>
@@ -424,7 +427,7 @@
     <string name="option_podcast_open_favorites_first">पहले पसंदीदा खोलें</string>
     <string name="option_podcast_open_favorites_first_subtitle">नीचे की पट्टी में पॉडकास्ट पर टैप करने पर पहले पसंदीदा स्क्रीन खोलें। खोज पर जाने और अधिक पॉडकास्ट देखने के लिए वापस दबाएँ।</string>
     <string name="option_podcast_autodownloaded_at_the_top">जब नए एपिसोड डाउनलोड हों, तो पॉडकास्ट को ऑडियोबुक्स सूची के शीर्ष पर ले जाएँ।</string>
-    <string name="option_podcast_autodownload_subtitle">"यदि आप किसी पॉडकास्ट को पसंदीदा चिह्नित करते हैं, तो आप ‘स्वतः डाउनलोड’ विकल्प भी सक्षम कर सकते हैं.\nBookPlayer तब नए एपिसोड की जाँच करेगा — समय-समय पर और स्टार्टअप पर — और उन्हें डाउनलोड करेगा."</string>
+    <string name="option_podcast_autodownload_subtitle">"BookPlayer समय-समय पर और स्टार्टअप पर नए एपिसोड की जाँच करेगा और उन्हें डाउनलोड करेगा।"</string>
     <string name="option_playing_behaviour_title">प्लेबैक व्यवहार</string>
 
     <string name="option_start_next_track_at_zero_title_text">जब कोई ट्रैक समाप्त हो जाए, अगला ट्रैक शुरुआत से शुरू करें, भले ही उसे पहले आंशिक रूप से सुना गया हो।</string>
@@ -434,7 +437,9 @@
 \nरोमिंग का अर्थ है विदेश में होना — विदेश में होटल Wi-Fi भी रोमिंग माना जाता है।"
 </string>
     <string name="option_automotive_let_car_autoplay">कनेक्ट होने पर ऑटो-प्ले</string>
-    <string name="option_open_play_activity">प्लेबैक शुरू होने पर प्ले व्यू खोलें।</string>
+    <string name="option_always_open_track_list">एकल-ट्रैक पुस्तकों के लिए भी ट्रैक सूची खोलें</string>
+    <string name="option_always_open_track_list_subtitle"><i>"बंद (डिफ़ॉल्ट): केवल एक ट्रैक वाली पुस्तक पर टैप करने से वह सीधे चलने लगती है। चालू: हमेशा पहले ट्रैक सूची खोलता है, जैसे कई ट्रैक वाली पुस्तकों में।"</i></string>
+    <string name="option_open_play_activity">प्लेबैक शुरू होने पर [प्ले व्यू] खोलें।</string>
     <string name="tts_settings">TTS सेटिंग्स</string>
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
@@ -500,6 +505,18 @@
     <string name="podcast_favorite_add">पसंदीदा में जोड़ा गया</string>
     <string name="podcast_autodownload_add">स्वतः डाउनलोड में जोड़ा गया</string>
     <string name="podcast_new_episodes">नए एपिसोड</string>
+    <string name="filter_never_downloaded">केवल कभी डाउनलोड न किए गए एपिसोड दिखाएं</string>
+    <string name="podcast_download_settings_title">डाउनलोड सेटिंग्स</string>
+    <string name="podcast_total_storage_used">डाउनलोड किए गए एपिसोड द्वारा उपयोग किया गया संग्रहण</string>
+    <string name="podcast_download_last_n_episodes">अंतिम %1$d एपिसोड डाउनलोड करें</string>
+    <string name="podcast_download_last_n_size">अनुमानित आकार: %1$s</string>
+    <string name="podcast_no_undownloaded_episodes">सभी ज्ञात एपिसोड पहले ही डाउनलोड हो चुके हैं</string>
+    <string name="podcast_download_last_n_started">%1$d एपिसोड डाउनलोड हो रहे हैं…</string>
+    <string name="podcast_episode_status_total">कुल: %1$d एपिसोड</string>
+    <string name="podcast_episode_status_never_downloaded">कभी डाउनलोड नहीं किया गया</string>
+    <string name="podcast_episode_status_downloaded">डाउनलोड किया गया</string>
+    <string name="podcast_episode_status_orphan">डाउनलोड किया गया (ऐप में पंजीकृत नहीं)</string>
+    <string name="podcast_episode_status_deleted">डाउनलोड किया गया, फिर हटाया गया</string>
 
 
     <string name="Error_Import_IsNotFolder">यह फ़ोल्डर जैसा नहीं लगता</string>
@@ -689,8 +706,18 @@
     <!-- Stats Activity Table -->
     <string name="stats_book_time">* ऑडियोबुक</string>
     <string name="stats_tts_time">* ई-पुस्तक</string>
-    <string name="stats_radio_time">* रेडियो</string>
-    <string name="stats_podcast_time">* पॉडकास्ट</string>
+    <string name="stats_music_time">* संगीत</string>
+    <string name="stats_radio_time">* रेडियो (लाइव)</string>
+    <string name="stats_radio_recording_time">* रेडियो (रिकॉर्डिंग)</string>
+    <string name="stats_podcast_time">* पॉडकास्ट (स्ट्रीम)</string>
+    <string name="stats_podcast_downloaded_time">* पॉडकास्ट (डाउनलोड किया गया)</string>
+    <string name="detailed_stats">विस्तृत आँकड़े</string>
+    <string name="detailed_stats_empty">अभी तक कोई सुनने का डेटा नहीं है।</string>
+    <string name="stats_category_book">ऑडियोबुक</string>
+    <string name="stats_category_tts">ई-पुस्तक</string>
+    <string name="stats_category_music">संगीत</string>
+    <string name="stats_category_podcast_downloaded">पॉडकास्ट</string>
+    <string name="stats_category_radio_recording">रेडियो रिकॉर्डिंग</string>
     <string name="stats_note">(ये आंकड़े 2025 में शुरू हुए (अक्टूबर-नवंबर)</string>
     <string name="stats_install_date_label">इंस्टॉल तिथि : </string>
     <string name="bMassImport">📁 मास आयात</string>
@@ -899,6 +926,28 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_tts_overlay_timeout_text">अधिकतम लोडिंग समय :</string>
     <string name="EndCut">अंत कट</string>
     <string name="EndCutText"><i>"प्रत्येक अध्याय के अंत से कुछ सेकंड पहले प्लेबैक रोक देता है।"</i></string>
+    <string name="BookType">"पुस्तक प्रकार"</string>
+    <string name="book_type_podcast">पॉडकास्ट</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">टेक्स्ट-टू-स्पीच</string>
+    <string name="book_type_music">संगीत</string>
+    <string name="book_type_audiobook">ऑडियोबुक</string>
+    <string name="MakeMusicType">संगीत</string>
+    <string name="MakeMusicTypeSubtitle"><i>"चलाते समय आगे/पीछे बटन को अगला/पिछला ट्रैक बटन से बदल देता है।"</i></string>
+    <string name="next_track">अगला</string>
+    <string name="previous_track">पिछला</string>
+    <string name="Recording">रिकॉर्डिंग</string>
+    <string name="option_radio_recording_enabled">रेडियो रिकॉर्डिंग की अनुमति दें</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"रेडियो मिनी प्लेयर पर रिकॉर्ड बटन दिखाता है। इसे छिपाने के लिए बंद करें।"</i></string>
+    <string name="option_radio_recording_as_music">रिकॉर्डिंग को \'संगीत\' प्रकार के रूप में सहेजें</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"नई रिकॉर्डिंग को \'संगीत\' पुस्तक प्रकार मिलता है (आगे/पीछे के बजाय अगला/पिछला ट्रैक बटन)। इन्हें सामान्य ऑडियोबुक के रूप में सहेजने के लिए बंद करें।"</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">इस स्टेशन के लिए रिकॉर्डिंग उपलब्ध नहीं है।</string>
+    <string name="radio_recording_no_live_stream">इस रिकॉर्डिंग के लिए लाइव स्टेशन नहीं मिला।</string>
+    <string name="radio_recording_saved">रिकॉर्डिंग सहेजी गई: %1$s (%2$s)</string>
+    <string name="radio_recording_failed">रिकॉर्डिंग विफल रही।</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">बफ़र\n%1$s</string>
 
     <string name="Import_Progress_chapter_title">"ट्रैक शीर्षक"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"निर्यात की गई फ़ाइल का नाम कम से कम 3 अक्षरों का होना चाहिए"</string>
@@ -954,7 +1003,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
     <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">ट्रैक की प्रगति पट्टियाँ दिखाएँगी कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ प्रगति पट्टियाँ दिखाती हैं कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।\n❎ यदि अक्षम है, तो प्रगति पट्टियाँ केवल अंतिम सुनने की स्थिति तक भरी जाती हैं। (क्लासिक)</string>
     <string name="option_use_heatmap_for_tracks_activity">हीटमैप दिखाएँ</string>
     <string name="option_use_heatmap_seekbar_in_play_activity">क्लासिक सीकबार को हीटमैप सीकबार से बदलें</string>
     <string name="option_use_heatmap_seekbar_in_play_activity_explain">विज़ुअल प्रोग्रेस इंडिकेटर जो दिखाता है कि ट्रैक के हर हिस्से को कितना सुना गया, खींचने योग्य प्ले मार्कर के साथ।</string>
@@ -988,6 +1037,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_radio_remove_duplicates_subtitle">यदि स्टेशन का नाम 3 बार से अधिक मिलता है, तो सूची में अव्यवस्था से बचने के लिए आगे की प्रविष्टियाँ नहीं दिखेंगी।</string>
     <string name="option_radio_remove_dubious">संदिग्ध स्टेशन हटाएँ</string>
     <string name="option_radio_remove_dubious_subtitle">कुछ स्टेशन गलती से हर देश या टैग में जोड़े गए; परिणामों से छिपाएँ।</string>
+    <string name="option_radio_landing_screen">नीचे की पट्टी में रेडियो पर टैप करने पर खोलें:</string>
+    <string name="option_radio_landing_screen_subtitle">वहां से अन्य रेडियो स्क्रीन तक पहुंचने के लिए वापस दबाएं।</string>
     <string name="option_radio_sleep_copy_subtitle">यहाँ आप रेडियो ऑटो-स्लीप के लिए कस्टम मान सेट कर सकते हैं। हम रेडियो के लिए प्रगति नहीं सहेजते, तो यदि आप सो भी जाएँ तो कोई समस्या नहीं!</string>
     <string name="no_results_found">कोई परिणाम नहीं</string>
     <string name="getting_first_results_from">पहले परिणाम यहाँ से</string>
@@ -1244,6 +1295,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="AutoTest_b3_text">m4b (9MB)</string>
     <string name="Librivox">LibriVox</string>
     <string name="three_dots">…</string>
+    <string name="admin">Admin</string>
     <string name="play">&gt;</string>
     <string name="rewind">&lt;&lt;</string>
     <string name="forward">&gt;&gt;</string>
@@ -1271,7 +1323,11 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"इस ट्रैक के लिए रीसेट की पुष्टि करें (केवल)"</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"आप इस ट्रैक के लिए प्रगति को रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?"</string>
     <string name="delete_cache">कैश हटाएं</string>
+    <string name="delete_cache_explanation">उन डाउनलोड किए गए कवर चित्रों (पुस्तकें/पॉडकास्ट) को हटाता है जो अब आपकी लाइब्रेरी में किसी भी चीज़ से जुड़े नहीं हैं।</string>
     <string name="DeleteCache_AskConfirm">"आप कैश्ड आइटम हटाने वाले हैं।\nइससे जगह बचेगी लेकिन प्रदर्शन प्रभावित हो सकता है।\nक्या आप सुनिश्चित हैं?"</string>
+    <string name="delete_system_cache">सिस्टम कैश हटाएं</string>
+    <string name="delete_system_cache_explanation">एंड्रॉइड सिस्टम कैश को साफ़ करता है जो अस्थायी फ़ाइलों के लिए उपयोग होता है, जैसे अभी तक डाउनलोड न किए गए पॉडकास्ट एपिसोड कवर। ज़रूरत पड़ने पर एंड्रॉइड इसे स्वतः फिर से बना लेता है।</string>
+    <string name="DeleteSystemCache_AskConfirm">"आप ऐप का सिस्टम कैश साफ़ करने वाले हैं।\nयह सुरक्षित है और जगह बचाएगा, अस्थायी फ़ाइलें ज़रूरत पड़ने पर फिर से बन जाएंगी।\nक्या आप सुनिश्चित हैं?"</string>
     <string name="option_metadata_titles">मेटाडेटा अध्याय शीर्षक</string>
     <string name="option_metadata_titles_text">अध्याय नाम बनाने के लिए फ़ाइल नामों के बजाय मेटाडेटा शीर्षक (टैग) का उपयोग करने का प्रयास करें।</string>
     <string name="import_export_backup_note">नोट: इस बैकअप में स्थानीय ऑडियोबुक शामिल नहीं हैं। उन्हें सहेजने के लिए, व्यक्तिगत पुस्तक सूचना पृष्ठों पर शेयर या एक्सपोर्ट विकल्प का उपयोग करें।</string>

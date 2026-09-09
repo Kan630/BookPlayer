@@ -129,6 +129,12 @@ public class RadioFavoritesActivity extends FullActivity {
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
 
+        // Known upfront (from the landing-screen setting) so the header's very first bind - before
+        // any DB data has loaded - already reflects the intended mode, instead of always starting
+        // as "Favorites" and correcting itself a moment later (visible as a brief Favorites flash).
+        boolean startInHistory = getIntent().getBooleanExtra(Intents.EXTRA_START_IN_HISTORY, false);
+        isHistoryMode = startInHistory;
+
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override
             public void onPlay(RadioStation radioStation) {
@@ -284,7 +290,7 @@ public class RadioFavoritesActivity extends FullActivity {
                 myLogI("--- user clicks history ---");
                 viewModel.loadHistory(RadioFavoritesActivity.this);
             }
-        });
+        }, startInHistory);
         adapter.setFaviconCache(viewModel.getFaviconCache());
         recyclerView.setAdapter(adapter);
 

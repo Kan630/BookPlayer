@@ -27,6 +27,9 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder ORDER BY lLastAccess DESC")
     LiveData<List<Folder>> getAllLiveData();
 
+    @Query("SELECT * FROM Folder WHERE timeListened > 0 ORDER BY timeListened DESC")
+    List<Folder> getAllByTimeListenedDesc();
+
     @Query("SELECT COUNT(id) FROM Folder WHERE name LIKE :sFolderName")
     long folderAlreadyExist_checkFolderName(String sFolderName);
 

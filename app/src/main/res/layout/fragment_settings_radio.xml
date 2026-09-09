@@ -63,6 +63,7 @@
                 android:text="@string/History" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
         <TextView
+            android:id="@+id/tvRadioLandingScreenSubtitle"
             style="@style/OptionExplainText"
             android:text="@string/option_radio_landing_screen_subtitle"
             />

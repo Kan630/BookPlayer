@@ -49,6 +49,7 @@
     <string name="Auto_Delete">Auto-Delete</string>
     <string name="Auto_Download">Auto-Download</string>
     <string name="auto_download">auto-download</string>
+    <string name="auto_download_short">auto</string>
     <string name="Automotive">Automotive</string> //Auto section of settings
     <string name="bars">bars</string>
     <string name="Bitrate">Bitrate</string>
@@ -590,7 +591,7 @@
     <string name="podcast_episode_status_total">Total: %1$d episode(s)</string>
     <string name="podcast_episode_status_never_downloaded">Never downloaded</string>
     <string name="podcast_episode_status_downloaded">Downloaded</string>
-    <string name="podcast_episode_status_orphan">Downloaded (not registered in app)</string>
+    <string name="podcast_episode_status_orphan">Downloaded (not yet registered in app)</string>
     <string name="podcast_episode_status_deleted">Downloaded, then deleted</string>
 
 
@@ -819,8 +820,18 @@
     <string name="stats_audio_time">Total Playback Time</string>
     <string name="stats_book_time">* Audiobook</string>
     <string name="stats_tts_time">* Ebook</string>
-    <string name="stats_radio_time">* Radio</string>
-    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_music_time">* Music</string>
+    <string name="stats_radio_time">* Radio (live)</string>
+    <string name="stats_radio_recording_time">* Radio (recordings)</string>
+    <string name="stats_podcast_time">* Podcast (stream)</string>
+    <string name="stats_podcast_downloaded_time">* Podcast (downloaded)</string>
+    <string name="detailed_stats">Detailed Stats</string>
+    <string name="detailed_stats_empty">No listening data yet.</string>
+    <string name="stats_category_book">Audiobook</string>
+    <string name="stats_category_tts">Ebook</string>
+    <string name="stats_category_music">Music</string>
+    <string name="stats_category_podcast_downloaded">Podcast</string>
+    <string name="stats_category_radio_recording">Radio Recording</string>
     <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
     <string name="stats_database_title">Database Statistics</string>
     <string name="stats_install_date_label">Install Date:</string>

@@ -14,6 +14,7 @@
     <string name="Auto_Delete">الحذف التلقائي</string>
     <string name="Auto_Download">التنزيل التلقائي</string>
     <string name="auto_download">تنزيل تلقائي</string>
+    <string name="auto_download_short">تلقائي</string>
     <string name="Automotive">السيارة</string> //Auto section of settings
     <string name="bars">أعمدة</string>
     <string name="Bitrate">معدل البت</string>
@@ -360,6 +361,8 @@
     <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
     <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
     <string name="option_backward_forward_text">الفاصل الزمني :</string>
+    <string name="option_autoplay_next_chapter">تشغيل الفصل التالي تلقائياً</string>
+    <string name="option_autoplay_next_chapter_text">بدء تشغيل الفصل التالي تلقائياً عند انتهاء الفصل الحالي.</string>
     <string name="option_rewind_after_pause_text">"إرجاع الصوت بضع ثوانٍ قبل استئناف التشغيل (توقف لمدة 5 دقائق يعيد 3 ثوانٍ، وتوقف لمدة ساعة يعيد 5 ثوانٍ، …)"</string>
     <string name="option_pick_theme_color_title">اختر سمة الألوان للتطبيق</string>
     <string name="option_delete_source_file_title">حذف الملف الأصلي تلقائيًا</string>
@@ -424,14 +427,16 @@
     <string name="option_podcast_open_favorites_first">فتح المفضلة أولاً</string>
     <string name="option_podcast_open_favorites_first_subtitle">عند النقر على البودكاست في الشريط السفلي، افتح شاشة المفضلة أولاً. اضغط رجوع للوصول إلى البحث واستعراض المزيد من البودكاست.</string>
     <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
-    <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
+    <string name="option_podcast_autodownload_subtitle">"سيتحقق BookPlayer من الحلقات الجديدة — دورياً وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
     <string name="option_playing_behaviour_title">سلوك التشغيل</string>
 
     <string name="option_start_next_track_at_zero_title_text">عند انتهاء مقطع، ابدأ المقطع التالي من البداية، حتى لو تم الاستماع إليه جزئيًا من قبل.</string>
     <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
     <string name="option_network_preference_subtext">"يعني الاتصال غير المقاس أنك لا تستخدم بيانات الجوّال (مثل Wi-Fi أو Ethernet أو بعض شبكات VPN).\nالتجوال يعني أنك في الخارج - حتى Wi-Fi في الفندق أثناء السفر يُعد تجوالاً."</string>
     <string name="option_automotive_let_car_autoplay">تشغيل تلقائي عند الاتصال</string>
-    <string name="option_open_play_activity">فتح شاشة التشغيل عند بدء التشغيل.</string>
+    <string name="option_always_open_track_list">فتح قائمة المقاطع حتى للكتب ذات المقطع الواحد</string>
+    <string name="option_always_open_track_list_subtitle"><i>"إيقاف (افتراضي): النقر على كتاب يحتوي على مقطع واحد فقط يبدأ التشغيل مباشرة. تشغيل: يفتح دائماً قائمة المقاطع أولاً، كما هو الحال في الكتب متعددة المقاطع."</i></string>
+    <string name="option_open_play_activity">فتح [شاشة التشغيل] عند بدء التشغيل.</string>
     <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
     <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
@@ -497,6 +502,18 @@
     <string name="podcast_favorite_add">تمت الإضافة إلى المفضلة</string>
     <string name="podcast_autodownload_add">تم تفعيل التحميل التلقائي</string>
     <string name="podcast_new_episodes">حلقات جديدة</string>
+    <string name="filter_never_downloaded">إظهار الحلقات التي لم يتم تنزيلها مطلقاً فقط</string>
+    <string name="podcast_download_settings_title">إعدادات التنزيل</string>
+    <string name="podcast_total_storage_used">المساحة التي تستخدمها الحلقات التي تم تنزيلها</string>
+    <string name="podcast_download_last_n_episodes">تنزيل آخر %1$d حلقة</string>
+    <string name="podcast_download_last_n_size">الحجم المقدر: %1$s</string>
+    <string name="podcast_no_undownloaded_episodes">تم تنزيل جميع الحلقات المعروفة بالفعل</string>
+    <string name="podcast_download_last_n_started">جارٍ تنزيل %1$d حلقة…</string>
+    <string name="podcast_episode_status_total">الإجمالي: %1$d حلقة</string>
+    <string name="podcast_episode_status_never_downloaded">لم يتم تنزيله مطلقاً</string>
+    <string name="podcast_episode_status_downloaded">تم تنزيله</string>
+    <string name="podcast_episode_status_orphan">تم تنزيله (غير مسجل في التطبيق)</string>
+    <string name="podcast_episode_status_deleted">تم تنزيله، ثم حذفه</string>
 
 
     <string name="Error_Import_IsNotFolder">هذا لا يبدو كمجلد</string>
@@ -687,8 +704,18 @@
     <string name="stats_audio_time">إجمالي وقت التشغيل</string>
     <string name="stats_book_time">* الكتب الصوتية</string>
     <string name="stats_tts_time">* الكتب الإلكترونية</string>
-    <string name="stats_radio_time">* الراديو</string>
-    <string name="stats_podcast_time">* البودكاست</string>
+    <string name="stats_music_time">* الموسيقى</string>
+    <string name="stats_radio_time">* الراديو (مباشر)</string>
+    <string name="stats_radio_recording_time">* الراديو (تسجيلات)</string>
+    <string name="stats_podcast_time">* البودكاست (بث)</string>
+    <string name="stats_podcast_downloaded_time">* البودكاست (تم تنزيله)</string>
+    <string name="detailed_stats">إحصاءات مفصلة</string>
+    <string name="detailed_stats_empty">لا توجد بيانات استماع بعد.</string>
+    <string name="stats_category_book">كتاب صوتي</string>
+    <string name="stats_category_tts">كتاب إلكتروني</string>
+    <string name="stats_category_music">موسيقى</string>
+    <string name="stats_category_podcast_downloaded">بودكاست</string>
+    <string name="stats_category_radio_recording">تسجيل راديو</string>
     <string name="stats_note">(بدأت هذه الإحصائيات في 2025 (أكتوبر-نوفمبر)</string>
     <string name="stats_install_date_label">تاريخ التثبيت : </string>
     <string name="bMassImport">📁 استيراد جماعي</string>
@@ -897,6 +924,28 @@
     <string name="option_tts_overlay_timeout_text">أقصى وقت للتحميل :</string>
     <string name="EndCut">قص النهاية</string>
     <string name="EndCutText"><i>"يوقف التشغيل قبل بضع ثوانٍ من نهاية كل فصل."</i></string>
+    <string name="BookType">"نوع الكتاب"</string>
+    <string name="book_type_podcast">بودكاست</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">تحويل النص إلى كلام</string>
+    <string name="book_type_music">موسيقى</string>
+    <string name="book_type_audiobook">كتاب صوتي</string>
+    <string name="MakeMusicType">موسيقى</string>
+    <string name="MakeMusicTypeSubtitle"><i>"يستبدل زري التقديم/الرجوع بزري المقطع التالي/السابق أثناء التشغيل."</i></string>
+    <string name="next_track">التالي</string>
+    <string name="previous_track">السابق</string>
+    <string name="Recording">التسجيل</string>
+    <string name="option_radio_recording_enabled">السماح بتسجيل الراديو</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"يعرض زر تسجيل في مشغل الراديو المصغر. أوقفه لإخفائه."</i></string>
+    <string name="option_radio_recording_as_music">حفظ التسجيلات كنوع «موسيقى»</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"تحصل التسجيلات الجديدة على نوع كتاب «موسيقى» (زرا المقطع التالي/السابق بدلاً من التقديم/الرجوع). أوقفه لحفظها ككتب صوتية عادية بدلاً من ذلك."</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">التسجيل غير متاح لهذه المحطة.</string>
+    <string name="radio_recording_no_live_stream">تعذر العثور على البث المباشر لهذا التسجيل.</string>
+    <string name="radio_recording_saved">تم حفظ التسجيل: %1$s (%2$s)</string>
+    <string name="radio_recording_failed">فشل التسجيل.</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">المخزن المؤقت\n%1$s</string>
 
     <string name="Import_Progress_chapter_title">"عنوان المقطع"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"يجب ان يحتوي اسم الملف المصدّر على 3 احرف على الاقل"</string>
@@ -952,7 +1001,7 @@
     <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ تُظهر أشرطة التقدّم بالضبط الأجزاء التي تم الاستماع إليها، ويتعمّق اللون كلما تكرّر تشغيل القسم.\n❎ إذا تم التعطيل، تُملأ أشرطة التقدّم فقط حتى آخر موضع استماع. (كلاسيكي)</string>
     <string name="option_use_heatmap_for_tracks_activity">عرض خرائط الحرارة</string>
     <string name="option_use_heatmap_seekbar_in_play_activity">استبدال شريط التقدّم العادي بشريط خريطة الحرارة</string>
     <string name="option_use_heatmap_seekbar_in_play_activity_explain">مؤشر تقدّم مرئي يوضح مقدار الاستماع إلى كل جزء من المقطع، مع مؤشر تشغيل قابل للسحب.</string>
@@ -986,6 +1035,8 @@
     <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
     <string name="option_radio_remove_dubious">إزالة المحطات المشكوك فيها</string>
     <string name="option_radio_remove_dubious_subtitle">تمت إضافة بعض المحطات بالخطأ إلى كل بلد أو وسم؛ إخفاؤها من النتائج.</string>
+    <string name="option_radio_landing_screen">عند النقر على الراديو في الشريط السفلي، افتح:</string>
+    <string name="option_radio_landing_screen_subtitle">اضغط رجوع للوصول إلى شاشات الراديو الأخرى من هناك.</string>
     <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
     <string name="no_results_found">لا توجد نتائج</string>
     <string name="getting_first_results_from">أول النتائج من</string>
@@ -1240,6 +1291,7 @@
     <string name="AutoTest_b3_text">m4b (9MB)</string>
     <string name="Librivox">LibriVox</string>
     <string name="three_dots">…</string>
+    <string name="admin">Admin</string>
     <string name="play">&gt;</string>
     <string name="rewind">&lt;&lt;</string>
     <string name="forward">&gt;&gt;</string>
@@ -1267,7 +1319,11 @@
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"تأكيد إعادة الضبط لهذا المسار (فقط)"</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"أنت على وشك إعادة ضبط التقدم لهذا المسار. هل أنت متأكد؟"</string>
     <string name="delete_cache">مسح التخزين المؤقت</string>
+    <string name="delete_cache_explanation">يحذف صور الأغلفة التي تم تنزيلها (كتب/بودكاست) والتي لم تعد مرتبطة بأي شيء في مكتبتك.</string>
     <string name="DeleteCache_AskConfirm">"أنت على وشك حذف العناصر المخزنة مؤقتاً. سيوفر هذا مساحة ولكنه قد يؤثر على الأداء. هل أنت متأكد؟"</string>
+    <string name="delete_system_cache">حذف ذاكرة التخزين المؤقت للنظام</string>
+    <string name="delete_system_cache_explanation">يمسح ذاكرة التخزين المؤقت لنظام أندرويد المستخدمة للملفات المؤقتة، مثل أغلفة حلقات البودكاست التي لم يتم تنزيلها بعد. يعيد أندرويد إنشاءها تلقائياً عند الحاجة.</string>
+    <string name="DeleteSystemCache_AskConfirm">"أنت على وشك مسح ذاكرة التخزين المؤقت لنظام التطبيق.\nهذا آمن وسيوفر مساحة، وسيتم إعادة إنشاء الملفات المؤقتة حسب الحاجة.\nهل أنت متأكد؟"</string>
     <string name="option_metadata_titles">عناوين الفصول من البيانات الوصفية</string>
     <string name="option_metadata_titles_text">حاول استخدام عناوين البيانات الوصفية (الوسوم) بدلاً من أسماء الملفات لإنشاء أسماء الفصول.</string>
     <string name="import_export_backup_note">ملاحظة: هذه النسخة الاحتياطية تستثني الكتب الصوتية المحلية. لحفظها، استخدم خيار المشاركة أو التصدير في صفحات معلومات الكتاب الفردية.</string>

@@ -92,6 +92,16 @@ public class Var {
         public static final String PLAY_MODE_RADIO = "radio";
         public static final String PLAY_MODE_PODCAST = "podcast";
 
+        // Finer-grained categories for the Pref.addToTotalMsPlayed/getTotalMsPlayed stats totals
+        // only (StatsActivity) - NOT real playback engine modes, PLAY_MODE_* above stays exactly
+        // as-is for engine/UI purposes. Local (ZikFile-based) playback of a downloaded podcast
+        // episode, a radio recording, or a music-type folder would otherwise all silently fall
+        // under PLAY_MODE_BOOK's "book" stats bucket, since local playback only ever derives
+        // PLAY_MODE_BOOK/PLAY_MODE_TTS from Folder.playType's text-vs-not check.
+        public static final String STATS_CATEGORY_MUSIC = "music";
+        public static final String STATS_CATEGORY_PODCAST_DOWNLOADED = "podcast_downloaded";
+        public static final String STATS_CATEGORY_RADIO_RECORDING = "radio_recording";
+
         public static final String REPO_TYPE_AUDIOBOOK = "audiobook";
         public static final String REPO_NAME_LIBRIVOX = "librivox";
         public static final int RADIO_LIST_MAX_CARD_ITEM = 500; // WARNING, if you change that, also change the

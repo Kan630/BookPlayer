@@ -6,8 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.StatsCategoryHelper;
 import com.driot.bookplayer.player.heatmaps.PlaySession;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
@@ -45,7 +47,8 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
         this.playSession = null;
     }
 
-    public void update(@Nullable ZikFile zf, boolean finished, long pos, long dur, String playMode, long timestamp) {
+    public void update(@Nullable ZikFile zf, @Nullable Folder folder, boolean finished, long pos, long dur,
+            String playMode, long timestamp) {
         if (System.currentTimeMillis() < suspendUntil) {
             myLog("update() skipped (suspended)");
             return;
@@ -54,7 +57,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             // Stats
             if (!finished) {
                 try {
-                    Pref.addToTotalMsPlayed(playMode, MediaService.DELAY_CHECK_TIMER_SLEEP);
+                    Pref.addToTotalMsPlayed(deriveStatsCategory(playMode, folder), MediaService.DELAY_CHECK_TIMER_SLEEP);
                 } catch (Throwable t) {
                     myLogEE(t, "Pref.addToTotalMsPlayed exception");
                 }
@@ -146,6 +149,17 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             }
 
         });
+    }
+
+    /**
+     * playMode (PLAY_MODE_BOOK/PLAY_MODE_TTS) only tells local playback apart from TTS - it can't
+     * by itself distinguish a plain audiobook from a downloaded podcast episode, a radio
+     * recording, or a music-type folder, since all of those are just local ZikFile playback under
+     * the hood. Delegate to StatsCategoryHelper (shared with DetailedStatsActivity's per-folder
+     * breakdown) whenever a folder is known; fall back to the raw playMode otherwise.
+     */
+    private static String deriveStatsCategory(String playMode, @Nullable Folder folder) {
+        return folder != null ? StatsCategoryHelper.category(folder) : playMode;
     }
 
     public void updateStream(String playMode, long trackId) {

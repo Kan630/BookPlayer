@@ -44,8 +44,10 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -192,13 +194,11 @@ public class StatsActivity extends BaseActivity {
         long totalMs = Pref.getTotalMsPlayed();
         long bookMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK);
         long ttsMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS);
-        long radioMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO);
-        long podcastMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST);
-
-        String bookTime = Tonio.formatTime(bookMs);
-        String ttsTime = Tonio.formatTime(ttsMs);
-        String radioTime = Tonio.formatTime(radioMs);
-        String podcastTime = Tonio.formatTime(podcastMs);
+        long musicMs = Pref.getTotalMsPlayed(Var.STATS_CATEGORY_MUSIC);
+        long radioLiveMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO);
+        long radioRecordingMs = Pref.getTotalMsPlayed(Var.STATS_CATEGORY_RADIO_RECORDING);
+        long podcastStreamMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST);
+        long podcastDownloadedMs = Pref.getTotalMsPlayed(Var.STATS_CATEGORY_PODCAST_DOWNLOADED);
 
         // Build text for main body (without Audio Time, it will be in table header)
         String zeText4 = getString(R.string.stats_install_date_label) + " " + installDateFormatted;
@@ -214,8 +214,15 @@ public class StatsActivity extends BaseActivity {
         // Populate table with duration details (including Audio Time header and
         // percentage bars)
         String totalAudioTime = Tonio.formatTime(totalMs);
-        populateDurationTable(tableDurationDetails, totalAudioTime, totalMs,
-                bookTime, bookMs, ttsTime, ttsMs, radioTime, radioMs, podcastTime, podcastMs);
+        List<DurationRow> durationRows = new ArrayList<>();
+        durationRows.add(new DurationRow(getString(R.string.stats_book_time), bookMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_tts_time), ttsMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_music_time), musicMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_radio_time), radioLiveMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_radio_recording_time), radioRecordingMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_podcast_time), podcastStreamMs));
+        durationRows.add(new DurationRow(getString(R.string.stats_podcast_downloaded_time), podcastDownloadedMs));
+        populateDurationTable(tableDurationDetails, totalAudioTime, totalMs, durationRows);
 
         // Show stats note if needed
         if (showStatsStartedNote) {
@@ -224,6 +231,9 @@ public class StatsActivity extends BaseActivity {
         } else {
             tv_duration_stats_note.setVisibility(View.GONE);
         }
+
+        findViewById(R.id.bt_DetailedStats).setOnClickListener(v ->
+                startActivity(new Intent(this, DetailedStatsActivity.class)));
 
         // Observe DB stats
         if (Tonio.isAdmin()) {
@@ -446,9 +456,19 @@ public class StatsActivity extends BaseActivity {
      * @param podcastTime    Podcast time string
      * @param podcastMs      Podcast time in ms
      */
+    /** One row of the duration breakdown table: a category label + its total ms played. */
+    private static final class DurationRow {
+        final String label;
+        final long ms;
+
+        DurationRow(String label, long ms) {
+            this.label = label;
+            this.ms = ms;
+        }
+    }
+
     private void populateDurationTable(TableLayout tableLayout, String totalAudioTime, long totalMs,
-            String bookTime, long bookMs, String ttsTime, long ttsMs, String radioTime, long radioMs,
-            String podcastTime, long podcastMs) {
+            List<DurationRow> rows) {
         if (tableLayout == null) {
             return;
         }
@@ -459,11 +479,11 @@ public class StatsActivity extends BaseActivity {
         // Add header row with "Audio Time" in bold
         addTableHeaderRow(tableLayout, getString(R.string.stats_audio_time), totalAudioTime);
 
-        // Create rows for each duration type with percentage bar
-        addTableRowWithPercentage(tableLayout, getString(R.string.stats_book_time), bookTime, totalMs, bookMs);
-        addTableRowWithPercentage(tableLayout, getString(R.string.stats_tts_time), ttsTime, totalMs, ttsMs);
-        addTableRowWithPercentage(tableLayout, getString(R.string.stats_radio_time), radioTime, totalMs, radioMs);
-        addTableRowWithPercentage(tableLayout, getString(R.string.stats_podcast_time), podcastTime, totalMs, podcastMs);
+        // Create rows for each duration type with percentage bar (rows with 0ms are skipped by
+        // addTableRowWithPercentage itself)
+        for (DurationRow row : rows) {
+            addTableRowWithPercentage(tableLayout, row.label, Tonio.formatTime(row.ms), totalMs, row.ms);
+        }
     }
 
     /**

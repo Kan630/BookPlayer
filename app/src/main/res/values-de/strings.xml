@@ -14,6 +14,7 @@
     <string name="Auto_Delete">Auto-Delete</string>
     <string name="Auto_Download">Auto-Download</string>
     <string name="auto_download">Auto-Download</string>
+    <string name="auto_download_short">Autom.</string>
     <string name="Automotive">Automobil</string> //Auto section of settings
     <string name="bars">balken</string>
     <string name="Bitrate">Bitrate</string>
@@ -366,6 +367,8 @@ Verwenden Sie die Option <font color="#90D8E8">"Mail an Entwickler"</font> aus d
     <string name="option_copy_file_title">Dateien intern kopieren</string>
     <string name="option_backward_forward_title">Zurück-/Vorwärts-Tasten</string>
     <string name="option_backward_forward_text">Zeitsprung :</string>
+    <string name="option_autoplay_next_chapter">Nächstes Kapitel automatisch abspielen</string>
+    <string name="option_autoplay_next_chapter_text">Startet automatisch das nächste Kapitel, wenn das aktuelle endet.</string>
     <string name="option_rewind_after_pause_text">"Spule beim Fortsetzen einige Sekunden zurück (Pause von 5 Minuten = 3 Sek. zurück, Pause von 1 Std. = 5 Sek. zurück …)"</string>
     <string name="option_pick_theme_color_title">App-Farbschema auswählen</string>
     <string name="option_delete_source_file_title">Automatisches Löschen der Quelldatei</string>
@@ -431,14 +434,16 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_podcast_open_favorites_first">Zuerst Favoriten öffnen</string>
     <string name="option_podcast_open_favorites_first_subtitle">Beim Tippen auf Podcast in der unteren Leiste zuerst den Favoriten-Bildschirm öffnen. Zurück tippen, um zur Suche zu gelangen und weitere Podcasts zu durchsuchen.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Wenn neue Episoden heruntergeladen werden, den Podcast oben in der Hörbuchliste anzeigen.</string>
-    <string name="option_podcast_autodownload_subtitle">"Wenn Sie einen Podcast als Favorit markieren, können Sie auch die Option 'Auto-Download' aktivieren.\nBookPlayer prüft dann auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>
+    <string name="option_podcast_autodownload_subtitle">"BookPlayer prüft auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>
     <string name="option_playing_behaviour_title">Wiedergabeverhalten</string>
 
     <string name="option_start_next_track_at_zero_title_text">Wenn ein Titel endet, den nächsten von Anfang an starten, auch wenn er zuvor bereits teilweise abgespielt wurde.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Audio stoppen, wenn du die App schließt.</string>
     <string name="option_network_preference_subtext">"Eine ungemessene Verbindung bedeutet, dass Sie keine mobilen Daten verwenden (z. B. WLAN, Ethernet oder einige VPNs).\nRoaming bedeutet, dass Sie im Ausland sind - selbst WLAN im Hotel im Ausland gilt als Roaming."</string>
     <string name="option_automotive_let_car_autoplay">Auto-Play beim Verbinden</string>
-    <string name="option_open_play_activity">Wiedergabeansicht öffnen, wenn die Wiedergabe startet.</string>
+    <string name="option_always_open_track_list">Titelliste auch bei Büchern mit nur einem Titel öffnen</string>
+    <string name="option_always_open_track_list_subtitle"><i>"Aus (Standard): Das Antippen eines Buches mit nur einem Titel startet direkt die Wiedergabe. Ein: Öffnet immer zuerst die Titelliste, wie bei Büchern mit mehreren Titeln."</i></string>
+    <string name="option_open_play_activity">[Wiedergabeansicht] öffnen, wenn die Wiedergabe startet.</string>
     <string name="tts_settings">TTS-Einstellungen</string>
     <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>
     <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
@@ -504,6 +509,18 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="podcast_favorite_add">Zu Favoriten hinzugefügt</string>
     <string name="podcast_autodownload_add">Zum Auto-Download hinzugefügt</string>
     <string name="podcast_new_episodes">Neue Episoden</string>
+    <string name="filter_never_downloaded">Nur nie heruntergeladene Episoden anzeigen</string>
+    <string name="podcast_download_settings_title">Download-Einstellungen</string>
+    <string name="podcast_total_storage_used">Von heruntergeladenen Episoden belegter Speicher</string>
+    <string name="podcast_download_last_n_episodes">Letzte %1$d Episoden herunterladen</string>
+    <string name="podcast_download_last_n_size">Geschätzte Größe: %1$s</string>
+    <string name="podcast_no_undownloaded_episodes">Alle bekannten Episoden wurden bereits heruntergeladen</string>
+    <string name="podcast_download_last_n_started">%1$d Episode(n) werden heruntergeladen…</string>
+    <string name="podcast_episode_status_total">Gesamt: %1$d Episode(n)</string>
+    <string name="podcast_episode_status_never_downloaded">Nie heruntergeladen</string>
+    <string name="podcast_episode_status_downloaded">Heruntergeladen</string>
+    <string name="podcast_episode_status_orphan">Heruntergeladen (nicht in der App registriert)</string>
+    <string name="podcast_episode_status_deleted">Heruntergeladen, dann gelöscht</string>
 
 
     <string name="Error_Import_IsNotFolder">Das sieht nicht nach einem Ordner aus</string>
@@ -694,8 +711,18 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="stats_audio_time">Gesamte Wiedergabezeit</string>
     <string name="stats_book_time">* Hörbuch</string>
     <string name="stats_tts_time">* E-Book</string>
-    <string name="stats_radio_time">* Radio</string>
-    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_music_time">* Musik</string>
+    <string name="stats_radio_time">* Radio (Live)</string>
+    <string name="stats_radio_recording_time">* Radio (Aufnahmen)</string>
+    <string name="stats_podcast_time">* Podcast (Stream)</string>
+    <string name="stats_podcast_downloaded_time">* Podcast (heruntergeladen)</string>
+    <string name="detailed_stats">Detaillierte Statistik</string>
+    <string name="detailed_stats_empty">Noch keine Hördaten vorhanden.</string>
+    <string name="stats_category_book">Hörbuch</string>
+    <string name="stats_category_tts">E-Book</string>
+    <string name="stats_category_music">Musik</string>
+    <string name="stats_category_podcast_downloaded">Podcast</string>
+    <string name="stats_category_radio_recording">Radioaufnahme</string>
     <string name="stats_note">(Diese Statistiken begannen im Jahr 2025 (Okt-Nov)</string>
     <string name="stats_install_date_label">Installationsdatum : </string>
     <string name="bMassImport">📁 Massenimport</string>
@@ -904,6 +931,28 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_tts_overlay_timeout_text">Max. Ladezeit :</string>
     <string name="EndCut">Ende schneiden</string>
     <string name="EndCutText"><i>"Stoppt die Wiedergabe einige Sekunden vor dem Ende jedes Kapitels."</i></string>
+    <string name="BookType">"Buchtyp"</string>
+    <string name="book_type_podcast">Podcast</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">Text-zu-Sprache</string>
+    <string name="book_type_music">Musik</string>
+    <string name="book_type_audiobook">Hörbuch</string>
+    <string name="MakeMusicType">Musik</string>
+    <string name="MakeMusicTypeSubtitle"><i>"Ersetzt die Vor-/Zurückspul-Tasten während der Wiedergabe durch Tasten für nächsten/vorherigen Titel."</i></string>
+    <string name="next_track">Nächster</string>
+    <string name="previous_track">Vorheriger</string>
+    <string name="Recording">Aufnahme</string>
+    <string name="option_radio_recording_enabled">Radioaufnahme erlauben</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"Zeigt eine Aufnahmeschaltfläche im Radio-Mini-Player. Deaktivieren, um sie auszublenden."</i></string>
+    <string name="option_radio_recording_as_music">Aufnahmen als Typ „Musik“ speichern</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"Neue Aufnahmen erhalten den Buchtyp Musik (Tasten für nächsten/vorherigen Titel statt Vor-/Zurückspulen). Deaktivieren, um sie stattdessen als normale Hörbücher zu speichern."</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">Aufnahme ist für diesen Sender nicht verfügbar.</string>
+    <string name="radio_recording_no_live_stream">Der Livesender für diese Aufnahme konnte nicht gefunden werden.</string>
+    <string name="radio_recording_saved">Aufnahme gespeichert: %1$s (%2$s)</string>
+    <string name="radio_recording_failed">Aufnahme fehlgeschlagen.</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">Puffer\n%1$s</string>
 
     <string name="Import_Progress_chapter_title">"Titel des Tracks"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"Der exportierte Dateiname muss mindestens 3 Zeichen enthalten"</string>
@@ -959,7 +1008,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="AskReset_popupText_order">Sie sind dabei, die Reihenfolge der Titel zurückzusetzen.\nSind Sie sicher?</string>
     <string name="zikFiles_not_readable">einige Titel haben Fehler und sind nicht abspielbar:</string>
     <string name="All_zikFiles_not_readable">Dieses Buch ist fehlerhaft. Kein Titel kann abgespielt werden.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">Fortschrittsbalken der Tracks zeigen genau, welche Teile angehört wurden, und die Farbe wird dunkler, je öfter ein Abschnitt gespielt wurde.</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ Fortschrittsbalken zeigen genau, welche Teile angehört wurden, und die Farbe wird dunkler, je öfter ein Abschnitt gespielt wurde.\n❎ Wenn deaktiviert, werden die Fortschrittsbalken nur bis zur letzten Hörposition gefüllt. (klassisch)</string>
     <string name="option_use_heatmap_for_tracks_activity">Heatmaps anzeigen</string>
     <string name="option_use_heatmap_seekbar_in_play_activity">Klassische Fortschrittsleiste durch Heatmap-Fortschrittsleiste ersetzen</string>
     <string name="option_use_heatmap_seekbar_in_play_activity_explain">Visueller Fortschrittsindikator, der anzeigt, wie viel von jedem Teil des Titels bereits gehört wurde, mit verschiebbarem Wiedergabemarker.</string>
@@ -993,6 +1042,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_radio_remove_duplicates_subtitle">Wenn der Sendername mehr als 3‑mal vorkommt, werden weitere Treffer ausgeblendet, um die Liste nicht mit Duplikaten zu überladen.</string>
     <string name="option_radio_remove_dubious">Fragwürdige Sender entfernen</string>
     <string name="option_radio_remove_dubious_subtitle">Einige Sender wurden fälschlich jedem Land oder Tag hinzugefügt; sie aus den Ergebnissen ausblenden.</string>
+    <string name="option_radio_landing_screen">Beim Tippen auf Radio in der unteren Leiste öffnen:</string>
+    <string name="option_radio_landing_screen_subtitle">Zurück tippen, um von dort aus zu den anderen Radio-Bildschirmen zu gelangen.</string>
     <string name="option_radio_sleep_copy_subtitle">Hier kannst du einen eigenen Wert für das Radio-Autosleep angeben. Da wir beim Radio keinen Fortschritt speichern, ist es egal, wenn du einschläfst!</string>
     <string name="no_results_found">keine Ergebnisse</string>
     <string name="getting_first_results_from">Erste Ergebnisse von</string>
@@ -1247,6 +1298,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="AutoTest_b3_text">m4b (9MB)</string>
     <string name="Librivox">LibriVox</string>
     <string name="three_dots">…</string>
+    <string name="admin">Admin</string>
     <string name="play">&gt;</string>
     <string name="rewind">&lt;&lt;</string>
     <string name="forward">&gt;&gt;</string>
@@ -1274,7 +1326,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Zurücksetzen für diesen Titel (nur) bestätigen"</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Sie sind dabei, den Fortschritt für diesen Titel zurückzusetzen.\nSind Sie sicher?"</string>
     <string name="delete_cache">Cache löschen</string>
+    <string name="delete_cache_explanation">Löscht heruntergeladene Cover-Bilder (Bücher/Podcasts), die mit nichts mehr in Ihrer Bibliothek verknüpft sind.</string>
     <string name="DeleteCache_AskConfirm">"Sie sind dabei, zwischengespeicherte Elemente zu löschen.\nDies spart Platz, kann aber die Leistung beeinträchtigen.\nSind Sie sicher?"</string>
+    <string name="delete_system_cache">Systemcache löschen</string>
+    <string name="delete_system_cache_explanation">Leert den von Android für temporäre Dateien genutzten Systemcache, z. B. Cover noch nicht heruntergeladener Podcast-Episoden. Android erstellt ihn bei Bedarf automatisch neu.</string>
+    <string name="DeleteSystemCache_AskConfirm">"Sie sind dabei, den Systemcache der App zu leeren.\nDies ist sicher und spart Platz, temporäre Dateien werden bei Bedarf neu erstellt.\nSind Sie sicher?"</string>
     <string name="option_metadata_titles">Metadaten Kapiteltitel</string>
     <string name="option_metadata_titles_text">Versuchen Sie, Metadaten-Titel (Tags) anstelle von Dateinamen zu verwenden, um Kapitelnamen zu erstellen.</string>
     <string name="import_export_backup_note">Hinweis: Dieses Backup schließt lokale Hörbücher aus. Um diese zu speichern, verwenden Sie die Freigabe- oder Exportoption auf den einzelnen Buchinfoseiten.</string>

@@ -1,7 +1,5 @@
 package com.driot.bookplayer.podcasts;
 
-import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.FullActivity;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -83,15 +80,6 @@ public class PodcastFavoritesActivity extends FullActivity {
                     Intent intent = new Intent(this, PodcastEpisodeActivity.class);
                     intent.putExtra("podcast", item);
                     startActivity(intent);
-                },
-                (item, newState) -> {
-                    myLogI(" --- user clicks autodownload ---");
-                    AppDatabase.databaseWriteExecutor.execute(() -> {
-                        AppDatabase.getDatabase(this)
-                                .podcastDao()
-                                .updateAutoDownloadStatus_fromFeedId(item.feedId, newState);
-                        PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, item, PODCAST_INDEX_ORG_SINCE);
-                    });
                 });
         recyclerView.setAdapter(adapter);
 

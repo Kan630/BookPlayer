@@ -65,17 +65,34 @@
                 android:text="Stats: ..." />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/podcast_autodownload"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+        <LinearLayout
+            android:id="@+id/podcast_autodownload_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:src="@drawable/ic_download_action_24"
-            app:tint="@color/orange_500"
-            android:contentDescription="@string/auto_download"
-            />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp">
+
+            <ImageView
+                android:id="@+id/podcast_autodownload"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_download_action_24"
+                app:tint="@color/green_500"
+                android:contentDescription="@string/auto_download" />
+
+            <TextView
+                android:id="@+id/podcast_autodownload_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_download_short"
+                android:textSize="8sp"
+                android:textColor="@color/green_500"
+                android:gravity="center"
+                android:includeFontPadding="false" />
+        </LinearLayout>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

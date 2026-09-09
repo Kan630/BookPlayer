@@ -63,6 +63,17 @@
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
                 />
+
+            <Button
+                android:id="@+id/bt_DetailedStats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:text="@string/detailed_stats"
+                />
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>

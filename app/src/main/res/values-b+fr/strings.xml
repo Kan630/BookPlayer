@@ -14,6 +14,7 @@
     <string name="Auto_Delete">Suppression automatique</string>
     <string name="Auto_Download">Téléchargement automatique</string>
     <string name="auto_download">téléchargement automatique</string>
+    <string name="auto_download_short">auto</string>
     <string name="Automotive">Voiture</string> //Auto section of settings
     <string name="bars">barres</string>
     <string name="Bitrate">Débit binaire</string>
@@ -369,6 +370,8 @@ C\'est encore calme pour le moment, mais n\'hésitez pas à vous inscrire pour p
     <string name="option_copy_file_title">Copier les fichiers en interne</string>
     <string name="option_backward_forward_title">Boutons Retour/Avance</string>
     <string name="option_backward_forward_text">décalage :</string>
+    <string name="option_autoplay_next_chapter">Lecture automatique du chapitre suivant</string>
+    <string name="option_autoplay_next_chapter_text">Démarre automatiquement le chapitre suivant lorsque le chapitre actuel se termine.</string>
     <string name="option_rewind_after_pause_text">Reculer l\'audio de quelques secondes avant la reprise (pause de 5 min → recul de 3 sec, pause d\'1h → 5 sec, …)</string>
     <string name="option_pick_theme_color_title">Choisir le thème de l\'app</string>
     <string name="option_delete_source_file_title">Suppression automatique du fichier source</string>
@@ -441,7 +444,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_podcast_open_favorites_first">Ouvrir les favoris en premier</string>
     <string name="option_podcast_open_favorites_first_subtitle">Lorsque vous appuyez sur Podcast dans la barre du bas, L\'écran Favoris s\'ouvre en premier. Appuyez sur Retour pour accéder à la recherche et parcourir d\'autres podcasts.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
-    <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
+    <string name="option_podcast_autodownload_subtitle">"BookPlayer vérifiera les nouveaux épisodes, à la fois périodiquement et au démarrage, puis les téléchargera."</string>
     <string name="option_playing_behaviour_title">Lecture</string>
 
     <string name="option_start_next_track_at_zero_title_text">Quand une piste se termine, commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
@@ -451,7 +454,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
     <string name="option_automotive_let_car_autoplay">Lecture auto à la connexion</string>
-    <string name="option_open_play_activity">Ouvrir la vue de lecture lorsque la lecture démarre.</string>
+    <string name="option_always_open_track_list">Ouvrir la liste des pistes même pour les livres à une seule piste</string>
+    <string name="option_always_open_track_list_subtitle"><i>"Désactivé (par défaut) : appuyer sur un livre avec une seule piste la lance directement. Activé : ouvre toujours d\'abord la liste des pistes, comme pour les livres à plusieurs pistes."</i></string>
+    <string name="option_open_play_activity">Ouvrir la [vue de lecture] lorsque la lecture démarre.</string>
     <string name="tts_settings">Paramètres TTS</string>
     <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
     <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
@@ -515,6 +520,18 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="podcast_favorite_add">Ajouté aux favoris</string>
     <string name="podcast_autodownload_add">Ajouté en téléchargement auto</string>
     <string name="podcast_new_episodes">nouveaux épisodes</string>
+    <string name="filter_never_downloaded">Afficher uniquement les épisodes jamais téléchargés</string>
+    <string name="podcast_download_settings_title">Paramètres de téléchargement</string>
+    <string name="podcast_total_storage_used">Espace utilisé par les épisodes téléchargés</string>
+    <string name="podcast_download_last_n_episodes">Télécharger les %1$d derniers épisodes</string>
+    <string name="podcast_download_last_n_size">Taille estimée : %1$s</string>
+    <string name="podcast_no_undownloaded_episodes">Tous les épisodes connus sont déjà téléchargés</string>
+    <string name="podcast_download_last_n_started">Téléchargement de %1$d épisode(s)…</string>
+    <string name="podcast_episode_status_total">Total : %1$d épisode(s)</string>
+    <string name="podcast_episode_status_never_downloaded">Jamais téléchargé</string>
+    <string name="podcast_episode_status_downloaded">Téléchargé</string>
+    <string name="podcast_episode_status_orphan">Téléchargé (non enregistré dans l\'application)</string>
+    <string name="podcast_episode_status_deleted">Téléchargé, puis supprimé</string>
 
 
     <string name="Error_Import_IsNotFile">L\'élément sélectionné n\'est pas un fichier</string>
@@ -573,6 +590,28 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="AskRename_popupTitle">Confirmer le renommage</string>
     <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
     <string name="EndCutText"><i>Arrête la lecture quelques secondes avant la fin de chaque chapitre.</i></string>
+    <string name="BookType">"Type de livre"</string>
+    <string name="book_type_podcast">Podcast</string>
+    <string name="book_type_librivox">LibriVox</string>
+    <string name="book_type_tts">Synthèse vocale</string>
+    <string name="book_type_music">Musique</string>
+    <string name="book_type_audiobook">Livre audio</string>
+    <string name="MakeMusicType">Musique</string>
+    <string name="MakeMusicTypeSubtitle"><i>"Remplace les boutons avance/retour rapide par les boutons piste suivante/précédente pendant la lecture."</i></string>
+    <string name="next_track">Suivant</string>
+    <string name="previous_track">Précédent</string>
+    <string name="Recording">Enregistrement</string>
+    <string name="option_radio_recording_enabled">Autoriser l\'enregistrement de la radio</string>
+    <string name="option_radio_recording_enabled_subtitle"><i>"Affiche un bouton d\'enregistrement sur le mini lecteur radio. Désactivez pour le masquer."</i></string>
+    <string name="option_radio_recording_as_music">Sauvegarder les enregistrements en tant que type Musique</string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"Les nouveaux enregistrements reçoivent le type de livre Musique (boutons piste suivante/précédente au lieu d\'avance/retour rapide). Désactivez pour les enregistrer comme des livres audio normaux à la place."</i></string>
+    <string name="radio_recording">REC</string>
+    <string name="radio_recording_not_available">L\'enregistrement n\'est pas disponible pour cette station.</string>
+    <string name="radio_recording_no_live_stream">Impossible de trouver la station en direct pour cet enregistrement.</string>
+    <string name="radio_recording_saved">Enregistrement sauvegardé : %1$s (%2$s)</string>
+    <string name="radio_recording_failed">Échec de l\'enregistrement.</string>
+    <string name="radio_recording_info">%1$s · %2$s</string>
+    <string name="radio_buffer_info">Tampon\n%1$s</string>
     <string name="Export_share_title">Partager le fichier ZIP</string>
     <string name="Export_display_text_preparing_export">Préparation de l\'export…</string>
     <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des fichiers audio.</string>
@@ -707,8 +746,18 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="stats_audio_time">Temps d\'écoute total</string>
     <string name="stats_book_time">* Livre Audio</string>
     <string name="stats_tts_time">* Ebook</string>
-    <string name="stats_radio_time">* Radio</string>
-    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_music_time">* Musique</string>
+    <string name="stats_radio_time">* Radio (direct)</string>
+    <string name="stats_radio_recording_time">* Radio (enregistrements)</string>
+    <string name="stats_podcast_time">* Podcast (streaming)</string>
+    <string name="stats_podcast_downloaded_time">* Podcast (téléchargé)</string>
+    <string name="detailed_stats">Statistiques détaillées</string>
+    <string name="detailed_stats_empty">Aucune donnée d\'écoute pour l\'instant.</string>
+    <string name="stats_category_book">Livre Audio</string>
+    <string name="stats_category_tts">Ebook</string>
+    <string name="stats_category_music">Musique</string>
+    <string name="stats_category_podcast_downloaded">Podcast</string>
+    <string name="stats_category_radio_recording">Enregistrement radio</string>
     <string name="stats_note">(Ces statistiques ont commencé en 2025 (oct-nov)</string>
     <string name="stats_install_date_label">installation de l\'App : </string>
     
@@ -963,7 +1012,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="AskReset_popupText_order">Vous êtes sur le point de réinitialiser l\'ordre des pistes.\nÊtes-vous sûr?</string>
     <string name="zikFiles_not_readable">des pistes ont des erreurs et ne sont pas lisibles:</string>
     <string name="All_zikFiles_not_readable">Ce livre est KO. Aucune piste ne peut être lue.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">Les barres de progression des pistes montreront exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section a été lue.</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ Les barres de progression montrent exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section est lue.\n❎ Si désactivé, les barres de progression sont remplies uniquement jusqu\'à la dernière position d\'écoute. (classique)</string>
     <string name="option_use_heatmap_for_tracks_activity">afficher les cartes thermiques</string>
     <string name="option_use_heatmap_seekbar_in_play_activity">Remplacer la barre de progression classique par la barre thermique</string>
     <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicateur de progression visuel montrant combien chaque partie de la piste a été écoutée, avec un curseur déplaçable.</string>
@@ -997,6 +1046,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_radio_remove_duplicates_subtitle">Si le nom de la station apparaît plus de 3 fois, les suivantes ne sont pas affichées afin d\'éviter d\'encombrer la liste avec des doublons.</string>
     <string name="option_radio_remove_dubious">Supprimer les stations douteuses</string>
     <string name="option_radio_remove_dubious_subtitle">Certaines stations ont été incorrectement ajoutées à chaque pays ou tag ; les masquer des résultats.</string>
+    <string name="option_radio_landing_screen">Lorsque vous appuyez sur Radio dans la barre du bas, ouvrir :</string>
+    <string name="option_radio_landing_screen_subtitle">Appuyez sur Retour pour accéder aux autres écrans radio depuis là.</string>
     <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l\'arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n\'est pas grave si vous vous endormez !</string>
     <string name="no_results_found">aucun résultat</string>
     <string name="getting_first_results_from">Premiers résultats depuis</string>
@@ -1254,6 +1305,7 @@ avec la langue [%2$s]</string>
     <string name="AutoTest_b3_text">m4b (9MB)</string>
     <string name="Librivox">LibriVox</string>
     <string name="three_dots">…</string>
+    <string name="admin">Admin</string>
     <string name="play">&gt;</string>
     <string name="rewind">&lt;&lt;</string>
     <string name="forward">&gt;&gt;</string>
@@ -1282,7 +1334,11 @@ avec la langue [%2$s]</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirmer la réinitialisation de cette piste (uniquement)"</string>
     <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Vous êtes sur le point de réinitialiser la progression pour cette piste.\nÊtes-vous sûr ?"</string>
     <string name="delete_cache">Supprimer le cache</string>
+    <string name="delete_cache_explanation">Supprime les images de couverture téléchargées (livres/podcasts) qui ne sont plus liées à rien dans votre bibliothèque.</string>
     <string name="DeleteCache_AskConfirm">"Vous êtes sur le point de supprimer les éléments mis en cache.\nCela libérera de l'espace mais peut affecter les performances.\nÊtes-vous sûr ?"</string>
+    <string name="delete_system_cache">Supprimer le cache système</string>
+    <string name="delete_system_cache_explanation">Vide le cache système Android utilisé pour les fichiers temporaires, comme les couvertures d\'épisodes de podcast pas encore téléchargés. Android le recrée automatiquement si nécessaire.</string>
+    <string name="DeleteSystemCache_AskConfirm">"Vous êtes sur le point de vider le cache système de l\'application.\nC\'est sans risque et cela libérera de l\'espace, les fichiers temporaires seront recréés si nécessaire.\nÊtes-vous sûr ?"</string>
     <string name="option_metadata_titles">Titres de chapitres issus des métadonnées</string>
     <string name="option_metadata_titles_text">"Essayer d'utiliser les titres des métadonnées (étiquettes) au lieu des noms de fichiers pour créer les noms de chapitres."</string>
     <string name="import_export_backup_note">"Remarque : Cette sauvegarde exclut les livres audio locaux. Pour les sauvegarder, utilisez l'option de partage ou d'exportation sur les pages d'informations de chaque livre."</string>

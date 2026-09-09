@@ -1,7 +1,5 @@
 package com.driot.bookplayer.podcasts;
 
-import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -34,7 +32,6 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
     private List<Podcast> items = new ArrayList<>();
     private final OnItemClickListener onItemClickListener;
-    private final OnAutoDownloadToggleListener autoDownloadToggleListener;
 
     private String headerQuery = "";
     private String headerLang = "";
@@ -44,14 +41,8 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         void onItemClick(Podcast podcast);
     }
 
-    public interface OnAutoDownloadToggleListener {
-        void onToggle(Podcast podcast, boolean newState);
-    }
-
-    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener,
-            OnAutoDownloadToggleListener autoDownloadToggleListener) {
+    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-        this.autoDownloadToggleListener = autoDownloadToggleListener;
     }
 
     public void setHeaderSearch(String query) {
@@ -111,7 +102,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             h.tvCountryTag.setVisibility(View.GONE);
         } else {
             Podcast podcast = items.get(position - 1);
-            ((PodcastViewHolder) holder).bind(podcast, onItemClickListener, autoDownloadToggleListener);
+            ((PodcastViewHolder) holder).bind(podcast, onItemClickListener);
         }
     }
 
@@ -139,20 +130,19 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
     static class PodcastViewHolder extends RecyclerView.ViewHolder {
         TextView title, desc, folderStats;
-        ImageView image, autoDownload;
+        ImageView image;
+        View autoDownloadContainer;
 
         PodcastViewHolder(View v) {
             super(v);
             title = v.findViewById(R.id.podcast_title);
             desc = v.findViewById(R.id.podcast_desc);
             image = v.findViewById(R.id.podcast_image);
-            autoDownload = v.findViewById(R.id.podcast_autodownload);
+            autoDownloadContainer = v.findViewById(R.id.podcast_autodownload_container);
             folderStats = v.findViewById(R.id.podcast_folder_stats);
         }
 
-        void bind(Podcast podcast,
-                OnItemClickListener listener,
-                OnAutoDownloadToggleListener autoDownloadToggleListener) {
+        void bind(Podcast podcast, OnItemClickListener listener) {
 
             title.setText(podcast.title);
             // desc.setText(podcast.language); // placeholder (you could fetch/show `feedId`
@@ -162,32 +152,9 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             KanLogger.myLog(podcast.image);
             Glide.with(image.getContext()).load(podcast.image).into(image);
 
-            /// AUTO DOWNLOAD BUTTON
-            autoDownload.setVisibility(View.VISIBLE);
-
-            int colorRes = podcast.autoDownload ? R.color.green_500 : R.color.gray_500;
-            int tint = itemView.getContext().getColor(colorRes);
-            autoDownload.setColorFilter(tint);
-
-            autoDownload.setOnClickListener(v -> {
-                boolean newState = !podcast.autoDownload;
-                podcast.autoDownload = newState;
-
-                // Update tint immediately
-                int newTint = itemView.getContext().getColor(newState ? R.color.green_500 : R.color.gray_500);
-                autoDownload.setColorFilter(newTint);
-
-                // Callback to update DB
-                if (autoDownloadToggleListener != null) {
-                    autoDownloadToggleListener.onToggle(podcast, newState);
-                }
-
-                // ⬇ Trigger download if enabled
-                if (newState) {
-                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast,
-                            PODCAST_INDEX_ORG_SINCE);
-                }
-            });
+            // Read-only indicator, not a button: no click listener, so a tap on it falls through
+            // to itemView's own click (same as tapping anywhere else on the card).
+            autoDownloadContainer.setVisibility(podcast.autoDownload ? View.VISIBLE : View.GONE);
 
             /// STATS
             if (podcast.idFolder != null && podcast.idFolder > 0) {
