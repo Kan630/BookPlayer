@@ -516,7 +516,9 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="podcast_download_last_n_started">正在下载 %1$d 集…</string>
     <string name="podcast_episode_status_total">总计：%1$d 集</string>
     <string name="podcast_episode_status_never_downloaded">从未下载</string>
-    <string name="podcast_episode_status_downloaded">已下载</string>
+    <string name="podcast_episode_status_never_played">已下载，从未播放</string>
+    <string name="podcast_episode_status_downloaded">已下载，已播放</string>
+    <string name="podcast_episode_status_pending_autodelete">已播放，等待自动删除</string>
     <string name="podcast_episode_status_orphan">已下载（未在应用中注册）</string>
     <string name="podcast_episode_status_deleted">已下载，后已删除</string>
 

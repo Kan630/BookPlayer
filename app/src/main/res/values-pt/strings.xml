@@ -516,7 +516,9 @@
     <string name="podcast_download_last_n_started">A transferir %1$d episódio(s)…</string>
     <string name="podcast_episode_status_total">Total: %1$d episódio(s)</string>
     <string name="podcast_episode_status_never_downloaded">Nunca transferido</string>
-    <string name="podcast_episode_status_downloaded">Transferido</string>
+    <string name="podcast_episode_status_never_played">Transferido, nunca ouvido</string>
+    <string name="podcast_episode_status_downloaded">Transferido, ouvido</string>
+    <string name="podcast_episode_status_pending_autodelete">Ouvido, aguardando eliminação automática</string>
     <string name="podcast_episode_status_orphan">Transferido (não registado na aplicação)</string>
     <string name="podcast_episode_status_deleted">Transferido e depois eliminado</string>
 

@@ -514,7 +514,9 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="podcast_download_last_n_started">Descargando %1$d episodio(s)…</string>
     <string name="podcast_episode_status_total">Total: %1$d episodio(s)</string>
     <string name="podcast_episode_status_never_downloaded">Nunca descargado</string>
-    <string name="podcast_episode_status_downloaded">Descargado</string>
+    <string name="podcast_episode_status_never_played">Descargado, nunca reproducido</string>
+    <string name="podcast_episode_status_downloaded">Descargado, reproducido</string>
+    <string name="podcast_episode_status_pending_autodelete">Reproducido, pendiente de eliminación automática</string>
     <string name="podcast_episode_status_orphan">Descargado (no registrado en la aplicación)</string>
     <string name="podcast_episode_status_deleted">Descargado y luego eliminado</string>
 

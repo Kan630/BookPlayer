@@ -515,7 +515,9 @@
     <string name="podcast_download_last_n_started">Загрузка %1$d эпизод(ов)…</string>
     <string name="podcast_episode_status_total">Всего: %1$d эпизод(ов)</string>
     <string name="podcast_episode_status_never_downloaded">Никогда не загружался</string>
-    <string name="podcast_episode_status_downloaded">Загружен</string>
+    <string name="podcast_episode_status_never_played">Загружен, не прослушан</string>
+    <string name="podcast_episode_status_downloaded">Загружен, прослушан</string>
+    <string name="podcast_episode_status_pending_autodelete">Прослушан, ожидает автоудаления</string>
     <string name="podcast_episode_status_orphan">Загружен (не зарегистрирован в приложении)</string>
     <string name="podcast_episode_status_deleted">Загружен, затем удалён</string>
 

@@ -518,7 +518,9 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="podcast_download_last_n_started">%1$d Episode(n) werden heruntergeladen…</string>
     <string name="podcast_episode_status_total">Gesamt: %1$d Episode(n)</string>
     <string name="podcast_episode_status_never_downloaded">Nie heruntergeladen</string>
-    <string name="podcast_episode_status_downloaded">Heruntergeladen</string>
+    <string name="podcast_episode_status_never_played">Heruntergeladen, nie abgespielt</string>
+    <string name="podcast_episode_status_downloaded">Heruntergeladen, abgespielt</string>
+    <string name="podcast_episode_status_pending_autodelete">Abgespielt, wartet auf automatisches Löschen</string>
     <string name="podcast_episode_status_orphan">Heruntergeladen (nicht in der App registriert)</string>
     <string name="podcast_episode_status_deleted">Heruntergeladen, dann gelöscht</string>
 

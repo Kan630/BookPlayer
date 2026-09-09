@@ -517,7 +517,9 @@
     <string name="podcast_download_last_n_started">Download di %1$d episodio/i…</string>
     <string name="podcast_episode_status_total">Totale: %1$d episodio/i</string>
     <string name="podcast_episode_status_never_downloaded">Mai scaricato</string>
-    <string name="podcast_episode_status_downloaded">Scaricato</string>
+    <string name="podcast_episode_status_never_played">Scaricato, mai ascoltato</string>
+    <string name="podcast_episode_status_downloaded">Scaricato, ascoltato</string>
+    <string name="podcast_episode_status_pending_autodelete">Ascoltato, in attesa di eliminazione automatica</string>
     <string name="podcast_episode_status_orphan">Scaricato (non registrato nell\'app)</string>
     <string name="podcast_episode_status_deleted">Scaricato, poi eliminato</string>
 

@@ -29,9 +29,10 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
     private PodcastDownloadSettingsViewModel viewModel;
 
     private TextView tvPodcastName, tvTotalStorageValue, tvDownloadLastN, tvDownloadLastNSize;
-    private TextView tvStatusDownloadedCount, tvStatusOrphanCount, tvStatusNeverDownloadedCount,
-            tvStatusDeletedCount, tvStatusTotal;
-    private View rowStatusDownloaded, rowStatusOrphan, rowStatusNeverDownloaded, rowStatusDeleted;
+    private TextView tvStatusNeverPlayedCount, tvStatusPlayedCount, tvStatusPendingAutoDeleteCount,
+            tvStatusOrphanCount, tvStatusNeverDownloadedCount, tvStatusDeletedCount, tvStatusTotal;
+    private View rowStatusNeverPlayed, rowStatusPlayed, rowStatusPendingAutoDelete, rowStatusOrphan,
+            rowStatusNeverDownloaded, rowStatusDeleted;
     private ImageView ivPodcastCover;
     private SettingSwitchRow rowAutoDownload;
     private SeekBar seekbarDownloadLastN;
@@ -83,12 +84,16 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
         seekbarDownloadLastN = findViewById(R.id.seekbarDownloadLastN);
         etDownloadLastN = findViewById(R.id.etDownloadLastN);
         btnDownloadLastN = findViewById(R.id.btnDownloadLastN);
-        tvStatusDownloadedCount = findViewById(R.id.tvStatusDownloadedCount);
+        tvStatusNeverPlayedCount = findViewById(R.id.tvStatusNeverPlayedCount);
+        tvStatusPlayedCount = findViewById(R.id.tvStatusPlayedCount);
+        tvStatusPendingAutoDeleteCount = findViewById(R.id.tvStatusPendingAutoDeleteCount);
         tvStatusOrphanCount = findViewById(R.id.tvStatusOrphanCount);
         tvStatusNeverDownloadedCount = findViewById(R.id.tvStatusNeverDownloadedCount);
         tvStatusDeletedCount = findViewById(R.id.tvStatusDeletedCount);
         tvStatusTotal = findViewById(R.id.tvStatusTotal);
-        rowStatusDownloaded = findViewById(R.id.rowStatusDownloaded);
+        rowStatusNeverPlayed = findViewById(R.id.rowStatusNeverPlayed);
+        rowStatusPlayed = findViewById(R.id.rowStatusPlayed);
+        rowStatusPendingAutoDelete = findViewById(R.id.rowStatusPendingAutoDelete);
         rowStatusOrphan = findViewById(R.id.rowStatusOrphan);
         rowStatusNeverDownloaded = findViewById(R.id.rowStatusNeverDownloaded);
         rowStatusDeleted = findViewById(R.id.rowStatusDeleted);
@@ -121,13 +126,17 @@ public class PodcastDownloadSettingsActivity extends FullActivity {
         viewModel.getEpisodeStatusCountsLive().observe(this, counts -> {
             if (counts == null)
                 return;
-            tvStatusDownloadedCount.setText(String.valueOf(counts.downloadedTracked));
+            tvStatusNeverPlayedCount.setText(String.valueOf(counts.neverPlayed));
+            tvStatusPlayedCount.setText(String.valueOf(counts.played));
+            tvStatusPendingAutoDeleteCount.setText(String.valueOf(counts.pendingAutoDelete));
             tvStatusOrphanCount.setText(String.valueOf(counts.orphanOnDisk));
             tvStatusNeverDownloadedCount.setText(String.valueOf(counts.neverDownloaded));
             tvStatusDeletedCount.setText(String.valueOf(counts.deleted));
             tvStatusTotal.setText(getString(R.string.podcast_episode_status_total, counts.total));
 
-            rowStatusDownloaded.setVisibility(counts.downloadedTracked > 0 ? View.VISIBLE : View.GONE);
+            rowStatusNeverPlayed.setVisibility(counts.neverPlayed > 0 ? View.VISIBLE : View.GONE);
+            rowStatusPlayed.setVisibility(counts.played > 0 ? View.VISIBLE : View.GONE);
+            rowStatusPendingAutoDelete.setVisibility(counts.pendingAutoDelete > 0 ? View.VISIBLE : View.GONE);
             rowStatusOrphan.setVisibility(counts.orphanOnDisk > 0 ? View.VISIBLE : View.GONE);
             rowStatusNeverDownloaded.setVisibility(counts.neverDownloaded > 0 ? View.VISIBLE : View.GONE);
             rowStatusDeleted.setVisibility(counts.deleted > 0 ? View.VISIBLE : View.GONE);

@@ -514,7 +514,9 @@
     <string name="podcast_download_last_n_started">%1$d एपिसोड डाउनलोड हो रहे हैं…</string>
     <string name="podcast_episode_status_total">कुल: %1$d एपिसोड</string>
     <string name="podcast_episode_status_never_downloaded">कभी डाउनलोड नहीं किया गया</string>
-    <string name="podcast_episode_status_downloaded">डाउनलोड किया गया</string>
+    <string name="podcast_episode_status_never_played">डाउनलोड किया गया, कभी नहीं सुना गया</string>
+    <string name="podcast_episode_status_downloaded">डाउनलोड किया गया, सुना गया</string>
+    <string name="podcast_episode_status_pending_autodelete">सुना गया, स्वतः हटाने की प्रतीक्षा में</string>
     <string name="podcast_episode_status_orphan">डाउनलोड किया गया (ऐप में पंजीकृत नहीं)</string>
     <string name="podcast_episode_status_deleted">डाउनलोड किया गया, फिर हटाया गया</string>
 

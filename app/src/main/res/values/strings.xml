@@ -590,7 +590,9 @@
     <string name="podcast_download_last_n_started">Downloading %1$d episode(s)…</string>
     <string name="podcast_episode_status_total">Total: %1$d episode(s)</string>
     <string name="podcast_episode_status_never_downloaded">Never downloaded</string>
-    <string name="podcast_episode_status_downloaded">Downloaded</string>
+    <string name="podcast_episode_status_never_played">Downloaded, never played</string>
+    <string name="podcast_episode_status_downloaded">Downloaded, played</string>
+    <string name="podcast_episode_status_pending_autodelete">Played, pending auto-delete</string>
     <string name="podcast_episode_status_orphan">Downloaded (not yet registered in app)</string>
     <string name="podcast_episode_status_deleted">Downloaded, then deleted</string>
 
@@ -771,7 +773,7 @@
 
 
     <string name="Add_to_favorite">Add to favorite</string>
-    <string name="Auto_Download_episodes">Auto-Download episodes</string>
+    <string name="Auto_Download_episodes">Auto-Download new episodes</string>
     <string name="Download_paused_by_user">Download paused by user</string>
     <string name="Download_finished">Download finished</string>
     <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device general storage"</string>

@@ -511,7 +511,9 @@
     <string name="podcast_download_last_n_started">جارٍ تنزيل %1$d حلقة…</string>
     <string name="podcast_episode_status_total">الإجمالي: %1$d حلقة</string>
     <string name="podcast_episode_status_never_downloaded">لم يتم تنزيله مطلقاً</string>
-    <string name="podcast_episode_status_downloaded">تم تنزيله</string>
+    <string name="podcast_episode_status_never_played">تم تنزيله، لم يُشغَّل</string>
+    <string name="podcast_episode_status_downloaded">تم تنزيله، تم تشغيله</string>
+    <string name="podcast_episode_status_pending_autodelete">تم تشغيله، بانتظار الحذف التلقائي</string>
     <string name="podcast_episode_status_orphan">تم تنزيله (غير مسجل في التطبيق)</string>
     <string name="podcast_episode_status_deleted">تم تنزيله، ثم حذفه</string>
 

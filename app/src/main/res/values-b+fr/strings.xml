@@ -529,7 +529,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="podcast_download_last_n_started">Téléchargement de %1$d épisode(s)…</string>
     <string name="podcast_episode_status_total">Total : %1$d épisode(s)</string>
     <string name="podcast_episode_status_never_downloaded">Jamais téléchargé</string>
-    <string name="podcast_episode_status_downloaded">Téléchargé</string>
+    <string name="podcast_episode_status_never_played">Téléchargé, jamais écouté</string>
+    <string name="podcast_episode_status_downloaded">Téléchargé, écouté</string>
+    <string name="podcast_episode_status_pending_autodelete">Écouté, en attente de suppression automatique</string>
     <string name="podcast_episode_status_orphan">Téléchargé (non enregistré dans l\'application)</string>
     <string name="podcast_episode_status_deleted">Téléchargé, puis supprimé</string>
 

@@ -29,6 +29,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -291,7 +292,20 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_download.setVisibility(View.VISIBLE);
                 holder.icon_download
                         .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
-                holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
+                // Light green = never played, dark green = played, brown = played past the
+                // auto-delete completion threshold (not yet deleted) - same threshold/comparison
+                // PodcastHelper.checkForEpisodesToAutoDelete() uses, so the icon always agrees
+                // with what's actually about to be auto-deleted.
+                double zfPercentDone = zikFile.getPercentdone();
+                int doneColorRes;
+                if (Option.getPodcastAutoDelete() && zfPercentDone > Option.getPodcastAutoDeleteCompletionPercentage()) {
+                    doneColorRes = R.color.brown_500;
+                } else if (zfPercentDone > 0) {
+                    doneColorRes = R.color.green_700;
+                } else {
+                    doneColorRes = R.color.green_300;
+                }
+                holder.icon_download.setColorFilter(ContextCompat.getColor(context, doneColorRes));
                 holder.icon_download.setOnClickListener(null);
             } else if (isDownloaded) {
                 holder.tvEpisodeDBStats.setText("");

@@ -8,10 +8,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
+import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -20,13 +23,16 @@ import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PodcastDownloadSettingsViewModel extends LoggingAndroidViewModel {
     private final EpisodeDao episodeDao;
     private final PodcastDao podcastDao;
+    private final CommonZikFileDao zikFileDao;
 
     private final MutableLiveData<Long> totalStorageBytesLive = new MutableLiveData<>();
     private final MutableLiveData<Integer> undownloadedCountLive = new MutableLiveData<>();
@@ -41,6 +47,7 @@ public class PodcastDownloadSettingsViewModel extends LoggingAndroidViewModel {
         AppDatabase db = AppDatabase.getDatabase(application);
         episodeDao = db.episodeDao();
         podcastDao = db.podcastDao();
+        zikFileDao = db.zikFileDao();
     }
 
     public LiveData<Long> getTotalStorageBytesLive() {
@@ -60,12 +67,17 @@ public class PodcastDownloadSettingsViewModel extends LoggingAndroidViewModel {
     }
 
     /**
-     * Mirrors the 4 visual states of the per-episode download icon in
-     * PodcastEpisodeRVAdapter: green (downloaded + tracked in DB), orange (file on disk
-     * but no DB row - orphan), blue (never downloaded), maroon (downloaded then deleted).
+     * Mirrors the visual states of the per-episode download icon in PodcastEpisodeRVAdapter:
+     * light green (downloaded, never played), dark green (downloaded, played), brown checkmark
+     * (played past the auto-delete completion threshold but not yet deleted), orange (file on
+     * disk but no DB row - orphan), blue (never downloaded), brown/maroon (downloaded then
+     * deleted). neverPlayed/played/pendingAutoDelete are mutually exclusive - together they equal
+     * what used to be the single "downloaded" bucket.
      */
     public static class EpisodeStatusCounts {
-        public int downloadedTracked; // green
+        public int neverPlayed; // light green
+        public int played; // dark green
+        public int pendingAutoDelete; // brown checkmark
         public int orphanOnDisk; // orange
         public int neverDownloaded; // blue
         public int deleted; // maroon
@@ -119,10 +131,31 @@ public class PodcastDownloadSettingsViewModel extends LoggingAndroidViewModel {
         EpisodeStatusCounts counts = new EpisodeStatusCounts();
         counts.total = all.size();
 
+        // percentDone lives on ZikFile, not Episode - fetch the podcast's folder once instead of
+        // a per-episode DB hit, matching the exact "> minPercent" comparison
+        // PodcastHelper.checkForEpisodesToAutoDelete()/getListenedPodcastEpisodesToDelete() uses,
+        // so the icon and the actual auto-delete behavior always agree on what's "past threshold".
+        Map<Long, Double> percentDoneByZikFileId = new HashMap<>();
+        if (podcast.idFolder != null) {
+            for (ZikFile zf : zikFileDao.getZikFiles(podcast.idFolder)) {
+                percentDoneByZikFileId.put(zf.getId(), zf.getPercentdone());
+            }
+        }
+        boolean autoDeleteEnabled = Option.getPodcastAutoDelete();
+        int autoDeletePercent = Option.getPodcastAutoDeleteCompletionPercentage();
+
         List<Episode> candidates = new ArrayList<>();
         for (Episode ep : all) {
             if (ep.idZikFile != null) {
-                counts.downloadedTracked++;
+                Double percentDone = percentDoneByZikFileId.get(ep.idZikFile);
+                double p = percentDone != null ? percentDone : 0;
+                if (autoDeleteEnabled && p > autoDeletePercent) {
+                    counts.pendingAutoDelete++;
+                } else if (p > 0) {
+                    counts.played++;
+                } else {
+                    counts.neverPlayed++;
+                }
             } else if (ep.date_delete != null) {
                 counts.deleted++;
             } else {
