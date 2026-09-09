@@ -201,4 +201,28 @@ public class ImportJob {
                 meta.put("track_titles", titles);
                 setMetadataMap(meta);
         }
+
+        /**
+         * The filename of the track the user originally opened (via "Open with" or the
+         * "import whole book" sibling-detector hand-off), so that once this job finishes, the
+         * caller can jump straight into playing that exact track instead of just showing the
+         * library. Null for import flows that don't have a single, well-defined "opened" file
+         * (mass import, downloads, etc.) - stored in the metadata blob rather than a dedicated
+         * column to avoid a schema migration for what is a purely optional, best-effort hint.
+         */
+        @androidx.annotation.Nullable
+        public String getTargetPlaybackFileName() {
+                Object v = getMetadataMap().get("target_playback_file");
+                return v instanceof String ? (String) v : null;
+        }
+
+        public void setTargetPlaybackFileName(@androidx.annotation.Nullable String fileName) {
+                Map<String, Object> meta = getMetadataMap();
+                if (fileName == null) {
+                        meta.remove("target_playback_file");
+                } else {
+                        meta.put("target_playback_file", fileName);
+                }
+                setMetadataMap(meta);
+        }
 }

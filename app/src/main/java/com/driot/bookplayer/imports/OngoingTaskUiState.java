@@ -38,6 +38,15 @@ public final class OngoingTaskUiState {
         public final String currentOperation;
         public final boolean doDownload;
 
+        // Where the finished book landed, and which of its tracks the user originally opened
+        // (see ImportJob.getTargetPlaybackFileName) - both null unless this job came from a
+        // single-file "Open with"/sibling-book flow, used to jump straight into playback on
+        // success instead of just showing the library.
+        @Nullable
+        public final String futureFolderPath;
+        @Nullable
+        public final String targetPlaybackFileName;
+
         public static final String TAG_IMPORT = "IMPORT";
         public static final String TAG_SCAN = "SCAN";
 
@@ -59,7 +68,9 @@ public final class OngoingTaskUiState {
                                    @Nullable String currentOperation,
                                    boolean doDownload,
                                    int currentPosition,
-                                   int totalCount) {
+                                   int totalCount,
+                                   @Nullable String futureFolderPath,
+                                   @Nullable String targetPlaybackFileName) {
                 this.tag = tag;
                 this.status = status;
                 this.showToUser = showToUser;
@@ -77,19 +88,21 @@ public final class OngoingTaskUiState {
                 this.doDownload = doDownload;
                 this.currentPosition = currentPosition;
                 this.totalCount = totalCount;
+                this.futureFolderPath = futureFolderPath;
+                this.targetPlaybackFileName = targetPlaybackFileName;
         }
 
         public static OngoingTaskUiState idle() {
                 return new OngoingTaskUiState(TAG_IMPORT, Var.IMPORT_STATUS_IDLE, false, false, false, "", "", 0, null, null,
                                 null,
-                                null, null, false, -1, -1);
+                                null, null, false, -1, -1, null, null);
         }
 
         public static OngoingTaskUiState scanning(android.content.Context context, String progressText) {
                 return new OngoingTaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false,
                                 context.getString(com.driot.bookplayer.R.string.mass_import_scanning_title),
                                 progressText, 0,
-                                null, null, null, null, null, false, -1, -1);
+                                null, null, null, null, null, false, -1, -1, null, null);
         }
 
         public static OngoingTaskUiState scanFinished(android.content.Context context, int count) {
@@ -98,7 +111,7 @@ public final class OngoingTaskUiState {
                                 context.getString(com.driot.bookplayer.R.string.mass_import_found_candidates_click,
                                                 count),
                                 100, null, null, null, null, null,
-                                false, -1, -1);
+                                false, -1, -1, null, null);
         }
 
         public static OngoingTaskUiState from(@NonNull ImportJob j, int currentPosition, int totalCount) {
@@ -140,7 +153,9 @@ public final class OngoingTaskUiState {
                                 j.currentOperation,
                                 j.doDownload,
                                 currentPosition,
-                                totalCount);
+                                totalCount,
+                                j.futureFolderPath,
+                                j.getTargetPlaybackFileName());
         }
 
         public boolean isFinished() {

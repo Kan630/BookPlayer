@@ -166,6 +166,7 @@ public class BookLoadingWorkLauncher {
             j.doCopy = doCopy;
 
             j.addToExistingFolderId = s.addToExistingFolderId;
+            j.setTargetPlaybackFileName(s.targetPlaybackFileName);
 
             j.batchIndex = s.batchIndex;
             j.batchTotal = s.batchTotal;

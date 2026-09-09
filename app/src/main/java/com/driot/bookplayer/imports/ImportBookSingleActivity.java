@@ -64,6 +64,12 @@ public class ImportBookSingleActivity extends FullActivity {
     public static final String EXTRA_URI = "EXTRA_URI";
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
     public static final String EXTRA_BOOK_CANDIDATE = "EXTRA_BOOK_CANDIDATE";
+    // Set when re-launching this same activity in Folder mode from the "import whole book?"
+    // sibling-detector prompt, so the eventual import job still remembers which file the user
+    // originally opened (see ImportJob.getTargetPlaybackFileName).
+    public static final String EXTRA_TARGET_PLAYBACK_FILENAME = "EXTRA_TARGET_PLAYBACK_FILENAME";
+    // See noResultCallerExpected field javadoc.
+    public static final String EXTRA_NO_RESULT_CALLER = "EXTRA_NO_RESULT_CALLER";
 
     private ImportBookSingleViewModel viewModel;
 
@@ -96,6 +102,19 @@ public class ImportBookSingleActivity extends FullActivity {
     // Set right before showing the "import the whole book?" prompt; read back in
     // onActivityResult() if the user says yes.
     private java.io.File pendingBookFolderCandidate;
+
+    // True only for the instance relaunched in Folder mode from the sibling-detector prompt. That
+    // relaunch uses plain startActivity() (the original single-file instance finishes right away,
+    // it isn't waiting around for a result), so unlike the normal flow - where the *caller*
+    // (OpenWithProxyActivity/OpenWithProxyActivityAll) launches AddResourceActivity from its own
+    // onActivityResult once we finish - this instance has nobody left to do that for it. It must
+    // launch AddResourceActivity itself on a successful confirm.
+    private boolean noResultCallerExpected = false;
+
+    // The file the user originally opened - either this activity's own single-file uri, or (when
+    // relaunched in Folder mode from the sibling-detector) carried over via
+    // EXTRA_TARGET_PLAYBACK_FILENAME. Used only to jump straight into playback on success.
+    private String targetPlaybackFileName;
 
     @Override
     protected int getNavSectionId() {
@@ -138,6 +157,9 @@ public class ImportBookSingleActivity extends FullActivity {
                 finish();
                 return;
             }
+
+            targetPlaybackFileName = getIntent().getStringExtra(EXTRA_TARGET_PLAYBACK_FILENAME);
+            noResultCallerExpected = getIntent().getBooleanExtra(EXTRA_NO_RESULT_CALLER, false);
         }
 
         TextView tvFileName = findViewById(R.id.tvFileName);
@@ -202,6 +224,13 @@ public class ImportBookSingleActivity extends FullActivity {
 
             audioBookTitle = bookCandidate.audioBookName;
             myLogD(bookCandidate.toString());
+
+            // Single-file mode: the opened file itself is the target. Folder mode never falls
+            // back here - if it wasn't carried over via EXTRA_TARGET_PLAYBACK_FILENAME (the
+            // sibling-detector hand-off), there's no single well-defined "opened" track.
+            if (targetPlaybackFileName == null && !"Folder".equals(bookCandidate.sourceType)) {
+                targetPlaybackFileName = bookCandidate.originalFile;
+            }
 
             tvFileName.setText(audioBookTitle);
             if (bookCandidate.coverImagePath != null) {
@@ -464,6 +493,9 @@ public class ImportBookSingleActivity extends FullActivity {
                     state.optionSplit = cbSplit.isChecked();
                     state.optionCopy = cbCopy.isChecked();
                     state.optionDelete = cbDelete.isChecked();
+                    // Adding to an existing folder isn't a fresh single-book import, so there's
+                    // no clean "jump to playback" target - leave it unset there.
+                    state.targetPlaybackFileName = (folderToAddTo == null) ? targetPlaybackFileName : null;
                     state.originalFile = bookCandidate.originalFile;
                     state.originalHash = originalHash;
                     state.sourceLocation = bookCandidate.sourceLocation;
@@ -486,6 +518,12 @@ public class ImportBookSingleActivity extends FullActivity {
                         // Enqueue on background (or main—WorkManager is fine either way)
                         AppDatabase.databaseWriteExecutor.execute(() -> BookLoadingWorkLauncher
                                 .launch(this.getApplicationContext(), state, /* sequential = */ false));
+
+                        if (noResultCallerExpected) {
+                            // See noResultCallerExpected field javadoc: nobody else is going to
+                            // launch the post-import progress/playback screen for us.
+                            startActivity(new Intent(this, com.driot.bookplayer.activities.AddResourceActivity.class));
+                        }
                         finish();
                     });
 
@@ -966,8 +1004,11 @@ public class ImportBookSingleActivity extends FullActivity {
             if (resultCode == RESULT_OK && pendingBookFolderCandidate != null) {
                 myLogI("user chose to import the whole book folder instead: "
                         + pendingBookFolderCandidate.getAbsolutePath());
+                String openedFileName = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(this, uri);
                 Intent folderIntent = new Intent(this, ImportBookSingleActivity.class);
                 folderIntent.putExtra(EXTRA_URI, Uri.fromFile(pendingBookFolderCandidate));
+                folderIntent.putExtra(EXTRA_TARGET_PLAYBACK_FILENAME, openedFileName);
+                folderIntent.putExtra(EXTRA_NO_RESULT_CALLER, true);
                 startActivity(folderIntent);
                 finish();
             } else {

@@ -53,6 +53,10 @@ public class ImportBookTaskState implements Parcelable {
     public int batchIndex = -1; // 1-based position in batch, -1 if not part of a batch
     public int batchTotal = -1; // Total count in batch, -1 if not part of a batch
 
+    // Filename of the track the user originally opened (see ImportJob.getTargetPlaybackFileName
+    // for why) - null unless this import came from a single-file "Open with"/sibling-book flow.
+    public String targetPlaybackFileName;
+
     public ImportBookTaskState() {
         myLog("ImportBookTaskState() constructor - creating new Workflow");
     }
@@ -98,6 +102,7 @@ public class ImportBookTaskState implements Parcelable {
         addToExistingFolderId = in.readLong();
         batchIndex = in.readInt();
         batchTotal = in.readInt();
+        targetPlaybackFileName = in.readString();
     }
 
     public static final Creator<ImportBookTaskState> CREATOR = new Creator<ImportBookTaskState>() {
@@ -154,6 +159,7 @@ public class ImportBookTaskState implements Parcelable {
         dest.writeLong(addToExistingFolderId);
         dest.writeInt(batchIndex);
         dest.writeInt(batchTotal);
+        dest.writeString(targetPlaybackFileName);
     }
 
     @Override

@@ -160,9 +160,15 @@ public class AddResourceActivity extends FullActivity {
             return;
         }
 
-        // Other Cases (should only be SUCCESS) Briefly show, then hide banner + return
-        // to Main (ask scroll)
-        scheduleFinish(DELAY_END_WAIT_NO_ERROR);
+        // Other Cases (should only be SUCCESS) Briefly show, then hide banner. If we know which
+        // book/track this job just created (single-file "Open with"/sibling-book imports only -
+        // see ImportJob.getTargetPlaybackFileName), jump straight into playing it instead of just
+        // returning to the library.
+        if (ui.futureFolderPath != null) {
+            schedulePlaybackJump(DELAY_END_WAIT_NO_ERROR, ui.futureFolderPath, ui.targetPlaybackFileName);
+        } else {
+            scheduleFinish(DELAY_END_WAIT_NO_ERROR);
+        }
     }
 
     private void scheduleFinish(int delayMs) {
@@ -176,6 +182,58 @@ public class AddResourceActivity extends FullActivity {
             finish();
         };
         myLog("Let's wait " + delayMs + " ms before closing activity...");
+        delayedFinishHandler.postDelayed(delayedFinishRunnable, delayMs);
+    }
+
+    private void schedulePlaybackJump(int delayMs, String futureFolderPath,
+            @androidx.annotation.Nullable String targetPlaybackFileName) {
+        delayedFinishHandler = new Handler();
+        delayedFinishRunnable = () -> {
+            ImportHelper.setShowToUser(this, false);
+            com.driot.bookplayer.db.AppDatabase.databaseReadExecutor.execute(() -> {
+                com.driot.bookplayer.db.AppDatabase db = com.driot.bookplayer.db.AppDatabase.getDatabase(this);
+                com.driot.bookplayer.db.Folder folder = db.folderDao().getFolderByPath(futureFolderPath);
+                com.driot.bookplayer.db.ZikFile target = null;
+                if (folder != null) {
+                    java.util.List<com.driot.bookplayer.db.ZikFile> files = db.zikFileDao().getZikFiles(folder.getId());
+                    if (files != null && !files.isEmpty()) {
+                        if (targetPlaybackFileName != null) {
+                            for (com.driot.bookplayer.db.ZikFile zf : files) {
+                                if (targetPlaybackFileName.equalsIgnoreCase(zf.getName())) {
+                                    target = zf;
+                                    break;
+                                }
+                            }
+                        }
+                        if (target == null) {
+                            target = files.get(0); // single-file import, or no exact match found
+                        }
+                    }
+                }
+                com.driot.bookplayer.db.ZikFile finalTarget = target;
+                runOnUiThread(() -> {
+                    if (finalTarget != null) {
+                        myLog("Jumping straight into playback for the just-imported track: " + finalTarget.getName());
+                        com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
+                                "AddResourceActivity-openWithImportSuccess");
+                        // onZikFileClick() only opens PlayActivity when the user's general
+                        // "open play view on click" setting is on - but here there is no other
+                        // app UI left in this task (it was launched externally via "Open with"),
+                        // so without this the app would otherwise vanish to the home screen while
+                        // audio plays silently in the background. Always show the player here.
+                        startActivity(new Intent(this, com.driot.bookplayer.player.PlayActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
+                    } else {
+                        myLogW("Could not resolve the just-imported folder/track - falling back to the library");
+                        startActivity(new Intent(this, MainActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .putExtra("scrollToTop", true));
+                    }
+                    finish();
+                });
+            });
+        };
+        myLog("Let's wait " + delayMs + " ms before jumping to playback...");
         delayedFinishHandler.postDelayed(delayedFinishRunnable, delayMs);
     }
 
