@@ -554,6 +554,10 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="Import_Progress_splitting_m4b_file">"正在拆分 m4b 文件：" </string>
     <string name="error_media_already_loaded_samePath_under_the_name">此媒体已加载，当前名称为：</string>
     <string name="init_please_wait">初始化中… 请稍候…</string>
+    <string name="import_whole_book_suggestion_title">导入整本书？</string>
+    <string name="import_whole_book_suggestion_message">此文件似乎是一本书的一部分：在\"%2$s\"中找到了 %1$d 个音轨。要导入整本书而不是仅此文件吗？</string>
+    <string name="import_whole_book">导入整本书</string>
+    <string name="just_this_file">仅此文件</string>
     <string name="init_check_already_imported_please_wait">"正在检查是否已导入，请稍候…"</string>
     <string name="init_check_complementary_checks_please_wait">"正在进行补充检查，请稍候…"</string>
     <string name="error_media_already_loaded_samePath">此媒体已被加载</string>

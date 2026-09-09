@@ -85,6 +85,11 @@ public class ImportBookSingleActivity extends FullActivity {
     private PermissionRequest mPermissionRequest;
 
     private static final int REQ_DELETE_SOURCE = 2001;
+    private static final int REQ_IMPORT_WHOLE_BOOK = 2002;
+
+    // Set right before showing the "import the whole book?" prompt; read back in
+    // onActivityResult() if the user says yes.
+    private java.io.File pendingBookFolderCandidate;
 
     @Override
     protected int getNavSectionId() {
@@ -275,7 +280,7 @@ public class ImportBookSingleActivity extends FullActivity {
             // SINGLE IMPORT MODE
 
             if (viewModel.getBookCandidate().getValue() == null) {
-                viewModel.initializeBookCandidate(uri);
+                checkSiblingBookThenProceed();
             }
 
             displayAppendWarning();
@@ -788,6 +793,55 @@ public class ImportBookSingleActivity extends FullActivity {
         }).start();
     }
 
+    /**
+     * A single file opened via "Open with" might actually be one chapter of a multi-file
+     * audiobook that just happens to live in a folder with its siblings. If we can recover a real
+     * filesystem path for the picked Uri (not always possible - see SiblingBookDetector) and find
+     * other audio/video files right next to it, ask the user whether to import the whole folder
+     * instead of just this one file, before setting up the single-file candidate UI.
+     */
+    private void checkSiblingBookThenProceed() {
+        String name = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(this, uri);
+        String type = com.driot.bookplayer.helpers.SupportedFilesHelper.getType(name);
+        boolean eligibleForCheck = folderToAddTo == null
+                && (com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type)
+                        || com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type));
+
+        if (!eligibleForCheck) {
+            proceedAsSingleFileImport();
+            return;
+        }
+
+        new Thread(() -> {
+            SiblingBookDetector.Result result = SiblingBookDetector.detect(this, uri);
+            runOnUiThread(() -> {
+                if (isFinishing()) {
+                    return;
+                }
+                if (result == null) {
+                    proceedAsSingleFileImport();
+                    return;
+                }
+                pendingBookFolderCandidate = result.parentDir;
+                String message = getString(R.string.import_whole_book_suggestion_message,
+                        result.siblingTrackCount, result.parentDir.getName());
+                MsgBox.ask(this,
+                        getString(R.string.import_whole_book_suggestion_title),
+                        message,
+                        null,
+                        getString(R.string.import_whole_book),
+                        getString(R.string.just_this_file),
+                        REQ_IMPORT_WHOLE_BOOK);
+            });
+        }).start();
+    }
+
+    private void proceedAsSingleFileImport() {
+        if (viewModel.getBookCandidate().getValue() == null) {
+            viewModel.initializeBookCandidate(uri);
+        }
+    }
+
     private void displayAppendWarning() {
         if (folderToAddTo != null) {
             myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
@@ -854,6 +908,17 @@ public class ImportBookSingleActivity extends FullActivity {
                 calculateCheckboxState();
             } else {
                 cbDelete.setChecked(false);
+            }
+        } else if (requestCode == REQ_IMPORT_WHOLE_BOOK) {
+            if (resultCode == RESULT_OK && pendingBookFolderCandidate != null) {
+                myLogI("user chose to import the whole book folder instead: "
+                        + pendingBookFolderCandidate.getAbsolutePath());
+                Intent folderIntent = new Intent(this, ImportBookSingleActivity.class);
+                folderIntent.putExtra(EXTRA_URI, Uri.fromFile(pendingBookFolderCandidate));
+                startActivity(folderIntent);
+                finish();
+            } else {
+                proceedAsSingleFileImport();
             }
         }
     }

@@ -567,6 +567,10 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="Import_Progress_splitting_m4b_file">découpage du fichier m4b : </string>
     <string name="error_media_already_loaded_samePath_under_the_name">Ce média a déjà été importé et est stocké sous le nom : </string>
     <string name="init_please_wait">Initialisation… Veuillez patienter…</string>
+    <string name="import_whole_book_suggestion_title">Importer le livre entier ?</string>
+    <string name="import_whole_book_suggestion_message">Ce fichier semble faire partie d\'un livre plus grand : %1$d pistes ont été trouvées dans \"%2$s\". Importer le livre entier au lieu de seulement ce fichier ?</string>
+    <string name="import_whole_book">Importer le livre entier</string>
+    <string name="just_this_file">Seulement ce fichier</string>
     <string name="init_check_already_imported_please_wait">vérification des doublons en cours…</string>
     <string name="init_check_complementary_checks_please_wait">vérifications complémentaires…</string>
     <string name="error_media_already_loaded_samePath">Ce média a déjà été importé</string>

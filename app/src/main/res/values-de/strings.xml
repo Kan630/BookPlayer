@@ -556,6 +556,10 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="Import_Progress_splitting_m4b_file">"M4B-Datei wird aufgeteilt : "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">Dieses Medium wurde bereits geladen und wird derzeit unter dem Namen gespeichert : </string>
     <string name="init_please_wait">Initialisierung… Bitte warten…</string>
+    <string name="import_whole_book_suggestion_title">Ganzes Buch importieren?</string>
+    <string name="import_whole_book_suggestion_message">Diese Datei scheint Teil eines größeren Buches zu sein: In \"%2$s\" wurden %1$d Titel gefunden. Das ganze Buch statt nur dieser Datei importieren?</string>
+    <string name="import_whole_book">Ganzes Buch importieren</string>
+    <string name="just_this_file">Nur diese Datei</string>
     <string name="init_check_already_imported_please_wait">"wird geprüft, ob bereits importiert, bitte warten…"</string>
     <string name="init_check_complementary_checks_please_wait">"zusätzliche Prüfungen, bitte warten…"</string>
     <string name="error_media_already_loaded_samePath">Dieses Medium wurde bereits geladen</string>

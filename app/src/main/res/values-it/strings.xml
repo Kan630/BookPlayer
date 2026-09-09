@@ -555,6 +555,10 @@
     <string name="Import_Progress_splitting_m4b_file">"divisione del file m4b : "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">Questo media è già stato caricato ed è attualmente archiviato con il nome: </string>
     <string name="init_please_wait">Inizializzazione… Attendere…</string>
+    <string name="import_whole_book_suggestion_title">Importare l\'intero libro?</string>
+    <string name="import_whole_book_suggestion_message">Questo file sembra far parte di un libro più grande: sono state trovate %1$d tracce in \"%2$s\". Importare l\'intero libro invece di solo questo file?</string>
+    <string name="import_whole_book">Importa l\'intero libro</string>
+    <string name="just_this_file">Solo questo file</string>
     <string name="init_check_already_imported_please_wait">"verifica se già importato, attendere…"</string>
     <string name="init_check_complementary_checks_please_wait">"controlli complementari, attendere…"</string>
     <string name="error_media_already_loaded_samePath">Questo media è già stato caricato</string>

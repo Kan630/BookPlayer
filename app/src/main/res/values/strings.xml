@@ -624,6 +624,10 @@
     <string name="Import_Progress_splitting_m4b_file">"Splitting M4B file: "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">This media has already been loaded and is currently stored under the name : </string>
     <string name="init_please_wait">Initializing… Please Wait…</string>
+    <string name="import_whole_book_suggestion_title">Import the whole book?</string>
+    <string name="import_whole_book_suggestion_message">This file looks like it\'s part of a larger book: %1$d tracks were found in \"%2$s\". Import the whole book instead of just this file?</string>
+    <string name="import_whole_book">Import whole book</string>
+    <string name="just_this_file">Just this file</string>
     <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
     <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
     <string name="error_media_already_loaded_samePath">This media has already been loaded</string>

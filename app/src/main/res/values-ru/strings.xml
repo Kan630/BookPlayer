@@ -553,6 +553,10 @@
     <string name="Import_Progress_splitting_m4b_file">"разбиение файла m4b: "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">Этот файл уже был загружен под именем: </string>
     <string name="init_please_wait">Инициализация… Пожалуйста, подождите…</string>
+    <string name="import_whole_book_suggestion_title">Импортировать всю книгу?</string>
+    <string name="import_whole_book_suggestion_message">Этот файл похож на часть большой книги: в папке \"%2$s\" найдено %1$d треков. Импортировать всю книгу вместо только этого файла?</string>
+    <string name="import_whole_book">Импортировать всю книгу</string>
+    <string name="just_this_file">Только этот файл</string>
     <string name="init_check_already_imported_please_wait">"проверка уже импортированных, пожалуйста, подождите…"</string>
     <string name="init_check_complementary_checks_please_wait">"дополнительные проверки, пожалуйста, подождите…"</string>
     <string name="error_media_already_loaded_samePath">Этот файл уже был загружен</string>

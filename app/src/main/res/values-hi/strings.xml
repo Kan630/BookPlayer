@@ -552,6 +552,10 @@
     <string name="Import_Progress_splitting_m4b_file">"m4b फ़ाइल विभाजित कर रहे हैं : "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">यह मीडिया पहले से लोड किया जा चुका है और वर्तमान में इस नाम से संग्रहीत है : </string>
     <string name="init_please_wait">आरंभ हो रहा है… कृपया प्रतीक्षा करें…</string>
+    <string name="import_whole_book_suggestion_title">पूरी पुस्तक आयात करें?</string>
+    <string name="import_whole_book_suggestion_message">यह फ़ाइल एक बड़ी पुस्तक का हिस्सा लगती है: \"%2$s\" में %1$d ट्रैक मिले। केवल इस फ़ाइल के बजाय पूरी पुस्तक आयात करें?</string>
+    <string name="import_whole_book">पूरी पुस्तक आयात करें</string>
+    <string name="just_this_file">केवल यह फ़ाइल</string>
     <string name="init_check_already_imported_please_wait">"पहले से आयात है या नहीं जाँच रहे हैं, कृपया प्रतीक्षा करें…"</string>
     <string name="init_check_complementary_checks_please_wait">"पूरक जाँचें चल रही हैं, कृपया प्रतीक्षा करें…"</string>
     <string name="error_media_already_loaded_samePath">यह मीडिया पहले से लोड किया जा चुका है</string>
