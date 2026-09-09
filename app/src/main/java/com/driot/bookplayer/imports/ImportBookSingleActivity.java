@@ -83,7 +83,8 @@ public class ImportBookSingleActivity extends FullActivity {
     private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
-    private TextView tvAppendMode;
+    private com.google.android.material.button.MaterialButtonToggleGroup groupNewVsExisting;
+    private LinearLayout llExistingFolderPicker;
     private Spinner destinationFolderSpinner;
     private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
@@ -214,7 +215,8 @@ public class ImportBookSingleActivity extends FullActivity {
         errorTextView = findViewById(R.id.errorTextView);
         errorTextView.setVisibility(View.GONE);
 
-        tvAppendMode = findViewById(R.id.tvAppendMode);
+        groupNewVsExisting = findViewById(R.id.groupNewVsExisting);
+        llExistingFolderPicker = findViewById(R.id.llExistingFolderPicker);
         destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
 
         progressBarStep1 = findViewById(R.id.loadingProgressBarStep1);
@@ -993,16 +995,15 @@ public class ImportBookSingleActivity extends FullActivity {
         if (folderToAddTo != null) {
             myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
         }
-        updateBookIdentityUI();
     }
 
-    // Toggles the "New book" (editable cover+title) vs "Existing book" (label only) state,
-    // driven by the current destination-folder spinner selection (folderToAddTo).
+    // Toggles the "New book" (editable cover+title) vs "Add to existing book" (folder picker)
+    // state, driven by folderToAddTo - kept in sync with the groupNewVsExisting toggle and the
+    // destination-folder spinner selection (see buildDestinationFolderSpinner()).
     private void updateBookIdentityUI() {
         boolean isNewBook = folderToAddTo == null;
-        tvAppendMode.setVisibility(View.VISIBLE);
-        tvAppendMode.setText(isNewBook ? R.string.import_new_book_label : R.string.import_existing_book_label);
         llNewBookIdentity.setVisibility(isNewBook ? View.VISIBLE : View.GONE);
+        llExistingFolderPicker.setVisibility(isNewBook ? View.GONE : View.VISIBLE);
     }
 
     private void updateCoverDisplay(BookCandidate bookCandidate) {
@@ -1069,47 +1070,71 @@ public class ImportBookSingleActivity extends FullActivity {
                 });
     }
 
+    // Sets up both the New Book / Add to Existing Book toggle and the (existing-folders-only)
+    // destination spinner it reveals. The toggle is the primary control now - 95% of imports are
+    // a new book, so that's the default, with the folder picker tucked away until the rare
+    // "add to existing book" case is explicitly chosen.
     private void buildDestinationFolderSpinner() {
 
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
-            // Create the neutral first item
-            Folder neutral = new Folder();
-            neutral.setId(-1); // special fake ID
-            neutral.setName(getString(R.string.import_new_book_label)); // the label
-            // Insert at index 0
-            items.add(0, neutral);
-            // Compute preselection
+            boolean hasAnyExistingFolder = !items.isEmpty();
+            // Compute preselection - only relevant if this activity was launched already
+            // targeting a specific folder (e.g. from ModifyFolderActivity's "add tracks" flow).
             int selectedPosition = 0;
             if (folderToAddTo != null) {
-                for (int i = 1; i < items.size(); i++) { // start at 1 because 0 = neutral
+                for (int i = 0; i < items.size(); i++) {
                     if (Objects.equals(folderToAddTo.getId(), items.get(i).getId())) {
                         selectedPosition = i;
                         break;
                     }
                 }
             }
-            // Switch to UI thread
             final int finalSelectedPosition = selectedPosition;
             runOnUiThread(() -> {
                 FolderSpinnerAdapter adapter = new FolderSpinnerAdapter(this, items);
                 destinationFolderSpinner.setAdapter(adapter);
-                destinationFolderSpinner.setSelection(finalSelectedPosition);
+                if (hasAnyExistingFolder) {
+                    destinationFolderSpinner.setSelection(finalSelectedPosition);
+                }
+
+                // Nothing to add to - don't offer the option at all.
+                findViewById(R.id.btnAddToExisting).setEnabled(hasAnyExistingFolder);
 
                 destinationFolderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        Folder selected = (Folder) parent.getItemAtPosition(position);
-
-                        boolean isNeutral = selected.getId() == -1; // check fake item
-                        folderToAddTo = isNeutral ? null : selected;
-                        updateBookIdentityUI();
+                        // Only adopt the spinner's selection while "Add to Existing Book" is
+                        // actually the active toggle - avoids the spinner's own initial
+                        // onItemSelected firing (as Spinners always do) from silently flipping
+                        // folderToAddTo away from null while "New Book" is still selected.
+                        if (groupNewVsExisting.getCheckedButtonId() == R.id.btnAddToExisting) {
+                            folderToAddTo = (Folder) parent.getItemAtPosition(position);
+                            updateBookIdentityUI();
+                        }
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
                     }
                 });
+
+                groupNewVsExisting.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                    if (!isChecked) {
+                        return;
+                    }
+                    if (checkedId == R.id.btnNewBook) {
+                        folderToAddTo = null;
+                    } else if (hasAnyExistingFolder) {
+                        folderToAddTo = (Folder) destinationFolderSpinner.getSelectedItem();
+                    }
+                    updateBookIdentityUI();
+                });
+
+                // Initial toggle state: "Add to Existing Book" only if this activity was launched
+                // already targeting a specific folder; "New Book" otherwise.
+                groupNewVsExisting.check(folderToAddTo != null ? R.id.btnAddToExisting : R.id.btnNewBook);
+                updateBookIdentityUI();
             });
         });
 
@@ -1200,7 +1225,7 @@ public class ImportBookSingleActivity extends FullActivity {
         llCopy.setVisibility(View.GONE);
         llUseSdCard.setVisibility(View.GONE);
         llDelete.setVisibility(View.GONE);
-        tvAppendMode.setVisibility(View.GONE);
+        groupNewVsExisting.setVisibility(View.GONE);
         destinationFolderSpinner.setVisibility(View.GONE);
         waitTextView.setVisibility(View.GONE);
         progressBarStep1.setVisibility(View.GONE);

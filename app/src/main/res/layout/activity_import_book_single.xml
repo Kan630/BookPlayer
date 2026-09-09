@@ -78,39 +78,43 @@
         <LinearLayout
             android:id="@+id/llAppendAndDest"
             style="@style/wideLinearLayout_Vertical">
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/destination"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="0dp" />
-            <LinearLayout
-                style="@style/simpleLinearLayout_Horizontal">
-                <Spinner
-                    android:id="@+id/spinner_destination_folder"
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupNewVsExisting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnNewBook"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    />
-            </LinearLayout>
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/import_new_book_label" />
 
-            <TextView
-                android:id="@+id/tvAppendMode"
-                style="@style/simpleTextWrap"
-                android:text="@string/import_new_book_label"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:textColor="@color/pastel_blue_500"
-                android:layout_gravity="center_horizontal"
-                />
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnAddToExisting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/import_existing_book_label" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <!-- New-book identity: cover (tap to cycle candidates) + editable title.
-                 Hidden entirely when an existing folder is picked from the spinner above. -->
+                 Shown only while "New Book" is selected above. -->
             <LinearLayout
                 android:id="@+id/llNewBookIdentity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 >
@@ -168,6 +172,24 @@
 
                 </LinearLayout>
 
+            </LinearLayout>
+
+            <!-- Existing-folder picker: which book to append to. Shown only while
+                 "Add to Existing Book" is selected above. -->
+            <LinearLayout
+                android:id="@+id/llExistingFolderPicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                >
+                <Spinner
+                    android:id="@+id/spinner_destination_folder"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
             </LinearLayout>
         </LinearLayout>
 
