@@ -86,6 +86,10 @@ public class BookCandidate implements Parcelable {
     // public final List<String> trackList = new ArrayList<>();
     private ArrayList<AudioFileInfo> audioFileInfoArrayList = new ArrayList<>();
     public String coverImagePath; // Path to detected cover image (null if none)
+    // All image files found alongside the book (folder imports only), largest first.
+    // coverImagePath above always matches coverCandidates.get(0) when non-empty. Lets the
+    // pre-import screen offer a "change cover" affordance when more than one was found.
+    public final ArrayList<String> coverCandidates = new ArrayList<>();
 
     public String sourceLocation = "sourceLocation...";
     public String mimeType;
@@ -144,6 +148,7 @@ public class BookCandidate implements Parcelable {
         specialType = in.readString();
         // in.readStringList(trackList);
         audioFileInfoArrayList = in.createTypedArrayList(AudioFileInfo.CREATOR);
+        in.readStringList(coverCandidates);
     }
 
     @Override
@@ -180,6 +185,7 @@ public class BookCandidate implements Parcelable {
         dest.writeString(specialType);
         // dest.writeStringList(trackList);
         dest.writeTypedList(audioFileInfoArrayList);
+        dest.writeStringList(coverCandidates);
     }
 
     @Override
@@ -816,8 +822,15 @@ public class BookCandidate implements Parcelable {
         long startTime = System.currentTimeMillis();
         myLogD("scanFolderCombined() START for: " + name);
 
-        // 1. Initial Cover Detection (Root only, external images) - this is fast
-        this.coverImagePath = detectCoverForFolderExternally(context, rootDir);
+        // 1. Initial Cover Detection (Root only, external images) - this is fast.
+        // Single listing of the root folder gives us every candidate (largest first) in one
+        // pass - the previously-picked "best" cover is just candidates.get(0), so there's no
+        // need to separately re-scan the folder for it (that used to duplicate this same walk -
+        // see detectCoverFromFolder() in CoverPictureDetection, still used by ImageHelper for
+        // its own re-detection case).
+        this.coverCandidates.clear();
+        this.coverCandidates.addAll(CoverPictureDetection.listAllCoverCandidates(context, rootDir));
+        this.coverImagePath = this.coverCandidates.isEmpty() ? null : this.coverCandidates.get(0);
         if (this.coverImagePath != null && listener != null) {
             listener.onCoverFound(this.coverImagePath);
         }
@@ -1132,21 +1145,6 @@ public class BookCandidate implements Parcelable {
 
 
     // --- Cover Detection Helpers ---
-
-    private String detectCoverForFolderExternally(Context context, DocumentFile folder) {
-        myLogD("using general helper to find a cover at the root level");
-        try {
-            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
-                    folder, null);
-
-            if (result != null && result.imagePath != null) {
-                myLog("image found through external helper");
-                return result.imagePath;
-            }
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
 
     private String extractEmbeddedCoverFromFile(Context context, DocumentFile file) {
         if (Tonio.getExtension(file.getName()).equalsIgnoreCase("mp3")) {

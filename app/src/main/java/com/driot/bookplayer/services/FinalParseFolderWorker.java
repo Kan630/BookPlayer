@@ -23,8 +23,10 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -60,6 +62,15 @@ public class FinalParseFolderWorker extends ImportWorker {
     ImportJob importJob;
     private org.json.JSONArray nearbyProgressArray;
     private org.json.JSONObject trackTitles;
+
+    // Set only when this run itself created a brand-new Folder row (i.e. not an "add to existing
+    // book" append) - tells rollbackPartialImport() whether to remove the whole folder or just
+    // the individual tracks this run managed to add.
+    private long createdNewFolderId = -1;
+    // ZikFile row ids actually inserted during this run - used by rollbackPartialImport() in the
+    // append-to-existing-folder case, so a cancel only removes what THIS run added, leaving the
+    // book's pre-existing tracks untouched.
+    private final java.util.List<Long> insertedZikFileIdsThisRun = new java.util.ArrayList<>();
 
     private final Context context;
 
@@ -143,6 +154,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             return Result.success();
 
         } catch (ImportAbortException abort) {
+            rollbackPartialImport();
             return Result.failure(abort.out);
         } catch (Throwable t) {
             return failResult( // you can still reuse failResult for unknown crashes
@@ -382,6 +394,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         long l_audioSize;
         boolean hadImageBefore = importJob.imagePath != null; // dont look in subDir if image found at top dir
         for (DocumentFile f1 : f0.listFiles()) {
+            checkNotCancelled(TASK_NAME);
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
                 addAudioFileRecursive(f1, recursivFolder + f1.getName() + '/');
@@ -473,6 +486,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     private void addTextFileRecursive(DocumentFile dir, String recursiveFolder) {
         boolean hadImageBefore = importJob.imagePath != null; // dont look in subDir if image found at top dir
         for (DocumentFile f1 : dir.listFiles()) {
+            checkNotCancelled(TASK_NAME);
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
                 addTextFileRecursive(f1, recursiveFolder + f1.getName() + '/');
@@ -560,6 +574,54 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
     }
 
+    /**
+     * Called when checkNotCancelled() aborts a run mid-way - removes whatever THIS run itself
+     * added, so cancelling actually undoes the partial work instead of just stopping further
+     * additions: for a brand-new book, the whole folder (DB rows + any files copied to internal
+     * storage); for an append to an existing book, only the individual tracks this run managed to
+     * insert before being stopped - the rest of that book (and any track that already existed
+     * under the same name, see newlyInsertedThisRun in saveSingleFile()) is left untouched.
+     */
+    private void rollbackPartialImport() {
+        try {
+            AppDatabase db = AppDatabase.getDatabase(context);
+            if (createdNewFolderId > 0) {
+                myLogI("rollbackPartialImport: removing newly-created folder id=" + createdNewFolderId);
+                String folderPath = db.zikFileDao().getFolderPath((int) createdNewFolderId);
+                // Only ever delete from disk what we actually own (a real filesystem copy under
+                // internal storage) - never a source folder the user merely linked in place (see
+                // the same guard in ImportHelper.cleanUp() / DeleteFolderWorker).
+                if (folderPath != null && StorageHelper.isInInternalMemory(folderPath)) {
+                    try {
+                        FileHelper.deleteFolderRecursive(folderPath);
+                    } catch (Exception e) {
+                        myLogEE(e, "rollbackPartialImport: deleting folder from disk");
+                    }
+                }
+                db.zikFileDao().deleteAllZikFilesInFolder(createdNewFolderId);
+                db.folderDao().delete((int) createdNewFolderId);
+            } else if (!insertedZikFileIdsThisRun.isEmpty()) {
+                myLogI("rollbackPartialImport: removing " + insertedZikFileIdsThisRun.size()
+                        + " track(s) just appended to existing folder id=" + importJob.addToExistingFolderId);
+                for (Long zikFileId : insertedZikFileIdsThisRun) {
+                    try {
+                        if (importJob.optionCopy) {
+                            String path = db.zikFileDao().getZikFilePath(zikFileId);
+                            if (path != null) {
+                                FileHelper.deleteFile(context, path);
+                            }
+                        }
+                        db.zikFileDao().deleteZikFile(zikFileId);
+                    } catch (Exception e) {
+                        myLogEE(e, "rollbackPartialImport: deleting appended track id=" + zikFileId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "rollbackPartialImport failed");
+        }
+    }
+
     private void saveFolder() {
         emitStepProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
@@ -587,6 +649,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             int insertedFolderId = (int) DatabaseClient.getInstance(context)
                     .getAppDatabase().folderDao().insert(folder);
+            createdNewFolderId = insertedFolderId;
             myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
             ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
             emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
@@ -608,6 +671,10 @@ public class FinalParseFolderWorker extends ImportWorker {
         int failed = 0;
 
         for (int i = 0; i < total; i++) {
+            // Checked here (not just once before the loop) so cancelling mid-way through a long
+            // append actually stops further tracks from being added to the target folder, rather
+            // than silently running to completion once started - see checkNotCancelled().
+            checkNotCancelled(TASK_NAME);
             AudioFileInfo info = audioFileInfoArrayList.get(i);
             int zeOrder = saved + 1;
 
@@ -764,14 +831,29 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
 
         long id = -1;
+        // Whether THIS run is the one that actually inserted the row (vs. matched a track that
+        // was already in the folder before this run started) - only the former should ever be
+        // rolled back by rollbackPartialImport() on a cancel.
+        boolean newlyInsertedThisRun;
         // verify it does not exist
         if (importJob.addToExistingFolderId > 0) {
-            id = AppDatabase.getDatabase(context).zikFileDao().insertIfNameNotExists(file);
+            Long existingId = AppDatabase.getDatabase(context).zikFileDao().findIdByName(file.getName());
+            if (existingId != null) {
+                id = existingId;
+                newlyInsertedThisRun = false;
+            } else {
+                id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
+                newlyInsertedThisRun = true;
+            }
         } else {
             id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
+            newlyInsertedThisRun = true;
         }
 
         if (id > 0) {
+            if (newlyInsertedThisRun) {
+                insertedZikFileIdsThisRun.add(id);
+            }
             // Restore PlaySessions if available
             if (progressData != null && progressData.has("playSessions")) {
                 myLog("adding/restoring HeatMaps Progress");

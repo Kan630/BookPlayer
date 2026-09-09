@@ -111,6 +111,13 @@
     <string name="source_location_unknown">अज्ञात स्थान से</string>
     <string name="import_source_summary">%1$s %2$s</string>
     <string name="import_file_format_line">प्रारूप: %1$s</string>
+    <string name="import_new_book_label">नई पुस्तक</string>
+    <string name="import_existing_book_label">मौजूदा पुस्तक में जोड़ें</string>
+    <string name="import_book_title_hint">पुस्तक का शीर्षक</string>
+    <string name="import_tap_cover_to_change">बदलने के लिए कवर पर टैप करें (%1$d मिलीं)</string>
+    <string name="import_tap_cover_to_change_simple">बदलने के लिए कवर पर टैप करें</string>
+    <string name="action_choose_from_candidates">🖼️ मिली हुई छवियों में से चुनें (%1$d)</string>
+    <string name="cover_candidates_dialog_title">कवर चुनें</string>
     <string name="Logging">लॉगिंग</string>
     <string name="manual">मैनुअल</string>
     <string name="MB">MB</string> //short for MegaByte

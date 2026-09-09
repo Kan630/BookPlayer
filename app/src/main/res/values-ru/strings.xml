@@ -112,6 +112,13 @@
     <string name="source_location_unknown">из неизвестного источника</string>
     <string name="import_source_summary">%1$s %2$s</string>
     <string name="import_file_format_line">Формат: %1$s</string>
+    <string name="import_new_book_label">Новая книга</string>
+    <string name="import_existing_book_label">Добавить в существующую книгу</string>
+    <string name="import_book_title_hint">Название книги</string>
+    <string name="import_tap_cover_to_change">Нажмите на обложку, чтобы изменить (найдено: %1$d)</string>
+    <string name="import_tap_cover_to_change_simple">Нажмите на обложку, чтобы изменить</string>
+    <string name="action_choose_from_candidates">🖼️ Выбрать из найденных изображений (%1$d)</string>
+    <string name="cover_candidates_dialog_title">Выбрать обложку</string>
     <string name="Logging">Логирование</string>
     <string name="manual">руководство</string>
     <string name="MB">МБ</string> //short for MegaByte

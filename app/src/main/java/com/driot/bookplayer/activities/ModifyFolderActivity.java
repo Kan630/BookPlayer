@@ -25,6 +25,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -40,6 +41,8 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CoverPickerHelper;
+import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -209,7 +212,11 @@ public class ModifyFolderActivity extends BaseActivity {
         etEndCut.setText(String.valueOf(folder.cutEnd));
 
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
-        ivCoverPreview.setImageResource(R.drawable.no_image_icon);
+        if (folder.image != null && !folder.image.isEmpty()) {
+            ivCoverPreview.setImageResource(R.drawable.no_image_icon); // Glide load below will replace it
+        } else {
+            showFallbackCoverPreview();
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -228,12 +235,14 @@ public class ModifyFolderActivity extends BaseActivity {
         bChangeCover.setOnClickListener(view -> clickChangeCover());
         bDeleteCover.setOnClickListener(view -> clickDeleteCover());
         bGenerateCover.setOnClickListener(view -> clickGenerateCover());
-        if (Tonio.isPure(this)) {
+        boolean webSearchAvailable = !Tonio.isPure(this);
+        if (!webSearchAvailable) {
             bWebSearch.setVisibility(View.GONE);
         } else {
             bWebSearch.setOnClickListener(view -> clickWebSearch());
         }
         bResetToOriginal.setOnClickListener(view -> clickResetToOriginal());
+        ivCoverPreview.setOnClickListener(this::openCoverPickerMenu);
 
         // Hide Reset to Original for old books (imported before feature launch ~Jan 29
         // 2026)
@@ -254,9 +263,7 @@ public class ModifyFolderActivity extends BaseActivity {
                         String img = fresh.image;
 
                         if (img == null || img.isEmpty()) {
-                            Glide.with(this)
-                                    .load(R.drawable.no_image_icon)
-                                    .into(ivCoverPreview);
+                            showFallbackCoverPreview();
                             return;
                         }
 
@@ -564,33 +571,97 @@ public class ModifyFolderActivity extends BaseActivity {
         selectImageLauncher.launch(Intent.createChooser(intent, "Select Cover Image"));
     }
 
+    // Shows the same pastel-initials placeholder the app would auto-generate on import when no
+    // real cover was found (see CoverPictureDetection.createFallbackCover / goFolder()), instead
+    // of the plain gray "no cover" icon, whenever this folder currently has no cover at all.
+    // Purely visual here - doesn't touch folder.image; the user still has to explicitly tap the
+    // cover and choose "Generate" to persist one.
+    private void showFallbackCoverPreview() {
+        if (!Option.getCreateCover()) {
+            ivCoverPreview.setImageResource(R.drawable.no_image_icon);
+            return;
+        }
+        int sizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300,
+                getResources().getDisplayMetrics());
+        ivCoverPreview.setImageBitmap(CoverPickerHelper.generateFallbackPreview(folder.getName(), sizePx));
+    }
+
+    // Tapping the cover thumbnail itself offers the same set of actions as the buttons below it,
+    // plus "choose from images found in this folder" (only meaningful here - a real folder to
+    // scan). Shared with ImportBookSingleActivity's identical menu via CoverPickerHelper; each
+    // activity just wires the actions to its own persistence (this one: an existing Folder DB
+    // row + the buttons' own click handlers).
+    private void openCoverPickerMenu(View anchor) {
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<String> candidates = java.util.Collections.emptyList();
+            try {
+                DocumentFile docFolder = UriHelper.getDocumentFileFromAnyUri(this, Uri.parse(folder.getUri()));
+                if (docFolder != null && docFolder.isDirectory()) {
+                    candidates = CoverPictureDetection.listAllCoverCandidates(this, docFolder);
+                }
+            } catch (Exception e) {
+                myLogEE(e, "openCoverPickerMenu: failed to list candidate images");
+            }
+            List<String> finalCandidates = candidates;
+            runOnUiThread(() -> CoverPickerHelper.showCoverOptionsMenu(this, anchor, finalCandidates,
+                    !Tonio.isPure(this), new CoverPickerHelper.Actions() {
+                        @Override
+                        public void onCandidateChosen(String path) {
+                            persistChosenCoverUri(path);
+                        }
+
+                        @Override
+                        public void onUploadRequested() {
+                            clickChangeCover();
+                        }
+
+                        @Override
+                        public void onWebSearchRequested() {
+                            clickWebSearch();
+                        }
+
+                        @Override
+                        public void onGenerateRequested() {
+                            clickGenerateCover();
+                        }
+                    }));
+        });
+    }
+
     private final ActivityResultLauncher<Intent> selectImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Uri selectedImageUri = result.getData().getData();
                     if (selectedImageUri != null) {
-                        new Thread(() -> {
-                            try {
-                                String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this,
-                                        folder.getId(), selectedImageUri.toString());
-                                if (newImagePath == null) {
-                                    myToastEE(null, "error while changing image");
-                                } else {
-                                    folder.image = newImagePath;
-                                    saveImageInDB(folder.getId(), newImagePath);
-                                    runOnUiThread(() -> {
-                                        myLog("reset ivCoverPreview after activity result : " + newImagePath);
-                                        ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath)));
-                                    });
-                                }
-                            } catch (Exception e) {
-                                myLogEE(e, "Error processing selected image");
-                                runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
-                            }
-                        }).start();
+                        persistChosenCoverUri(selectedImageUri.toString());
                     }
                 }
             });
+
+    // Shared by the system image picker (selectImageLauncher above) and the "choose from images
+    // found in this folder" option in the cover picker menu (see openCoverPickerMenu) - both just
+    // hand this an image URI/path to adopt as the folder's cover.
+    private void persistChosenCoverUri(String uriOrPath) {
+        new Thread(() -> {
+            try {
+                String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this,
+                        folder.getId(), uriOrPath);
+                if (newImagePath == null) {
+                    myToastEE(null, "error while changing image");
+                } else {
+                    folder.image = newImagePath;
+                    saveImageInDB(folder.getId(), newImagePath);
+                    runOnUiThread(() -> {
+                        myLog("reset ivCoverPreview after cover change: " + newImagePath);
+                        ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath)));
+                    });
+                }
+            } catch (Exception e) {
+                myLogEE(e, "Error processing selected image");
+                runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
+            }
+        }).start();
+    }
 
     private void clickDeleteCover() {
         myLogI("user clicks - DELETE cover IMAGE");
@@ -620,7 +691,7 @@ public class ModifyFolderActivity extends BaseActivity {
 
                 folder.image = null;
                 saveImageInDB(folder.getId(), folder.image);
-                runOnUiThread(() -> ivCoverPreview.setImageResource(R.drawable.no_image_icon));
+                runOnUiThread(this::showFallbackCoverPreview);
             } catch (Exception e) {
                 myLogEE(e, "delete cover");
             }

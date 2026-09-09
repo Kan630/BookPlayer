@@ -111,6 +111,13 @@
     <string name="source_location_unknown">来自未知位置</string>
     <string name="import_source_summary">%1$s %2$s</string>
     <string name="import_file_format_line">格式：%1$s</string>
+    <string name="import_new_book_label">新书</string>
+    <string name="import_existing_book_label">添加到现有书籍</string>
+    <string name="import_book_title_hint">书名</string>
+    <string name="import_tap_cover_to_change">点击封面以更换（找到 %1$d 张）</string>
+    <string name="import_tap_cover_to_change_simple">点击封面以更换</string>
+    <string name="action_choose_from_candidates">🖼️ 从找到的图片中选择 (%1$d)</string>
+    <string name="cover_candidates_dialog_title">选择封面</string>
     <string name="Logging">日志记录</string>
     <string name="manual">使用手册</string>
     <string name="MB">MB</string> //short for MegaByte

@@ -141,6 +141,25 @@ public abstract class ImportWorker extends LoggingWorker {
         // throw new ImportAbortException(taskName, devMsg, userMsg);
     }
 
+    /**
+     * Cooperative-cancellation checkpoint: throws to unwind doWork() as soon as WorkManager has
+     * requested this worker stop (e.g. the user clicked Cancel - ImportHelper.cancelCurrentImport
+     * already set the ImportJob's Room status to CANCELLED synchronously at that moment).
+     * Subclasses should call this at the top of any loop that does real work (scanning files,
+     * saving tracks, copying bytes...) - without it, cancelUniqueWork()/cancelAllWorkByTag() only
+     * flip WorkManager's own bookkeeping, but a plain Worker's doWork() thread has no built-in
+     * interruption and just runs to completion regardless, silently clobbering the CANCELLED
+     * status back to SUCCEEDED/FAILED once it finishes (see emitSuccess()/emitFailed()).
+     * Deliberately does NOT touch Room itself here - Room is already correct; this only needs to
+     * stop the worker from doing (and then reporting) any more work after that.
+     */
+    protected void checkNotCancelled(String taskName) {
+        if (isStopped()) {
+            myLogI("checkNotCancelled: isStopped()=true - aborting worker (" + taskName + ")");
+            throw new ImportAbortException(taskName, "cancelled by user (isStopped)", "Cancelled");
+        }
+    }
+
     protected Result failResult(String taskName, String devMsg, String userMsg) {
         repo.fail(importId, devMsg, userMsg); // persist failure in Room
         return Result.failure(

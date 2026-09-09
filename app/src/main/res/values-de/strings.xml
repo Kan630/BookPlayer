@@ -112,6 +112,13 @@
     <string name="source_location_unknown">von einem unbekannten Ort</string>
     <string name="import_source_summary">%1$s %2$s</string>
     <string name="import_file_format_line">Format: %1$s</string>
+    <string name="import_new_book_label">Neues Buch</string>
+    <string name="import_existing_book_label">Zu vorhandenem Buch hinzufügen</string>
+    <string name="import_book_title_hint">Buchtitel</string>
+    <string name="import_tap_cover_to_change">Zum Ändern auf das Cover tippen (%1$d gefunden)</string>
+    <string name="import_tap_cover_to_change_simple">Zum Ändern auf das Cover tippen</string>
+    <string name="action_choose_from_candidates">🖼️ Aus gefundenen Bildern wählen (%1$d)</string>
+    <string name="cover_candidates_dialog_title">Cover auswählen</string>
     <string name="Logging">Protokollierung</string>
     <string name="manual">Handbuch</string>
     <string name="MB">MB</string> //short for MegaByte

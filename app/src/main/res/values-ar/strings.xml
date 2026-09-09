@@ -112,6 +112,13 @@
     <string name="source_location_unknown">من موقع غير معروف</string>
     <string name="import_source_summary">%1$s %2$s</string>
     <string name="import_file_format_line">الصيغة: %1$s</string>
+    <string name="import_new_book_label">كتاب جديد</string>
+    <string name="import_existing_book_label">أضف إلى كتاب موجود</string>
+    <string name="import_book_title_hint">عنوان الكتاب</string>
+    <string name="import_tap_cover_to_change">اضغط على الغلاف للتغيير (تم العثور على %1$d)</string>
+    <string name="import_tap_cover_to_change_simple">اضغط على الغلاف للتغيير</string>
+    <string name="action_choose_from_candidates">🖼️ الاختيار من الصور الموجودة (%1$d)</string>
+    <string name="cover_candidates_dialog_title">اختر غلافًا</string>
     <string name="Logging">تسجيل الأخطاء</string>
     <string name="manual">دليل</string>
     <string name="MB">ميغابايت</string> //short for MegaByte

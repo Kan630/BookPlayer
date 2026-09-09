@@ -114,6 +114,34 @@ public class CoverPictureDetection {
     }
 
     /**
+     * Lists every image file found at the root of a folder, largest first.
+     * Used to offer a "change cover" choice on the pre-import screen when a folder
+     * contains more than one plausible cover image (detectCoverFromFolder above only
+     * ever returns the single largest one).
+     *
+     * @param context Android context
+     * @param folder  DocumentFile representing the folder to scan
+     * @return URI strings of every image found, largest first (may be empty)
+     */
+    @androidx.annotation.NonNull
+    public static java.util.List<String> listAllCoverCandidates(Context context, DocumentFile folder) {
+        java.util.List<DocumentFile> images = new java.util.ArrayList<>();
+        if (folder != null && folder.isDirectory()) {
+            for (DocumentFile file : folder.listFiles()) {
+                if (file.isFile() && isCoverImage(file)) {
+                    images.add(file);
+                }
+            }
+        }
+        images.sort((a, b) -> Long.compare(b.length(), a.length()));
+        java.util.List<String> result = new java.util.ArrayList<>();
+        for (DocumentFile file : images) {
+            result.add(file.getUri().toString());
+        }
+        return result;
+    }
+
+    /**
      * Extracts embedded cover from audio file metadata using
      * MediaMetadataRetriever.
      * 

@@ -40,6 +40,8 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.helpers.CoverPickerHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -98,6 +100,8 @@ public class ImportBookSingleActivity extends FullActivity {
 
     private static final int REQ_DELETE_SOURCE = 2001;
     private static final int REQ_IMPORT_WHOLE_BOOK = 2002;
+    private static final int REQ_UPLOAD_COVER = 2003;
+    private static final int REQ_GENERATE_COVER = 2004;
 
     // Set right before showing the "import the whole book?" prompt; read back in
     // onActivityResult() if the user says yes.
@@ -115,6 +119,20 @@ public class ImportBookSingleActivity extends FullActivity {
     // relaunched in Folder mode from the sibling-detector) carried over via
     // EXTRA_TARGET_PLAYBACK_FILENAME. Used only to jump straight into playback on success.
     private String targetPlaybackFileName;
+
+    // "New book" identity block (cover + editable title), shown only while destination == New book.
+    private android.widget.EditText etBookTitle;
+    private ImageView ivCover;
+    private TextView tvCoverHint;
+    private LinearLayout llNewBookIdentity;
+    private boolean titleManuallyEdited = false;
+    private boolean programmaticTitleUpdate = false;
+    // Set once the user explicitly picks a cover via the popup menu (candidate/upload/generate).
+    // Overrides the auto-detected coverCandidates.get(0) - and, unlike the plain auto-detected
+    // cover, is real enough to persist even if it came from an in-memory-only source like the
+    // generator.
+    @Nullable
+    private String manualCoverPath;
 
     @Override
     protected int getNavSectionId() {
@@ -162,12 +180,32 @@ public class ImportBookSingleActivity extends FullActivity {
             noResultCallerExpected = getIntent().getBooleanExtra(EXTRA_NO_RESULT_CALLER, false);
         }
 
-        TextView tvFileName = findViewById(R.id.tvFileName);
-        ImageView ivCover = findViewById(R.id.ivCover);
+        etBookTitle = findViewById(R.id.etBookTitle);
+        ivCover = findViewById(R.id.ivCover);
+        tvCoverHint = findViewById(R.id.tvCoverHint);
+        llNewBookIdentity = findViewById(R.id.llNewBookIdentity);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnCancel = findViewById(R.id.btnCancel);
+
+        findViewById(R.id.cvCover).setOnClickListener(this::openCoverPickerMenu);
+
+        etBookTitle.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                if (!programmaticTitleUpdate) {
+                    titleManuallyEdited = true;
+                    audioBookTitle = s.toString();
+                }
+            }
+        });
 
         waitTextView = findViewById(R.id.waitTextView);
         waitTextView.setText(getString(R.string.init_please_wait));
@@ -193,7 +231,9 @@ public class ImportBookSingleActivity extends FullActivity {
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
 
-        tvFileName.setText("...");
+        programmaticTitleUpdate = true;
+        etBookTitle.setText("...");
+        programmaticTitleUpdate = false;
 
         // init checkbox by loading default from general settings
         // then, it will be controlled and maybe changed by dynamic checks
@@ -222,7 +262,6 @@ public class ImportBookSingleActivity extends FullActivity {
                 stopAndDisableEverything();
             }
 
-            audioBookTitle = bookCandidate.audioBookName;
             myLogD(bookCandidate.toString());
 
             // Single-file mode: the opened file itself is the target. Folder mode never falls
@@ -232,12 +271,14 @@ public class ImportBookSingleActivity extends FullActivity {
                 targetPlaybackFileName = bookCandidate.originalFile;
             }
 
-            tvFileName.setText(audioBookTitle);
-            if (bookCandidate.coverImagePath != null) {
-                ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
-            } else {
-                ivCover.setImageResource(R.drawable.no_image_icon);
+            if (!titleManuallyEdited) {
+                audioBookTitle = bookCandidate.audioBookName;
+                programmaticTitleUpdate = true;
+                etBookTitle.setText(audioBookTitle);
+                etBookTitle.setSelection(etBookTitle.getText().length());
+                programmaticTitleUpdate = false;
             }
+            updateCoverDisplay(bookCandidate);
             tvInfoLine1.setText(bookCandidate.infoLine1);
             boolean hasFormatLine = bookCandidate.infoMimeExtension != null
                     && !bookCandidate.infoMimeExtension.isEmpty();
@@ -506,6 +547,18 @@ public class ImportBookSingleActivity extends FullActivity {
                     state.mimeType = bookCandidate.mimeType;
                     state.playType = bookCandidate.playType;
                     state.addToExistingFolderId = (folderToAddTo == null ? -1 : folderToAddTo.getId());
+                    // Seed the worker with the cover the user actually ends up with (an explicit
+                    // manual pick if any, else the auto-detected best one) so it doesn't get
+                    // silently replaced by a bigger image found later during the folder scan -
+                    // see hadImageBefore in FinalParseFolderWorker. A generated-preview-only cover
+                    // (manualCoverPath still null, nothing in coverCandidates) is intentionally
+                    // left null here too - goFolder() regenerates the exact same fallback cover
+                    // itself when Option.getCreateCover() is on, so there's nothing to seed.
+                    state.imagePath = (folderToAddTo == null)
+                            ? (manualCoverPath != null ? manualCoverPath
+                                    : (bookCandidate.coverCandidates.isEmpty() ? bookCandidate.coverImagePath
+                                            : bookCandidate.coverCandidates.get(0)))
+                            : null;
 
                     runOnUiThread(() -> {
                         if (anotherRunning) {
@@ -940,7 +993,80 @@ public class ImportBookSingleActivity extends FullActivity {
         if (folderToAddTo != null) {
             myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
         }
-        tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
+        updateBookIdentityUI();
+    }
+
+    // Toggles the "New book" (editable cover+title) vs "Existing book" (label only) state,
+    // driven by the current destination-folder spinner selection (folderToAddTo).
+    private void updateBookIdentityUI() {
+        boolean isNewBook = folderToAddTo == null;
+        tvAppendMode.setVisibility(View.VISIBLE);
+        tvAppendMode.setText(isNewBook ? R.string.import_new_book_label : R.string.import_existing_book_label);
+        llNewBookIdentity.setVisibility(isNewBook ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateCoverDisplay(BookCandidate bookCandidate) {
+        int candidateCount = bookCandidate.coverCandidates.size();
+
+        if (manualCoverPath != null) {
+            ivCover.setImageURI(Uri.parse(manualCoverPath));
+            tvCoverHint.setVisibility(View.VISIBLE);
+            tvCoverHint.setText(R.string.import_tap_cover_to_change_simple);
+        } else if (!bookCandidate.coverCandidates.isEmpty()) {
+            ivCover.setImageURI(Uri.parse(bookCandidate.coverCandidates.get(0)));
+            tvCoverHint.setVisibility(View.VISIBLE);
+            tvCoverHint.setText(candidateCount > 1
+                    ? getString(R.string.import_tap_cover_to_change, candidateCount)
+                    : getString(R.string.import_tap_cover_to_change_simple));
+        } else if (Option.getCreateCover()) {
+            // Nothing real found - preview the same pastel-initials cover the real import would
+            // auto-generate anyway (see CoverPictureDetection.createFallbackCover / goFolder()),
+            // so what's confirmed matches what's shown. Purely visual: not persisted here.
+            int previewSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64,
+                    getResources().getDisplayMetrics());
+            ivCover.setImageBitmap(CoverPickerHelper.generateFallbackPreview(audioBookTitle, previewSizePx));
+            tvCoverHint.setVisibility(View.VISIBLE);
+            tvCoverHint.setText(R.string.import_tap_cover_to_change_simple);
+        } else {
+            ivCover.setImageResource(R.drawable.no_image_icon);
+            tvCoverHint.setVisibility(View.VISIBLE);
+            tvCoverHint.setText(R.string.import_tap_cover_to_change_simple);
+        }
+    }
+
+    private void openCoverPickerMenu(View anchor) {
+        BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+        List<String> candidates = bookCandidate != null ? bookCandidate.coverCandidates : null;
+        CoverPickerHelper.showCoverOptionsMenu(this, anchor, candidates, /* webSearchSupported= */ false,
+                new CoverPickerHelper.Actions() {
+                    @Override
+                    public void onCandidateChosen(String path) {
+                        manualCoverPath = path;
+                        BookCandidate current = viewModel.getBookCandidate().getValue();
+                        if (current != null) {
+                            updateCoverDisplay(current);
+                        }
+                    }
+
+                    @Override
+                    public void onUploadRequested() {
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+                        startActivityForResult(Intent.createChooser(intent,
+                                getString(R.string.action_change)), REQ_UPLOAD_COVER);
+                    }
+
+                    @Override
+                    public void onGenerateRequested() {
+                        Intent i = new Intent(ImportBookSingleActivity.this,
+                                com.driot.bookplayer.activities.CoverGenerationActivity.class);
+                        // No Folder DB row exists yet at this stage - a negative sentinel id keeps
+                        // the generated file from colliding with any real folder's versioned cover
+                        // (see ImageHelper.saveGeneratedInitialsCoverVersioned, keyed by folder id).
+                        i.putExtra(com.driot.bookplayer.activities.CoverGenerationActivity.EXTRA_FOLDER_ID, -1L);
+                        i.putExtra(com.driot.bookplayer.activities.CoverGenerationActivity.EXTRA_TITLE, audioBookTitle);
+                        startActivityForResult(i, REQ_GENERATE_COVER);
+                    }
+                });
     }
 
     private void buildDestinationFolderSpinner() {
@@ -950,7 +1076,7 @@ public class ImportBookSingleActivity extends FullActivity {
             // Create the neutral first item
             Folder neutral = new Folder();
             neutral.setId(-1); // special fake ID
-            neutral.setName("New book"); // the label
+            neutral.setName(getString(R.string.import_new_book_label)); // the label
             // Insert at index 0
             items.add(0, neutral);
             // Compute preselection
@@ -976,13 +1102,8 @@ public class ImportBookSingleActivity extends FullActivity {
                         Folder selected = (Folder) parent.getItemAtPosition(position);
 
                         boolean isNeutral = selected.getId() == -1; // check fake item
-                        if (isNeutral) {
-                            tvAppendMode.setVisibility(View.GONE);
-                            folderToAddTo = null;
-                        } else {
-                            tvAppendMode.setVisibility(View.VISIBLE);
-                            folderToAddTo = selected;
-                        }
+                        folderToAddTo = isNeutral ? null : selected;
+                        updateBookIdentityUI();
                     }
 
                     @Override
@@ -1016,6 +1137,38 @@ public class ImportBookSingleActivity extends FullActivity {
                 finish();
             } else {
                 proceedAsSingleFileImport();
+            }
+        } else if (requestCode == REQ_UPLOAD_COVER) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                Uri pickedUri = data.getData();
+                new Thread(() -> {
+                    android.graphics.Bitmap bmp = ImageHelper.decodeBitmapFromStringUri(this,
+                            pickedUri.toString(), 1024);
+                    String tempPath = bmp != null ? ImageHelper.saveTempBitmap(this, bmp) : null;
+                    if (tempPath != null) {
+                        runOnUiThread(() -> {
+                            manualCoverPath = tempPath;
+                            BookCandidate current = viewModel.getBookCandidate().getValue();
+                            if (current != null) {
+                                updateCoverDisplay(current);
+                            }
+                        });
+                    } else {
+                        runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
+                    }
+                }).start();
+            }
+        } else if (requestCode == REQ_GENERATE_COVER) {
+            if (resultCode == RESULT_OK && data != null) {
+                String savedPath = data.getStringExtra(
+                        com.driot.bookplayer.activities.CoverGenerationActivity.RESULT_SAVED_PATH);
+                if (savedPath != null) {
+                    manualCoverPath = savedPath;
+                    BookCandidate current = viewModel.getBookCandidate().getValue();
+                    if (current != null) {
+                        updateCoverDisplay(current);
+                    }
+                }
             }
         }
     }
