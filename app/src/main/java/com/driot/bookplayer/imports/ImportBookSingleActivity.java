@@ -7,10 +7,12 @@ import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,6 +39,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -44,8 +47,11 @@ import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -241,31 +247,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 tvTrackListTitle.setText(txtTitle);
 
                 llTrackList.removeAllViews();
-                for (AudioFileInfo track : tracks) {
-                    TextView tv = new TextView(this);
-                    String moreInfo = "";
-                    String toDisplay = "";
-                    if (track.getDuration() > 0) {
-                        moreInfo = "   .   [" + Tonio.formatTime(track.getDuration()) + "]";
-                    } else if (track.getSize() > 0) {
-                        moreInfo = "   .   [" + Tonio.getReadableSize(track.getSize()) + "]";
-                    }
-                    String path = track.getDisplayPath();
-                    if (moreInfo.isEmpty()) {
-                        toDisplay = path;
-                    } else {
-                        String shortPath = (path.length() > 40)
-                                ? "…" + path.substring(path.length() - 40)
-                                : path;
-                        toDisplay = shortPath + moreInfo;
-                    }
-                    tv.setText(toDisplay);
-                    tv.setTextSize(12);
-                    tv.setMaxLines(1);
-                    tv.setEllipsize(android.text.TextUtils.TruncateAt.END);
-                    tv.setPadding(0, 4, 0, 4);
-                    llTrackList.addView(tv);
-                }
+                renderTrackList(llTrackList, tracks);
             }
         });
 
@@ -839,6 +821,77 @@ public class ImportBookSingleActivity extends FullActivity {
     private void proceedAsSingleFileImport() {
         if (viewModel.getBookCandidate().getValue() == null) {
             viewModel.initializeBookCandidate(uri);
+        }
+    }
+
+    private static final Pattern LEADING_TRACK_NUMBER = Pattern.compile("^(\\d{1,4})[_\\s\\-.]+");
+
+    /**
+     * Renders the real-time track preview as a 2-column table (a row per track): a fixed-width
+     * left column holding "<number> [<time>]" (time moved next to the leading track number
+     * instead of trailing the whole line), and a right column with the title that wraps onto as
+     * many lines as needed. Because every row's title column starts at the same x position (the
+     * left column's width, computed from the widest prefix actually present), titles line up
+     * vertically across all rows, and wrapped continuation lines naturally stay within that same
+     * column instead of sliding back under the prefix.
+     */
+    private void renderTrackList(LinearLayout llTrackList, List<AudioFileInfo> tracks) {
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12,
+                getResources().getDisplayMetrics());
+        Paint measurePaint = new Paint();
+        measurePaint.setTextSize(textSizePx);
+
+        List<String> prefixes = new ArrayList<>();
+        List<String> titles = new ArrayList<>();
+        int maxPrefixWidthPx = 0;
+
+        for (AudioFileInfo track : tracks) {
+            String timeInfo = "";
+            if (track.getDuration() > 0) {
+                timeInfo = "[" + Tonio.formatTime(track.getDuration()) + "]";
+            } else if (track.getSize() > 0) {
+                timeInfo = "[" + Tonio.getReadableSize(track.getSize()) + "]";
+            }
+
+            String path = track.getDisplayPath();
+            Matcher m = LEADING_TRACK_NUMBER.matcher(path);
+            String prefix, title;
+            if (m.find()) {
+                String number = m.group(1);
+                title = path.substring(m.end());
+                prefix = timeInfo.isEmpty() ? number : number + " " + timeInfo;
+            } else {
+                title = path;
+                prefix = timeInfo;
+            }
+
+            prefixes.add(prefix);
+            titles.add(title);
+            maxPrefixWidthPx = Math.max(maxPrefixWidthPx, (int) Math.ceil(measurePaint.measureText(prefix)));
+        }
+
+        int prefixColumnWidthPx = maxPrefixWidthPx + ViewHelper.dp(this, 8); // breathing room before the title
+
+        for (int i = 0; i < tracks.size(); i++) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(0, 4, 0, 4);
+
+            TextView tvPrefix = new TextView(this);
+            tvPrefix.setText(prefixes.get(i));
+            tvPrefix.setTextSize(12);
+            tvPrefix.setLayoutParams(new LinearLayout.LayoutParams(prefixColumnWidthPx, ViewGroup.LayoutParams.WRAP_CONTENT));
+            row.addView(tvPrefix);
+
+            TextView tvTitle = new TextView(this);
+            tvTitle.setText(titles.get(i));
+            tvTitle.setTextSize(12);
+            LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            tvTitle.setLayoutParams(titleParams);
+            row.addView(tvTitle);
+
+            llTrackList.addView(row);
         }
     }
 
