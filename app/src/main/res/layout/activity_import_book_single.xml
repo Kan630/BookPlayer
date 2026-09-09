@@ -52,6 +52,19 @@
             android:layout_marginBottom="12dp"
             />
 
+        <TextView
+            android:id="@+id/tvSourceFileName"
+            style="@style/simpleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:ellipsize="middle"
+            android:maxLines="2"
+            android:layout_marginBottom="4dp"
+            />
+
         <LinearLayout
             style="@style/wideLinearLayout_Vertical"
             android:layout_width="match_parent"
@@ -193,10 +206,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:id="@+id/vSeparator1"
-            style="@style/myStyleViewSimpleHorizontalBar" />
-
         <!-- Buttons -->
         <LinearLayout
             android:id="@+id/llButtons"
@@ -227,74 +236,85 @@
 
         <!-- Options group -->
         <LinearLayout
-            android:id="@+id/llOptions"
-            style="@style/LinearLayoutOptionsVertical"
+            android:id="@+id/llOptionsContainer"
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_chip"
+            android:padding="8dp">
 
-            <!-- Split M4B option -->
+            <TextView
+                android:text="@string/import_options_title"
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="4dp"/>
+
             <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_marginTop="6dp"
-                android:id="@+id/ll_split_m4b">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/cbSplitM4B"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    android:id="@+id/tx_split_m4b"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_on_load_split_m4b" />
-            </LinearLayout>
+                android:id="@+id/llOptions"
+                style="@style/LinearLayoutOptionsVertical"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp">
 
-            <!-- Copy internally -->
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_marginTop="6dp"
-                android:id="@+id/ll_copy_internal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/cbCopyInternal"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    android:id="@+id/tx_copy_internal"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_on_load_copy_internal" />
-            </LinearLayout>
+                <!-- Split M4B option -->
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_marginTop="6dp"
+                    android:id="@+id/ll_split_m4b">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/cbSplitM4B"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        android:id="@+id/tx_split_m4b"
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_on_load_split_m4b" />
+                </LinearLayout>
 
-            <!-- Save on SD card -->
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_marginTop="6dp"
-                android:id="@+id/ll_use_sdcard">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/cbUseSdCard"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    android:id="@+id/tx_use_sdcard"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_on_load_use_SD_card" />
-            </LinearLayout>
+                <!-- Copy internally -->
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_marginTop="6dp"
+                    android:id="@+id/ll_copy_internal">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/cbCopyInternal"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        android:id="@+id/tx_copy_internal"
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_on_load_copy_internal" />
+                </LinearLayout>
 
-            <!-- Delete source file -->
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_marginTop="6dp"
-                android:id="@+id/ll_delete_source">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/cbDeleteSource"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    android:id="@+id/tx_delete_source"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_on_load_delete_source" />
-            </LinearLayout>
+                <!-- Save on SD card -->
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_marginTop="6dp"
+                    android:id="@+id/ll_use_sdcard">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/cbUseSdCard"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        android:id="@+id/tx_use_sdcard"
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_on_load_use_SD_card" />
+                </LinearLayout>
 
+                <!-- Delete source file -->
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_marginTop="6dp"
+                    android:id="@+id/ll_delete_source">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/cbDeleteSource"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        android:id="@+id/tx_delete_source"
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_on_load_delete_source" />
+                </LinearLayout>
+
+            </LinearLayout>
         </LinearLayout>
-
-        <View
-            android:id="@+id/vSeparator2"
-            style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginBottom="10dp"
-            />
 
 
         <ProgressBar

@@ -119,6 +119,8 @@
     <string name="import_tap_cover_to_change_simple">Touchez la couverture pour la changer</string>
     <string name="action_choose_from_candidates">🖼️ Choisir parmi les images trouvées (%1$d)</string>
     <string name="cover_candidates_dialog_title">Choisir une couverture</string>
+    <string name="import_options_title">Options</string>
+    <string name="import_tracks_found_existing_and_new">%1$d pistes au total (%2$d nouvelles)</string>
     <string name="Logging">Journalisation</string>
     <string name="manual">manuel</string>
     <string name="MB">Mo</string> //short for MegaByte

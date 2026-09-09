@@ -135,6 +135,15 @@ public class ImportBookSingleActivity extends FullActivity {
     @Nullable
     private String manualCoverPath;
 
+    // Track-list preview at the bottom of the screen: llTrackList shows just the tracks about to
+    // be added (latestScannedTracks) in New Book mode, but is merged with the target folder's
+    // existing tracks (see refreshTrackListDisplay()) when appending to an existing book, so the
+    // user can see the whole future folder content, not just what's new.
+    private LinearLayout llTrackListContainer;
+    private LinearLayout llTrackList;
+    private TextView tvTrackListTitle;
+    private List<AudioFileInfo> latestScannedTracks = new ArrayList<>();
+
     @Override
     protected int getNavSectionId() {
         return R.id.nav_add;
@@ -185,6 +194,7 @@ public class ImportBookSingleActivity extends FullActivity {
         ivCover = findViewById(R.id.ivCover);
         tvCoverHint = findViewById(R.id.tvCoverHint);
         llNewBookIdentity = findViewById(R.id.llNewBookIdentity);
+        TextView tvSourceFileName = findViewById(R.id.tvSourceFileName);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
@@ -280,6 +290,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 etBookTitle.setSelection(etBookTitle.getText().length());
                 programmaticTitleUpdate = false;
             }
+            tvSourceFileName.setText(bookCandidate.name);
             updateCoverDisplay(bookCandidate);
             tvInfoLine1.setText(bookCandidate.infoLine1);
             boolean hasFormatLine = bookCandidate.infoMimeExtension != null
@@ -306,24 +317,14 @@ public class ImportBookSingleActivity extends FullActivity {
         });
 
         // Observe real-time tracks
-        LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
-        LinearLayout llTrackList = findViewById(R.id.llTrackList);
-        TextView tvTrackListTitle = findViewById(R.id.tvTrackListTitle);
+        llTrackListContainer = findViewById(R.id.llTrackListContainer);
+        llTrackList = findViewById(R.id.llTrackList);
+        tvTrackListTitle = findViewById(R.id.tvTrackListTitle);
         llTrackListContainer.setVisibility(View.GONE);
 
         viewModel.getRealTimeTracks().observe(this, tracks -> {
-            if (tracks == null || tracks.isEmpty()) {
-                llTrackListContainer.setVisibility(View.GONE);
-            } else {
-                llTrackListContainer.setVisibility(View.VISIBLE);
-
-                String txtTitle = getResources().getQuantityString(R.plurals.tracks_found_count, tracks.size(),
-                        tracks.size());
-                tvTrackListTitle.setText(txtTitle);
-
-                llTrackList.removeAllViews();
-                renderTrackList(llTrackList, tracks);
-            }
+            latestScannedTracks = tracks != null ? tracks : new ArrayList<>();
+            refreshTrackListDisplay();
         });
 
         if (detailMode) {
@@ -920,18 +921,77 @@ public class ImportBookSingleActivity extends FullActivity {
         }
     }
 
+    // Rebuilds the bottom track-list preview from latestScannedTracks - merged with the target
+    // folder's existing tracks when appending to an existing book, so the user sees the whole
+    // future folder content (not just what's new). Called whenever the scanned-tracks LiveData
+    // fires, and whenever folderToAddTo changes (New Book <-> Add to Existing, or switching which
+    // existing folder), since the merge depends on both.
+    private void refreshTrackListDisplay() {
+        List<AudioFileInfo> newTracks = latestScannedTracks;
+        if (newTracks.isEmpty()) {
+            llTrackListContainer.setVisibility(View.GONE);
+            return;
+        }
+        llTrackListContainer.setVisibility(View.VISIBLE);
+
+        if (folderToAddTo == null) {
+            showTrackList(newTracks, 0);
+            return;
+        }
+
+        final long targetFolderId = folderToAddTo.getId();
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<com.driot.bookplayer.db.ZikFile> existing = AppDatabase.getDatabase(this)
+                    .zikFileDao().getZikFiles(targetFolderId);
+            List<AudioFileInfo> merged = new ArrayList<>();
+            for (com.driot.bookplayer.db.ZikFile zf : existing) {
+                merged.add(new AudioFileInfo(zf.getName(), zf.getDisplayName(),
+                        (long) zf.getDuration(), 0, zf.getPath(), null));
+            }
+            merged.addAll(newTracks);
+            runOnUiThread(() -> {
+                // Stale read guard: folderToAddTo or the scanned list may have changed while this
+                // background read was in flight - a newer call will already have taken over.
+                if (newTracks != latestScannedTracks
+                        || folderToAddTo == null || folderToAddTo.getId() != targetFolderId) {
+                    return;
+                }
+                showTrackList(merged, newTracks.size());
+            });
+        });
+    }
+
+    private void showTrackList(List<AudioFileInfo> tracks, int newTracksCount) {
+        String txtTitle;
+        if (newTracksCount > 0 && newTracksCount < tracks.size()) {
+            // Genuine merge: some tracks already existed in the target book, some are new -
+            // "N tracks found" alone would read as if the whole book was just discovered.
+            txtTitle = getString(R.string.import_tracks_found_existing_and_new, tracks.size(), newTracksCount);
+        } else {
+            txtTitle = getResources().getQuantityString(R.plurals.tracks_found_count, tracks.size(), tracks.size());
+        }
+        tvTrackListTitle.setText(txtTitle);
+        llTrackList.removeAllViews();
+        renderTrackList(llTrackList, tracks, newTracksCount);
+    }
+
     private static final Pattern LEADING_TRACK_NUMBER = Pattern.compile("^(\\d{1,4})[_\\s\\-.]+");
 
     /**
-     * Renders the real-time track preview as a 2-column table (a row per track): a fixed-width
-     * left column holding "<number> [<time>]" (time moved next to the leading track number
-     * instead of trailing the whole line), and a right column with the title that wraps onto as
-     * many lines as needed. Because every row's title column starts at the same x position (the
-     * left column's width, computed from the widest prefix actually present), titles line up
+     * Renders the track preview as a 2-column table (a row per track): a fixed-width left column
+     * holding "<number> [<time>]" (time moved next to the leading track number instead of
+     * trailing the whole line), and a right column with the title that wraps onto as many lines
+     * as needed. Because every row's title column starts at the same x position (the left
+     * column's width, computed from the widest prefix actually present), titles line up
      * vertically across all rows, and wrapped continuation lines naturally stay within that same
      * column instead of sliding back under the prefix.
+     * <p>
+     * When appending to an existing book, {@code tracks} is the existing folder's tracks followed
+     * by the ones about to be added - the last {@code newTracksCount} rows (the new ones) are
+     * bolded and colored to stand out from the folder's existing content. newTracksCount is 0 for
+     * a plain new-book import, where every row is "new" and highlighting would be meaningless.
      */
-    private void renderTrackList(LinearLayout llTrackList, List<AudioFileInfo> tracks) {
+    private void renderTrackList(LinearLayout llTrackList, List<AudioFileInfo> tracks, int newTracksCount) {
         float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12,
                 getResources().getDisplayMetrics());
         Paint measurePaint = new Paint();
@@ -967,8 +1027,11 @@ public class ImportBookSingleActivity extends FullActivity {
         }
 
         int prefixColumnWidthPx = maxPrefixWidthPx + ViewHelper.dp(this, 8); // breathing room before the title
+        int firstNewIndex = tracks.size() - newTracksCount;
 
         for (int i = 0; i < tracks.size(); i++) {
+            boolean isNew = i >= firstNewIndex;
+
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(0, 4, 0, 4);
@@ -987,6 +1050,14 @@ public class ImportBookSingleActivity extends FullActivity {
             tvTitle.setLayoutParams(titleParams);
             row.addView(tvTitle);
 
+            if (isNew) {
+                int accent = getResources().getColor(R.color.green_500, null);
+                tvPrefix.setTypeface(tvPrefix.getTypeface(), android.graphics.Typeface.BOLD);
+                tvTitle.setTypeface(tvTitle.getTypeface(), android.graphics.Typeface.BOLD);
+                tvPrefix.setTextColor(accent);
+                tvTitle.setTextColor(accent);
+            }
+
             llTrackList.addView(row);
         }
     }
@@ -1004,6 +1075,7 @@ public class ImportBookSingleActivity extends FullActivity {
         boolean isNewBook = folderToAddTo == null;
         llNewBookIdentity.setVisibility(isNewBook ? View.VISIBLE : View.GONE);
         llExistingFolderPicker.setVisibility(isNewBook ? View.GONE : View.VISIBLE);
+        refreshTrackListDisplay();
     }
 
     private void updateCoverDisplay(BookCandidate bookCandidate) {
@@ -1214,9 +1286,7 @@ public class ImportBookSingleActivity extends FullActivity {
 
     private void disableEveryThing() {
         findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
-        findViewById(R.id.vSeparator1).setVisibility(View.GONE);
-        findViewById(R.id.llOptions).setVisibility(View.GONE);
-        findViewById(R.id.vSeparator2).setVisibility(View.GONE);
+        findViewById(R.id.llOptionsContainer).setVisibility(View.GONE);
         btnConfirm.setVisibility(View.GONE);
         btnCancel.setVisibility(View.VISIBLE); // Change Cancel to Close
         btnCancel.setText(R.string.Close); // Change Cancel to Close

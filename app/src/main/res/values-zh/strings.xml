@@ -118,6 +118,8 @@
     <string name="import_tap_cover_to_change_simple">点击封面以更换</string>
     <string name="action_choose_from_candidates">🖼️ 从找到的图片中选择 (%1$d)</string>
     <string name="cover_candidates_dialog_title">选择封面</string>
+    <string name="import_options_title">选项</string>
+    <string name="import_tracks_found_existing_and_new">共 %1$d 个曲目（新增 %2$d 个）</string>
     <string name="Logging">日志记录</string>
     <string name="manual">使用手册</string>
     <string name="MB">MB</string> //short for MegaByte

@@ -119,6 +119,8 @@
     <string name="import_tap_cover_to_change_simple">Нажмите на обложку, чтобы изменить</string>
     <string name="action_choose_from_candidates">🖼️ Выбрать из найденных изображений (%1$d)</string>
     <string name="cover_candidates_dialog_title">Выбрать обложку</string>
+    <string name="import_options_title">Параметры</string>
+    <string name="import_tracks_found_existing_and_new">Всего дорожек: %1$d (новых: %2$d)</string>
     <string name="Logging">Логирование</string>
     <string name="manual">руководство</string>
     <string name="MB">МБ</string> //short for MegaByte

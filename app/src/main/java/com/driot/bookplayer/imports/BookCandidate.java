@@ -445,6 +445,17 @@ public class BookCandidate implements Parcelable {
                     if (this.coverImagePath != null && listener != null) {
                         listener.onCoverFound(this.coverImagePath);
                     }
+                    // A single-file import has exactly one "track": itself. Emit it the same way
+                    // multi-track scans do (Folder/M4B/Archive above), so the pre-import track
+                    // list preview has something to show - this branch used to never call
+                    // onTrackFound() at all, silently leaving that section empty for a lone file.
+                    String fileName = safeName(file);
+                    AudioFileInfo afi = new AudioFileInfo(fileName, fileName, 0, file.length(),
+                            file.getUri().toString(), null);
+                    audioFileInfoArrayList.add(afi);
+                    if (listener != null) {
+                        listener.onTrackFound(afi);
+                    }
                 }
             } else {
                 this.tracksCount = 1;
