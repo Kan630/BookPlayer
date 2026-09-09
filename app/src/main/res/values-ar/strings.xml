@@ -394,6 +394,7 @@
     <string name="option_open_with_text">لملفات zip ومعظم ملفات الصوت.</string>
     <string name="option_open_with_text_all">لأي نوع من الملفات (وضع آمن).</string>
     <string name="option_on_load_use_SD_card">استخدم بطاقة SD</string>
+    <string name="checking_availability">جارٍ التحقق من التوفر…</string>
 
 
     <string name="option_split_m4b">تقسيم .m4b</string>
@@ -455,6 +456,9 @@
     <string name="option_orientation_lock_app_global">اتجاه الشاشة</string>
     <string name="lock_app_orientation">قفل اتجاه التطبيق</string>
     <string name="option_orientation_lock_app_global_explain">هنا يمكنك اختيار قفل اتجاه الشاشة للتطبيق بأكمله، بغض النظر عن إعداد الجهاز الحالي.</string>
+    <string name="option_display_bottom_nav_bar_title">شريط التنقل السفلي</string>
+    <string name="option_display_bottom_nav_bar_checkbox">إظهار شريط التنقل السفلي</string>
+    <string name="option_display_bottom_nav_bar_explain">عند التفعيل، تصبح الأقسام الرئيسية (إضافة كتاب، الراديو، البودكاست، الإعدادات) متاحة عبر الشريط السفلي. عند الإيقاف، تصبح الأقسام متاحة عبر قائمة النقاط الثلاث أعلى اليمين.</string>
 
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل</string>
@@ -1069,6 +1073,7 @@
     <string name="sort_by">فرز حسب</string>
     <string name="Last_played">آخر تشغيل</string>
     <string name="sort_last_added">آخر إضافة</string>
+    <string name="sort_station_count">حسب عدد المحطات</string>
     <string name="share_title">مشاركة عبر</string>
     <string name="share_radio_body">تحقق من راديو الويب المباشر هذا على BookPlayer</string>
     <string name="share_radio_head">مشاركة راديو BookPlayer</string>
@@ -1131,22 +1136,42 @@
 
     <plurals name="audio_files_count">
         <item quantity="one">%d ملف صوتي</item>
+        <item quantity="many">%d ملفات صوتية</item>
+        <item quantity="few">%d ملفات صوتية</item>
+        <item quantity="two">ملفان صوتيان</item>
+        <item quantity="zero">%d ملفات صوتية</item>
         <item quantity="other">%d ملفات صوتية</item>
     </plurals>
     <plurals name="text_files_count">
         <item quantity="one">%d ملف نصي</item>
+        <item quantity="many">%d ملفات نصية</item>
+        <item quantity="few">%d ملفات نصية</item>
+        <item quantity="two">ملفان نصيان</item>
+        <item quantity="zero">%d ملفات نصية</item>
         <item quantity="other">%d ملفات نصية</item>
     </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d مجلد فرعي</item>
+        <item quantity="many">%d مجلدات فرعية</item>
+        <item quantity="few">%d مجلدات فرعية</item>
+        <item quantity="two">مجلدان فرعيان</item>
+        <item quantity="zero">%d مجلدات فرعية</item>
         <item quantity="other">%d مجلدات فرعية</item>
     </plurals>
     <plurals name="tracks_count">
         <item quantity="one">%d مقطع</item>
+        <item quantity="many">%d مقاطع</item>
+        <item quantity="few">%d مقاطع</item>
+        <item quantity="two">مقطعان</item>
+        <item quantity="zero">%d مقاطع</item>
         <item quantity="other">%d مقاطع</item>
     </plurals>
     <plurals name="tracks_found_count">
         <item quantity="one">تم العثور على مقطع واحد (%d)</item>
+        <item quantity="many">تم العثور على %d مقاطع</item>
+        <item quantity="few">تم العثور على %d مقاطع</item>
+        <item quantity="two">تم العثور على مقطعين</item>
+        <item quantity="zero">تم العثور على %d مقاطع</item>
         <item quantity="other">تم العثور على %d مقاطع</item>
     </plurals>
     <string name="option_screensaver_subtitle">يُفعّل أثناء التشغيل عندما تكون على شاشة التشغيل</string>
@@ -1310,6 +1335,11 @@
     <string name="deprecated_option_gutenberg_use_mirror">استخدام مرآة للتنزيل</string>
     <string name="deprecated_option_gutenberg_mirror_selection">اختيار مرآة</string>
     <string name="deprecated_option_gutenberg_mirror_explain">استخدام المرايا يحسّن تجربة التنزيل ويساعد على تجنّب الضغط الزائد على موقع gutenberg.org الرئيسي.</string>
+    <string name="MB_taken_by_cached_images">" ميجابايت مستخدمة بواسطة الصور المخزنة مؤقتاً"</string>
+    <string name="lists_and_search">القوائم والبحث</string>
+    <string name="select_source">اختر المصدر</string>
+    <string name="option_gutendex_use_mirrors_and_cache">استخدام الخادم المرآة والتخزين المؤقت.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [أبقِ الخيار مفعّلاً] لتحسين السرعة: سيتم استخدام خادم مخصص لـ BookPlayer للفهارس وذاكرة تخزين Cloudflare المؤقتة (7 أيام).\n* [ألغِ التفعيل] إذا واجهت مشكلة، أو إذا كان Cloudflare معطلاً، أو للوصول مباشرة إلى gutendex.com. ستحصل على أحدث النتائج، لكن قد يكون الأمر بطيئاً جداً.</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">استخدام التخزين المؤقت (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">يجب أن يؤدي التخزين المؤقت إلى تحسين السرعة بشكل كبير للأجزاء الأولى "الأكثر تنزيلاً". يتم تخزينها وتحديثها كل 9 ساعات للغات الرئيسية.</string>
     <string name="option_tts_overlay_timeout_explain">على الأجهزة الحديثة و/أو للأصوات المستخدمة كثيراً، قد يكون الأمر سريعاً جداً لدرجة أنك لن ترى رسالة التحميل تلك.</string>
@@ -1353,14 +1383,26 @@
     <string name="invalid_date">تاريخ غير صالح</string>
     <plurals name="years_ago">
         <item quantity="one">منذ سنة واحدة</item>
+        <item quantity="many">منذ %d سنوات</item>
+        <item quantity="few">منذ %d سنوات</item>
+        <item quantity="two">منذ سنتين</item>
+        <item quantity="zero">منذ %d سنوات</item>
         <item quantity="other">منذ %d سنوات</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">منذ شهر واحد</item>
+        <item quantity="many">منذ %d أشهر</item>
+        <item quantity="few">منذ %d أشهر</item>
+        <item quantity="two">منذ شهرين</item>
+        <item quantity="zero">منذ %d أشهر</item>
         <item quantity="other">منذ %d أشهر</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">منذ يوم واحد</item>
+        <item quantity="many">منذ %d أيام</item>
+        <item quantity="few">منذ %d أيام</item>
+        <item quantity="two">منذ يومين</item>
+        <item quantity="zero">منذ %d أيام</item>
         <item quantity="other">منذ %d أيام</item>
     </plurals>
 </resources>

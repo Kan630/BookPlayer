@@ -399,6 +399,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_open_with_text">适用于 ZIP 及大多数音频文件。</string>
     <string name="option_open_with_text_all">适用于所有文件类型（安全兜底）。</string>
     <string name="option_on_load_use_SD_card">使用 SD 卡</string>
+    <string name="checking_availability">正在检查可用性…</string>
 
 
     <string name="option_split_m4b">.m4b 拆分</string>
@@ -460,6 +461,9 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_orientation_lock_app_global">屏幕方向</string>
     <string name="lock_app_orientation">锁定应用方向</string>
     <string name="option_orientation_lock_app_global_explain">在这里，您可以选择锁定整个应用的屏幕方向，而不管当前的设备设置如何。</string>
+    <string name="option_display_bottom_nav_bar_title">底部导航栏</string>
+    <string name="option_display_bottom_nav_bar_checkbox">显示底部导航栏</string>
+    <string name="option_display_bottom_nav_bar_explain">启用后，主要功能区（添加书籍、电台、播客、设置）可通过底部栏访问。禁用后，这些功能区可通过右上角的三点菜单访问。</string>
 
     <string name="option_automotive_on">连接到 Android Auto。</string>
     <string name="option_automotive_auto_resume_on_car_connect">自动恢复播放</string>
@@ -1072,6 +1076,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="sort_by">排序</string>
     <string name="Last_played">最近播放</string>
     <string name="sort_last_added">最近添加</string>
+    <string name="sort_station_count">按电台数量</string>
     <string name="share_title">分享方式</string>
     <string name="share_radio_body">在 BookPlayer 上收听这个直播网络电台</string>
     <string name="share_radio_head">分享 BookPlayer 电台</string>
@@ -1314,6 +1319,11 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="deprecated_option_gutenberg_use_mirror">使用镜像下载</string>
     <string name="deprecated_option_gutenberg_mirror_selection">选择镜像</string>
     <string name="deprecated_option_gutenberg_mirror_explain">使用镜像应能改善下载体验，并有助于避免给 gutenberg.org 主站造成过大负载。</string>
+    <string name="MB_taken_by_cached_images">" MB 被缓存图片占用"</string>
+    <string name="lists_and_search">列表与搜索</string>
+    <string name="select_source">选择来源</string>
+    <string name="option_gutendex_use_mirrors_and_cache">使用镜像和缓存。</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [保持勾选] 以提升速度：将使用 BookPlayer 专用索引服务器和 CloudFlare 缓存（7 天）。\n* [取消勾选] 如果遇到问题，或 Cloudflare 宕机，或想直接访问 gutendex.com。您将获得最新结果，但可能非常慢。</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">使用缓存 (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">缓存应该显著提高“下载最多”页面的速度。\n主要语言的缓存每 9 小时更新一次。</string>
     <string name="option_tts_overlay_timeout_explain">在较新的设备上和/开对于经常使用的语音，加载速度可能快到你看不到提示消息。</string>

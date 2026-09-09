@@ -404,6 +404,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
     <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
     <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
+    <string name="checking_availability">Vérification de la disponibilité…</string>
 
 
     <string name="option_split_m4b">Découpage .m4b</string>
@@ -436,6 +437,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_orientation_lock_app_global">Orientation de l\'écran</string>
     <string name="lock_app_orientation">Bloquer l\'orientation de l\'app</string>
     <string name="option_orientation_lock_app_global_explain">Ici, vous pouvez choisir de verrouiller l\'orientation de l\'écran pour toute l\'application, quel que soit le réglage actuel de l\'appareil.</string>
+    <string name="option_display_bottom_nav_bar_title">Barre de navigation inférieure</string>
+    <string name="option_display_bottom_nav_bar_checkbox">Afficher la barre de navigation inférieure</string>
+    <string name="option_display_bottom_nav_bar_explain">Lorsque c\'est activé, les sections principales (Ajouter un livre, Radio, Podcasts, Paramètres) sont accessibles via la barre du bas. Lorsque c\'est désactivé, les sections sont accessibles via le menu à trois points en haut à droite.</string>
 
     <string name="option_text_appearance_title">Apparence du texte</string>
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
@@ -1080,6 +1084,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="sort_by">Trier par</string>
     <string name="Last_played">Dernières écoutes</string>
     <string name="sort_last_added">Derniers ajouts</string>
+    <string name="sort_station_count">Par nombre de stations</string>
     <string name="share_title">Partager via</string>
     <string name="share_radio_body">Découvrez cette radio web en direct sur BookPlayer</string>
     <string name="share_radio_head">Partage radio BookPlayer</string>
@@ -1157,18 +1162,23 @@ avec la langue [%2$s]</string>
 
     <plurals name="audio_files_count">//ex : 15 audio files
         <item quantity="one">%d fichier audio</item>
+        <item quantity="many">%d de fichiers audio</item>
         <item quantity="other">%d fichiers audio</item></plurals>
     <plurals name="text_files_count">//ex : 2 text files
         <item quantity="one">%d fichier texte</item>
+        <item quantity="many">%d de fichiers texte</item>
         <item quantity="other">%d fichiers texte</item></plurals>
     <plurals name="subfolders_count">//ex : 3 subfolders
         <item quantity="one">%d sous-dossier</item>
+        <item quantity="many">%d de sous-dossiers</item>
         <item quantity="other">%d sous-dossiers</item></plurals>
     <plurals name="tracks_count">//ex : 1 track, 2 tracks
         <item quantity="one">%d piste</item>
+        <item quantity="many">%d de pistes</item>
         <item quantity="other">%d pistes</item></plurals>
     <plurals name="tracks_found_count">
         <item quantity="one">%d piste trouvée</item>
+        <item quantity="many">%d de pistes trouvées</item>
         <item quantity="other">%d pistes trouvées</item>
     </plurals>
 
@@ -1324,6 +1334,11 @@ avec la langue [%2$s]</string>
     <string name="deprecated_option_gutenberg_use_mirror">Utiliser un miroir pour le téléchargement</string>
     <string name="deprecated_option_gutenberg_mirror_selection">Choisir un miroir</string>
     <string name="deprecated_option_gutenberg_mirror_explain">L\'utilisation de miroirs devrait améliorer le téléchargement et éviter de surcharger le site principal gutenberg.org.</string>
+    <string name="MB_taken_by_cached_images">" Mo utilisés par les images mises en cache"</string>
+    <string name="lists_and_search">Listes et recherche</string>
+    <string name="select_source">Sélectionner la source</string>
+    <string name="option_gutendex_use_mirrors_and_cache">Utiliser le miroir et le cache.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [Laisser coché] pour améliorer la vitesse : cela utilisera un serveur dédié BookPlayer pour les index, et les caches CloudFlare (7 jours).\n* [Décocher] si vous rencontrez un problème, si Cloudflare est en panne, ou pour accéder directement à gutendex.com. Vous obtiendrez les résultats les plus récents, mais cela peut être très lent.</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">Utiliser le cache (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">Le cache devrait améliorer considérablement la vitesse pour les premières pages "les plus téléchargées".\nElles sont mises en cache et mises à jour toutes les 9 heures pour les langues majeures.</string>
     <string name="option_ebook_remove_references">Supprimer les marqueurs de référence (notes de bas de page)</string>
@@ -1366,14 +1381,17 @@ avec la langue [%2$s]</string>
     <string name="invalid_date">Date invalide</string>
     <plurals name="years_ago">
         <item quantity="one">il y a %d an</item>
+        <item quantity="many">il y a %d d\'ans</item>
         <item quantity="other">il y a %d ans</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">il y a %d mois</item>
+        <item quantity="many">il y a %d de mois</item>
         <item quantity="other">il y a %d mois</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">il y a %d jour</item>
+        <item quantity="many">il y a %d de jours</item>
         <item quantity="other">il y a %d jours</item>
     </plurals>
 </resources>

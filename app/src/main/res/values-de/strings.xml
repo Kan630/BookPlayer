@@ -401,6 +401,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_open_with_text">Für ZIP- und die meisten Audiodateien.</string>
     <string name="option_open_with_text_all">Für alle Dateitypen (sicherheitsorientiert).</string>
     <string name="option_on_load_use_SD_card">SD-Karte verwenden</string>
+    <string name="checking_availability">Verfügbarkeit wird geprüft…</string>
 
 
     <string name="option_split_m4b">.m4b-Aufteilung</string>
@@ -462,6 +463,9 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_orientation_lock_app_global">Bildschirmausrichtung</string>
     <string name="lock_app_orientation">App-Ausrichtung sperren</string>
     <string name="option_orientation_lock_app_global_explain">Hier können Sie die Bildschirmausrichtung für die gesamte App sperren, unabhängig von der aktuellen Geräteeinstellung.</string>
+    <string name="option_display_bottom_nav_bar_title">Untere Navigationsleiste</string>
+    <string name="option_display_bottom_nav_bar_checkbox">Untere Navigationsleiste anzeigen</string>
+    <string name="option_display_bottom_nav_bar_explain">Wenn aktiviert, sind die Hauptbereiche (Buch hinzufügen, Radio, Podcasts, Einstellungen) über die untere Leiste erreichbar. Wenn deaktiviert, sind die Bereiche über das Drei-Punkte-Menü oben rechts erreichbar.</string>
 
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe fortsetzen</string>
@@ -1076,6 +1080,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="sort_by">Sortieren nach</string>
     <string name="Last_played">Zuletzt gespielt</string>
     <string name="sort_last_added">Zuletzt hinzugefügt</string>
+    <string name="sort_station_count">Nach Senderanzahl</string>
     <string name="share_title">Teilen via</string>
     <string name="share_radio_body">Schau dir dieses Live-Web-Radio auf BookPlayer an</string>
     <string name="share_radio_head">BookPlayer Radio teilen</string>
@@ -1317,6 +1322,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="deprecated_option_gutenberg_use_mirror">Spiegel für Download verwenden</string>
     <string name="deprecated_option_gutenberg_mirror_selection">Spiegel auswählen</string>
     <string name="deprecated_option_gutenberg_mirror_explain">Die Verwendung von Spiegeln verbessert das Download-Erlebnis und hilft, den Hauptserver gutenberg.org nicht zu überlasten.</string>
+    <string name="MB_taken_by_cached_images">" MB durch zwischengespeicherte Bilder belegt"</string>
+    <string name="lists_and_search">Listen und Suche</string>
+    <string name="select_source">Quelle auswählen</string>
+    <string name="option_gutendex_use_mirrors_and_cache">Spiegelserver und Cache verwenden.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [Aktiviert lassen], um die Geschwindigkeit zu verbessern: Es wird ein spezieller BookPlayer-Server für Indizes sowie CloudFlare-Caches (7 Tage) verwendet.\n* [Deaktivieren], wenn ein Problem auftritt, Cloudflare nicht erreichbar ist, oder um gutendex.com direkt anzusprechen. Sie erhalten die aktuellsten Ergebnisse, es kann aber sehr langsam sein.</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">Caching verwenden (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">Caching sollte die Geschwindigkeit für die am häufigsten heruntergeladenen Seiten drastisch verbessern.\nSie werden alle 9 Stunden für wichtige Sprachen zwischengespeichert und aktualisiert.</string>
     <string name="option_tts_overlay_timeout_explain">Auf neueren Geräten und/oder bei häufig verwendeten Stimmen kann es so schnell gehen, dass Sie die Lade-Meldung gar nicht erst sehen.</string>

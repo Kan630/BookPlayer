@@ -400,6 +400,7 @@
     <string name="option_open_with_text">Per zip e la maggior parte dei file audio.</string>
     <string name="option_open_with_text_all">Per qualsiasi tipo di file (a prova di errore).</string>
     <string name="option_on_load_use_SD_card">Usa scheda SD</string>
+    <string name="checking_availability">Verifica disponibilità…</string>
 
 
     <string name="option_split_m4b">Suddivisione .m4b</string>
@@ -461,6 +462,9 @@
     <string name="option_orientation_lock_app_global">Orientamento schermo</string>
     <string name="lock_app_orientation">Blocca orientamento app</string>
     <string name="option_orientation_lock_app_global_explain">Qui puoi scegliere di bloccare l\'orientamento dello schermo per l\'intera app, indipendentemente dall\'impostazione corrente del dispositivo.</string>
+    <string name="option_display_bottom_nav_bar_title">Barra di navigazione inferiore</string>
+    <string name="option_display_bottom_nav_bar_checkbox">Mostra la barra di navigazione inferiore</string>
+    <string name="option_display_bottom_nav_bar_explain">Se attivato, le sezioni principali (Aggiungi libro, Radio, Podcast, Impostazioni) sono accessibili tramite la barra inferiore. Se disattivato, le sezioni sono accessibili tramite il menu a tre puntini in alto a destra.</string>
 
     <string name="option_automotive_on">Connettersi ad Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Continua riproduzione</string>
@@ -1075,6 +1079,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="sort_by">Ordina per</string>
     <string name="Last_played">Ultimi riprodotti</string>
     <string name="sort_last_added">Ultimi aggiunti</string>
+    <string name="sort_station_count">Per numero di stazioni</string>
     <string name="share_title">Condividi con</string>
     <string name="share_radio_body">Dai un\'occhiata a questa web radio live su BookPlayer</string>
     <string name="share_radio_head">Condivisione radio BookPlayer</string>
@@ -1137,22 +1142,27 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
 
     <plurals name="audio_files_count">
         <item quantity="one">%d file audio</item>
+        <item quantity="many">%d file audio</item>
         <item quantity="other">%d file audio</item>
     </plurals>
     <plurals name="text_files_count">
         <item quantity="one">%d file di testo</item>
+        <item quantity="many">%d file di testo</item>
         <item quantity="other">%d file di testo</item>
     </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d sottocartella</item>
+        <item quantity="many">%d sottocartelle</item>
         <item quantity="other">%d sottocartelle</item>
     </plurals>
     <plurals name="tracks_count">
         <item quantity="one">%d traccia</item>
+        <item quantity="many">%d tracce</item>
         <item quantity="other">%d tracce</item>
     </plurals>
     <plurals name="tracks_found_count">
         <item quantity="one">%d traccia trovata</item>
+        <item quantity="many">%d tracce trovate</item>
         <item quantity="other">%d tracce trovate</item>
     </plurals>
     <string name="option_screensaver_subtitle">Si attiva durante la riproduzione quando sei sulla schermata di riproduzione</string>
@@ -1316,6 +1326,11 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="deprecated_option_gutenberg_use_mirror">Usa mirror per il download</string>
     <string name="deprecated_option_gutenberg_mirror_selection">Seleziona mirror</string>
     <string name="deprecated_option_gutenberg_mirror_explain">L\'uso dei mirror dovrebbe migliorare l\'esperienza di download e aiutare a evitare di sovraccaricare il sito principale gutenberg.org.</string>
+    <string name="MB_taken_by_cached_images">" MB occupati dalle immagini nella cache"</string>
+    <string name="lists_and_search">Elenchi e ricerca</string>
+    <string name="select_source">Seleziona sorgente</string>
+    <string name="option_gutendex_use_mirrors_and_cache">Usa mirror e cache.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [Lascia selezionato] per migliorare la velocità: verrà usato un server dedicato di BookPlayer per gli indici e le cache CloudFlare (7 giorni).\n* [Deseleziona] se riscontri un problema, se Cloudflare non è raggiungibile, o per accedere direttamente a gutendex.com. Otterrai i risultati più aggiornati, ma potrebbe essere molto lento.</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">Usa cache (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">La memorizzazione nella cache dovrebbe migliorare drasticamente la velocità per le prime pagine "più scaricate".\nSono memorizzate nella cache e aggiornate ogni 9 ore per le lingue principali.</string>
     <string name="option_tts_overlay_timeout_explain">Sui dispositivi recenti e/o per voci usate spesso, potrebbe essere così veloce che non vedrai nemmeno il messaggio di caricamento.</string>
@@ -1359,14 +1374,17 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="invalid_date">Data non valida</string>
     <plurals name="years_ago">
         <item quantity="one">%d anno fa</item>
+        <item quantity="many">%d anni fa</item>
         <item quantity="other">%d anni fa</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">%d mese fa</item>
+        <item quantity="many">%d mesi fa</item>
         <item quantity="other">%d mesi fa</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">%d giorno fa</item>
+        <item quantity="many">%d giorni fa</item>
         <item quantity="other">%d giorni fa</item>
     </plurals>
 </resources>

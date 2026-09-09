@@ -398,6 +398,7 @@
     <string name="option_open_with_text">Для zip и большинства аудиофайлов.</string>
     <string name="option_open_with_text_all">Для любых типов файлов (на всякий случай).</string>
     <string name="option_on_load_use_SD_card">Использовать SD-карту</string>
+    <string name="checking_availability">Проверка доступности…</string>
 
 
     <string name="option_split_m4b">Разделение .m4b</string>
@@ -459,6 +460,9 @@
     <string name="option_orientation_lock_app_global">Ориентация экрана</string>
     <string name="lock_app_orientation">Заблокировать ориентацию приложения</string>
     <string name="option_orientation_lock_app_global_explain">Здесь вы можете заблокировать ориентацию экрана для всего приложения независимо от текущих настроек устройства.</string>
+    <string name="option_display_bottom_nav_bar_title">Нижняя панель навигации</string>
+    <string name="option_display_bottom_nav_bar_checkbox">Показывать нижнюю панель навигации</string>
+    <string name="option_display_bottom_nav_bar_explain">Если включено, основные разделы (Добавить книгу, Радио, Подкасты, Настройки) доступны через нижнюю панель. Если отключено, разделы доступны через меню из трёх точек в правом верхнем углу.</string>
 
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Продолжить воспроизведение</string>
@@ -1073,6 +1077,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="sort_by">Сортировка</string>
     <string name="Last_played">Недавно прослушанные</string>
     <string name="sort_last_added">Недавно добавленные</string>
+    <string name="sort_station_count">По количеству станций</string>
     <string name="share_title">Поделиться через</string>
     <string name="share_radio_body">Послушайте это веб-радио в BookPlayer</string>
     <string name="share_radio_head">Поделиться радио BookPlayer</string>
@@ -1134,14 +1139,20 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
     <plurals name="audio_files_count">
             <item quantity="one">%d аудиофайл</item>
+        <item quantity="many">%d аудиофайлов</item>
+        <item quantity="few">%d аудиофайла</item>
             <item quantity="other">%d аудиофайлов</item>
         </plurals>
     <plurals name="text_files_count">
         <item quantity="one">%d текстовый файл</item>
+        <item quantity="many">%d текстовых файлов</item>
+        <item quantity="few">%d текстовых файла</item>
         <item quantity="other">%d текстовых файлов</item>
     </plurals>
     <plurals name="subfolders_count">
             <item quantity="one">%d подпапка</item>
+        <item quantity="many">%d подпапок</item>
+        <item quantity="few">%d подпапки</item>
             <item quantity="other">%d подпапок</item>
         </plurals>
     <plurals name="tracks_count">
@@ -1318,6 +1329,11 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="deprecated_option_gutenberg_use_mirror">Использовать зеркало для загрузки</string>
     <string name="deprecated_option_gutenberg_mirror_selection">Выбрать зеркало</string>
     <string name="deprecated_option_gutenberg_mirror_explain">Использование зеркал должно улучшить процесс загрузки и помочь избежать перегрузки основного сайта gutenberg.org.</string>
+    <string name="MB_taken_by_cached_images">" МБ занято кэшированными изображениями"</string>
+    <string name="lists_and_search">Списки и поиск</string>
+    <string name="select_source">Выбрать источник</string>
+    <string name="option_gutendex_use_mirrors_and_cache">Использовать зеркало и кэш.</string>
+    <string name="option_gutendex_use_mirrors_and_cache_explain">* [Оставьте включённым] для повышения скорости: будет использоваться выделенный сервер BookPlayer для индексов и кэш Cloudflare (7 дней).\n* [Отключите], если возникла проблема, если Cloudflare недоступен, или чтобы обращаться напрямую к gutendex.com. Вы получите самые актуальные результаты, но это может быть очень медленно.</string>
     <string name="deprecated_option_gutenberg_use_cloudfare">Использовать кэширование (Cloudflare)</string>
     <string name="deprecated_option_gutenberg_use_cloudfare_subtitle">Кэширование должно значительно повысить скорость загрузки первых «самых скачиваемых» страниц.\nОни кэшируются и обновляются каждые 9 часов для основных языков.</string>
     <string name="option_tts_overlay_timeout_explain">На современных устройствах и/или для часто используемых голосов это может происходить настолько быстро, что вы даже не увидите сообщение о загрузке.</string>
