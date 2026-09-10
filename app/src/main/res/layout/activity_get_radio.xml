@@ -88,23 +88,25 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
-                        style="@style/GetResourceButton"
-                        android:layout_width="wrap_content"
+                        style="@style/GetResourceButton_low_margin"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_favorite"
                         app:iconTint="@android:color/holo_red_dark"
                         app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:iconPadding="4dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bHistory"
                         android:text="@string/History"
-                        style="@style/GetResourceButton"
-                        android:layout_width="wrap_content"
+                        style="@style/GetResourceButton_low_margin"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_history_24px"
                         app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:iconPadding="4dp" />
 
                 </LinearLayout>
 
