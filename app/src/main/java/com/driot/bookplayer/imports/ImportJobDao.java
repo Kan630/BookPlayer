@@ -48,19 +48,28 @@ public interface ImportJobDao {
                         "ORDER BY createdAt DESC")
         LiveData<List<ImportJob>> observeAllActive();
 
+        // The "AND status NOT IN (terminal states)" guard on these two matters: a progress tick
+        // from the worker thread can otherwise land *after* cancelCurrentImport()'s repo.cancel()
+        // write (they run on different threads/executors), silently flipping the job's status
+        // back to RUNNING right as the worker is aborting - leaving it stuck there forever since
+        // nothing else will ever move it to a terminal state again. Confirmed reproducible: a
+        // progress update for the very last file scanned before a cancel take effect racing
+        // against the cancel write.
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_RUNNING + "'" +
                         ", showToUser = 1" +
                         ", progressText = :txt" +
                         ", progressPercent = :pct" +
                         ", updatedAt = :ts " +
-                        "WHERE importId = :id")
+                        "WHERE importId = :id AND status NOT IN ('" + Var.IMPORT_STATUS_CANCELLED + "', '"
+                        + Var.IMPORT_STATUS_FAILED + "', '" + Var.IMPORT_STATUS_SUCCEEDED + "')")
         void updateProgress(String id, String txt, int pct, long ts);
 
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_RUNNING + "'" +
                         ", showToUser = 1" +
                         ", progressText = :txt" +
                         ", updatedAt = :ts " +
-                        "WHERE importId = :id")
+                        "WHERE importId = :id AND status NOT IN ('" + Var.IMPORT_STATUS_CANCELLED + "', '"
+                        + Var.IMPORT_STATUS_FAILED + "', '" + Var.IMPORT_STATUS_SUCCEEDED + "')")
         void updateProgressText(String id, String txt, long ts);
 
         @Query("UPDATE ImportJob " +
@@ -69,13 +78,16 @@ public interface ImportJobDao {
                         "WHERE importId = :id")
         void appendWarning(String id, String warn, long ts);
 
+        // Guarded the same way as updateProgress()/updateProgressText() above - don't let a
+        // failure reported after the fact (e.g. a worker step that hadn't yet noticed
+        // isStopped()) clobber a job the user already cancelled.
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_FAILED + "'" +
                         ", showToUser = 1" +
                         ", errorTextDev = :errorTextDev" +
                         ", errorTextUser = :errorTextUser" +
                         ", warningText = ''" +
                         ", updatedAt = :ts " +
-                        "WHERE importId = :id")
+                        "WHERE importId = :id AND status != '" + Var.IMPORT_STATUS_CANCELLED + "'")
         void fail(String id, String errorTextDev, String errorTextUser, long ts);
 
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_CANCELLED + "'" +
@@ -84,12 +96,13 @@ public interface ImportJobDao {
                         "WHERE importId = :id")
         void cancel(String id, long ts);
 
+        // Same guard - a success reported after the fact must not clobber a cancelled job either.
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_SUCCEEDED + "'" +
                         ", showToUser = 1" +
                         ", progressText = :progressText" +
                         ", progressPercent = 100" +
                         ", updatedAt = :ts " +
-                        "WHERE importId = :id")
+                        "WHERE importId = :id AND status != '" + Var.IMPORT_STATUS_CANCELLED + "'")
         void success(String id, String progressText, long ts);
 
         @Query("UPDATE ImportJob SET warningText = COALESCE(warningText || '\n', '') || :why" +

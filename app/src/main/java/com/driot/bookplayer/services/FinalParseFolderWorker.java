@@ -341,6 +341,14 @@ public class FinalParseFolderWorker extends ImportWorker {
             }
             goFolder();
 
+        } catch (ImportAbortException abort) {
+            // Cancellation (checkNotCancelled() in the scan/save loops below) - let it propagate
+            // to doWorkBody()'s own catch, which runs rollbackPartialImport() and leaves Room's
+            // already-correct CANCELLED status alone. Must NOT be treated as a failure here, or
+            // it gets silently converted into a FAILED status via failNow() below and the
+            // rollback never runs - see the "Error while listing audio files" false failure this
+            // caused before this fix.
+            throw abort;
         } catch (Throwable t) {
             String devErr = "add Audio/Text FileRecursive";
             String userErr = context.getString(R.string.Error_while_listing_audio_files);
