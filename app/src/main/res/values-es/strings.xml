@@ -802,6 +802,28 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
 
     <string name="could_not_identify_track_to_modify">no se pudo identificar la pista a modificar</string>
     <string name="could_not_identify_folder_to_modify">no se pudo identificar la carpeta a modificar</string>
+    <string name="move_book_button">Mover</string>
+    <string name="move_book_current_location">Ubicación actual</string>
+    <string name="move_book_current_marker">(actual)</string>
+    <string name="move_book_choose_destination">Elegir una nueva ubicación</string>
+    <string name="move_confirm_title">¿Mover este libro?</string>
+    <string name="move_confirm_message">Esto copiará %1$d archivo(s) (%2$s) a la nueva ubicación y luego los eliminará de la ubicación actual.</string>
+    <string name="move_in_progress">Moviendo…</string>
+    <string name="move_progress_text">Moviendo archivo %1$d/%2$d…
+%3$s</string>
+    <string name="move_success">Libro movido correctamente</string>
+    <string name="move_cancelled">Movimiento cancelado</string>
+    <string name="move_failed">No se pudo mover el libro - no se cambió nada</string>
+    <string name="move_group_copy_title">Copiar : Almacenamiento Seguro Reservado de la App</string>
+    <string name="move_group_copy_subtitle">Mantener una copia independiente dentro del almacenamiento propio de BookPlayer. Sin riesgo de pérdida, pero se necesita más espacio si no se elimina el origen.</string>
+    <string name="move_group_link_title">Enlazar : Almacenamiento Compartido del Dispositivo</string>
+    <string name="move_group_link_subtitle">Simplemente apuntar a archivos fuera del almacenamiento propio de BookPlayer - no se duplica nada, no usa espacio adicional, pero el libro se perderá si los archivos se mueven o se eliminan.</string>
+    <string name="move_group_link_custom_folder">Elegir una carpeta…</string>
+    <string name="move_storage_section_title">Estadísticas Globales de Almacenamiento</string>
+    <string name="move_storage_book_size">Este libro: %1$s</string>
+    <string name="move_storage_copied_books">Libros copiados: %1$s</string>
+    <string name="move_storage_linked_books">Libros enlazados: %1$s</string>
+    <string name="move_storage_free">Libre: %1$s de %2$s</string>
     <string name="automotive_no_item_in_bookplayer">No hay elementos. Abre BookPlayer en tu teléfono e importa un libro.</string>
     <string name="automotive_empty_book">Libro vacío</string>
     <string name="automotive_resume_play">Reanudar reproducción</string>

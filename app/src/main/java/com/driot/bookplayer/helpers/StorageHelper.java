@@ -139,6 +139,20 @@ public class StorageHelper {
         return getFolder(context, Var.FOLDER_UNZIPPED, forceSdCard);
     }
 
+    // Default "Link" destination (no SAF picker involved): lives on the external storage
+    // partition of the requested medium (phone or SD card) rather than the app's private
+    // internal storage, so it is a genuinely distinct location from the "Copy" reserved
+    // folder - but scoped storage still confines it under the app's own external-files
+    // sandbox since we don't hold MANAGE_EXTERNAL_STORAGE / a SAF grant for a public folder.
+    @Nullable
+    public static File getDefaultLinkedFolder(Context context, boolean useSdCard) {
+        File base = useSdCard ? getRemovableSDCardPath(context) : context.getExternalFilesDir(null);
+        if (base == null) {
+            return null;
+        }
+        return new File(base, Var.FOLDER_LINKED_DEFAULT);
+    }
+
     // DOWNLOAD
     public static File getDownloadFolder(Context context) {
         return getFolder(context, Var.FOLDER_DOWNLOAD, Option.getUseSdCard());

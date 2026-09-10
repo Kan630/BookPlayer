@@ -976,6 +976,27 @@
 
     <string name="could_not_identify_track_to_modify">could not identify track to modify</string>
     <string name="could_not_identify_folder_to_modify">could not identify folder to modify</string>
+    <string name="move_book_button">Move</string>
+    <string name="move_book_current_location">Current location</string>
+    <string name="move_book_current_marker">(current)</string>
+    <string name="move_book_choose_destination">Choose a new location</string>
+    <string name="move_confirm_title">Move this book?</string>
+    <string name="move_confirm_message">This will copy %1$d file(s) (%2$s) to the new location, then delete them from the current one.</string>
+    <string name="move_in_progress">Moving…</string>
+    <string name="move_progress_text">Moving file %1$d/%2$d…\n%3$s</string>
+    <string name="move_success">Book moved successfully</string>
+    <string name="move_cancelled">Move cancelled</string>
+    <string name="move_failed">Could not move the book - nothing was changed</string>
+    <string name="move_group_copy_title">Copy : App Reserved Secure Storage</string>
+    <string name="move_group_copy_subtitle">Keep an independent copy inside BookPlayer\'s own storage. No deletion risk, More space needed if source is not deleted.</string>
+    <string name="move_group_link_title">Link : Device Shared Storage</string>
+    <string name="move_group_link_subtitle">Just point to files outside BookPlayer\'s own storage - nothing is duplicated, uses no extra space, but book will be lost if the files move or are deleted.</string>
+    <string name="move_group_link_custom_folder">Choose a folder…</string>
+    <string name="move_storage_section_title">Global Storage Stats</string>
+    <string name="move_storage_book_size">This book: %1$s</string>
+    <string name="move_storage_copied_books">Copied books: %1$s</string>
+    <string name="move_storage_linked_books">Linked books: %1$s</string>
+    <string name="move_storage_free">Free: %1$s of %2$s</string>
     <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
     <string name="automotive_empty_book">Empty book</string>
     <string name="automotive_resume_play">Resume play</string>

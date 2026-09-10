@@ -143,6 +143,7 @@ public class Var {
         public static final int PODCAST_DETAIL_ANIMATION_COUNT = 5;
 
         public static final String FOLDER_UNZIPPED = "unzipped";
+        public static final String FOLDER_LINKED_DEFAULT = "linked";
         public static final String FOLDER_DOWNLOAD = "download";
         public static final String FOLDER_IMAGE = "images";
         public static final String FOLDER_CACHED_IMAGE = "cached_images";

@@ -798,6 +798,28 @@
 
     <string name="could_not_identify_track_to_modify">تعذر تحديد المقطع لتعديله</string>
     <string name="could_not_identify_folder_to_modify">تعذر تحديد المجلد لتعديله</string>
+    <string name="move_book_button">نقل</string>
+    <string name="move_book_current_location">الموقع الحالي</string>
+    <string name="move_book_current_marker">(الحالي)</string>
+    <string name="move_book_choose_destination">اختر موقعًا جديدًا</string>
+    <string name="move_confirm_title">نقل هذا الكتاب؟</string>
+    <string name="move_confirm_message">سيؤدي هذا إلى نسخ %1$d ملف(ات) (%2$s) إلى الموقع الجديد، ثم حذفها من الموقع الحالي.</string>
+    <string name="move_in_progress">جارٍ النقل…</string>
+    <string name="move_progress_text">جارٍ نقل الملف %1$d/%2$d…
+%3$s</string>
+    <string name="move_success">تم نقل الكتاب بنجاح</string>
+    <string name="move_cancelled">تم إلغاء النقل</string>
+    <string name="move_failed">تعذر نقل الكتاب - لم يتم تغيير أي شيء</string>
+    <string name="move_group_copy_title">نسخ : التخزين الآمن المخصص للتطبيق</string>
+    <string name="move_group_copy_subtitle">الاحتفاظ بنسخة مستقلة داخل مساحة تخزين BookPlayer الخاصة. لا يوجد خطر فقدان، لكن يلزم مساحة أكبر إذا لم يتم حذف المصدر.</string>
+    <string name="move_group_link_title">ربط : مساحة التخزين المشتركة للجهاز</string>
+    <string name="move_group_link_subtitle">مجرد الإشارة إلى الملفات خارج مساحة تخزين BookPlayer الخاصة - لا يتم تكرار شيء، ولا تُستخدم مساحة إضافية، لكن الكتاب سيُفقد إذا نُقلت الملفات أو حُذفت.</string>
+    <string name="move_group_link_custom_folder">اختيار مجلد…</string>
+    <string name="move_storage_section_title">إحصاءات التخزين الإجمالية</string>
+    <string name="move_storage_book_size">هذا الكتاب: %1$s</string>
+    <string name="move_storage_copied_books">الكتب المنسوخة: %1$s</string>
+    <string name="move_storage_linked_books">الكتب المرتبطة: %1$s</string>
+    <string name="move_storage_free">المتاح: %1$s من %2$s</string>
     <string name="automotive_no_item_in_bookplayer">لا توجد عناصر. افتح BookPlayer على هاتفك واستورد كتابًا.</string>
     <string name="automotive_empty_book">كتاب فارغ</string>
     <string name="automotive_resume_play">استئناف التشغيل</string>

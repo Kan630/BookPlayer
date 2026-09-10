@@ -800,6 +800,28 @@
 
     <string name="could_not_identify_track_to_modify">संशोधित करने के लिए ट्रैक की पहचान नहीं हो सकी</string>
     <string name="could_not_identify_folder_to_modify">संशोधित करने के लिए फ़ोल्डर की पहचान नहीं हो सकी</string>
+    <string name="move_book_button">ले जाएँ</string>
+    <string name="move_book_current_location">वर्तमान स्थान</string>
+    <string name="move_book_current_marker">(वर्तमान)</string>
+    <string name="move_book_choose_destination">एक नया स्थान चुनें</string>
+    <string name="move_confirm_title">इस पुस्तक को ले जाएँ?</string>
+    <string name="move_confirm_message">यह %1$d फ़ाइल(ों) (%2$s) को नए स्थान पर कॉपी करेगा, फिर उन्हें वर्तमान स्थान से हटा देगा।</string>
+    <string name="move_in_progress">ले जाया जा रहा है…</string>
+    <string name="move_progress_text">फ़ाइल %1$d/%2$d ले जाई जा रही है…
+%3$s</string>
+    <string name="move_success">पुस्तक सफलतापूर्वक ले जाई गई</string>
+    <string name="move_cancelled">ले जाना रद्द किया गया</string>
+    <string name="move_failed">पुस्तक को स्थानांतरित नहीं किया जा सका - कुछ भी नहीं बदला गया</string>
+    <string name="move_group_copy_title">कॉपी करें : ऐप का सुरक्षित आरक्षित स्टोरेज</string>
+    <string name="move_group_copy_subtitle">BookPlayer के अपने स्टोरेज में एक स्वतंत्र कॉपी रखें। खोने का जोखिम नहीं, लेकिन यदि स्रोत नहीं हटाया गया तो अधिक स्थान चाहिए।</string>
+    <string name="move_group_link_title">लिंक करें : डिवाइस का साझा स्टोरेज</string>
+    <string name="move_group_link_subtitle">बस BookPlayer के अपने स्टोरेज के बाहर की फ़ाइलों की ओर इंगित करें - कुछ भी डुप्लिकेट नहीं होता, कोई अतिरिक्त स्थान उपयोग नहीं होता, लेकिन यदि फ़ाइलें ले जाई गईं या हटा दी गईं तो पुस्तक खो जाएगी।</string>
+    <string name="move_group_link_custom_folder">फ़ोल्डर चुनें…</string>
+    <string name="move_storage_section_title">वैश्विक स्टोरेज आँकड़े</string>
+    <string name="move_storage_book_size">यह पुस्तक: %1$s</string>
+    <string name="move_storage_copied_books">कॉपी की गई पुस्तकें: %1$s</string>
+    <string name="move_storage_linked_books">लिंक की गई पुस्तकें: %1$s</string>
+    <string name="move_storage_free">खाली: %2$s में से %1$s</string>
     <string name="automotive_no_item_in_bookplayer">कोई आइटम नहीं। अपने फ़ोन पर BookPlayer खोलें और एक किताब आयात करें।</string>
     <string name="automotive_empty_book">खाली किताब</string>
     <string name="automotive_resume_play">प्ले फिर शुरू करें</string>

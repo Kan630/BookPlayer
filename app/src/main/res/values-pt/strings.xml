@@ -803,6 +803,28 @@
 
     <string name="could_not_identify_track_to_modify">não foi possível identificar a faixa para modificar</string>
     <string name="could_not_identify_folder_to_modify">não foi possível identificar a pasta para modificar</string>
+    <string name="move_book_button">Mover</string>
+    <string name="move_book_current_location">Localização atual</string>
+    <string name="move_book_current_marker">(atual)</string>
+    <string name="move_book_choose_destination">Escolher uma nova localização</string>
+    <string name="move_confirm_title">Mover este livro?</string>
+    <string name="move_confirm_message">Isto irá copiar %1$d ficheiro(s) (%2$s) para o novo local e depois eliminá-los do local atual.</string>
+    <string name="move_in_progress">A mover…</string>
+    <string name="move_progress_text">A mover o ficheiro %1$d/%2$d…
+%3$s</string>
+    <string name="move_success">Livro movido com sucesso</string>
+    <string name="move_cancelled">Movimentação cancelada</string>
+    <string name="move_failed">Não foi possível mover o livro - nada foi alterado</string>
+    <string name="move_group_copy_title">Copiar : Armazenamento Seguro Reservado da App</string>
+    <string name="move_group_copy_subtitle">Manter uma cópia independente no armazenamento do próprio BookPlayer. Sem risco de perda, mas é necessário mais espaço se a origem não for eliminada.</string>
+    <string name="move_group_link_title">Ligar : Armazenamento Partilhado do Dispositivo</string>
+    <string name="move_group_link_subtitle">Apenas apontar para ficheiros fora do armazenamento próprio do BookPlayer - nada é duplicado, sem espaço extra, mas o livro será perdido se os ficheiros forem movidos ou eliminados.</string>
+    <string name="move_group_link_custom_folder">Escolher uma pasta…</string>
+    <string name="move_storage_section_title">Estatísticas Globais de Armazenamento</string>
+    <string name="move_storage_book_size">Este livro: %1$s</string>
+    <string name="move_storage_copied_books">Livros copiados: %1$s</string>
+    <string name="move_storage_linked_books">Livros ligados: %1$s</string>
+    <string name="move_storage_free">Livre: %1$s de %2$s</string>
     <string name="automotive_no_item_in_bookplayer">Nenhum item. Abra o BookPlayer no seu telefone e importe um livro.</string>
     <string name="automotive_empty_book">Livro vazio</string>
     <string name="automotive_resume_play">Retomar reprodução</string>

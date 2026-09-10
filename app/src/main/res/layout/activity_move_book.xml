@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        style="@style/wideLinearLayout_Vertical"
+        android:padding="16dp"
+        >
+
+        <TextView
+            android:id="@+id/tvMoveBookTitle"
+            style="@style/myStyleBigTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingHorizontal="20dp"
+            android:background="@drawable/bg_chip"
+            android:text="Book title" />
+
+        <!-- Current location -->
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_chip"
+            android:padding="12dp">
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/move_book_current_location"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="start"
+                android:textAlignment="viewStart" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/ivCurrentLocationIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/no_image_icon" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvCurrentLocation"
+                        style="@style/simpleTextWrap"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentLocationPath"
+                        style="@style/simpleTextWrap"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textStyle="italic"
+                        android:textSize="12sp"
+                        android:alpha="0.7"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Choose a new location (visually distinct block) -->
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_chip"
+            android:padding="12dp">
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/move_book_choose_destination"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="start"
+                android:textAlignment="viewStart" />
+
+            <!-- Destination candidates -->
+            <LinearLayout
+                android:id="@+id/llDestinations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- Progress section (hidden until a move starts) -->
+        <LinearLayout
+            android:id="@+id/llMoveProgress"
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_chip"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvMoveProgressText"
+                style="@style/simpleTextWrap"
+                android:layout_width="match_parent"
+                android:text="@string/move_in_progress" />
+
+            <ProgressBar
+                android:id="@+id/pbMoveProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:max="100" />
+
+            <Button
+                android:id="@+id/btnMoveCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="end"
+                android:text="@android:string/cancel" />
+        </LinearLayout>
+
+        <!-- Global storage stats (visually distinct block) -->
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_chip"
+            android:padding="12dp">
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/move_storage_section_title"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="4dp"
+                android:layout_gravity="start"
+                android:textAlignment="viewStart" />
+
+            <TextView
+                android:id="@+id/tvStorageBookSize"
+                style="@style/simpleTextWrap"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Internal storage -->
+            <TextView
+                android:id="@+id/tvStorageInternalTitle"
+                style="@style/myStyleTextTitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:text="@string/device_storage_memory"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvStorageInternalBody"
+                style="@style/simpleTextWrap"
+                android:layout_width="match_parent"
+                android:layout_marginTop="4dp"
+                android:fontFamily="monospace"
+                android:textSize="13sp" />
+
+            <com.driot.bookplayer.widgets.StorageBarView
+                android:id="@+id/storageBarInternal"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- SD card storage (only shown if an SD card is present) -->
+            <LinearLayout
+                android:id="@+id/llStorageSdCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/myStyleTextTitle2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"
+                    android:text="@string/sd_card_storage" />
+
+                <TextView
+                    android:id="@+id/tvStorageSdCardBody"
+                    style="@style/simpleTextWrap"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="monospace"
+                    android:textSize="13sp" />
+
+                <com.driot.bookplayer.widgets.StorageBarView
+                    android:id="@+id/storageBarSdCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

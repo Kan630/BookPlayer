@@ -802,6 +802,28 @@
 
     <string name="could_not_identify_track_to_modify">не удалось определить дорожку для изменения</string>
     <string name="could_not_identify_folder_to_modify">не удалось определить папку для изменения</string>
+    <string name="move_book_button">Переместить</string>
+    <string name="move_book_current_location">Текущее расположение</string>
+    <string name="move_book_current_marker">(текущее)</string>
+    <string name="move_book_choose_destination">Выберите новое расположение</string>
+    <string name="move_confirm_title">Переместить эту книгу?</string>
+    <string name="move_confirm_message">Это скопирует %1$d файл(ов) (%2$s) в новое расположение, а затем удалит их из текущего.</string>
+    <string name="move_in_progress">Перемещение…</string>
+    <string name="move_progress_text">Перемещение файла %1$d/%2$d…
+%3$s</string>
+    <string name="move_success">Книга успешно перемещена</string>
+    <string name="move_cancelled">Перемещение отменено</string>
+    <string name="move_failed">Не удалось переместить книгу - ничего не изменено</string>
+    <string name="move_group_copy_title">Копировать : Защищённое хранилище приложения</string>
+    <string name="move_group_copy_subtitle">Хранить независимую копию в собственном хранилище BookPlayer\'. Риска потери нет, но нужно больше места, если исходник не удалён.</string>
+    <string name="move_group_link_title">Связать : Общее хранилище устройства</string>
+    <string name="move_group_link_subtitle">Просто указывать на файлы вне собственного хранилища BookPlayer\' — ничего не дублируется, места не требуется, но книга будет потеряна, если файлы переместят или удалят.</string>
+    <string name="move_group_link_custom_folder">Выбрать папку…</string>
+    <string name="move_storage_section_title">Общая статистика хранилища</string>
+    <string name="move_storage_book_size">Эта книга: %1$s</string>
+    <string name="move_storage_copied_books">Скопированные книги: %1$s</string>
+    <string name="move_storage_linked_books">Связанные книги: %1$s</string>
+    <string name="move_storage_free">Свободно: %1$s из %2$s</string>
     <string name="automotive_no_item_in_bookplayer">Нет элементов. Откройте BookPlayer на телефоне и импортируйте книгу.</string>
     <string name="automotive_empty_book">Пустая книга</string>
     <string name="automotive_resume_play">Возобновить воспроизведение</string>

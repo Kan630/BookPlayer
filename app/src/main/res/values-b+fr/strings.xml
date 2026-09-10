@@ -841,6 +841,28 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 
     <string name="could_not_identify_track_to_modify">impossible d\'identifier la piste à modifier</string>
     <string name="could_not_identify_folder_to_modify">impossible d\'identifier le dossier à modifier</string>
+    <string name="move_book_button">Déplacer</string>
+    <string name="move_book_current_location">Emplacement actuel</string>
+    <string name="move_book_current_marker">(actuel)</string>
+    <string name="move_book_choose_destination">Choisir un nouvel emplacement</string>
+    <string name="move_confirm_title">Déplacer ce livre ?</string>
+    <string name="move_confirm_message">Cela va copier %1$d fichier(s) (%2$s) vers le nouvel emplacement, puis les supprimer de l\'emplacement actuel.</string>
+    <string name="move_in_progress">Déplacement…</string>
+    <string name="move_progress_text">Déplacement du fichier %1$d/%2$d…
+%3$s</string>
+    <string name="move_success">Livre déplacé avec succès</string>
+    <string name="move_cancelled">Déplacement annulé</string>
+    <string name="move_failed">Impossible de déplacer le livre - rien n\'a été modifié</string>
+    <string name="move_group_copy_title">Copier : Stockage Sécurisé Réservé de l\'App</string>
+    <string name="move_group_copy_subtitle">Conserver une copie indépendante dans le stockage propre à BookPlayer\'. Aucun risque de perte, mais plus d\'espace nécessaire si la source n\'est pas supprimée.</string>
+    <string name="move_group_link_title">Lier : Stockage Partagé de l\'Appareil</string>
+    <string name="move_group_link_subtitle">Simplement pointer vers des fichiers en dehors du stockage propre à BookPlayer\' - rien n\'est dupliqué, aucun espace supplémentaire, mais le livre sera perdu si les fichiers sont déplacés ou supprimés.</string>
+    <string name="move_group_link_custom_folder">Choisir un dossier…</string>
+    <string name="move_storage_section_title">Statistiques Globales de Stockage</string>
+    <string name="move_storage_book_size">Ce livre : %1$s</string>
+    <string name="move_storage_copied_books">Livres copiés : %1$s</string>
+    <string name="move_storage_linked_books">Livres liés : %1$s</string>
+    <string name="move_storage_free">Libre : %1$s sur %2$s</string>
     <string name="automotive_no_item_in_bookplayer">Aucun élément. Ouvrez BookPlayer sur votre téléphone et importez un livre.</string>
     <string name="automotive_empty_book">Livre vide</string>
     <string name="automotive_resume_play">Reprendre la lecture</string>

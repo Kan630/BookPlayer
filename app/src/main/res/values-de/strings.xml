@@ -805,6 +805,28 @@ Soll die App technische Debug-Protokolle erstellen?
 
     <string name="could_not_identify_track_to_modify">Titel zum Ändern konnte nicht identifiziert werden</string>
     <string name="could_not_identify_folder_to_modify">Ordner zum Ändern konnte nicht identifiziert werden</string>
+    <string name="move_book_button">Verschieben</string>
+    <string name="move_book_current_location">Aktueller Speicherort</string>
+    <string name="move_book_current_marker">(aktuell)</string>
+    <string name="move_book_choose_destination">Neuen Speicherort wählen</string>
+    <string name="move_confirm_title">Dieses Buch verschieben?</string>
+    <string name="move_confirm_message">Dabei werden %1$d Datei(en) (%2$s) an den neuen Ort kopiert und anschließend vom aktuellen Ort gelöscht.</string>
+    <string name="move_in_progress">Wird verschoben…</string>
+    <string name="move_progress_text">Datei %1$d/%2$d wird verschoben…
+%3$s</string>
+    <string name="move_success">Buch erfolgreich verschoben</string>
+    <string name="move_cancelled">Verschieben abgebrochen</string>
+    <string name="move_failed">Buch konnte nicht verschoben werden - es wurde nichts geändert</string>
+    <string name="move_group_copy_title">Kopieren : App-eigener sicherer Speicher</string>
+    <string name="move_group_copy_subtitle">Eine eigenständige Kopie im Speicher von BookPlayer\' behalten. Kein Löschrisiko, aber mehr Speicherplatz nötig, wenn die Quelle nicht gelöscht wird.</string>
+    <string name="move_group_link_title">Verknüpfen : Geteilter Gerätespeicher</string>
+    <string name="move_group_link_subtitle">Einfach auf Dateien außerhalb des eigenen Speichers von BookPlayer\' verweisen – nichts wird dupliziert, kein zusätzlicher Speicherplatz, aber das Buch geht verloren, wenn die Dateien verschoben oder gelöscht werden.</string>
+    <string name="move_group_link_custom_folder">Ordner auswählen…</string>
+    <string name="move_storage_section_title">Globale Speicherstatistik</string>
+    <string name="move_storage_book_size">Dieses Buch: %1$s</string>
+    <string name="move_storage_copied_books">Kopierte Bücher: %1$s</string>
+    <string name="move_storage_linked_books">Verknüpfte Bücher: %1$s</string>
+    <string name="move_storage_free">Frei: %1$s von %2$s</string>
     <string name="automotive_no_item_in_bookplayer">Keine Elemente. Öffnen Sie BookPlayer auf Ihrem Telefon und importieren Sie ein Buch.</string>
     <string name="automotive_empty_book">Leeres Buch</string>
     <string name="automotive_resume_play">Wiedergabe fortsetzen</string>
