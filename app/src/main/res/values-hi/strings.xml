@@ -1115,10 +1115,15 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="All_modes_except_Legacy_are_in_beta">लेगासी को छोड़कर सभी मोड बीटा में हैं।</string>
     <string name="reset_progress_only_for_this_track">केवल इस ट्रैक की प्रगति रीसेट करें</string>
     <string name="pick_a_new_location">नया स्थान चुनें</string>
+    <string name="auto_repair_searching">ज्ञात स्थानों में खोजा जा रहा है…</string>
+    <string name="auto_repair_fixed">स्थान स्वतः ठीक कर दिया गया</string>
     <string name="newlocation_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
     <string name="newlocation_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
     <string name="newlocation_not_better">क्षमा करें, इससे पथ ठीक नहीं हुए।</string>
     <string name="AskChangeSource_popupTitle">स्थान परिवर्तन की पुष्टि करें</string>
+    <string name="newlocation_files_will_be_fixed">%1$d फ़ाइल(ें) ठीक हो जाएंगी</string>
+    <string name="newlocation_files_will_be_broken">लेकिन %1$d फ़ाइल(ें) टूट जाएंगी</string>
+    <string name="zikfiles_paths_updated">%1$d फ़ाइल(ें) सफलतापूर्वक अपडेट की गईं</string>
     <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
     <string name="open_audiobook">ऑडियोबुक खोलें</string>
     <string name="sort_by">क्रमबद्ध करें</string>

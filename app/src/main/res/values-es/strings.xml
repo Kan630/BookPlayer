@@ -1117,10 +1117,15 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="All_modes_except_Legacy_are_in_beta">Todos los modos excepto Legacy están en beta.</string>
     <string name="reset_progress_only_for_this_track">reiniciar progreso solo de esta pista</string>
     <string name="pick_a_new_location">elegir nueva ubicación</string>
+    <string name="auto_repair_searching">Buscando en ubicaciones conocidas…</string>
+    <string name="auto_repair_fixed">Ubicación corregida automáticamente</string>
     <string name="newlocation_better">La carpeta corrige todas las rutas rotas</string>
     <string name="newlocation_better_and_worse">La carpeta corrige algunas rutas rotas</string>
     <string name="newlocation_not_better">Lo siento, no se corrigieron las rutas.</string>
     <string name="AskChangeSource_popupTitle">Confirmar cambio de ubicación</string>
+    <string name="newlocation_files_will_be_fixed">Se corregirán %1$d archivo(s)</string>
+    <string name="newlocation_files_will_be_broken">Pero %1$d archivo(s) se romperán</string>
+    <string name="zikfiles_paths_updated">%1$d archivo(s) actualizados correctamente</string>
     <string name="already_downloaded">Ya descargado</string>
     <string name="open_audiobook">Abrir el audiolibro</string>
     <string name="sort_by">Ordenar por</string>

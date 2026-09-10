@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -46,6 +47,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
@@ -59,6 +61,7 @@ import com.driot.bookplayer.views.SettingSwitchRow;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,6 +86,7 @@ public class ModifyFolderActivity extends BaseActivity {
     private Button bDelete, bReset, bExport, bShare;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch, bResetToOriginal;
     private LinearLayout ll_zikfile_resolve_error;
+    private boolean autoRepairAttempted = false;
     private ImageView ivBookType;
     private TextView tvBookType;
     private SettingSwitchRow rowMusicType;
@@ -1006,8 +1010,10 @@ public class ModifyFolderActivity extends BaseActivity {
                             String textMsg = fixText
                                     + "\n " + getString(R.string.from) + " [" + oldPathExample + "]"
                                     + "\n " + getString(R.string.to) + " [" + pickedTreeUri + "]"
-                                    + "\n\n" + nbBetterFinal + " files will be fixed"
-                                    + (nbWorseFinal > 0 ? "\n" + "BUT " + nbWorseFinal + " files will be broken" : "");
+                                    + "\n\n" + getString(R.string.newlocation_files_will_be_fixed, nbBetterFinal)
+                                    + (nbWorseFinal > 0
+                                            ? "\n" + getString(R.string.newlocation_files_will_be_broken, nbWorseFinal)
+                                            : "");
 
                             pendingPickedTreeUri = pickedTreeUri;
                             pendingTreeDocumentId = treeDocumentId;
@@ -1069,7 +1075,7 @@ public class ModifyFolderActivity extends BaseActivity {
 
             final int finalUpdated = updated;
             runOnUiThread(() -> {
-                myToast(finalUpdated + " files updated successfully");
+                myToast(getString(R.string.zikfiles_paths_updated, finalUpdated));
                 checkZikFilesReadable(); // Recheck to update UI
             });
         });
@@ -1128,18 +1134,122 @@ public class ModifyFolderActivity extends BaseActivity {
                     TextView tv_zikfile_resolve_error = findViewById(R.id.tv_zikfile_resolve_error);
                     tv_zikfile_resolve_error.setText(finalMasterMsg);
                     TextView tv_error_title = findViewById(R.id.tv_error_title);
+                    boolean allKO = (finalNbKO == nbZikFiles);
                     String errDetail = finalNbKO + "/" + nbZikFiles + " " + getString(R.string.zikFiles_not_readable);
-                    if (finalNbKO == nbZikFiles)
+                    if (allKO)
                         errDetail = getString(R.string.All_zikFiles_not_readable);
                     tv_error_title.setText(errDetail);
                     MaterialButton mbPickNewLocation = findViewById(R.id.mbPickNewLocation);
                     mbPickNewLocation.setOnClickListener((v -> pickNewLocation()));
                     ll_zikfile_resolve_error.setVisibility(View.VISIBLE);
+
+                    if (allKO && !autoRepairAttempted) {
+                        autoRepairAttempted = true;
+                        mbPickNewLocation.setVisibility(View.GONE);
+                        startAutoRepairSearch();
+                    } else {
+                        findViewById(R.id.llAutoRepairProgress).setVisibility(View.GONE);
+                        mbPickNewLocation.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     ll_zikfile_resolve_error.setVisibility(View.GONE);
                 }
             });
         });
+    }
+
+    // ------------------------------------------------------------------------------------
+    // Auto-repair: when every track is unreadable, before bothering the user with a manual
+    // folder picker, silently check the 4 default locations MoveBookActivity itself can put a
+    // book in (internal reserved, SD reserved, phone shared "linked", SD shared "linked") for a
+    // folder of the same name holding all the same filenames - a strong signal it's genuinely
+    // this book, e.g. left behind by an interrupted move. If found, repoint the DB there
+    // directly; only fall back to the manual "pick a new location" button if nothing matches.
+    // ------------------------------------------------------------------------------------
+
+    private void startAutoRepairSearch() {
+        View llAutoRepairProgress = findViewById(R.id.llAutoRepairProgress);
+        MaterialButton mbPickNewLocation = findViewById(R.id.mbPickNewLocation);
+        llAutoRepairProgress.setVisibility(View.VISIBLE);
+        mbPickNewLocation.setVisibility(View.GONE);
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Context context = getApplicationContext();
+            List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
+            File matchedDir = findMatchingDefaultLocation(context, list);
+
+            if (matchedDir != null) {
+                AppDatabase db = AppDatabase.getDatabase(context);
+                for (ZikFile zf : list) {
+                    File f = new File(matchedDir, zf.getName());
+                    zf.setPath(f.getAbsolutePath());
+                    db.zikFileDao().update(zf);
+                }
+                if (folder.image != null && !folder.image.isEmpty()) {
+                    String coverName = new File(folder.image.replace("file://", "")).getName();
+                    File coverFile = new File(matchedDir, coverName);
+                    if (coverFile.isFile()) {
+                        folder.image = coverFile.getAbsolutePath();
+                    }
+                }
+                folder.setPath(matchedDir.getAbsolutePath());
+                db.folderDao().update(folder);
+            }
+
+            boolean fixed = matchedDir != null;
+            runOnUiThread(() -> {
+                llAutoRepairProgress.setVisibility(View.GONE);
+                if (fixed) {
+                    myToast(getString(R.string.auto_repair_fixed));
+                    ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
+                    TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
+                    ivStorageIcon.setImageResource(folder.getMemoryLocationIcon(this));
+                    tvStorageIcon.setText(getString(R.string.Audio_location) + " :\n"
+                            + folder.getMemoryLocationText(this));
+                    checkZikFilesReadable();
+                } else {
+                    mbPickNewLocation.setVisibility(View.VISIBLE);
+                }
+            });
+        });
+    }
+
+    @Nullable
+    private File findMatchingDefaultLocation(Context context, List<ZikFile> list) {
+        if (list.isEmpty() || folder.getName() == null) {
+            return null;
+        }
+        boolean sdAvailable = StorageHelper.isExternalSDCardAvailable(context);
+        List<File> candidateBases = new ArrayList<>();
+        candidateBases.add(StorageHelper.getUnzipFolder(context, false));
+        if (sdAvailable) {
+            candidateBases.add(StorageHelper.getUnzipFolder(context, true));
+        }
+        candidateBases.add(StorageHelper.getDefaultLinkedFolder(context, false));
+        if (sdAvailable) {
+            candidateBases.add(StorageHelper.getDefaultLinkedFolder(context, true));
+        }
+
+        for (File base : candidateBases) {
+            if (base == null) {
+                continue;
+            }
+            File candidate = new File(base, folder.getName());
+            if (!candidate.isDirectory()) {
+                continue;
+            }
+            boolean allMatch = true;
+            for (ZikFile zf : list) {
+                if (!new File(candidate, zf.getName()).isFile()) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     @Override

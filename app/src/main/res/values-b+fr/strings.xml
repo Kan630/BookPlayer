@@ -1124,10 +1124,15 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
     <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
     <string name="pick_a_new_location">choisir un nouvel emplacement</string>
+    <string name="auto_repair_searching">Recherche dans les emplacements connus…</string>
+    <string name="auto_repair_fixed">Emplacement corrigé automatiquement</string>
     <string name="newlocation_better">Ce dossier corrige tous les liens rompus</string>
     <string name="newlocation_better_and_worse">Ce dossier corrige certains liens rompus</string>
     <string name="newlocation_not_better">Désolé, cela n\'a pas corrigé les chemins.</string>
     <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
+    <string name="newlocation_files_will_be_fixed">%1$d fichier(s) seront corrigés</string>
+    <string name="newlocation_files_will_be_broken">Mais %1$d fichier(s) seront cassés</string>
+    <string name="zikfiles_paths_updated">%1$d fichier(s) mis à jour avec succès</string>
     <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
     <string name="sort_by">Trier par</string>

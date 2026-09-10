@@ -82,8 +82,8 @@ public class ErrorUi {
 
         if (!exists) {
             if (StorageHelper.isInInternalMemory(zikFilePath)) {
-                myLogW(Var.SHOULD_NOT_HAPPEN);
-                errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN + " -";
+                myLogW(Var.SHOULD_NOT_HAPPEN + " : file in app-reserved storage is unreadable [" + zikFilePath + "]");
+                errMessage = context.getString(R.string.source_not_found);
             } else {
                 errMessage = context.getString(R.string.source_not_found_deleted);
             }

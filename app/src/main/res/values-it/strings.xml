@@ -1119,10 +1119,15 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="All_modes_except_Legacy_are_in_beta">Tutte le modalità tranne Legacy sono in beta.</string>
     <string name="reset_progress_only_for_this_track">resetta progressi solo per questa traccia</string>
     <string name="pick_a_new_location">scegli nuova posizione</string>
+    <string name="auto_repair_searching">Ricerca nelle posizioni note…</string>
+    <string name="auto_repair_fixed">Posizione corretta automaticamente</string>
     <string name="newlocation_better">La cartella corregge tutti i percorsi rotti</string>
     <string name="newlocation_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
     <string name="newlocation_not_better">Spiacente, non ha corretto i percorsi.</string>
     <string name="AskChangeSource_popupTitle">Conferma cambio posizione</string>
+    <string name="newlocation_files_will_be_fixed">%1$d file verranno corretti</string>
+    <string name="newlocation_files_will_be_broken">Ma %1$d file verranno danneggiati</string>
+    <string name="zikfiles_paths_updated">%1$d file aggiornati con successo</string>
     <string name="already_downloaded">Già scaricato</string>
     <string name="open_audiobook">Apri l\'audiolibro</string>
     <string name="sort_by">Ordina per</string>

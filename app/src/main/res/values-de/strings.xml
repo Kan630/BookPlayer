@@ -1120,10 +1120,15 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="All_modes_except_Legacy_are_in_beta">Alle Modi außer Legacy sind im Beta-Status.</string>
     <string name="reset_progress_only_for_this_track">Fortschritt nur für diesen Titel zurücksetzen</string>
     <string name="pick_a_new_location">neuen Ort wählen</string>
+    <string name="auto_repair_searching">Bekannte Speicherorte werden durchsucht…</string>
+    <string name="auto_repair_fixed">Speicherort automatisch repariert</string>
     <string name="newlocation_better">Ordner repariert alle defekten Pfade</string>
     <string name="newlocation_better_and_worse">Ordner repariert einige defekte Pfade</string>
     <string name="newlocation_not_better">Entschuldigung, die Pfade wurden nicht behoben.</string>
     <string name="AskChangeSource_popupTitle">Standortwechsel bestätigen</string>
+    <string name="newlocation_files_will_be_fixed">%1$d Datei(en) werden repariert</string>
+    <string name="newlocation_files_will_be_broken">Aber %1$d Datei(en) werden dadurch beschädigt</string>
+    <string name="zikfiles_paths_updated">%1$d Datei(en) erfolgreich aktualisiert</string>
     <string name="already_downloaded">Bereits heruntergeladen</string>
     <string name="open_audiobook">Das Hörbuch öffnen</string>
     <string name="sort_by">Sortieren nach</string>

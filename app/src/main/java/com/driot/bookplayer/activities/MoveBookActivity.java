@@ -466,7 +466,7 @@ public class MoveBookActivity extends BaseActivity {
         boolean allOk = true;
 
         DocumentFile destTreeDoc = destTreeUri != null ? DocumentFile.fromTreeUri(this, destTreeUri) : null;
-        if (isReserved && destDir != null) {
+        if (destDir != null) {
             destDir.mkdirs();
         }
 
@@ -550,7 +550,7 @@ public class MoveBookActivity extends BaseActivity {
                 db.zikFileDao().update(zf);
             }
         }
-        String newFolderRootPath = isReserved ? destDir.getAbsolutePath() : destTreeUri.toString();
+        String newFolderRootPath = destDir != null ? destDir.getAbsolutePath() : destTreeUri.toString();
         folder.setPath(newFolderRootPath);
         if (newCoverPath != null) {
             folder.image = newCoverPath;

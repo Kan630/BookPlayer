@@ -35,7 +35,6 @@
                 android:id="@+id/ll_zikfile_resolve_error"
                 android:background="@drawable/bg_chip"
                 >
-                <TextView style="@style/betatest"/>
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -52,6 +51,26 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="10dp"
                 />
+                <LinearLayout
+                    android:id="@+id/llAutoRepairProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone">
+
+                    <ProgressBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        style="@style/simpleTextWrap"
+                        android:layout_gravity="center"
+                        android:text="@string/auto_repair_searching" />
+                </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/mbPickNewLocation"
                     android:layout_width="wrap_content"
@@ -65,11 +84,8 @@
                     android:layout_gravity="center"
                     android:text="@string/error_generic"
                     android:textColor="@color/red_500"
-                    android:maxHeight="300dp"
-                    android:scrollbars="vertical"
                     android:focusable="true"
                     android:textIsSelectable="true"
-
                     />
             </LinearLayout>
 

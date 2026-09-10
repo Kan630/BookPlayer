@@ -1113,10 +1113,15 @@
     <string name="All_modes_except_Legacy_are_in_beta">جميع الأوضاع باستثناء القديمة في مرحلة تجريبية.</string>
     <string name="reset_progress_only_for_this_track">إعادة تعيين التقدم لهذا المسار فقط</string>
     <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
+    <string name="auto_repair_searching">جارٍ البحث في المواقع المعروفة…</string>
+    <string name="auto_repair_fixed">تم إصلاح الموقع تلقائياً</string>
     <string name="newlocation_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
     <string name="newlocation_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
     <string name="newlocation_not_better">عذراً، لم يتم تصحيح المسارات.</string>
     <string name="AskChangeSource_popupTitle">تأكيد تغيير الموقع</string>
+    <string name="newlocation_files_will_be_fixed">سيتم إصلاح %1$d ملف(ات)</string>
+    <string name="newlocation_files_will_be_broken">لكن سيتعطل %1$d ملف(ات)</string>
+    <string name="zikfiles_paths_updated">تم تحديث %1$d ملف(ات) بنجاح</string>
     <string name="already_downloaded">تم التنزيل بالفعل</string>
     <string name="open_audiobook">فتح الكتاب الصوتي</string>
     <string name="sort_by">فرز حسب</string>

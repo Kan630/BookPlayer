@@ -1232,10 +1232,15 @@
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
     <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
     <string name="pick_a_new_location">pick a new location</string>
+    <string name="auto_repair_searching">Searching known locations…</string>
+    <string name="auto_repair_fixed">Location automatically fixed</string>
     <string name="newlocation_better">The selected folder fixes all broken paths</string>
     <string name="newlocation_better_and_worse">The selected folder fixes some broken paths</string>
     <string name="newlocation_not_better">Sorry, that didn\'t fix the paths</string>
     <string name="AskChangeSource_popupTitle">Confirm location change</string>
+    <string name="newlocation_files_will_be_fixed">%1$d file(s) will be fixed</string>
+    <string name="newlocation_files_will_be_broken">But %1$d file(s) will be broken</string>
+    <string name="zikfiles_paths_updated">%1$d file(s) updated successfully</string>
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>
     <string name="sort_by">Sort by</string>
