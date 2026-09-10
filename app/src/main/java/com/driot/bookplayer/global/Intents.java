@@ -11,6 +11,7 @@ public class Intents {
     public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID"; // used in deeplink
     public static final String EXTRA_OPEN_FROM_TRACK_ID = "EXTRA_OPEN_FROM_TRACK_ID";
     public static final String EXTRA_START_IN_HISTORY = "EXTRA_START_IN_HISTORY";
+    public static final String EXTRA_START_IN_FAVORITES = "EXTRA_START_IN_FAVORITES";
 
     public static final String EXTRA_CALLER = "EXTRA_CALLER";
     public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";

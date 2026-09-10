@@ -302,10 +302,15 @@ public class RadioFavoritesActivity extends FullActivity {
 
         // initMode() picks favorites-vs-history itself (asynchronously, based on which has rows)
         // - that would race with (and could silently overwrite) an explicit request to land on
-        // history, so skip it entirely when the caller already knows what it wants.
+        // a specific tab, so skip it entirely when the caller already knows what it wants (the
+        // landing screen's now-separate Favorites/History buttons always know exactly what they
+        // want, and shouldn't get silently redirected just because that list happens to be empty).
         if (getIntent().getBooleanExtra(Intents.EXTRA_START_IN_HISTORY, false)) {
             myLogI("--- opening directly in history mode (radio landing screen setting) ---");
             viewModel.loadHistory(this);
+        } else if (getIntent().getBooleanExtra(Intents.EXTRA_START_IN_FAVORITES, false)) {
+            myLogI("--- opening directly in favorites mode (radio landing screen setting) ---");
+            viewModel.loadFavorites(this);
         } else {
             viewModel.initMode(this);
         }

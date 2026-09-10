@@ -14,6 +14,7 @@ import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
@@ -32,7 +33,7 @@ public class GetRadioActivity extends FullActivity {
 
     EditText1lineWithSearch etRadio;
     Button bFavorite;
-    ImageButton ibFavorite;
+    Button bHistory;
     ImageButton ibSettings;
     Button bTopClick, bTopVote, bLastClick, bLastChange;
 
@@ -75,12 +76,12 @@ public class GetRadioActivity extends FullActivity {
         etRadio = findViewById(R.id.etRadio);
         // buttonSearch = findViewById(R.id.bRadioSearch); // Removed
         bFavorite = findViewById(R.id.bFavorite);
-        ibFavorite = findViewById(R.id.ibFavorite);
+        bHistory = findViewById(R.id.bHistory);
         ibSettings = findViewById(R.id.ibSettings);
 
         // ---- open recyclerviews ----
         bFavorite.setOnClickListener(v -> clickFavorite());
-        ibFavorite.setOnClickListener(v -> clickFavorite());
+        bHistory.setOnClickListener(v -> clickHistory());
         ibSettings.setOnClickListener(v -> clickSettings());
 
         findViewById(R.id.bRadioByTag).setOnClickListener(v -> {
@@ -175,6 +176,14 @@ public class GetRadioActivity extends FullActivity {
         myLogI("--- User clicks RADIO FAVORITES ---");
         // Create this screen like your Librivox favorites (list of saved ApiStation UUIDs)
         Intent intent = new Intent(this, RadioFavoritesActivity.class);
+        intent.putExtra(Intents.EXTRA_START_IN_FAVORITES, true);
+        startActivity(intent);
+    }
+
+    private void clickHistory() {
+        myLogI("--- User clicks RADIO HISTORY ---");
+        Intent intent = new Intent(this, RadioFavoritesActivity.class);
+        intent.putExtra(Intents.EXTRA_START_IN_HISTORY, true);
         startActivity(intent);
     }
 

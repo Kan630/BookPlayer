@@ -87,19 +87,17 @@
 
                     <Button
                         android:id="@+id/bFavorite"
-                        android:text="@string/favorites_slash_history"
+                        android:text="@string/Favorites"
                         style="@style/GetResourceButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <ImageButton
-                        android:id="@+id/ibFavorite"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:contentDescription="@string/favorites"
-                        android:src="@drawable/ic_favorite"
-                        android:background="@android:color/transparent"
-                        app:tint="@android:color/holo_red_dark" />
+                    <Button
+                        android:id="@+id/bHistory"
+                        android:text="@string/History"
+                        style="@style/GetResourceButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 

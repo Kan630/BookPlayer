@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -31,7 +32,7 @@ public class GetPodcastActivity extends FullActivity {
     String query, lang;
     EditText1lineWithSearch editTextPodcast;
     Button bFavorite;
-    ImageButton ibFavorite;
+    Button bHistory;
     ImageButton ibSettings;
     Button buttonTrending;
     Spinner spinnerLang;
@@ -60,7 +61,7 @@ public class GetPodcastActivity extends FullActivity {
 
         editTextPodcast = findViewById(R.id.etPodcast);
         bFavorite = findViewById(R.id.bFavorite);
-        ibFavorite = findViewById(R.id.ibFavorite);
+        bHistory = findViewById(R.id.bHistory);
         ibSettings = findViewById(R.id.ibSettings);
         buttonTrending = findViewById(R.id.bPodcastTrending);
 
@@ -77,7 +78,7 @@ public class GetPodcastActivity extends FullActivity {
                         false));
 
         bFavorite.setOnClickListener(v -> clickFavorite());
-        ibFavorite.setOnClickListener(v -> clickFavorite());
+        bHistory.setOnClickListener(v -> clickHistory());
         ibSettings.setOnClickListener(v -> clickSettings());
 
         editTextPodcast.post(() -> { // async because takes ages
@@ -130,6 +131,13 @@ public class GetPodcastActivity extends FullActivity {
     private void clickFavorite() {
         myLogI("--- User clicks FAVORITES ---");
         Intent intent = new Intent(this, PodcastFavoritesActivity.class);
+        startActivity(intent);
+    }
+
+    private void clickHistory() {
+        myLogI("--- User clicks PODCAST HISTORY ---");
+        Intent intent = new Intent(this, PodcastFavoritesActivity.class);
+        intent.putExtra(Intents.EXTRA_START_IN_HISTORY, true);
         startActivity(intent);
     }
 
