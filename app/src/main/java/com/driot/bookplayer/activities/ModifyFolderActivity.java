@@ -852,14 +852,28 @@ public class ModifyFolderActivity extends BaseActivity {
                 return;
             }
 
-            // If any already SUCCEEDED → finish immediately (covers the “came back later”
-            // case)
+            // If any already SUCCEEDED → this normally covers the "came back later" case
+            // (delete finished while we were away), but a one-time WorkInfo can also linger
+            // as SUCCEEDED indefinitely from a completely unrelated, much older run against
+            // this same folder id (WorkManager doesn't guarantee prompt pruning). Trusting it
+            // blindly would silently close this screen for a folder that's still very much
+            // there. Cross-check against the DB before acting on it.
             for (WorkInfo wi : infos) {
                 if (wi.getState() == WorkInfo.State.SUCCEEDED) {
-                    isDeleting = false;
-                    setUiDeleting(false);
-                    setResult(RESULT_OK, new Intent().putExtra("deletedFolderId", folder.getId()));
-                    finish();
+                    long fid = folder.getId();
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        Folder stillThere = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(fid);
+                        runOnUiThread(() -> {
+                            isDeleting = false;
+                            setUiDeleting(false);
+                            if (stillThere == null) {
+                                setResult(RESULT_OK, new Intent().putExtra("deletedFolderId", fid));
+                                finish();
+                            }
+                            // else: stale WorkInfo - folder genuinely still exists, ignore it
+                            // and let the screen render normally.
+                        });
+                    });
                     return;
                 }
             }
