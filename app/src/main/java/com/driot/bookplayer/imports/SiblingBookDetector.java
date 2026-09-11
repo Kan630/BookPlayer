@@ -26,10 +26,7 @@ import java.io.File;
  * {@link FileHelper#resolveRealPathViaMediaStore} keyed on the Uri's DISPLAY_NAME/SIZE
  * (OpenableColumns, the one thing every provider still exposes). When even that fails there is
  * simply nothing to detect and this returns null - the caller falls back to importing just the
- * picked file, exactly like before this heuristic existed. Deliberately does NOT use
- * UriHelper.getPathFromUri() here - its own fallback silently copies the file to cache and
- * returns that unrelated temp path, which would make this scan the app's cache dir instead of
- * the real folder.
+ * picked file, exactly like before this heuristic existed.
  */
 public final class SiblingBookDetector {
 

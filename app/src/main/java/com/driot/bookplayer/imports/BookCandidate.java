@@ -17,6 +17,7 @@ import com.driot.bookplayer.ebooks.HtmlLowLevelHelper;
 import com.driot.bookplayer.ebooks.OdtLowLevelHelper;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
@@ -516,9 +517,18 @@ public class BookCandidate implements Parcelable {
                 // 2. Track Count
                 try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(fd).getChannel()) {
                     // Try refreshing path if possible to use FileDataSourceViaHeapImpl as it was
-                    // working before
-                    String directPath = UriHelper.getPathFromUri(context, file.getUri());
-                    if (directPath != null && new java.io.File(directPath).exists()) {
+                    // working before. FileHelper.processUri() is side-effect-free (unlike
+                    // UriHelper.getPathFromUri(), which silently copies the whole file - possibly
+                    // a large audiobook - to the cache dir with no cleanup when it can't resolve a
+                    // real path); resolveRealPathViaMediaStore() is a second, still side-effect-free
+                    // attempt for vendor content providers that expose neither a real path nor a
+                    // DocumentsContract id (only OpenableColumns). If both fail, the already-open
+                    // fd/channel above is a perfectly working fallback (no copy needed either way).
+                    String directPath = FileHelper.processUri(context, file.getUri());
+                    if (directPath == null || directPath.isEmpty()) {
+                        directPath = FileHelper.resolveRealPathViaMediaStore(context, file.getName(), file.length());
+                    }
+                    if (directPath != null && !directPath.isEmpty() && new java.io.File(directPath).exists()) {
                         dataSource = new FileDataSourceViaHeapImpl(directPath);
                     } else {
                         // Fallback to channel based datasource (with offset 0)
