@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -51,6 +52,14 @@ public class LanguageSettingsFragment extends LoggingFragment {
                     // Force recreate so UI updates on Oppo/Samsung Android 9–12 where
                     // setApplicationLocales alone often does not trigger recreate.
                     if (!value.equals(current) && getActivity() != null) {
+                        // Same signal DesignSettingsFragment uses for theme changes: without this,
+                        // only this Settings screen itself picks up the new language (it recreates
+                        // itself directly, below) - MainActivity and the rest of the back stack
+                        // never get told to refresh, so on API <33 devices where the OS doesn't
+                        // auto-recreate the whole task for a per-app locale change (see
+                        // LocaleHelper.applyAppLocale - this is exactly the Oppo/older-Samsung
+                        // case), navigating back out of Settings lands back in the old language.
+                        Pref.setNeedsRecreate(true);
                         getActivity().recreate();
                     }
                 }, false);
