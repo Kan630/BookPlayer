@@ -9,6 +9,7 @@ import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
+import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.activities.SettingsActivity;
@@ -19,6 +20,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -196,7 +198,10 @@ public class NavHelper {
         } else if (itemId == R.id.nav_library) {
             intent = new Intent(activity, MainActivity.class);
         } else if (itemId == R.id.nav_add) {
-            intent = new Intent(activity, GetActivity.class);
+            // pure has no reachable path to LibriVox/Gutenberg/direct-link (content that can't be
+            // kept kid-safe/content-rating-appropriate) - skip the GetActivity hub and its 3
+            // network-source buttons entirely, straight to the local-file-only GetOtherActivity.
+            intent = new Intent(activity, Tonio.isPure(activity) ? GetOtherActivity.class : GetActivity.class);
         }
         return intent;
     }

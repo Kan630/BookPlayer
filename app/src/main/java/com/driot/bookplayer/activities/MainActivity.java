@@ -484,7 +484,11 @@ public class MainActivity extends FullActivity {
         myLog("no folders, setting up welcome message");
         Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
         btnWelcomeAddBook.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), GetActivity.class));
+            // Same pure-flavor gating as the "menu_open" handler above: no reachable path to
+            // LibriVox/Gutenberg/direct-link in pure - straight to the local-file-only screen.
+            Intent intent = new Intent(getApplicationContext(),
+                    Tonio.isPure(this) ? GetOtherActivity.class : GetActivity.class);
+            startActivity(intent);
         });
 
         LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
