@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- pure's bottom_nav_menu.xml (in this same flavor's res/menu/) deliberately drops the
+         Radio/Podcasts tabs, which is where these ids are normally declared (@+id/...) in the
+         shared main menu resource. Shared Java code (NavHelper, MainActivity) still compares
+         against R.id.nav_radio/nav_podcast unconditionally as inert itemId values - redeclare
+         them here as bare, view-less ids so those references keep resolving in the pure build;
+         nothing ever assigns them to an actual menu item in this flavor, so they're simply never
+         matched/clicked. -->
+    <item name="nav_radio" type="id" />
+    <item name="nav_podcast" type="id" />
+</resources>
