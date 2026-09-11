@@ -12,12 +12,15 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.nav.FullActivity;
+import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.services.DownloadControl;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -190,12 +193,22 @@ public class AddResourceActivity extends FullActivity {
         delayedFinishHandler = new Handler();
         delayedFinishRunnable = () -> {
             ImportHelper.setShowToUser(this, false);
+
+            // If this exact file was still live-previewing (see MiniPlayUnregisteredFragment /
+            // Var.PLAY_MODE_PREVIEW) when the import finished, grab its current position now -
+            // before the DB read below - so book playback can resume from there instead of
+            // restarting at 0.
+            PlaybackUiState previewState = PlaybackUiBus.get().state().getValue();
+            boolean wasPreviewing = previewState != null && Var.PLAY_MODE_PREVIEW.equals(previewState.playMode);
+            long previewPositionMs = wasPreviewing ? previewState.positionMs : -1;
+
             com.driot.bookplayer.db.AppDatabase.databaseReadExecutor.execute(() -> {
                 com.driot.bookplayer.db.AppDatabase db = com.driot.bookplayer.db.AppDatabase.getDatabase(this);
                 com.driot.bookplayer.db.Folder folder = db.folderDao().getFolderByPath(futureFolderPath);
                 com.driot.bookplayer.db.ZikFile target = null;
+                java.util.List<com.driot.bookplayer.db.ZikFile> files = null;
                 if (folder != null) {
-                    java.util.List<com.driot.bookplayer.db.ZikFile> files = db.zikFileDao().getZikFiles(folder.getId());
+                    files = db.zikFileDao().getZikFiles(folder.getId());
                     if (files != null && !files.isEmpty()) {
                         if (targetPlaybackFileName != null) {
                             for (com.driot.bookplayer.db.ZikFile zf : files) {
@@ -210,19 +223,42 @@ public class AddResourceActivity extends FullActivity {
                         }
                     }
                 }
+
+                if (target != null && wasPreviewing && previewPositionMs > 0) {
+                    myLog("Carrying over live-preview position (" + previewPositionMs
+                            + "ms) to the just-imported track, instead of restarting from 0.");
+                    target.setPosition(previewPositionMs);
+                    db.zikFileDao().update(target);
+                }
+
                 com.driot.bookplayer.db.ZikFile finalTarget = target;
+                int trackCount = (files != null) ? files.size() : 0;
                 runOnUiThread(() -> {
                     if (finalTarget != null) {
                         myLog("Jumping straight into playback for the just-imported track: " + finalTarget.getName());
+                        // onZikFileClick() swaps cleanly from the preview stream engine to the book
+                        // engine (MediaService.setEngine() stops/releases the old one first) and,
+                        // now that we've persisted previewPositionMs above, resumes from there
+                        // rather than 0 - MiniPlayHostFragment follows the playMode change and
+                        // swaps itself from MiniPlayUnregisteredFragment to MiniPlayBookFragment
+                        // automatically, no extra wiring needed here.
                         com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
                                 "AddResourceActivity-openWithImportSuccess");
-                        // onZikFileClick() only opens PlayActivity when the user's general
-                        // "open play view on click" setting is on - but here there is no other
-                        // app UI left in this task (it was launched externally via "Open with"),
-                        // so without this the app would otherwise vanish to the home screen while
-                        // audio plays silently in the background. Always show the player here.
-                        startActivity(new Intent(this, com.driot.bookplayer.player.PlayActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
+                        // There is no other app UI left in this task (it was launched externally
+                        // via "Open with"), so without navigating somewhere the app would
+                        // otherwise vanish to the home screen while audio plays in the background.
+                        if (trackCount > 1) {
+                            // Multi-track book: show the track list, not the single-track player.
+                            startActivity(new Intent(this, ZikFileActivity.class)
+                                    .putExtra(Intents.EXTRA_FOLDER_ID, finalTarget.getIdFolder())
+                                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
+                        } else {
+                            // Single-file "book": no track list to show - land on the library,
+                            // with the mini-player still visible/playing at the bottom.
+                            startActivity(new Intent(this, MainActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    .putExtra("scrollToTop", true));
+                        }
                     } else {
                         myLogW("Could not resolve the just-imported folder/track - falling back to the library");
                         startActivity(new Intent(this, MainActivity.class)

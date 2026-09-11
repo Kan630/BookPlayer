@@ -2264,7 +2264,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (engine == null)
             return false;
         String playMode = getPlayMode();
-        return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode));
+        return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)
+                || Var.PLAY_MODE_PREVIEW.equals(playMode));
     }
 
     public boolean isZikFile() {
