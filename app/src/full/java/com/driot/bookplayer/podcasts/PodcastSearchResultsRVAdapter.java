@@ -29,6 +29,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
     private List<PodcastFeed> items = new ArrayList<>();
     private List<Podcast> favorites = null;
+    private List<Podcast> history = null;
     private final OnItemClickListener listener;
 
     private String headerQuery = "";
@@ -57,6 +58,11 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
     public void setFavorites(List<Podcast> favorites) {
         this.favorites = favorites;
+        notifyDataSetChanged();
+    }
+
+    public void setHistory(List<Podcast> history) {
+        this.history = history;
         notifyDataSetChanged();
     }
 
@@ -90,7 +96,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             h.tvCountryTag.setVisibility(View.GONE);
         } else {
             PodcastFeed item = items.get(position - 1); // subtract 1 because of header
-            ((PodcastViewHolder) holder).bind(item, listener, favorites);
+            ((PodcastViewHolder) holder).bind(item, listener, favorites, history);
         }
     }
 
@@ -119,7 +125,9 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     static class PodcastViewHolder extends RecyclerView.ViewHolder {
         TextView title, desc, folderStats;
         ImageView image;
-        ImageView autoDownload;
+        View statusContainer;
+        ImageView statusIcon;
+        TextView statusLabel;
 
         PodcastViewHolder(View v) {
             super(v);
@@ -127,10 +135,12 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             desc = v.findViewById(R.id.podcast_desc);
             image = v.findViewById(R.id.podcast_image);
             folderStats = v.findViewById(R.id.podcast_folder_stats);
-            autoDownload = v.findViewById(R.id.podcast_autodownload);
+            statusContainer = v.findViewById(R.id.podcast_autodownload_container);
+            statusIcon = v.findViewById(R.id.podcast_autodownload);
+            statusLabel = v.findViewById(R.id.podcast_autodownload_label);
         }
 
-        void bind(PodcastFeed item, OnItemClickListener listener, List<Podcast> favorites) {
+        void bind(PodcastFeed item, OnItemClickListener listener, List<Podcast> favorites, List<Podcast> history) {
             title.setText(item.title);
             folderStats.setVisibility(View.GONE);
             if (item.description != null) {
@@ -138,34 +148,41 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             }
             Glide.with(image.getContext()).load(item.image).into(image);
 
-            boolean isFavorite = false;
-            boolean isAutoDownload = false;
-            if (favorites != null) {
-                for (Podcast p : favorites) {
-                    if (p.feedId == item.id) {
-                        isFavorite = true;
-                        isAutoDownload = p.autoDownload;
-                        break;
-                    }
-                }
-            }
+            // This is a browse/search-results row (not the user's own "My Podcasts" list, where
+            // podcast_autodownload_label/_container legitimately show auto-download status - see
+            // PodcastFavoritesRVAdapter) - here it's repurposed as a plain "you already know this
+            // podcast" indicator: favorite wins over history, neither shows nothing. The text
+            // label ("auto") doesn't apply to either case, so it always stays hidden.
+            statusLabel.setVisibility(View.GONE);
+
+            boolean isFavorite = containsFeed(favorites, item.id);
+            boolean isHistory = !isFavorite && containsFeed(history, item.id);
 
             if (isFavorite) {
-                autoDownload.setVisibility(View.VISIBLE);
-                if (isAutoDownload) {
-                    autoDownload.setImageResource(R.drawable.ic_download_action_24);
-                    autoDownload.setImageTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(autoDownload.getContext(), android.R.color.holo_green_dark)));
-                } else {
-                    autoDownload.setImageResource(R.drawable.ic_favorite);
-                    autoDownload.setImageTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(autoDownload.getContext(), android.R.color.holo_red_dark)));
-                }
+                statusContainer.setVisibility(View.VISIBLE);
+                statusIcon.setImageResource(R.drawable.ic_favorite);
+                statusIcon.setImageTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(statusIcon.getContext(), android.R.color.holo_red_dark)));
+                statusIcon.setContentDescription(statusIcon.getContext().getString(R.string.favorites));
+            } else if (isHistory) {
+                statusContainer.setVisibility(View.VISIBLE);
+                statusIcon.setImageResource(R.drawable.ic_history_24px);
+                statusIcon.setImageTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(statusIcon.getContext(), android.R.color.darker_gray)));
+                statusIcon.setContentDescription(statusIcon.getContext().getString(R.string.in_history));
             } else {
-                autoDownload.setVisibility(View.GONE);
+                statusContainer.setVisibility(View.GONE);
             }
 
             itemView.setOnClickListener(v -> listener.onItemClick(item));
+        }
+
+        private static boolean containsFeed(List<Podcast> podcasts, long feedId) {
+            if (podcasts == null) return false;
+            for (Podcast p : podcasts) {
+                if (p.feedId == feedId) return true;
+            }
+            return false;
         }
     }
 }

@@ -137,6 +137,10 @@ public class PodcastSearchResultsActivity extends FullActivity {
             adapter.setFavorites(favorites);
         });
 
+        viewModel.getListenedPodcastsLive().observe(this, history -> {
+            adapter.setHistory(history);
+        });
+
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
 
