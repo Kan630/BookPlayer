@@ -421,7 +421,13 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_open_with_subtitle"><i>长按文件或从下载中点击 [分享] 或 [用其他应用打开] 时，Android 将建议使用 BookPlayer</i></string>
     <string name="option_open_with_text">适用于 ZIP 及大多数音频文件。</string>
     <string name="option_open_with_text_all">适用于所有文件类型（安全兜底）。</string>
-    <string name="option_open_with_live_preview_text">实时预览尚未在你的媒体库中的文件，同时显示导入界面。</string>
+    <string name="option_open_with_action_title">打开尚未在你的媒体库中的文件时：</string>
+    <string name="option_open_with_action_play">直接播放</string>
+    <string name="option_open_with_action_import">显示导入界面</string>
+    <string name="option_open_with_action_both">播放并显示导入界面</string>
+    <string name="option_propose_whole_book_title">多文件书籍检测</string>
+    <string name="option_propose_whole_book_text">当单个音轨有同目录文件时，提示导入整本书</string>
+    <string name="option_propose_whole_book_subtitle">当你导入的单个文件（例如通过“打开方式”）与其他音频文件位于同一文件夹时显示 - 可让你一次性导入整本书，而不仅仅是这条音轨。</string>
     <string name="option_on_load_use_SD_card">使用 SD 卡</string>
     <string name="checking_availability">正在检查可用性…</string>
 

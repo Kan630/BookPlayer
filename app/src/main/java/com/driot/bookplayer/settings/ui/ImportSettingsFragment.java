@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -19,6 +20,7 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
@@ -51,8 +53,10 @@ public class ImportSettingsFragment extends LoggingFragment {
     private LinearLayout llOpenWithAll;
     private MaterialCheckBox chkOpenWithAll;
 
-    private LinearLayout llOpenWithLivePreview;
-    private MaterialCheckBox chkOpenWithLivePreview;
+    private RadioGroup rgOpenWithAction;
+
+    private LinearLayout llProposeWholeBook;
+    private MaterialCheckBox chkProposeWholeBook;
 
     @Nullable
     @Override
@@ -151,11 +155,30 @@ public class ImportSettingsFragment extends LoggingFragment {
             setOpenWithProxyEnabled_all(requireContext(), checked);
         });
 
-        chkOpenWithLivePreview = root.findViewById(R.id.chk_open_with_live_preview);
-        llOpenWithLivePreview = root.findViewById(R.id.ll_open_with_live_preview);
-        chkOpenWithLivePreview.setChecked(Option.getOpenWithLivePreview());
-        llOpenWithLivePreview.setOnClickListener(v -> chkOpenWithLivePreview.toggle());
-        chkOpenWithLivePreview.setOnCheckedChangeListener((button, checked) -> Option.setOpenWithLivePreview(checked));
+        rgOpenWithAction = root.findViewById(R.id.rg_open_with_action);
+        String currentAction = Option.getOpenWithAction();
+        if (Var.OPEN_WITH_ACTION_PLAY.equals(currentAction)) {
+            rgOpenWithAction.check(R.id.radio_open_with_play);
+        } else if (Var.OPEN_WITH_ACTION_IMPORT.equals(currentAction)) {
+            rgOpenWithAction.check(R.id.radio_open_with_import);
+        } else {
+            rgOpenWithAction.check(R.id.radio_open_with_both);
+        }
+        rgOpenWithAction.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radio_open_with_play) {
+                Option.setOpenWithAction(Var.OPEN_WITH_ACTION_PLAY);
+            } else if (checkedId == R.id.radio_open_with_import) {
+                Option.setOpenWithAction(Var.OPEN_WITH_ACTION_IMPORT);
+            } else {
+                Option.setOpenWithAction(Var.OPEN_WITH_ACTION_BOTH);
+            }
+        });
+
+        chkProposeWholeBook = root.findViewById(R.id.chk_propose_whole_book);
+        llProposeWholeBook = root.findViewById(R.id.ll_propose_whole_book);
+        chkProposeWholeBook.setChecked(Option.getProposeWholeBookImport());
+        llProposeWholeBook.setOnClickListener(v -> chkProposeWholeBook.toggle());
+        chkProposeWholeBook.setOnCheckedChangeListener((button, checked) -> Option.setProposeWholeBookImport(checked));
 
         // Optional: highlight header text red if you still want that behavior
         // TextView txtCopyFileHead = root.findViewById(R.id.txtCopyFileHead);

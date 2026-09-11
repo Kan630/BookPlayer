@@ -420,7 +420,13 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_open_with_subtitle"><i>Hace que Android proponga BookPlayer entre las opciones al usar [Compartir] o [Abrir con] después de pulsar (mantener pulsado) sobre un archivo desde el explorador de archivos o descargas</i></string>
     <string name="option_open_with_text">Para archivos zip y la mayoría de archivos de audio.</string>
     <string name="option_open_with_text_all">Para cualquier tipo de archivo (modo seguro).</string>
-    <string name="option_open_with_live_preview_text">Vista previa en vivo de archivos que aún no están en tu biblioteca, junto con la pantalla de importación.</string>
+    <string name="option_open_with_action_title">Al abrir un archivo que aún no está en tu biblioteca:</string>
+    <string name="option_open_with_action_play">Reproducirlo</string>
+    <string name="option_open_with_action_import">Mostrar la pantalla de importación</string>
+    <string name="option_open_with_action_both">Reproducirlo y mostrar la pantalla de importación</string>
+    <string name="option_propose_whole_book_title">Detección de libro de varios archivos</string>
+    <string name="option_propose_whole_book_text">Ofrecer importar el libro completo cuando una pista tiene archivos hermanos</string>
+    <string name="option_propose_whole_book_subtitle">Aparece al importar un solo archivo (por ejemplo, mediante \'Abrir con\') que está en una carpeta con otros archivos de audio - permite importar el libro completo en lugar de solo esa pista.</string>
     <string name="option_on_load_use_SD_card">Usar tarjeta SD</string>
     <string name="checking_availability">Comprobando disponibilidad…</string>
 

@@ -93,6 +93,12 @@ public class Var {
         public static final String PLAY_MODE_PODCAST = "podcast";
         public static final String PLAY_MODE_PREVIEW = "preview";
 
+        // What OpenWithHelper should do when "Open With" is invoked on a file that isn't yet
+        // registered as a ZikFile - see Option.getOpenWithAction()/setOpenWithAction().
+        public static final String OPEN_WITH_ACTION_PLAY = "play";
+        public static final String OPEN_WITH_ACTION_IMPORT = "import";
+        public static final String OPEN_WITH_ACTION_BOTH = "both";
+
         // Finer-grained categories for the Pref.addToTotalMsPlayed/getTotalMsPlayed stats totals
         // only (StatsActivity) - NOT real playback engine modes, PLAY_MODE_* above stays exactly
         // as-is for engine/UI purposes. Local (ZikFile-based) playback of a downloaded podcast

@@ -423,7 +423,13 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_open_with_subtitle"><i>Lässt Android BookPlayer unter den vorgeschlagenen Optionen anzeigen, wenn [Teilen] oder [Öffnen mit] aus dem Datei-Explorer oder den Downloads ausgewählt wird.</i></string>
     <string name="option_open_with_text">Für ZIP- und die meisten Audiodateien.</string>
     <string name="option_open_with_text_all">Für alle Dateitypen (sicherheitsorientiert).</string>
-    <string name="option_open_with_live_preview_text">Dateien, die noch nicht in deiner Bibliothek sind, live vorhören - zusätzlich zum Import-Bildschirm.</string>
+    <string name="option_open_with_action_title">Beim Öffnen einer Datei, die noch nicht in deiner Bibliothek ist:</string>
+    <string name="option_open_with_action_play">Abspielen</string>
+    <string name="option_open_with_action_import">Import-Bildschirm anzeigen</string>
+    <string name="option_open_with_action_both">Abspielen und Import-Bildschirm anzeigen</string>
+    <string name="option_propose_whole_book_title">Erkennung mehrteiliger Bücher</string>
+    <string name="option_propose_whole_book_text">Import des ganzen Buches anbieten, wenn eine einzelne Datei Geschwisterdateien hat</string>
+    <string name="option_propose_whole_book_subtitle">Wird angezeigt, wenn du eine einzelne Datei (z. B. über \'Öffnen mit\') importierst, die sich in einem Ordner mit weiteren Audiodateien befindet - damit kannst du gleich das ganze Buch statt nur diesen Titel importieren.</string>
     <string name="option_on_load_use_SD_card">SD-Karte verwenden</string>
     <string name="checking_availability">Verfügbarkeit wird geprüft…</string>
 

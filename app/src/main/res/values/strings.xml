@@ -479,7 +479,13 @@
     <string name="option_open_with_subtitle">Ensures BookPlayer appears in the \'Share\' or \'Open With\' menu when you select a suitable file in your file manager.</string>
     <string name="option_open_with_text">For zip and most audio files.</string>
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
-    <string name="option_open_with_live_preview_text">Live-preview files that aren\'t in your library yet, alongside the import screen.</string>
+    <string name="option_open_with_action_title">When you open a file that isn\'t in your library yet:</string>
+    <string name="option_open_with_action_play">Play it</string>
+    <string name="option_open_with_action_import">Show the import screen</string>
+    <string name="option_open_with_action_both">Play it and show the import screen</string>
+    <string name="option_propose_whole_book_title">Multi-file book detection</string>
+    <string name="option_propose_whole_book_text">Offer to import the whole book when a single track has siblings</string>
+    <string name="option_propose_whole_book_subtitle">Shown when you import one file (e.g. via \"Open With\") that sits in a folder with other audio files - lets you import the whole book at once instead of just that track.</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>
 
     <string name="checking_availability">Checking availability…</string>

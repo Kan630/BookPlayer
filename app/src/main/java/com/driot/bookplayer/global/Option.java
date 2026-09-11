@@ -52,7 +52,8 @@ public class Option {
     public static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
-    private static final boolean DEFAULT_OPEN_WITH_LIVE_PREVIEW = true;
+    private static final String DEFAULT_OPEN_WITH_ACTION = Var.OPEN_WITH_ACTION_BOTH;
+    private static final boolean DEFAULT_PROPOSE_WHOLE_BOOK_IMPORT = true;
     private static final boolean DEFAULT_SPLIT_M4B = true;
     private static final boolean DEFAULT_USE_SD_CARD = true;
     public static final NetworkHelper.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING;
@@ -764,12 +765,22 @@ public class Option {
         return prefs.getBoolean("OPEN_WITH_ALL", DEFAULT_OPEN_WITH_ALL);
     }
 
-    public static void setOpenWithLivePreview(boolean bool) {
-        prefs.edit().putBoolean("OPEN_WITH_LIVE_PREVIEW", bool).apply();
+    /** One of Var.OPEN_WITH_ACTION_PLAY / _IMPORT / _BOTH - what OpenWithHelper should do when
+     * "Open With" is invoked on a file that isn't yet registered as a ZikFile. */
+    public static void setOpenWithAction(String action) {
+        prefs.edit().putString("OPEN_WITH_ACTION", action).apply();
     }
 
-    public static boolean getOpenWithLivePreview() {
-        return prefs.getBoolean("OPEN_WITH_LIVE_PREVIEW", DEFAULT_OPEN_WITH_LIVE_PREVIEW);
+    public static String getOpenWithAction() {
+        return prefs.getString("OPEN_WITH_ACTION", DEFAULT_OPEN_WITH_ACTION);
+    }
+
+    public static void setProposeWholeBookImport(boolean bool) {
+        prefs.edit().putBoolean("PROPOSE_WHOLE_BOOK_IMPORT", bool).apply();
+    }
+
+    public static boolean getProposeWholeBookImport() {
+        return prefs.getBoolean("PROPOSE_WHOLE_BOOK_IMPORT", DEFAULT_PROPOSE_WHOLE_BOOK_IMPORT);
     }
 
     /////////////////// SPLIT M4B ///////////////////

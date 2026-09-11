@@ -32,7 +32,7 @@ public class MiniPlayUnregisteredFragment extends LoggingFragment {
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle, tvMiniTime;
     private Slider sbMiniSeek;
-    private ImageButton btnPlayPause, ibClose;
+    private ImageButton btnBackward, btnPlayPause, btnForward, ibClose;
 
     private UiHelper.SliderBinding sliderBinding;
     private PlaybackUiState lastState;
@@ -51,7 +51,9 @@ public class MiniPlayUnregisteredFragment extends LoggingFragment {
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
         sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
         tvMiniTime = v.findViewById(R.id.tvMiniTime);
+        btnBackward = v.findViewById(R.id.bMiniBackward);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        btnForward = v.findViewById(R.id.bMiniForward);
         ibClose = v.findViewById(R.id.ibClose);
 
         sbMiniSeek.setLabelFormatter(value -> Tonio.formatMmSs((long) value * 1000L));
@@ -86,10 +88,20 @@ public class MiniPlayUnregisteredFragment extends LoggingFragment {
             refreshUi();
         });
 
+        btnBackward.setOnClickListener(_v -> {
+            myLogI("---- user press BACKWARD button (preview) ----");
+            PlaybackCommands.resetLastUserAction(requireContext());
+            vm.prev();
+        });
         btnPlayPause.setOnClickListener(_v -> {
             myLogI("---- user press PlayPause button (preview) ----");
             PlaybackCommands.resetLastUserAction(requireContext());
             vm.playPause();
+        });
+        btnForward.setOnClickListener(_v -> {
+            myLogI("---- user press FORWARD button (preview) ----");
+            PlaybackCommands.resetLastUserAction(requireContext());
+            vm.next();
         });
         ibClose.setOnClickListener(_v -> {
             myLogI("---- user press CLOSE button (preview) ----");

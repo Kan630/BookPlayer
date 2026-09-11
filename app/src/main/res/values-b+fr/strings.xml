@@ -426,7 +426,13 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_open_with_subtitle"><i>Permet à Android de proposer BookPlayer parmi les options lorsqu\'on clique (ou clic long) sur un fichier depuis l\'explorateur ou les téléchargements</i></string>
     <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
     <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
-    <string name="option_open_with_live_preview_text">Prévisualiser en direct les fichiers qui ne sont pas encore dans votre bibliothèque, en plus de l\'écran d\'import.</string>
+    <string name="option_open_with_action_title">Lors de l\'ouverture d\'un fichier qui n\'est pas encore dans votre bibliothèque :</string>
+    <string name="option_open_with_action_play">Le lire</string>
+    <string name="option_open_with_action_import">Afficher l\'écran d\'import</string>
+    <string name="option_open_with_action_both">Le lire et afficher l\'écran d\'import</string>
+    <string name="option_propose_whole_book_title">Détection de livre multi-fichiers</string>
+    <string name="option_propose_whole_book_text">Proposer d\'importer le livre entier quand une piste a des fichiers voisins</string>
+    <string name="option_propose_whole_book_subtitle">Affiché lors de l\'import d\'un seul fichier (par ex. via \'Ouvrir avec\') situé dans un dossier contenant d\'autres fichiers audio - permet d\'importer le livre entier au lieu de cette seule piste.</string>
     <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
     <string name="checking_availability">Vérification de la disponibilité…</string>
 

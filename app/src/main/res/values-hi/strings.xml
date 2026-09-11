@@ -416,7 +416,13 @@
     <string name="option_open_with_subtitle"><i>फ़ोन फ़ाइल एक्सप्लोरर या डाउनलोड्स से किसी फ़ाइल पर (लंबा-क्लिक) क्लिक करने के बाद [Share] या [Open With] चुनने पर अन्य विकल्पों के साथ BookPlayer को दिखाता है</i></string>
     <string name="option_open_with_text">zip और अधिकतर ऑडियो फ़ाइलों के लिए।</string>
     <string name="option_open_with_text_all">किसी भी प्रकार की फ़ाइल के लिए (फ़ेल-सेफ़)।</string>
-    <string name="option_open_with_live_preview_text">उन फ़ाइलों को लाइव-पूर्वावलोकन करें जो अभी तक आपकी लाइब्रेरी में नहीं हैं, आयात स्क्रीन के साथ-साथ।</string>
+    <string name="option_open_with_action_title">जब आप कोई ऐसी फ़ाइल खोलते हैं जो अभी तक आपकी लाइब्रेरी में नहीं है:</string>
+    <string name="option_open_with_action_play">चलाएं</string>
+    <string name="option_open_with_action_import">आयात स्क्रीन दिखाएं</string>
+    <string name="option_open_with_action_both">चलाएं और आयात स्क्रीन दिखाएं</string>
+    <string name="option_propose_whole_book_title">मल्टी-फाइल पुस्तक पहचान</string>
+    <string name="option_propose_whole_book_text">जब किसी ट्रैक के आस-पास अन्य फ़ाइलें हों, तो पूरी पुस्तक आयात करने का सुझाव दें</string>
+    <string name="option_propose_whole_book_subtitle">जब आप एक फ़ाइल (जैसे "Open With" के ज़रिए) आयात करते हैं जो अन्य ऑडियो फ़ाइलों वाले फ़ोल्डर में है, तब दिखाया जाता है - इससे आप केवल उस ट्रैक के बजाय पूरी पुस्तक एक साथ आयात कर सकते हैं।</string>
     <string name="option_on_load_use_SD_card">SD कार्ड का उपयोग करें</string>
     <string name="checking_availability">उपलब्धता जांची जा रही है…</string>
 

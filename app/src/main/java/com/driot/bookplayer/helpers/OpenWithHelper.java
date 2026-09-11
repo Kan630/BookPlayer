@@ -9,6 +9,7 @@ import android.provider.OpenableColumns;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
@@ -58,10 +59,21 @@ public class OpenWithHelper {
                     StartPlayHelper.onZikFileClick(activity, finalFound, "OpenWithProxyActivity");
                     activity.finish();
                 } else {
-                    importLauncher.launchImport(uri, !persistPermission);
-                    if (Option.getOpenWithLivePreview()) {
+                    String action = Option.getOpenWithAction();
+                    boolean wantImport = !Var.OPEN_WITH_ACTION_PLAY.equals(action);
+                    boolean wantPlay = !Var.OPEN_WITH_ACTION_IMPORT.equals(action);
+
+                    if (wantPlay) {
                         String displayName = resolveDisplayName(activity, uri);
                         StartPlayHelper.playPreview(activity, uriString, displayName, "OpenWithProxyActivity");
+                    }
+                    if (wantImport) {
+                        importLauncher.launchImport(uri, !persistPermission);
+                    } else {
+                        // Play-only: nothing will start an activity-for-result to trigger
+                        // finish() later (see onActivityResult in the two proxy activities), so
+                        // close the invisible proxy ourselves once the preview has started.
+                        activity.finish();
                     }
                 }
             });

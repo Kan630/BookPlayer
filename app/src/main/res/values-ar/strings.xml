@@ -416,7 +416,13 @@
     <string name="option_open_with_subtitle"><i>يجعل Android يعرض BookPlayer من بين الخيارات عند اختيار [مشاركة] أو [فتح باستخدام] بعد النقر (نقرة طويلة) على ملف من مدير الملفات أو التنزيلات</i></string>
     <string name="option_open_with_text">لملفات zip ومعظم ملفات الصوت.</string>
     <string name="option_open_with_text_all">لأي نوع من الملفات (وضع آمن).</string>
-    <string name="option_open_with_live_preview_text">معاينة مباشرة للملفات التي لم تُضف إلى مكتبتك بعد، إلى جانب شاشة الاستيراد.</string>
+    <string name="option_open_with_action_title">عند فتح ملف لم يُضف إلى مكتبتك بعد:</string>
+    <string name="option_open_with_action_play">تشغيله</string>
+    <string name="option_open_with_action_import">عرض شاشة الاستيراد</string>
+    <string name="option_open_with_action_both">تشغيله وعرض شاشة الاستيراد</string>
+    <string name="option_propose_whole_book_title">اكتشاف الكتب متعددة الملفات</string>
+    <string name="option_propose_whole_book_text">اقتراح استيراد الكتاب بالكامل عندما يكون للمقطع ملفات مجاورة</string>
+    <string name="option_propose_whole_book_subtitle">يظهر عند استيراد ملف واحد (مثلاً عبر "فتح باستخدام") موجود في مجلد يحتوي على ملفات صوتية أخرى - يتيح لك استيراد الكتاب بالكامل بدلاً من هذا المقطع فقط.</string>
     <string name="option_on_load_use_SD_card">استخدم بطاقة SD</string>
     <string name="checking_availability">جارٍ التحقق من التوفر…</string>
 

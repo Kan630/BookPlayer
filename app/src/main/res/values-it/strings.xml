@@ -422,7 +422,13 @@
     <string name="option_open_with_subtitle"><i>Fa sì che Android proponga BookPlayer tra le opzioni quando selezioni [Condividi] o [Apri con] dopo aver cliccato (pressione prolungata) su un file dall\'esplora file del telefono o dai download</i></string>
     <string name="option_open_with_text">Per zip e la maggior parte dei file audio.</string>
     <string name="option_open_with_text_all">Per qualsiasi tipo di file (a prova di errore).</string>
-    <string name="option_open_with_live_preview_text">Anteprima dal vivo dei file non ancora nella tua libreria, insieme alla schermata di importazione.</string>
+    <string name="option_open_with_action_title">Quando apri un file che non è ancora nella tua libreria:</string>
+    <string name="option_open_with_action_play">Riprodurlo</string>
+    <string name="option_open_with_action_import">Mostrare la schermata di importazione</string>
+    <string name="option_open_with_action_both">Riprodurlo e mostrare la schermata di importazione</string>
+    <string name="option_propose_whole_book_title">Rilevamento libro multi-file</string>
+    <string name="option_propose_whole_book_text">Proponi di importare l\'intero libro quando una traccia ha file adiacenti</string>
+    <string name="option_propose_whole_book_subtitle">Viene mostrato quando importi un singolo file (ad es. tramite \'Apri con\') che si trova in una cartella con altri file audio - ti permette di importare l\'intero libro invece della sola traccia.</string>
     <string name="option_on_load_use_SD_card">Usa scheda SD</string>
     <string name="checking_availability">Verifica disponibilità…</string>
 

@@ -221,17 +221,65 @@
                     android:text="@string/option_open_with_text_all" />
             </LinearLayout>
 
+            <TextView
+                style="@style/OptionExplainText"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:text="@string/option_open_with_action_title" />
+
+            <RadioGroup
+                android:id="@+id/rg_open_with_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_open_with_play"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_open_with_action_play" />
+
+                <RadioButton
+                    android:id="@+id/radio_open_with_import"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_open_with_action_import" />
+
+                <RadioButton
+                    android:id="@+id/radio_open_with_both"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_open_with_action_both" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Multi-file book detection -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_propose_whole_book_title" />
+
             <LinearLayout
-                android:id="@+id/ll_open_with_live_preview"
+                android:id="@+id/ll_propose_whole_book"
                 style="@style/LayoutWrapContentMargin20horizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_open_with_live_preview"
+                    android:id="@+id/chk_propose_whole_book"
                     style="@style/OptionCheckBox" />
                 <TextView
-                    android:id="@+id/txt_open_with_live_preview"
+                    android:id="@+id/txt_propose_whole_book"
                     style="@style/OptionCheckBoxText"
-                    android:text="@string/option_open_with_live_preview_text" />
+                    android:text="@string/option_propose_whole_book_text" />
             </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_propose_whole_book_subtitle" />
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

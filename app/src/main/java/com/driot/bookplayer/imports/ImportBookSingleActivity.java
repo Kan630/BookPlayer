@@ -883,6 +883,7 @@ public class ImportBookSingleActivity extends FullActivity {
         String name = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(this, uri);
         String type = com.driot.bookplayer.helpers.SupportedFilesHelper.getType(name);
         boolean eligibleForCheck = folderToAddTo == null
+                && com.driot.bookplayer.global.Option.getProposeWholeBookImport()
                 && (com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type)
                         || com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type));
 
