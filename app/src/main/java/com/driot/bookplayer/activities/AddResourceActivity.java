@@ -229,6 +229,17 @@ public class AddResourceActivity extends FullActivity {
                             + "ms) to the just-imported track, instead of restarting from 0.");
                     target.setPosition(previewPositionMs);
                     db.zikFileDao().update(target);
+
+                    // The [0, previewPositionMs) stretch was genuinely listened to already, just
+                    // before this ZikFile row existed to attach a PlaySession to (preview mode is
+                    // DB-free - see StartPlayHelper.playPreview()). Backfill it now so the
+                    // heat-map/progress bar doesn't show that stretch as never-played. Only
+                    // happens here, i.e. only once the track has actually been imported - a plain
+                    // preview that's never imported has no ZikFile row to attach a session to and
+                    // never reaches this method at all.
+                    long now = System.currentTimeMillis();
+                    com.driot.bookplayer.player.heatmaps.PlaySessionHelper.registerSession(
+                            this, target.getId(), now - previewPositionMs, 0, now, previewPositionMs);
                 }
 
                 com.driot.bookplayer.db.ZikFile finalTarget = target;

@@ -2,12 +2,15 @@ package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 
+import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.StartPlayHelper;
@@ -95,6 +98,14 @@ public class OpenWithHelper {
                     myLogI("OpenWith: [" + uriString + "] already registered (zikFileId=" + finalFound.getId()
                             + ") - resuming its book instead of importing");
                     StartPlayHelper.onZikFileClick(activity, finalFound, "OpenWithProxyActivity");
+                    // onZikFileClick() only opens PlayActivity in some cases (see its own
+                    // sameTrack/Option.getOpenPlayActivity() logic) - here there is no other app
+                    // UI in this task (launched externally via "Open with"), so without this the
+                    // app would otherwise just start playback silently behind whatever app the
+                    // user was already in, with only the notification to show for it.
+                    activity.startActivity(new Intent(activity, ZikFileActivity.class)
+                            .putExtra(Intents.EXTRA_FOLDER_ID, finalFound.getIdFolder())
+                            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
                     activity.finish();
                 } else {
                     String action = Option.getOpenWithAction();
