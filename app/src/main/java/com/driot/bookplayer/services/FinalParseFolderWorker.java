@@ -803,6 +803,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         file.setIszipfile(false);
         file.setFinished(false);
         file.setDuration(info.getDuration());
+        file.setSize(info.getSize());
         file.date_added = System.currentTimeMillis();
         file.metadataJson = MetaJson.toJson(info.getMeta());
 

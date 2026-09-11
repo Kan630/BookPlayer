@@ -120,6 +120,8 @@
     <string name="action_choose_from_candidates">🖼️ Scegli tra le immagini trovate (%1$d)</string>
     <string name="cover_candidates_dialog_title">Scegli una copertina</string>
     <string name="import_options_title">Opzioni</string>
+    <string name="import_source_title">Origine</string>
+    <string name="import_destination_title">Destinazione</string>
     <string name="import_tracks_found_existing_and_new">%1$d tracce totali (%2$d nuove)</string>
     <string name="Logging">Registrazione</string>
     <string name="manual">manuale</string>

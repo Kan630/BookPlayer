@@ -53,6 +53,13 @@ public interface CommonZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE path = :path LIMIT 1")
     ZikFile getByPath(String path);
 
+    // Last-resort match for OpenWithHelper: some vendor file managers hand out a content:// Uri
+    // whose real filesystem path can't be resolved (no _data column, not a DocumentsContract
+    // Uri) - name+size is the one thing every well-behaved content provider still exposes via
+    // OpenableColumns, so it's the only thing left to match a re-opened sibling file against.
+    @Query("SELECT * FROM ZikFile WHERE name = :name AND size = :size LIMIT 1")
+    ZikFile getByNameAndSize(String name, double size);
+
     @Query("""
             SELECT * FROM ZikFile
             WHERE idFolder = :folderId

@@ -120,6 +120,8 @@
     <string name="action_choose_from_candidates">🖼️ الاختيار من الصور الموجودة (%1$d)</string>
     <string name="cover_candidates_dialog_title">اختر غلافًا</string>
     <string name="import_options_title">خيارات</string>
+    <string name="import_source_title">المصدر</string>
+    <string name="import_destination_title">الوجهة</string>
     <string name="import_tracks_found_existing_and_new">إجمالي %1$d مسارات (%2$d جديدة)</string>
     <string name="Logging">تسجيل الأخطاء</string>
     <string name="manual">دليل</string>

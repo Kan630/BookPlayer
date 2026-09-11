@@ -155,6 +155,8 @@
     <string name="action_choose_from_candidates">🖼️ Choose from found images (%1$d)</string>
     <string name="cover_candidates_dialog_title">Choose a cover</string>
     <string name="import_options_title">Options</string>
+    <string name="import_source_title">Source</string>
+    <string name="import_destination_title">Destination</string>
     <string name="import_tracks_found_existing_and_new">%1$d tracks total (%2$d new)</string>
     <string name="Logging">Logging</string>
     <string name="manual">manual</string>

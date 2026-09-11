@@ -120,6 +120,8 @@
     <string name="action_choose_from_candidates">🖼️ Elegir entre las imágenes encontradas (%1$d)</string>
     <string name="cover_candidates_dialog_title">Elegir una portada</string>
     <string name="import_options_title">Opciones</string>
+    <string name="import_source_title">Origen</string>
+    <string name="import_destination_title">Destino</string>
     <string name="import_tracks_found_existing_and_new">%1$d pistas en total (%2$d nuevas)</string>
     <string name="Logging">Registro</string>
     <string name="manual">manual</string>

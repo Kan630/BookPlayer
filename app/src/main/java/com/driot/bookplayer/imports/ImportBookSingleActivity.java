@@ -1232,6 +1232,15 @@ public class ImportBookSingleActivity extends FullActivity {
                 folderIntent.putExtra(EXTRA_TARGET_PLAYBACK_FILENAME, openedFileName);
                 folderIntent.putExtra(EXTRA_NO_RESULT_CALLER, true);
                 startActivity(folderIntent);
+                // This re-launches the very same screen (single-file candidate -> folder
+                // candidate), so the default slide/fade window animation reads as a visible
+                // "double load" - suppress it so the handoff feels like one continuous screen.
+                if (Build.VERSION.SDK_INT >= 34) {
+                    overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0);
+                } else {
+                    //noinspection deprecation - no pre-34 equivalent of overrideActivityTransition()
+                    overridePendingTransition(0, 0);
+                }
                 finish();
             } else {
                 proceedAsSingleFileImport();

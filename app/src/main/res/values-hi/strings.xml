@@ -119,6 +119,8 @@
     <string name="action_choose_from_candidates">🖼️ मिली हुई छवियों में से चुनें (%1$d)</string>
     <string name="cover_candidates_dialog_title">कवर चुनें</string>
     <string name="import_options_title">विकल्प</string>
+    <string name="import_source_title">स्रोत</string>
+    <string name="import_destination_title">गंतव्य</string>
     <string name="import_tracks_found_existing_and_new">कुल %1$d ट्रैक (%2$d नए)</string>
     <string name="Logging">लॉगिंग</string>
     <string name="manual">मैनुअल</string>

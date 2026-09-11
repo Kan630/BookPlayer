@@ -52,45 +52,64 @@
             android:layout_marginBottom="12dp"
             />
 
-        <TextView
-            android:id="@+id/tvSourceFileName"
-            style="@style/simpleText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="..."
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:ellipsize="middle"
-            android:maxLines="2"
-            android:layout_marginBottom="4dp"
-            />
-
+        <!-- Source group -->
         <LinearLayout
+            android:id="@+id/llSourceContainer"
             style="@style/wideLinearLayout_Vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/bg_chip"
-            >
-                <TextView
-                    android:id="@+id/tvInfoLine1"
-                    style="@style/OptionAfterPickedInfo"
-                    android:textStyle="normal"
-                    android:text="[sourceLocation]"
-                    android:layout_marginTop="4dp"
-                    />
-                <TextView
-                    android:id="@+id/tvMimeExtension"
-                    style="@style/OptionAfterPickedInfo"
-                    android:textStyle="normal"
-                    android:text="[mime] - .toto"
-                    android:layout_marginBottom="4dp"
-                    />
+            android:padding="8dp">
+
+            <TextView
+                android:text="@string/import_source_title"
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvSourceFileName"
+                style="@style/simpleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="..."
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:ellipsize="middle"
+                android:maxLines="2"
+                />
+
+            <TextView
+                android:id="@+id/tvInfoLine1"
+                style="@style/OptionAfterPickedInfo"
+                android:textStyle="normal"
+                android:text="[sourceLocation]"
+                android:layout_marginTop="4dp"
+                />
+            <TextView
+                android:id="@+id/tvMimeExtension"
+                style="@style/OptionAfterPickedInfo"
+                android:textStyle="normal"
+                android:text="[mime] - .toto"
+                />
         </LinearLayout>
 
+        <!-- Destination group -->
         <LinearLayout
             android:id="@+id/llAppendAndDest"
-            style="@style/wideLinearLayout_Vertical">
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_chip"
+            android:padding="8dp">
+
+            <TextView
+                android:text="@string/import_destination_title"
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="4dp"/>
 
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/groupNewVsExisting"

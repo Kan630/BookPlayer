@@ -142,9 +142,12 @@ public class StartPlayHelper {
                 stopTtsIfPlaying(context, lastUiState);
             }
 
-            // is same track clicked ?
+            // is same track clicked ? (a stream playlist - radio/podcast/preview - has no
+            // ZikFile backing, so skip the lookup there: it would just log a spurious "out of
+            // bounds" error and return null anyway, e.g. when handing off from a live preview -
+            // see AddResourceActivity.schedulePlaybackJump())
             PlayList pl = PlayList.getInstance();
-            boolean sameTrack = (pl != null && pl.getZikFile() != null
+            boolean sameTrack = (pl != null && !pl.isStream() && pl.getZikFile() != null
                     && pl.getZikFile().getId() == clickedZikFile.getId()); // keep getId() => needed !
 
             myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS="

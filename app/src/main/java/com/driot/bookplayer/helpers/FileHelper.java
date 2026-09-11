@@ -45,7 +45,11 @@ public class FileHelper {
         return path;
     }
 
-    private static String processUri(Context context, Uri uri) {
+    /** Like getRealPathFromURI(), but without its "copy to cache" fallback when resolution
+     * fails - safe to call speculatively (e.g. just to check whether a Uri already matches a
+     * known file) without the side effect of copying the file. Returns null/empty if the real
+     * path couldn't be resolved. */
+    public static String processUri(Context context, Uri uri) {
         @SuppressLint("ObsoleteSdkInt")
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT; // unecessary but keeping for
                                                                                       // later reuse....
