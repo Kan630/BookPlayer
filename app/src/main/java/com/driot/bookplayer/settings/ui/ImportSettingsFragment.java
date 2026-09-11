@@ -51,6 +51,9 @@ public class ImportSettingsFragment extends LoggingFragment {
     private LinearLayout llOpenWithAll;
     private MaterialCheckBox chkOpenWithAll;
 
+    private LinearLayout llOpenWithLivePreview;
+    private MaterialCheckBox chkOpenWithLivePreview;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -147,6 +150,12 @@ public class ImportSettingsFragment extends LoggingFragment {
             Option.setOpenWith_all(checked);
             setOpenWithProxyEnabled_all(requireContext(), checked);
         });
+
+        chkOpenWithLivePreview = root.findViewById(R.id.chk_open_with_live_preview);
+        llOpenWithLivePreview = root.findViewById(R.id.ll_open_with_live_preview);
+        chkOpenWithLivePreview.setChecked(Option.getOpenWithLivePreview());
+        llOpenWithLivePreview.setOnClickListener(v -> chkOpenWithLivePreview.toggle());
+        chkOpenWithLivePreview.setOnCheckedChangeListener((button, checked) -> Option.setOpenWithLivePreview(checked));
 
         // Optional: highlight header text red if you still want that behavior
         // TextView txtCopyFileHead = root.findViewById(R.id.txtCopyFileHead);

@@ -332,7 +332,8 @@ public final class PlayList {
 
     public boolean isStream() {
         synchronized (lock) {
-            return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode));
+            return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)
+                    || Var.PLAY_MODE_PREVIEW.equals(playMode));
         }
     }
 

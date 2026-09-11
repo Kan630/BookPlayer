@@ -50,6 +50,9 @@ public interface CommonZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE id = :id")
     ZikFile getById(long id);
 
+    @Query("SELECT * FROM ZikFile WHERE path = :path LIMIT 1")
+    ZikFile getByPath(String path);
+
     @Query("""
             SELECT * FROM ZikFile
             WHERE idFolder = :folderId

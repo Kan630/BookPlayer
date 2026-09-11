@@ -67,6 +67,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                     boolean ok =
                             ("radio".equals(newPlayType)   && current instanceof MiniPlayRadioFragment) ||
                                     ("podcast".equals(newPlayType) && current instanceof MiniPlayPodcastFragment) ||
+                                    ("preview".equals(newPlayType) && current instanceof MiniPlayUnregisteredFragment) ||
                                     (("book".equals(newPlayType) || "tts".equals(newPlayType))
                                             && current instanceof MiniPlayBookFragment);
 
@@ -100,6 +101,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
+        } else if ("preview".equals(playType)) {
+            child = new MiniPlayUnregisteredFragment();
         } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
@@ -126,6 +129,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
+        } else if ("preview".equals(playType)) {
+            child = new MiniPlayUnregisteredFragment();
         } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {

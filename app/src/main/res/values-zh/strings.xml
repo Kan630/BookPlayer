@@ -421,6 +421,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_open_with_subtitle"><i>长按文件或从下载中点击 [分享] 或 [用其他应用打开] 时，Android 将建议使用 BookPlayer</i></string>
     <string name="option_open_with_text">适用于 ZIP 及大多数音频文件。</string>
     <string name="option_open_with_text_all">适用于所有文件类型（安全兜底）。</string>
+    <string name="option_open_with_live_preview_text">实时预览尚未在你的媒体库中的文件，同时显示导入界面。</string>
     <string name="option_on_load_use_SD_card">使用 SD 卡</string>
     <string name="checking_availability">正在检查可用性…</string>
 
@@ -894,6 +895,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="tts_phase_starting">正在开始语音…</string>
     <string name="tts_phase_error">语音引擎错误</string>
     <string name="error_generic">发生意外错误</string>
+    <string name="share_station_not_ready">电台信息仍在加载 - 请稍后再试分享</string>
     <string name="tts_error_warmup_timeout">语音预热超时</string>
     <string name="tts_error_voice_set_failed">应用语音失败</string>
     <string name="tts_error_synth_failed">预热合成失败</string>
@@ -968,6 +970,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="please_wait_another_book">请稍等 — 另一本书仍在下载或加载中</string>
     <string name="Podcast_source_error">播客源错误</string>
     <string name="Streaming_Podcast">流媒体播客</string>
+    <string name="preview_badge">预览</string>
+    <string name="preview_not_in_library">尚未加入你的媒体库</string>
     <string name="librivox_search_edittext_title">按作者或标题搜索...\n提示：单个词通常能获得更好的结果</string>
     <string name="podcast_search_edittext_title">搜索...（所有语言）\n提示：单个词通常能获得更好的结果</string>
     <string name="import_settings">导入设置</string>

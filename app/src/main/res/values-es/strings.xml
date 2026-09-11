@@ -420,6 +420,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_open_with_subtitle"><i>Hace que Android proponga BookPlayer entre las opciones al usar [Compartir] o [Abrir con] después de pulsar (mantener pulsado) sobre un archivo desde el explorador de archivos o descargas</i></string>
     <string name="option_open_with_text">Para archivos zip y la mayoría de archivos de audio.</string>
     <string name="option_open_with_text_all">Para cualquier tipo de archivo (modo seguro).</string>
+    <string name="option_open_with_live_preview_text">Vista previa en vivo de archivos que aún no están en tu biblioteca, junto con la pantalla de importación.</string>
     <string name="option_on_load_use_SD_card">Usar tarjeta SD</string>
     <string name="checking_availability">Comprobando disponibilidad…</string>
 
@@ -894,6 +895,7 @@ BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</fo
     <string name="tts_phase_starting">Iniciando el habla…</string>
     <string name="tts_phase_error">Error del motor de voz</string>
     <string name="error_generic">Ocurrió un error inesperado</string>
+    <string name="share_station_not_ready">Los detalles de la emisora aún se están cargando - inténtalo de nuevo en un momento</string>
     <string name="tts_error_warmup_timeout">Tiempo de preparación de la voz agotado</string>
     <string name="tts_error_voice_set_failed">No se pudo aplicar la voz</string>
     <string name="tts_error_synth_failed">Error en la síntesis de preparación</string>
@@ -968,6 +970,8 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="please_wait_another_book">Espere, por favor - se está cargando otro libro…</string>
     <string name="Podcast_source_error">Error de fuente del podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
+    <string name="preview_badge">Vista previa</string>
+    <string name="preview_not_in_library">Aún no está en tu biblioteca</string>
     <string name="librivox_search_edittext_title">Buscar por autor o título...\nConsejo: una sola palabra suele dar mejores resultados</string>
     <string name="podcast_search_edittext_title">Buscar... (todos los idiomas)\nConsejo: una sola palabra suele dar mejores resultados</string>
     <string name="import_settings">Configuración de importación</string>

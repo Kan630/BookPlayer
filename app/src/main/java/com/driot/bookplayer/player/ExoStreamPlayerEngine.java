@@ -11,11 +11,14 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.HashMap;
@@ -65,7 +68,16 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
         //headers.put("Icy-MetaData", "1"); // enable if you want ICY metadata
         http.setDefaultRequestProperties(headers);
 
-        MediaSource.Factory mediaSourceFactory = new ProgressiveMediaSource.Factory(http);
+        // This engine is also reused for "preview" (a local file:// / content:// Uri opened via
+        // "Open With", played with no ZikFile/DB row - see StartPlayHelper.playPreview()). A bare
+        // DefaultHttpDataSource.Factory only understands http(s):// and throws a ClassCastException
+        // trying to cast a FileURLConnection to HttpURLConnection for any other scheme. Wrap it in
+        // DefaultDataSource.Factory, which dispatches by scheme (file/content/asset/raw -> the
+        // matching local DataSource, everything else -> the http factory below) - podcast/radio
+        // behavior for http(s) URLs is unchanged.
+        DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(appCtx, http);
+
+        MediaSource.Factory mediaSourceFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
 
         player = new ExoPlayer.Builder(appCtx)
                 .setMediaSourceFactory(mediaSourceFactory)
@@ -142,10 +154,17 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
         prepared = false;
         preparing = false;
 
-        // Hint MP3 progressive; fits most Icecast/Shoutcast mounts
+        // Podcast/radio streams are almost always plain MP3 with no reliable content-type of
+        // their own, so keep hinting MP3 progressive for those (fits most Icecast/Shoutcast
+        // mounts). But for a local/content file (e.g. a live-preview of a file opened via "Open
+        // With") that hint is often wrong - it can be AAC/M4A/FLAC/OGG/WAV/etc - so resolve the
+        // real mime type first and only fall back to the MP3 hint if that fails.
+        String resolvedMime = SupportedFilesHelper.getMimeType(ctx, uri);
+        String mimeType = (resolvedMime != null) ? resolvedMime : MimeTypes.AUDIO_MPEG;
+
         currentItem = new MediaItem.Builder()
                 .setUri(uri)
-                .setMimeType(MimeTypes.AUDIO_MPEG)
+                .setMimeType(mimeType)
                 .setMediaId("stream:" + uri)
                 .build();
     }

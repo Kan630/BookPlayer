@@ -67,8 +67,10 @@ public class NavHelper {
         tsb.addNextIntent(new Intent(context, MainActivity.class));
 
         // 2) If multiple tracks, insert the track list screen before PlayActivity
+        // (radio/podcast/preview are stream playlists with no ZikFile backing - skip the lookup,
+        // it would just log a spurious "out of bounds" error and return null anyway)
         PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl != null) ? pl.getZikFile() : null;
+        ZikFile z = (pl != null && !pl.isStream()) ? pl.getZikFile() : null;
         long folderId = (z != null) ? z.getIdFolder() : -1;
         if (folderId > 0 && pl.getSize() > 1) {
             Intent trackList = new Intent(context, ZikFileActivity.class)

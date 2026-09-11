@@ -273,6 +273,21 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     trackId,
                     /* folderId */ 0,
                     "MediaService.broadcastUiState() - podcast " + fromWhere, -10, extras);
+        } else if (Var.PLAY_MODE_PREVIEW.equals(playMode)) {
+            PlayList pl = PlayList.getInstance();
+            String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : "";
+            String text = getString(R.string.preview_not_in_library);
+            long trackId = (pl != null) ? pl.getTrackId() : 0;
+            long pos = (engine != null) ? engine.getCurrentPosition() : 0;
+            long dur = (engine != null) ? engine.getDuration() : 0;
+
+            s = new PlaybackUiState(
+                    loadPhase, playing, ready, playMode,
+                    pos, dur, getSleepLeftMs(),
+                    title, text, /* cover */ "",
+                    trackId,
+                    /* folderId */ 0,
+                    "MediaService.broadcastUiState() - preview " + fromWhere, -10, extras);
         } else {
 
             long pos = (engine != null) ? engine.getCurrentPosition() : 0;
@@ -672,8 +687,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // 1) Limit session capabilities
             updateSessionState(playing);
 
-            boolean isPodcastStream = Var.PLAY_MODE_PODCAST.equals(getPlayMode());
-            String modeLabel = isPodcastStream ? getString(R.string.podcasts) : getString(R.string.live_radio);
+            String streamPlayMode = getPlayMode();
+            boolean isPodcastStream = Var.PLAY_MODE_PODCAST.equals(streamPlayMode);
+            boolean isPreviewStream = Var.PLAY_MODE_PREVIEW.equals(streamPlayMode);
+            String modeLabel;
+            if (isPodcastStream) {
+                modeLabel = getString(R.string.podcasts);
+            } else if (isPreviewStream) {
+                modeLabel = getString(R.string.preview_badge);
+            } else {
+                modeLabel = getString(R.string.live_radio);
+            }
 
             PlayList pl = PlayList.getInstance();
             long trackId = (pl != null && pl.getTrackId() > 0) ? pl.getTrackId() : -1;
@@ -715,7 +739,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 @NonNull
                 @Override
                 public PendingIntent content() {
-                    return isPodcastStream
+                    // Preview has no station/episode detail screen of its own - route it to the
+                    // same generic "now playing" navigator as podcast.
+                    return (isPodcastStream || isPreviewStream)
                             ? NavHelper.mediaServiceClickNavigateToActivity(MediaService.this)
                             : NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
                 }
@@ -1029,7 +1055,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 .putExtra(ERR_MSG, errMsg);
 
         PlayList pl = PlayList.getInstance();
-        if (pl != null) {
+        if (pl != null && !pl.isStream()) {
             ZikFile zf = pl.getZikFile();
             if (zf != null) {
                 i.putExtra(TRACK_PATH, zf.getPath());
@@ -2216,6 +2242,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } else if (engine instanceof ExoRadioPlayerEngine) {
             return Var.PLAY_MODE_RADIO;
         } else if (engine instanceof ExoStreamPlayerEngine) {
+            // Preview (an unregistered "Open With" file) shares this same generic Exo engine
+            // with podcast - the engine's class alone can't tell them apart, so fall back to
+            // PlayList's own explicit playMode (set by PlayList.createFromStream()) to
+            // disambiguate. Defaults to podcast (the pre-existing behavior) if PlayList doesn't
+            // say otherwise.
+            PlayList pl = PlayList.getInstance();
+            if (pl != null && Var.PLAY_MODE_PREVIEW.equals(pl.getPlayMode())) {
+                return Var.PLAY_MODE_PREVIEW;
+            }
             return Var.PLAY_MODE_PODCAST;
         } else if (engine instanceof MediaPlayerEngine) {
             return Var.PLAY_MODE_BOOK;
@@ -2415,6 +2450,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             playModeString = getString(R.string.radio);
             fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen, radioRecorder);
             main.post(radioMiniTickRunnable);
+        } else if (Var.PLAY_MODE_PREVIEW.equals(playMode)) {
+            // Same generic Exo engine as podcast - unlike podcast MP3 streams though, an
+            // arbitrary local/content file can be any audio format, so its setDataSource() must
+            // NOT force audio/mpeg (see ExoStreamPlayerEngine.setDataSource()).
+            fresh = new ExoStreamPlayerEngine(getApplicationContext(), engineCb, gen);
+            playModeString = getString(R.string.preview_badge);
         } else {
             myToastEE(null, "unknown playMode " + playMode);
             return;

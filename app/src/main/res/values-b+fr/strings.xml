@@ -426,6 +426,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_open_with_subtitle"><i>Permet à Android de proposer BookPlayer parmi les options lorsqu\'on clique (ou clic long) sur un fichier depuis l\'explorateur ou les téléchargements</i></string>
     <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
     <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
+    <string name="option_open_with_live_preview_text">Prévisualiser en direct les fichiers qui ne sont pas encore dans votre bibliothèque, en plus de l\'écran d\'import.</string>
     <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
     <string name="checking_availability">Vérification de la disponibilité…</string>
 
@@ -933,6 +934,7 @@ BookPlayer utilisera les <font color="#81C784">voix intégrées de l\'appareil</
     <string name="tts_phase_starting">Démarrage de la lecture…</string>
     <string name="tts_phase_error">Erreur du moteur de synthèse</string>
     <string name="error_generic">Une erreur inattendue est survenue</string>
+    <string name="share_station_not_ready">Les détails de la station sont encore en cours de chargement - réessayez de partager dans un instant</string>
     <string name="tts_error_warmup_timeout">Le préchauffage de la voix a expiré</string>
     <string name="tts_error_voice_set_failed">Échec de l\'application de la voix</string>
     <string name="tts_error_synth_failed">Échec de la synthèse de préchauffage</string>
@@ -1007,6 +1009,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\n\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres > Utilitaires > Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
+    <string name="preview_badge">Aperçu</string>
+    <string name="preview_not_in_library">Pas encore dans votre bibliothèque</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre…\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="podcast_search_edittext_title">Recherche… (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="import_settings">Paramètres d\'importation</string>

@@ -300,7 +300,13 @@ public class RadioHelper {
 		AppDatabase.databaseReadExecutor.execute(() -> {
 			RadioStation rs = AppDatabase.getInstance(appCtx).radioStationDao().findByUuid(uuid);
 			if (rs == null) {
+				// Can genuinely happen right after opening a station that was never favorited/
+				// played before: its DB row is only created once the async API fetch+upsert
+				// (kicked off on screen open) completes, so a share tapped in that short window
+				// used to find nothing and do nothing - no share sheet, no error, no feedback at
+				// all. Tell the user instead of silently failing.
 				myLogE("ShareHelper.shareRadioStation: station not found in DB");
+				myToastE(appCtx.getString(R.string.share_station_not_ready));
 				return;
 			}
 

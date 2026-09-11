@@ -692,6 +692,14 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
+    // Live-preview a raw file/content Uri opened via "Open With" that isn't (yet) a registered
+    // ZikFile - reuses the same DB-free stream mechanism as radio/podcast (PlayList.createFromStream
+    // + MediaService.ACTION_PLAY_STREAM), just with PLAY_MODE_PREVIEW so MiniPlayHostFragment shows
+    // MiniPlayUnregisteredFragment instead of the radio/podcast/book mini-players.
+    public static void playPreview(Context context, String uriString, String displayName, String caller) {
+        playStream(context, Var.PLAY_MODE_PREVIEW, uriString, 0, displayName, null, caller);
+    }
+
     public static void playUndefinedStream(Context context, String url) {
         AppDatabase.databaseReadExecutor.execute(() -> {
             boolean playStreamIfKnownRadio = RadioHelper.playStreamIfKnownRadio(context, url);

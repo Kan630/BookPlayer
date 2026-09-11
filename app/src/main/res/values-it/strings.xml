@@ -422,6 +422,7 @@
     <string name="option_open_with_subtitle"><i>Fa sì che Android proponga BookPlayer tra le opzioni quando selezioni [Condividi] o [Apri con] dopo aver cliccato (pressione prolungata) su un file dall\'esplora file del telefono o dai download</i></string>
     <string name="option_open_with_text">Per zip e la maggior parte dei file audio.</string>
     <string name="option_open_with_text_all">Per qualsiasi tipo di file (a prova di errore).</string>
+    <string name="option_open_with_live_preview_text">Anteprima dal vivo dei file non ancora nella tua libreria, insieme alla schermata di importazione.</string>
     <string name="option_on_load_use_SD_card">Usa scheda SD</string>
     <string name="checking_availability">Verifica disponibilità…</string>
 
@@ -896,6 +897,7 @@
     <string name="tts_phase_starting">Avvio del parlato…</string>
     <string name="tts_phase_error">Errore del motore vocale</string>
     <string name="error_generic">Si è verificato un errore imprevisto</string>
+    <string name="share_station_not_ready">I dettagli della stazione sono ancora in caricamento - riprova a condividere tra un momento</string>
     <string name="tts_error_warmup_timeout">Tempo di riscaldamento della voce scaduto</string>
     <string name="tts_error_voice_set_failed">Applicazione della voce non riuscita</string>
     <string name="tts_error_synth_failed">Sintesi di riscaldamento non riuscita</string>
@@ -970,6 +972,8 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="please_wait_another_book">Attendere, un altro libro è in fase di caricamento…</string>
     <string name="Podcast_source_error">Errore sorgente podcast</string>
     <string name="Streaming_Podcast">Podcast in streaming</string>
+    <string name="preview_badge">Anteprima</string>
+    <string name="preview_not_in_library">Non ancora nella tua libreria</string>
     <string name="librivox_search_edittext_title">Cerca per autore o titolo…\nSuggerimento: una sola parola spesso dà risultati migliori</string>
     <string name="podcast_search_edittext_title">Cerca… (tutte le lingue)\nSuggerimento: una sola parola spesso dà risultati migliori</string>
     <string name="import_settings">Impostazioni di importazione</string>

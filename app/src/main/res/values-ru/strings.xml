@@ -420,6 +420,7 @@
     <string name="option_open_with_subtitle"><i>Позволяет Android предлагать BookPlayer в списке при выборе [Поделиться] или [Открыть с помощью] после нажатия (долгого нажатия) на файл в проводнике или загрузках</i></string>
     <string name="option_open_with_text">Для zip и большинства аудиофайлов.</string>
     <string name="option_open_with_text_all">Для любых типов файлов (на всякий случай).</string>
+    <string name="option_open_with_live_preview_text">Живой предпросмотр файлов, которых ещё нет в вашей библиотеке, рядом с экраном импорта.</string>
     <string name="option_on_load_use_SD_card">Использовать SD-карту</string>
     <string name="checking_availability">Проверка доступности…</string>
 
@@ -894,6 +895,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="tts_phase_starting">Запуск речи…</string>
     <string name="tts_phase_error">Ошибка речевого движка</string>
     <string name="error_generic">Произошла непредвиденная ошибка</string>
+    <string name="share_station_not_ready">Данные станции ещё загружаются - повторите попытку через момент</string>
     <string name="tts_error_warmup_timeout">Время подготовки голоса истекло</string>
     <string name="tts_error_voice_set_failed">Не удалось применить голос</string>
     <string name="tts_error_synth_failed">Ошибка синтеза при подготовке</string>
@@ -968,6 +970,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="please_wait_another_book">Пожалуйста, подождите — загружается другая книга…</string>
     <string name="Podcast_source_error">Ошибка источника подкаста</string>
     <string name="Streaming_Podcast">Потоковый подкаст</string>
+    <string name="preview_badge">Предпросмотр</string>
+    <string name="preview_not_in_library">Ещё не в вашей библиотеке</string>
     <string name="librivox_search_edittext_title">Поиск по автору или названию...\nСовет: одно слово часто даёт лучшие результаты</string>
     <string name="podcast_search_edittext_title">Поиск... (все языки)\nСовет: одно слово часто даёт лучшие результаты</string>
     <string name="import_settings">Настройки импорта</string>

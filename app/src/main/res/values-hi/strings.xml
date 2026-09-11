@@ -416,6 +416,7 @@
     <string name="option_open_with_subtitle"><i>फ़ोन फ़ाइल एक्सप्लोरर या डाउनलोड्स से किसी फ़ाइल पर (लंबा-क्लिक) क्लिक करने के बाद [Share] या [Open With] चुनने पर अन्य विकल्पों के साथ BookPlayer को दिखाता है</i></string>
     <string name="option_open_with_text">zip और अधिकतर ऑडियो फ़ाइलों के लिए।</string>
     <string name="option_open_with_text_all">किसी भी प्रकार की फ़ाइल के लिए (फ़ेल-सेफ़)।</string>
+    <string name="option_open_with_live_preview_text">उन फ़ाइलों को लाइव-पूर्वावलोकन करें जो अभी तक आपकी लाइब्रेरी में नहीं हैं, आयात स्क्रीन के साथ-साथ।</string>
     <string name="option_on_load_use_SD_card">SD कार्ड का उपयोग करें</string>
     <string name="checking_availability">उपलब्धता जांची जा रही है…</string>
 
@@ -892,6 +893,7 @@
     <string name="tts_phase_starting">वाचन शुरू किया जा रहा है…</string>
     <string name="tts_phase_error">स्पीच इंजन त्रुटि</string>
     <string name="error_generic">एक अप्रत्याशित त्रुटि हुई</string>
+    <string name="share_station_not_ready">स्टेशन का विवरण अभी भी लोड हो रहा है - कृपया थोड़ी देर में फिर से साझा करने का प्रयास करें</string>
     <string name="tts_error_warmup_timeout">आवाज़ वार्म-अप का समय समाप्त</string>
     <string name="tts_error_voice_set_failed">आवाज़ लागू करने में विफल</string>
     <string name="tts_error_synth_failed">वार्म-अप सिंथेसिस विफल</string>
@@ -966,6 +968,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="please_wait_another_book">कृपया प्रतीक्षा करें - एक और पुस्तक लोड हो रही है…</string>
     <string name="Podcast_source_error">पॉडकास्ट स्रोत त्रुटि</string>
     <string name="Streaming_Podcast">स्ट्रीमिंग पॉडकास्ट</string>
+    <string name="preview_badge">पूर्वावलोकन</string>
+    <string name="preview_not_in_library">अभी तक आपकी लाइब्रेरी में नहीं है</string>
     <string name="librivox_search_edittext_title">लेखक या शीर्षक से खोजें...\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="import_settings">आयात सेटिंग्स</string>

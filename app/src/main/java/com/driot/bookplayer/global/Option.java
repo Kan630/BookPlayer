@@ -52,6 +52,7 @@ public class Option {
     public static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
+    private static final boolean DEFAULT_OPEN_WITH_LIVE_PREVIEW = true;
     private static final boolean DEFAULT_SPLIT_M4B = true;
     private static final boolean DEFAULT_USE_SD_CARD = true;
     public static final NetworkHelper.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING;
@@ -761,6 +762,14 @@ public class Option {
 
     public static boolean getOpenWith_all() {
         return prefs.getBoolean("OPEN_WITH_ALL", DEFAULT_OPEN_WITH_ALL);
+    }
+
+    public static void setOpenWithLivePreview(boolean bool) {
+        prefs.edit().putBoolean("OPEN_WITH_LIVE_PREVIEW", bool).apply();
+    }
+
+    public static boolean getOpenWithLivePreview() {
+        return prefs.getBoolean("OPEN_WITH_LIVE_PREVIEW", DEFAULT_OPEN_WITH_LIVE_PREVIEW);
     }
 
     /////////////////// SPLIT M4B ///////////////////

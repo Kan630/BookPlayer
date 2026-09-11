@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.OpenWithHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -47,11 +48,12 @@ public class OpenWithProxyActivity extends BaseActivity {
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("ImportMode", "proxy-normal");
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("persistPermission", String.valueOf(persistPermission));
 
-        Intent nextIntent = new Intent(this, ImportBookSingleActivity.class);
-        nextIntent.putExtra(ImportBookSingleActivity.EXTRA_URI, uri);
-        nextIntent.putExtra(ImportBookSingleActivity.EXTRA_FORCE_COPY, !persistPermission);
-        startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
-
+        OpenWithHelper.handle(this, uri, persistPermission, (u, forceCopy) -> {
+            Intent nextIntent = new Intent(this, ImportBookSingleActivity.class);
+            nextIntent.putExtra(ImportBookSingleActivity.EXTRA_URI, u);
+            nextIntent.putExtra(ImportBookSingleActivity.EXTRA_FORCE_COPY, forceCopy);
+            startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
+        });
     }
 
     @Override
