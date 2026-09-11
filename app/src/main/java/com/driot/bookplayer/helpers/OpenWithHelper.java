@@ -3,9 +3,7 @@ package com.driot.bookplayer.helpers;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -52,7 +50,7 @@ public class OpenWithHelper {
                 found = db.zikFileDao().getByPath(barePath);
             }
 
-            NameAndSize nameAndSize = null;
+            FileHelper.NameAndSize nameAndSize = null;
             if (found == null && !"file".equals(uri.getScheme())) {
                 // A content:// Uri from a real file manager's "Open With" is often re-generated
                 // per pick and won't equal the file:// path a prior whole-folder import stored
@@ -81,14 +79,14 @@ public class OpenWithHelper {
                     // expose neither a resolvable real path nor a DocumentsContract document id -
                     // just OpenableColumns. That's still enough to recognize a re-opened sibling
                     // file: match it against a registered ZikFile by exact name + byte size.
-                    nameAndSize = queryNameAndSize(activity, uri);
+                    nameAndSize = FileHelper.queryDisplayNameAndSize(activity, uri);
                     if (nameAndSize.name != null && nameAndSize.size != null) {
                         found = db.zikFileDao().getByNameAndSize(nameAndSize.name, (double) nameAndSize.size);
                     }
                 }
             }
             final ZikFile finalFound = found;
-            final NameAndSize finalNameAndSize = nameAndSize;
+            final FileHelper.NameAndSize finalNameAndSize = nameAndSize;
 
             activity.runOnUiThread(() -> {
                 if (activity.isFinishing()) {
@@ -129,42 +127,6 @@ public class OpenWithHelper {
                 }
             });
         });
-    }
-
-    private static class NameAndSize {
-        final String name;
-        final Long size;
-
-        NameAndSize(String name, Long size) {
-            this.name = name;
-            this.size = size;
-        }
-    }
-
-    /** Background-thread only (does a ContentResolver query). Returns (null, null) fields for a
-     * non-content Uri or on any resolution failure - callers must null-check both fields. */
-    private static NameAndSize queryNameAndSize(BaseActivity activity, Uri uri) {
-        if (!"content".equals(uri.getScheme())) {
-            return new NameAndSize(null, null);
-        }
-        try (Cursor cursor = activity.getContentResolver().query(uri, null, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                String name = null;
-                Long size = null;
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    name = cursor.getString(nameIndex);
-                }
-                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                if (sizeIndex != -1 && !cursor.isNull(sizeIndex)) {
-                    size = cursor.getLong(sizeIndex);
-                }
-                return new NameAndSize(name, size);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "OpenWithHelper.queryNameAndSize: content query failed for " + uri);
-        }
-        return new NameAndSize(null, null);
     }
 
     private static String resolveDisplayNameFallback(Uri uri) {

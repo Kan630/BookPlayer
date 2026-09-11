@@ -10,7 +10,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
@@ -122,6 +125,86 @@ public class FileHelper {
             path = uri.getPath();
         }
         return path;
+    }
+
+    public static final class NameAndSize {
+        public final String name;
+        public final Long size;
+
+        public NameAndSize(String name, Long size) {
+            this.name = name;
+            this.size = size;
+        }
+    }
+
+    /** Reads DISPLAY_NAME + SIZE off a content:// Uri via the universal OpenableColumns contract
+     * - the one thing every well-behaved content provider still exposes, even a vendor
+     * FileProvider (seen: several file managers' own providers) that has no _data column and
+     * isn't a DocumentsContract Uri either. Returns (null, null) fields for a non-content Uri or
+     * on any resolution failure. */
+    public static NameAndSize queryDisplayNameAndSize(Context context, Uri uri) {
+        if (!"content".equalsIgnoreCase(uri.getScheme())) {
+            return new NameAndSize(null, null);
+        }
+        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                String name = null;
+                Long size = null;
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) {
+                    name = cursor.getString(nameIndex);
+                }
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1 && !cursor.isNull(sizeIndex)) {
+                    size = cursor.getLong(sizeIndex);
+                }
+                return new NameAndSize(name, size);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "queryDisplayNameAndSize: content query failed for " + uri);
+        }
+        return new NameAndSize(null, null);
+    }
+
+    /** Last-resort real-path resolution for a content:// Uri whose own provider won't expose one
+     * (processUri() already failed) - looks the file up in MediaStore.Audio.Media by exact
+     * display name (+ byte size when known, to disambiguate same-named files) and returns its
+     * indexed real path. This queries MediaStore's own table, not the picked Uri's provider, so
+     * it works even when that provider refused a _data column - but note MediaStore's DATA column
+     * is itself only reliable pre-scoped-storage (legacy access) or for this app's own media on
+     * newer Android; still worth trying since it costs nothing when it fails. Returns null if not
+     * found or not resolvable. */
+    @Nullable
+    public static String resolveRealPathViaMediaStore(Context context, @Nullable String displayName,
+            @Nullable Long size) {
+        if (displayName == null || displayName.isEmpty()) {
+            return null;
+        }
+        String selection;
+        String[] selectionArgs;
+        if (size != null) {
+            selection = MediaStore.Audio.Media.DISPLAY_NAME + "=? AND " + MediaStore.Audio.Media.SIZE + "=?";
+            selectionArgs = new String[] { displayName, String.valueOf(size) };
+        } else {
+            selection = MediaStore.Audio.Media.DISPLAY_NAME + "=?";
+            selectionArgs = new String[] { displayName };
+        }
+        String[] projection = { MediaStore.Audio.Media.DATA };
+        try (Cursor cursor = context.getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+                if (idx != -1) {
+                    String path = cursor.getString(idx);
+                    if (path != null && !path.isEmpty()) {
+                        return path;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "resolveRealPathViaMediaStore failed for [" + displayName + "]");
+        }
+        return null;
     }
 
     private static String destFilePath;
