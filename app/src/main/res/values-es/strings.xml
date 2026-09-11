@@ -607,6 +607,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="AskReset_popupTitle">Confirmar reinicio</string>
     <string name="You_are_about_to_delete_this_audio_book">"Estás a punto de eliminar este audiolibro"</string>
     <string name="Last_access">"Último acceso"</string>
+    <string name="storage_size_on_disk">Tamaño en disco</string>
     <string name="Audio_location">"Ubicación del audio"</string>
     <string name="Change_cover_image">"Cambiar imagen de portada"</string>
     <string name="AskRename_Track">Renombrar esta pista como</string>
@@ -1000,6 +1001,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">Texto a voz</string>
     <string name="book_type_music">Música</string>
+    <string name="book_type_radio">Radio</string>
     <string name="book_type_audiobook">Audiolibro</string>
     <string name="MakeMusicType">Música</string>
     <string name="MakeMusicTypeSubtitle"><i>"Sustituye los botones de avance/retroceso por los de pista siguiente/anterior durante la reproducción."</i></string>
@@ -1009,7 +1011,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="option_radio_recording_enabled">Permitir grabación de radio</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"Muestra un botón de grabación en el mini reproductor de radio. Desactívalo para ocultarlo."</i></string>
     <string name="option_radio_recording_as_music">Guardar grabaciones como tipo Música</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"Las nuevas grabaciones obtienen el tipo de libro Música (botones de pista siguiente/anterior en lugar de avance/retroceso). Desactívalo para guardarlas como audiolibros normales."</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"Las nuevas grabaciones obtienen el tipo de libro Música (botones de pista siguiente/anterior en lugar de avance/retroceso). Desactívalo para guardarlas con el tipo Radio."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">La grabación no está disponible para esta emisora.</string>
     <string name="radio_recording_no_live_stream">No se pudo encontrar la emisora en directo para esta grabación.</string>

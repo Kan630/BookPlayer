@@ -203,6 +203,18 @@ public class ModifyFolderActivity extends BaseActivity {
 
         tvInfo.setText(info);
 
+        // Storage size on disk - a real filesystem walk (StorageHelper.getFolderSize), so keep it
+        // off the main thread and append once it resolves rather than blocking onCreate() for it.
+        String folderPath = folder.getPath();
+        if (folderPath != null && !folderPath.isEmpty()) {
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                long sizeBytes = StorageHelper.getFolderSize(folderPath);
+                String sizeLine = "\n" + getString(R.string.storage_size_on_disk) + " : "
+                        + Tonio.getReadableSize(sizeBytes);
+                runOnUiThread(() -> tvInfo.append(sizeLine));
+            });
+        }
+
         restoreDeletionIfActive();
 
         bDelete.setOnClickListener(view -> bDeleteClick());
@@ -314,11 +326,17 @@ public class ModifyFolderActivity extends BaseActivity {
             return;
         }
 
+        // Radio recordings default to their own dedicated Radio type, not the generic Audiobook
+        // type every other folder falls back to (see RadioRecordingHelper/Var.PLAY_TYPE_RADIO) -
+        // so switching the Music toggle off here should revert to Radio, not Audiobook.
+        boolean isRadioRecording = Var.SOURCE_LOCATION_RADIO_RECORDING.equals(sourceLocation);
+        String nonMusicType = isRadioRecording ? Var.PLAY_TYPE_RADIO : Var.PLAY_TYPE_AUDIO;
+
         rowMusicType.setVisibility(View.VISIBLE);
         rowMusicType.setChecked(Var.PLAY_TYPE_MUSIC.equals(playType));
         rowMusicType.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLogI("--- USER TOGGLES music type --- isChecked=" + isChecked);
-            folder.playType = isChecked ? Var.PLAY_TYPE_MUSIC : Var.PLAY_TYPE_AUDIO;
+            folder.playType = isChecked ? Var.PLAY_TYPE_MUSIC : nonMusicType;
             tvBookType.setText(IconHelper.getBookTypeLabel(sourceLocation, folder.playType));
             ivBookType.setImageResource(IconHelper.getBookTypeIcon(sourceLocation, folder.playType));
             AppDatabase.databaseWriteExecutor.execute(() ->

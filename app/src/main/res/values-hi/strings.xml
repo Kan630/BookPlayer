@@ -607,6 +607,7 @@
     <string name="AskReset_popupTitle">रीसेट की पुष्टि</string>
     <string name="You_are_about_to_delete_this_audio_book">"आप इस ऑडियोबुक को हटाने वाले हैं"</string>
     <string name="Last_access">"अंतिम पहुंच"</string>
+    <string name="storage_size_on_disk">संग्रहण आकार</string>
     <string name="Audio_location">"ऑडियो स्थान"</string>
     <string name="Change_cover_image">"कवर छवि बदलें"</string>
     <string name="AskRename_Track">इस ट्रैक का नाम बदलें</string>
@@ -998,6 +999,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">टेक्स्ट-टू-स्पीच</string>
     <string name="book_type_music">संगीत</string>
+    <string name="book_type_radio">रेडियो</string>
     <string name="book_type_audiobook">ऑडियोबुक</string>
     <string name="MakeMusicType">संगीत</string>
     <string name="MakeMusicTypeSubtitle"><i>"चलाते समय आगे/पीछे बटन को अगला/पिछला ट्रैक बटन से बदल देता है।"</i></string>
@@ -1007,7 +1009,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_radio_recording_enabled">रेडियो रिकॉर्डिंग की अनुमति दें</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"रेडियो मिनी प्लेयर पर रिकॉर्ड बटन दिखाता है। इसे छिपाने के लिए बंद करें।"</i></string>
     <string name="option_radio_recording_as_music">रिकॉर्डिंग को \'संगीत\' प्रकार के रूप में सहेजें</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"नई रिकॉर्डिंग को \'संगीत\' पुस्तक प्रकार मिलता है (आगे/पीछे के बजाय अगला/पिछला ट्रैक बटन)। इन्हें सामान्य ऑडियोबुक के रूप में सहेजने के लिए बंद करें।"</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"नई रिकॉर्डिंग को \'संगीत\' पुस्तक प्रकार मिलता है (आगे/पीछे के बजाय अगला/पिछला ट्रैक बटन)। इन्हें \'रेडियो\' प्रकार के रूप में सहेजने के लिए बंद करें।"</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">इस स्टेशन के लिए रिकॉर्डिंग उपलब्ध नहीं है।</string>
     <string name="radio_recording_no_live_stream">इस रिकॉर्डिंग के लिए लाइव स्टेशन नहीं मिला।</string>

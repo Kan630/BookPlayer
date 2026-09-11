@@ -610,6 +610,7 @@
     <string name="AskReset_popupTitle">Conferma azzeramento</string>
     <string name="You_are_about_to_delete_this_audio_book">"Stai per eliminare questo audiolibro"</string>
     <string name="Last_access">"Ultimo accesso"</string>
+    <string name="storage_size_on_disk">Dimensione su disco</string>
     <string name="Audio_location">"Posizione audio"</string>
     <string name="Change_cover_image">"Cambia immagine di copertina"</string>
     <string name="AskRename_Track">Rinomina questa traccia in</string>
@@ -1002,6 +1003,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">Sintesi vocale</string>
     <string name="book_type_music">Musica</string>
+    <string name="book_type_radio">Radio</string>
     <string name="book_type_audiobook">Audiolibro</string>
     <string name="MakeMusicType">Musica</string>
     <string name="MakeMusicTypeSubtitle"><i>"Sostituisce i pulsanti avanti/indietro con quelli traccia successiva/precedente durante la riproduzione."</i></string>
@@ -1011,7 +1013,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_radio_recording_enabled">Consenti la registrazione della radio</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"Mostra un pulsante di registrazione nel mini player della radio. Disattiva per nasconderlo."</i></string>
     <string name="option_radio_recording_as_music">Salva le registrazioni come tipo Musica</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"Le nuove registrazioni ricevono il tipo di libro Musica (pulsanti traccia successiva/precedente invece di avanti/indietro). Disattiva per salvarle come normali audiolibri."</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"Le nuove registrazioni ricevono il tipo di libro Musica (pulsanti traccia successiva/precedente invece di avanti/indietro). Disattiva per salvarle con il tipo Radio."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">La registrazione non è disponibile per questa stazione.</string>
     <string name="radio_recording_no_live_stream">Impossibile trovare la stazione live per questa registrazione.</string>

@@ -622,6 +622,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="AskReset_popupTitle">Confirmer la réinitialisation</string>
     <string name="You_are_about_to_delete_this_audio_book">Vous êtes sur le point de supprimer ce livre audio</string>
     <string name="Last_access">Dernier accès</string>
+    <string name="storage_size_on_disk">Taille sur le disque</string>
     <string name="Audio_location">Emplacement de l\'audio</string>
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
@@ -637,6 +638,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">Synthèse vocale</string>
     <string name="book_type_music">Musique</string>
+    <string name="book_type_radio">Radio</string>
     <string name="book_type_audiobook">Livre audio</string>
     <string name="MakeMusicType">Musique</string>
     <string name="MakeMusicTypeSubtitle"><i>"Remplace les boutons avance/retour rapide par les boutons piste suivante/précédente pendant la lecture."</i></string>
@@ -646,7 +648,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_radio_recording_enabled">Autoriser l\'enregistrement de la radio</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"Affiche un bouton d\'enregistrement sur le mini lecteur radio. Désactivez pour le masquer."</i></string>
     <string name="option_radio_recording_as_music">Sauvegarder les enregistrements en tant que type Musique</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"Les nouveaux enregistrements reçoivent le type de livre Musique (boutons piste suivante/précédente au lieu d\'avance/retour rapide). Désactivez pour les enregistrer comme des livres audio normaux à la place."</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"Les nouveaux enregistrements reçoivent le type de livre Musique (boutons piste suivante/précédente au lieu d\'avance/retour rapide). Désactivez pour les enregistrer avec le type Radio à la place."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">L\'enregistrement n\'est pas disponible pour cette station.</string>
     <string name="radio_recording_no_live_stream">Impossible de trouver la station en direct pour cet enregistrement.</string>

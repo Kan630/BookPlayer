@@ -154,7 +154,7 @@ public final class RadioRecordingHelper {
                 folder.setIszipfile(false);
                 folder.setOriginalHash("");
                 folder.setSourceLocation(Var.SOURCE_LOCATION_RADIO_RECORDING);
-                folder.playType = Option.getRadioRecordingAsMusic() ? Var.PLAY_TYPE_MUSIC : Var.PLAY_TYPE_AUDIO;
+                folder.playType = Option.getRadioRecordingAsMusic() ? Var.PLAY_TYPE_MUSIC : Var.PLAY_TYPE_RADIO;
                 folder.jsonData = withRadioStreamInfo(null, streamUrl, stationId);
                 folder.image = coverUrl;
                 folder.date_added = System.currentTimeMillis();

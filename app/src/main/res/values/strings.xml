@@ -679,6 +679,7 @@
     <string name="AskReset_popupTitle">Confirm Reset</string>
     <string name="You_are_about_to_delete_this_audio_book">"You are about to delete this audio book"</string>
     <string name="Last_access">"Last access"</string>
+    <string name="storage_size_on_disk">Storage size</string>
     <string name="Audio_location">Audio location</string>
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="AskRename_Track">Rename this track to</string>
@@ -694,6 +695,7 @@
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">Text-to-speech</string>
     <string name="book_type_music">Music</string>
+    <string name="book_type_radio">Radio</string>
     <string name="book_type_audiobook">Audiobook</string>
     <string name="MakeMusicType">Music</string>
     <string name="MakeMusicTypeSubtitle">"Replaces the forward/backward buttons with next/previous track while playing."</string>
@@ -704,7 +706,7 @@
     <string name="option_radio_recording_enabled">Allow radio recording</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"Shows a record button on the radio mini player. Turn off to hide it."</i></string>
     <string name="option_radio_recording_as_music">Save recordings as Music type</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"New recordings get the Music book type (next/previous track buttons instead of forward/backward). Turn off to save them as regular audiobooks instead."</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"New recordings get the Music book type (next/previous track buttons instead of forward/backward). Turn off to save them as the Radio book type instead."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">Recording isn\'t available for this station.</string>
     <string name="radio_recording_no_live_stream">Couldn\'t find the live station for this recording.</string>

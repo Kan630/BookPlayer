@@ -609,6 +609,7 @@
     <string name="AskReset_popupTitle">Confirmar redefinição</string>
     <string name="You_are_about_to_delete_this_audio_book">"Você está prestes a excluir este audiolivro"</string>
     <string name="Last_access">"Último acesso"</string>
+    <string name="storage_size_on_disk">Tamanho no armazenamento</string>
     <string name="Audio_location">"Local do áudio"</string>
     <string name="Change_cover_image">"Alterar imagem de capa"</string>
     <string name="AskRename_Track">Renomear esta faixa para</string>
@@ -1001,6 +1002,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="book_type_librivox">LibriVox</string>
     <string name="book_type_tts">Texto para voz</string>
     <string name="book_type_music">Música</string>
+    <string name="book_type_radio">Rádio</string>
     <string name="book_type_audiobook">Audiolivro</string>
     <string name="MakeMusicType">Música</string>
     <string name="MakeMusicTypeSubtitle"><i>"Substitui os botões de avançar/recuar pelos de faixa seguinte/anterior durante a reprodução."</i></string>
@@ -1010,7 +1012,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_radio_recording_enabled">Permitir gravação de rádio</string>
     <string name="option_radio_recording_enabled_subtitle"><i>"Mostra um botão de gravação no mini leitor de rádio. Desative para o ocultar."</i></string>
     <string name="option_radio_recording_as_music">Guardar gravações como tipo Música</string>
-    <string name="option_radio_recording_as_music_subtitle"><i>"As novas gravações recebem o tipo de livro Música (botões de faixa seguinte/anterior em vez de avançar/recuar). Desative para as guardar como audiolivros normais."</i></string>
+    <string name="option_radio_recording_as_music_subtitle"><i>"As novas gravações recebem o tipo de livro Música (botões de faixa seguinte/anterior em vez de avançar/recuar). Desative para as guardar com o tipo Rádio."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">A gravação não está disponível para esta estação.</string>
     <string name="radio_recording_no_live_stream">Não foi possível encontrar a estação em direto para esta gravação.</string>

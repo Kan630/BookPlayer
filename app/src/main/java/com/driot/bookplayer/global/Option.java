@@ -121,7 +121,9 @@ public class Option {
     };
     public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
     private static final boolean DEFAULT_RADIO_RECORDING_ENABLED = true;
-    private static final boolean DEFAULT_RADIO_RECORDING_AS_MUSIC = true;
+    // New recordings default to the dedicated Radio book type (see Var.PLAY_TYPE_RADIO /
+    // IconHelper) rather than being assumed to be Music - the user can still opt into Music.
+    private static final boolean DEFAULT_RADIO_RECORDING_AS_MUSIC = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
     private static final int MIN_SCREENSAVER_DELAY_SECONDS = 10;
