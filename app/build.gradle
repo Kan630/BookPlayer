@@ -81,8 +81,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 309
-        versionName = "309 - Eternal Capybara"
+        versionCode = 313
+        versionName = "313 - Eternal Capybara"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -121,6 +121,19 @@ android {
         }
     }
 
+    bundle {
+        // The app has an in-app language switcher (Settings > Language) that lets users pick
+        // any supported language independent of their device's system language. By default,
+        // Play's App Bundle delivery only installs the language split matching the device's
+        // current locale (confirmed on a real device: `pm path` showed only
+        // split_config.en.apk - no de/fr/it/etc. splits at all), so switching the in-app
+        // language silently did nothing for anyone whose installed split didn't include the
+        // chosen language - no code-level fix can work around missing resources. Disabling
+        // language splitting ships every language's strings in every install.
+        language {
+            enableSplit = false
+        }
+    }
 
     buildTypes {
         debug {
