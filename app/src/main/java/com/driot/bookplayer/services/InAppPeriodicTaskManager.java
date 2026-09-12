@@ -5,6 +5,7 @@ import android.content.Context;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.importexport.AutoBackupSnapshotManager;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -37,6 +38,8 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
                     PodcastHelper.doAutoDownloadAndDelete(context);
 /// Images
                     ImageHelper.processPendingImages(context, System.currentTimeMillis(), "InApp Periodic Task Manager");
+/// Small safety-net snapshot for Android's own Auto Backup (progress/prefs/favorites/podcast history)
+                    AutoBackupSnapshotManager.writeSnapshot(context);
 
                 }, Var.PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS, periodMinutes, TimeUnit.MINUTES);
             }

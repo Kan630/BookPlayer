@@ -1,19 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Governs Android's Auto Backup (cloud) and the phone-to-phone "Copy your data" transfer
+    on API 31+. The Room database (BookPlayer) is excluded outright - the podcast Episode
+    table alone can exceed the 25MB cloud-backup quota, and there is no way to back up part
+    of a single SQLite file. The small, important subset (progress, prefs, favorites, and a
+    lean podcast-listened-history) is instead snapshotted separately by
+    AutoBackupSnapshotManager into files/auto_backup/, which is deliberately NOT excluded
+    below so it rides along with the default "everything under files/ is backed up" behavior.
+    See also res/xml/backup_rules.xml for the equivalent pre-31 rules.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="file" path="unzipped/" />
+        <exclude domain="file" path="download/" />
+        <exclude domain="file" path="linked/" />
+        <exclude domain="file" path="images/" />
+        <exclude domain="file" path="cached_images/" />
+        <exclude domain="database" path="BookPlayer" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <exclude domain="file" path="unzipped/" />
+        <exclude domain="file" path="download/" />
+        <exclude domain="file" path="linked/" />
+        <exclude domain="file" path="images/" />
+        <exclude domain="file" path="cached_images/" />
+        <exclude domain="database" path="BookPlayer" />
     </device-transfer>
-    -->
 </data-extraction-rules>

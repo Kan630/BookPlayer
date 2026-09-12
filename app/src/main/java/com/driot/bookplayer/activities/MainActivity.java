@@ -38,6 +38,8 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.importexport.AutoBackupSnapshotManager;
+import com.driot.bookplayer.importexport.ImportExportActivity;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaService;
@@ -93,6 +95,23 @@ public class MainActivity extends FullActivity {
             InAppMsgManager.maybeShowBestMessage(MainActivity.this, getString(R.string.app_name));
         }
     };
+
+    private final ActivityResultLauncher<Intent> autoBackupRecoveryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                int which = result.getData() != null
+                        ? result.getData().getIntExtra(MsgBoxActivity.RESULT_WHICH, MsgBoxActivity.WHICH_NEGATIVE)
+                        : MsgBoxActivity.WHICH_NEGATIVE;
+                Pref.setAutoBackupRecoveryPrompted(true);
+                if (which == MsgBoxActivity.WHICH_POSITIVE) {
+                    String json = AutoBackupSnapshotManager.readSnapshot(this);
+                    if (json != null) {
+                        Intent intent = new Intent(this, ImportExportActivity.class);
+                        intent.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_RESTORE);
+                        intent.putExtra(ImportExportActivity.EXTRA_PRELOADED_JSON, json);
+                        startActivity(intent);
+                    }
+                }
+            });
 
     private final ActivityResultLauncher<Intent> modifyFolderLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -501,6 +520,25 @@ public class MainActivity extends FullActivity {
             ll_welcome_item_browse.setVisibility(View.VISIBLE);
         }
 
+        maybeOfferAutoBackupRecovery();
     }
-    
+
+    // Library looks freshly empty (matches the welcome-screen condition) and a snapshot exists
+    // on disk (see AutoBackupSnapshotManager) - likely a restore from Android's own backup after
+    // a lost/broken phone, since a manual restore via ImportExportActivity would already have
+    // populated the library. Ask at most once (Pref.getAutoBackupRecoveryPrompted()).
+    private void maybeOfferAutoBackupRecovery() {
+        myLog("maybeOfferAutoBackupRecovery: alreadyPrompted=" + Pref.getAutoBackupRecoveryPrompted()
+                + " hasSnapshot=" + AutoBackupSnapshotManager.hasSnapshot(this));
+        if (Pref.getAutoBackupRecoveryPrompted() || !AutoBackupSnapshotManager.hasSnapshot(this)) {
+            return;
+        }
+        Intent intent = MsgBoxActivity.buildQuestion(this,
+                getString(R.string.auto_backup_recovery_title),
+                getString(R.string.auto_backup_recovery_desc),
+                null,
+                getString(R.string.auto_backup_recovery_positive), getString(R.string.auto_backup_recovery_negative));
+        autoBackupRecoveryLauncher.launch(intent);
+    }
+
 }

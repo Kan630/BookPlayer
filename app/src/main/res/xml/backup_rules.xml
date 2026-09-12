@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Pre-31 equivalent of data_extraction_rules.xml (ignored on API 31+, which uses that file
+    instead). Keep both in sync - see data_extraction_rules.xml for why the database is
+    excluded wholesale.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <exclude domain="file" path="unzipped/" />
+    <exclude domain="file" path="download/" />
+    <exclude domain="file" path="linked/" />
+    <exclude domain="file" path="images/" />
+    <exclude domain="file" path="cached_images/" />
+    <exclude domain="database" path="BookPlayer" />
 </full-backup-content>

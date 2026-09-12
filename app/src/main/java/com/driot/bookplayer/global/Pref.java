@@ -149,6 +149,17 @@ public class Pref {
         admin.edit().putBoolean("NEEDS_RECREATE", value).apply();
     }
 
+    // Whether we've already offered to restore a recovered auto-backup snapshot (see
+    // AutoBackupSnapshotManager / MainActivity's empty-library check) - asked at most once,
+    // so declining it doesn't nag the user every time the library happens to be empty.
+    public static boolean getAutoBackupRecoveryPrompted() {
+        return admin.getBoolean("AUTO_BACKUP_RECOVERY_PROMPTED", false);
+    }
+
+    public static void setAutoBackupRecoveryPrompted(boolean value) {
+        admin.edit().putBoolean("AUTO_BACKUP_RECOVERY_PROMPTED", value).apply();
+    }
+
     public static String get_radio_mirror(Context context) {
         return getPrefs(context).getString("RADIO_MIRROR", Var.DEFAULT_RADIO_MIRROR);
     }

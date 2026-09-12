@@ -27,18 +27,23 @@ public abstract class BaseBackupManager {
         public long timestamp;
         public Map<String, Map<String, ?>> preferences = new HashMap<>();
         public List<BookSource> bookSources = new ArrayList<>();
+        // "Book progress" category - local audiobook playback position and per-book stats.
+        // Applies to both flavors (unlike radios/podcasts/librivox, which are full-only).
+        public List<ZikFile> zikFiles = new ArrayList<>();
+        public List<Folder> folders = new ArrayList<>();
     }
 
     public abstract String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
-            boolean includeLibrivox);
+            boolean includeLibrivox, boolean includeBookProgress, boolean includePodcastHistory);
 
     public abstract void importFromJson(String json, boolean includePreferences, boolean includeRadios,
             boolean includePodcasts,
-            boolean includeLibrivox);
+            boolean includeLibrivox, boolean includeBookProgress, boolean includePodcastHistory);
 
     public abstract BaseBackupData inspectJson(String json);
 
-    protected void exportBaseData(BaseBackupData data, boolean includePreferences, boolean includeLibrivox) {
+    protected void exportBaseData(BaseBackupData data, boolean includePreferences, boolean includeLibrivox,
+            boolean includeBookProgress) {
         data.timestamp = System.currentTimeMillis();
 
         if (includePreferences) {
@@ -60,9 +65,15 @@ public abstract class BaseBackupManager {
         if (includeLibrivox) {
             data.bookSources = AppDatabase.getDatabase(context).bookSourceDao().getAll();
         }
+
+        if (includeBookProgress) {
+            data.folders = AppDatabase.getDatabase(context).folderDao().getAll();
+            data.zikFiles = AppDatabase.getDatabase(context).zikFileDao().getAll();
+        }
     }
 
-    protected void importBaseData(BaseBackupData data, boolean includePreferences, boolean includeLibrivox) {
+    protected void importBaseData(BaseBackupData data, boolean includePreferences, boolean includeLibrivox,
+            boolean includeBookProgress) {
         if (includePreferences && data.preferences != null) {
             for (Map.Entry<String, Map<String, ?>> entry : data.preferences.entrySet()) {
                 String prefName = entry.getKey();
@@ -97,6 +108,27 @@ public abstract class BaseBackupManager {
                     }
                     db.bookSourceDao().deleteAll();
                     db.bookSourceDao().insertAll(data.bookSources);
+                });
+            });
+        }
+
+        if (includeBookProgress && (data.folders != null || data.zikFiles != null)) {
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                AppDatabase db = AppDatabase.getDatabase(context);
+                db.runInTransaction(() -> {
+                    // Folder first - ZikFile.idFolder references it, and rows are reinserted
+                    // with their original ids intact so the relationship survives. Note: the
+                    // stored path/uri is tied to the old device/install and its SAF permission
+                    // grant does not transfer - the entry reappears with its saved progress,
+                    // but needs the file re-added before it can actually play again.
+                    db.zikFileDao().deleteAll();
+                    db.folderDao().deleteAll();
+                    if (data.folders != null) {
+                        db.folderDao().insertAll(data.folders);
+                    }
+                    if (data.zikFiles != null) {
+                        db.zikFileDao().insertAll(data.zikFiles);
+                    }
                 });
             });
         }

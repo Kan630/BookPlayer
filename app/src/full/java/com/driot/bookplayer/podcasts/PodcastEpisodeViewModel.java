@@ -9,6 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
+import com.driot.bookplayer.db.PendingEpisodeHistory;
+import com.driot.bookplayer.db.PendingEpisodeHistoryDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
@@ -26,6 +28,7 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
     private final EpisodeDao episodeDao;
     private final PodcastDao podcastDao;
+    private final PendingEpisodeHistoryDao pendingEpisodeHistoryDao;
 
     private final MutableLiveData<List<DisplayableEpisode>> episodesLive = new MutableLiveData<>();
     private final MutableLiveData<String> searchQueryLive = new MutableLiveData<>("");
@@ -47,6 +50,7 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         zikFileDao = db.zikFileDao();
         episodeDao = db.episodeDao();
         podcastDao = db.podcastDao();
+        pendingEpisodeHistoryDao = db.pendingEpisodeHistoryDao();
     }
 
     // ---------------------------------
@@ -58,6 +62,32 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         int podcastId = podcastDao.getPodcastByFeedId(podcastFeedId).getId();
         List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcastId);
         episodeDao.insertAll(toSave);
+        reconcileRecoveredHistory(podcastFeedId);
+    }
+
+    // Re-applies "already listened" markers recovered from a backup (see
+    // AutoBackupSnapshotManager / ImportExportActivity's "Podcast history" category) once this
+    // podcast's episodes have been fetched again - episode catalogs themselves are never part
+    // of any backup, so this is the only point where recovered listen history can be reattached
+    // to a real, freshly-fetched Episode row. Consumes (deletes) each entry once matched.
+    private void reconcileRecoveredHistory(long podcastFeedId) {
+        List<PendingEpisodeHistory> pending = pendingEpisodeHistoryDao.getByFeedId(podcastFeedId);
+        if (pending.isEmpty())
+            return;
+        myLogD("reconcileRecoveredHistory: feedId=" + podcastFeedId + " - " + pending.size()
+                + " pending recovered episode(s) to check");
+        for (PendingEpisodeHistory entry : pending) {
+            Episode episode = episodeDao.getByEpisodeId(entry.idEpisode);
+            if (episode != null) {
+                episodeDao.setTimeListened(episode.id, entry.timeListened);
+                myLogD("reconcileRecoveredHistory: MATCHED idEpisode=" + entry.idEpisode + " (\"" + entry.episodeTitle
+                        + "\") -> applied timeListened=" + entry.timeListened + " to Episode.id=" + episode.id);
+            } else {
+                myLogD("reconcileRecoveredHistory: no current episode for idEpisode=" + entry.idEpisode + " (\""
+                        + entry.episodeTitle + "\") - feed no longer serves it, discarding");
+            }
+            pendingEpisodeHistoryDao.deleteOne(entry.feedId, entry.idEpisode);
+        }
     }
 
     public List<Episode> toggleSortAndGetEpisodesFromDB(int podcastId) {

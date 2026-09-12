@@ -78,6 +78,12 @@ public interface CommonZikFileDao {
     @Insert
     long insert(ZikFile zikFile);
 
+    @Insert
+    List<Long> insertAll(List<ZikFile> zikFiles);
+
+    @Query("DELETE FROM ZikFile")
+    void deleteAll();
+
     @Delete
     void delete(ZikFile zikFile);
 

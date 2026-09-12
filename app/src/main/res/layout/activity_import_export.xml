@@ -105,10 +105,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/import_export_include_librivox"
+                android:checked="true" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_book_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_book_progress"
+                android:checked="true" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_podcast_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_podcast_history"
                 android:checked="true"
                 android:layout_marginBottom="16dp" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_auto_backup_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/import_export_auto_backup_note"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_share_live"

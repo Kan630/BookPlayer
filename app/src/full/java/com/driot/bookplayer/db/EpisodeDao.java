@@ -65,4 +65,17 @@ public interface EpisodeDao {
     @Query("UPDATE Episode SET timeListened = timeListened + 1 WHERE id = :id")
     void addSecondToTimeListened(long id);
 
+    // Sets (not increments) timeListened - used to re-apply a recovered value from
+    // PendingEpisodeHistory after a restore, see PodcastEpisodeViewModel.
+    @Query("UPDATE Episode SET timeListened = :timeListened WHERE id = :id")
+    void setTimeListened(long id, long timeListened);
+
+    // For the "Podcast history" backup category - only episodes with real user data
+    // (downloaded, or ever listened to), never the full catalog. See PendingEpisodeHistory.
+    @Query("SELECT 0 AS id, p.feedId AS feedId, p.title AS podcastTitle, e.idEpisode AS idEpisode, " +
+            "e.title AS episodeTitle, e.datePublished AS datePublished, e.timeListened AS timeListened " +
+            "FROM Episode e JOIN Podcast p ON e.idPodcast = p.id " +
+            "WHERE e.idZikFile IS NOT NULL OR e.timeListened > 0")
+    List<PendingEpisodeHistory> getEngagedEpisodesForBackup();
+
 }

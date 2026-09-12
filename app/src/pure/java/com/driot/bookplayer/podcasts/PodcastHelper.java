@@ -74,6 +74,10 @@ public class PodcastHelper {
         return false;
     }
 
+    public static boolean backupDataHasEpisodeHistory(BackupManager.BackupData data) {
+        return false;
+    }
+
     public static void updateImage(long folderId, String imagePath, Context context) {
         myLog("stub!");
     }

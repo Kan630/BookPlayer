@@ -14,9 +14,9 @@ public class BackupManager extends BaseBackupManager {
 
     @Override
     public String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
-            boolean includeLibrivox) {
+            boolean includeLibrivox, boolean includeBookProgress, boolean includePodcastHistory) {
         BackupData data = new BackupData();
-        exportBaseData(data, includePreferences, includeLibrivox);
+        exportBaseData(data, includePreferences, includeLibrivox, includeBookProgress);
         return gson.toJson(data);
     }
 
@@ -27,11 +27,11 @@ public class BackupManager extends BaseBackupManager {
 
     @Override
     public void importFromJson(String json, boolean includePreferences, boolean includeRadios, boolean includePodcasts,
-            boolean includeLibrivox) {
+            boolean includeLibrivox, boolean includeBookProgress, boolean includePodcastHistory) {
         BackupData data = inspectJson(json);
         if (data == null)
             return;
 
-        importBaseData(data, includePreferences, includeLibrivox);
+        importBaseData(data, includePreferences, includeLibrivox, includeBookProgress);
     }
 }

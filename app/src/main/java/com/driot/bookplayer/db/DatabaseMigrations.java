@@ -532,4 +532,27 @@ public class DatabaseMigrations {
         }
     };
 
+    // full flavor only - pure has no Podcast/Episode tables, so this is a no-op there (matches
+    // the existing tableExists() guard pattern). Backs the "Podcast history" backup category.
+    static final Migration MIGRATION_32_33 = new Migration(32, 33) { // 2026-09-12
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 32 => 33");
+            if (tableExists(db, "Podcast")) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `PendingEpisodeHistory` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`feedId` INTEGER NOT NULL, " +
+                        "`podcastTitle` TEXT, " +
+                        "`idEpisode` INTEGER NOT NULL, " +
+                        "`episodeTitle` TEXT, " +
+                        "`datePublished` TEXT, " +
+                        "`timeListened` INTEGER NOT NULL DEFAULT 0)");
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PendingEpisodeHistory_feedId_idEpisode` " +
+                        "ON `PendingEpisodeHistory` (`feedId`, `idEpisode`)");
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_PendingEpisodeHistory_feedId` " +
+                        "ON `PendingEpisodeHistory` (`feedId`)");
+            }
+        }
+    };
+
 }

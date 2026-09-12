@@ -701,6 +701,10 @@ public class PodcastHelper {
         return (data.podcasts != null && !data.podcasts.isEmpty());
     }
 
+    public static boolean backupDataHasEpisodeHistory(BackupManager.BackupData data) {
+        return data.episodeHistory != null && !data.episodeHistory.isEmpty();
+    }
+
     public static void updateImage(long folderId, String imagePath, Context context) {
         AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId,
                 imagePath);

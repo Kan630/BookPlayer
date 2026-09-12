@@ -39,6 +39,11 @@ public class ImportExportActivity extends BaseActivity {
     public static final int MODE_BACKUP = 0;
     public static final int MODE_RESTORE = 1;
 
+    // Used by MainActivity's recovered-snapshot prompt to jump straight into "here's what's in
+    // it, confirm to restore" instead of requiring the user to browse for a file they don't
+    // know exists.
+    public static final String EXTRA_PRELOADED_JSON = "extra_preloaded_json";
+
     private int mode = MODE_BACKUP;
     private BackupManager backupManager;
     private Uri pickedRestoreUri;
@@ -51,7 +56,10 @@ public class ImportExportActivity extends BaseActivity {
                     boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
                     boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
                     boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
-                    saveBackupToFile(result.getData().getData(), prefs, radios, podcasts, librivox);
+                    boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+                    boolean podcastHistory = ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
+                    saveBackupToFile(result.getData().getData(), prefs, radios, podcasts, librivox, bookProgress,
+                            podcastHistory);
                 }
             });
 
@@ -101,6 +109,12 @@ public class ImportExportActivity extends BaseActivity {
         mode = getIntent().getIntExtra(EXTRA_MODE, MODE_BACKUP);
 
         setupUI();
+
+        String preloadedJson = getIntent().getStringExtra(EXTRA_PRELOADED_JSON);
+        if (mode == MODE_RESTORE && preloadedJson != null) {
+            myLog("Restoring from recovered auto-backup snapshot");
+            inspectBackupJson(preloadedJson);
+        }
     }
 
     private void setupUI() {
@@ -174,18 +188,22 @@ public class ImportExportActivity extends BaseActivity {
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+        boolean podcastHistory = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
 
-        if (!prefs && !radios && !podcasts && !librivox) {
+        if (!prefs && !radios && !podcasts && !librivox && !bookProgress && !podcastHistory) {
             myToast(getString(R.string.import_export_select_at_least_one_to_share));
             return;
         }
 
         myLogI("Preparing live share (prefs=" + prefs + ", radios=" + radios + ", podcasts=" + podcasts
-                + ", librivox=" + librivox + ")");
+                + ", librivox=" + librivox + ", bookProgress=" + bookProgress + ", podcastHistory=" + podcastHistory
+                + ")");
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox, bookProgress,
+                        podcastHistory);
                 runOnUiThread(() -> {
                     myLog("Launching BackupShareActivity (SEND mode)");
                     BackupShareActivity.sBackupPayload = json;
@@ -276,11 +294,16 @@ public class ImportExportActivity extends BaseActivity {
         MaterialCheckBox cbRadios = findViewById(R.id.cb_include_radios);
         MaterialCheckBox cbPodcasts = findViewById(R.id.cb_include_podcasts);
         MaterialCheckBox cbLibrivox = findViewById(R.id.cb_include_librivox);
+        MaterialCheckBox cbBookProgress = findViewById(R.id.cb_include_book_progress);
+        MaterialCheckBox cbPodcastHistory = findViewById(R.id.cb_include_podcast_history);
 
         boolean hasPrefs = data.preferences != null && !data.preferences.isEmpty();
         boolean hasRadios = RadioHelper.backupDataHasRadios(data);
         boolean hasPodcasts = PodcastHelper.backupDataHasPodcasts(data);
         boolean hasLibrivox = data.bookSources != null && !data.bookSources.isEmpty();
+        boolean hasBookProgress = (data.folders != null && !data.folders.isEmpty())
+                || (data.zikFiles != null && !data.zikFiles.isEmpty());
+        boolean hasPodcastHistory = PodcastHelper.backupDataHasEpisodeHistory(data);
 
         cbPrefs.setEnabled(hasPrefs);
         cbPrefs.setChecked(hasPrefs);
@@ -294,6 +317,12 @@ public class ImportExportActivity extends BaseActivity {
         cbLibrivox.setEnabled(hasLibrivox);
         cbLibrivox.setChecked(hasLibrivox);
 
+        cbBookProgress.setEnabled(hasBookProgress);
+        cbBookProgress.setChecked(hasBookProgress);
+
+        cbPodcastHistory.setEnabled(hasPodcastHistory);
+        cbPodcastHistory.setChecked(hasPodcastHistory);
+
         if (Tonio.isPure(this)) {
             cbRadios.setVisibility(View.GONE);
             cbRadios.setChecked(false);
@@ -301,6 +330,8 @@ public class ImportExportActivity extends BaseActivity {
             cbPodcasts.setChecked(false);
             cbLibrivox.setVisibility(View.GONE);
             cbLibrivox.setChecked(false);
+            cbPodcastHistory.setVisibility(View.GONE);
+            cbPodcastHistory.setChecked(false);
         }
     }
 
@@ -311,14 +342,17 @@ public class ImportExportActivity extends BaseActivity {
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+        boolean podcastHistory = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
 
-        if (!prefs && !radios && !podcasts && !librivox) {
+        if (!prefs && !radios && !podcasts && !librivox && !bookProgress && !podcastHistory) {
             myToast(getString(R.string.import_export_select_at_least_one_to_backup));
             return;
         }
 
         myLogI("--- user clicks CREATE BACKUP --- (prefs=" + prefs + ", radios=" + radios + ", podcasts=" + podcasts
-                + ", librivox=" + librivox + ")");
+                + ", librivox=" + librivox + ", bookProgress=" + bookProgress + ", podcastHistory=" + podcastHistory
+                + ")");
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/json");
@@ -334,8 +368,10 @@ public class ImportExportActivity extends BaseActivity {
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+        boolean podcastHistory = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
 
-        if (!prefs && !radios && !podcasts && !librivox) {
+        if (!prefs && !radios && !podcasts && !librivox && !bookProgress && !podcastHistory) {
             myToast(getString(R.string.import_export_select_at_least_one_to_restore));
             return;
         }
@@ -356,9 +392,11 @@ public class ImportExportActivity extends BaseActivity {
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+        boolean podcastHistory = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
 
         if (liveBackupJson != null) {
-            executeRestoreFromJson(liveBackupJson, prefs, radios, podcasts, librivox);
+            executeRestoreFromJson(liveBackupJson, prefs, radios, podcasts, librivox, bookProgress, podcastHistory);
             return;
         }
 
@@ -367,7 +405,7 @@ public class ImportExportActivity extends BaseActivity {
                 byte[] bytes = new byte[inputStream.available()];
                 inputStream.read(bytes);
                 String json = new String(bytes, StandardCharsets.UTF_8);
-                executeRestoreFromJson(json, prefs, radios, podcasts, librivox);
+                executeRestoreFromJson(json, prefs, radios, podcasts, librivox, bookProgress, podcastHistory);
             }
         } catch (Exception e) {
             myLogEE(e, "Failed to restore backup from file");
@@ -376,9 +414,9 @@ public class ImportExportActivity extends BaseActivity {
     }
 
     private void executeRestoreFromJson(String json, boolean prefs, boolean radios, boolean podcasts,
-            boolean librivox) {
+            boolean librivox, boolean bookProgress, boolean podcastHistory) {
         try {
-            backupManager.importFromJson(json, prefs, radios, podcasts, librivox);
+            backupManager.importFromJson(json, prefs, radios, podcasts, librivox, bookProgress, podcastHistory);
             myLongToast(getString(R.string.import_export_restore_complete));
             finish();
         } catch (Exception e) {
@@ -387,10 +425,12 @@ public class ImportExportActivity extends BaseActivity {
         }
     }
 
-    private void saveBackupToFile(Uri uri, boolean prefs, boolean radios, boolean podcasts, boolean librivox) {
+    private void saveBackupToFile(Uri uri, boolean prefs, boolean radios, boolean podcasts, boolean librivox,
+            boolean bookProgress, boolean podcastHistory) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox, bookProgress,
+                        podcastHistory);
                 try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
                     if (outputStream != null) {
                         myLog("Backup saved to " + uri.toString());
@@ -415,15 +455,18 @@ public class ImportExportActivity extends BaseActivity {
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = !pure &&  ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean bookProgress = ((MaterialCheckBox) findViewById(R.id.cb_include_book_progress)).isChecked();
+        boolean podcastHistory = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcast_history)).isChecked();
 
-        if (!prefs && !radios && !podcasts && !librivox) {
+        if (!prefs && !radios && !podcasts && !librivox && !bookProgress && !podcastHistory) {
             myToast(getString(R.string.import_export_select_at_least_one_to_share));
             return;
         }
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox, bookProgress,
+                        podcastHistory);
                 File cacheDir = new File(getCacheDir(), "backups");
                 if (!cacheDir.exists())
                     cacheDir.mkdirs();

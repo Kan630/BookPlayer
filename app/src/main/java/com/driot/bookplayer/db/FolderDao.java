@@ -45,6 +45,12 @@ public interface FolderDao {
     @Insert
     long insert(Folder Folder);
 
+    @Insert
+    List<Long> insertAll(List<Folder> folders);
+
+    @Query("DELETE FROM Folder")
+    void deleteAll();
+
     @Delete
     void delete(Folder Folder);
 

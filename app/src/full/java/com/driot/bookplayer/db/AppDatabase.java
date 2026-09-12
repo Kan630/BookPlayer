@@ -11,7 +11,7 @@ import com.driot.bookplayer.player.heatmaps.PlayTick;
 
 @Database(entities = {
         Folder.class, ZikFile.class, BookSource.class, ImportJob.class, PlayTick.class, PlaySession.class,
-        Podcast.class, Episode.class, RadioStation.class
+        Podcast.class, Episode.class, RadioStation.class, PendingEpisodeHistory.class
 }, version = APP_DATABASE_VERSION)
 
 public abstract class AppDatabase extends BaseAppDatabase {
@@ -20,5 +20,7 @@ public abstract class AppDatabase extends BaseAppDatabase {
     public abstract PodcastDao podcastDao();
 
     public abstract RadioStationDao radioStationDao();
+
+    public abstract PendingEpisodeHistoryDao pendingEpisodeHistoryDao();
 
 }

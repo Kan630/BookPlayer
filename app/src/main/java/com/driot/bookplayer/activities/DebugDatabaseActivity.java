@@ -10,8 +10,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.importexport.AutoBackupSnapshotManager;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
@@ -54,6 +56,19 @@ public class DebugDatabaseActivity extends BaseActivity {
         restoreBtn.setOnClickListener(v -> {
             boolean success = DatabaseBackupHelper.restoreDatabase(this);
             Toast.makeText(this, success ? "Restore OK – please restart" : "Restore failed", Toast.LENGTH_LONG).show();
+        });
+
+        Button writeSnapshotBtn = findViewById(R.id.btnWriteAutoBackupSnapshot);
+        writeSnapshotBtn.setOnClickListener(v -> {
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                AutoBackupSnapshotManager.writeSnapshot(this);
+                File snapshotFile = AutoBackupSnapshotManager.getSnapshotFile(this);
+                runOnUiThread(() -> Toast.makeText(this,
+                        snapshotFile.exists()
+                                ? "Snapshot written (" + Formatter.formatFileSize(this, snapshotFile.length()) + ")"
+                                : "Snapshot write failed",
+                        Toast.LENGTH_LONG).show());
+            });
         });
     }
 }
