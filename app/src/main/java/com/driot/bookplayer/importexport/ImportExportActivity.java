@@ -17,6 +17,7 @@ import com.driot.bookplayer.activities.MsgBoxActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.db.BackupManager;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -113,9 +114,15 @@ public class ImportExportActivity extends BaseActivity {
         String preloadedJson = getIntent().getStringExtra(EXTRA_PRELOADED_JSON);
         if (mode == MODE_RESTORE && preloadedJson != null) {
             myLog("Restoring from recovered auto-backup snapshot");
+            isRecoveryFlow = true;
             inspectBackupJson(preloadedJson);
         }
     }
+
+    // True only when this screen was auto-launched from MainActivity's recovered-snapshot
+    // prompt (see EXTRA_PRELOADED_JSON) - distinguishes that disaster-recovery path from an
+    // everyday manual restore, so Pref.setLastRecoveryDate() only fires for the former.
+    private boolean isRecoveryFlow = false;
 
     private void setupUI() {
         TextView tvTitle = findViewById(R.id.tv_title);
@@ -417,6 +424,13 @@ public class ImportExportActivity extends BaseActivity {
             boolean librivox, boolean bookProgress, boolean podcastHistory) {
         try {
             backupManager.importFromJson(json, prefs, radios, podcasts, librivox, bookProgress, podcastHistory);
+            // Preferences (including the "stats" prefs LAST_RECOVERY_DATE lives in) are cleared
+            // and rewritten synchronously inside importFromJson, above - setting this any
+            // earlier (e.g. before the user even confirms) would just get wiped out by that
+            // clear(). Only the DB portions are async, and they don't touch SharedPreferences.
+            if (isRecoveryFlow) {
+                Pref.setLastRecoveryDate();
+            }
             myLongToast(getString(R.string.import_export_restore_complete));
             finish();
         } catch (Exception e) {

@@ -875,6 +875,7 @@
     <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
     <string name="stats_database_title">Database Statistics</string>
     <string name="stats_install_date_label">Install Date:</string>
+    <string name="stats_recovery_date_label">Recovered from backup on:</string>
     
     <string name="bMassImport">📁 Mass Import</string>
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>

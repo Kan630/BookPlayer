@@ -205,11 +205,21 @@ public class StatsActivity extends BaseActivity {
 
         TextView tv_stats_head = findViewById(R.id.tv_stats_head);
         TextView tv_stats_install_date = findViewById(R.id.tv_stats_install_date);
+        TextView tv_stats_recovery_date = findViewById(R.id.tv_stats_recovery_date);
         TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
         TextView tv_duration_stats_note = findViewById(R.id.tv_duration_stats_note);
 
         tv_stats_head.setText(R.string.Usage);
         tv_stats_install_date.setText(zeText4);
+
+        String recoveryDate = Pref.getLastRecoveryDate();
+        if (recoveryDate != null && !recoveryDate.isEmpty()) {
+            tv_stats_recovery_date.setText(
+                    getString(R.string.stats_recovery_date_label) + " " + formatInstallDate(recoveryDate));
+            tv_stats_recovery_date.setVisibility(View.VISIBLE);
+        } else {
+            tv_stats_recovery_date.setVisibility(View.GONE);
+        }
 
         // Populate table with duration details (including Audio Time header and
         // percentage bars)

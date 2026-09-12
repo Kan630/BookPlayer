@@ -23,14 +23,50 @@ public abstract class BaseBackupManager {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
+    // SharedPreferences.getAll() returns a Map<String, ?> with real Boolean/Float/Integer/Long/
+    // String objects, but Gson has no way to know which of those a bare JSON number was once it's
+    // deserialized back into a Map<String, ?> field (it defaults every JSON number to Double,
+    // regardless of whether the original value was an Integer, Long, or Float) - so every non-
+    // Boolean, non-String preference would silently vanish on restore (falls through every
+    // `instanceof` check below). Wrapping each value with an explicit type tag before it ever
+    // reaches Gson sidesteps that entirely.
+    public static class TypedPref {
+        public String type; // "boolean" | "float" | "int" | "long" | "string"
+        public String value;
+    }
+
     public static class BaseBackupData {
         public long timestamp;
-        public Map<String, Map<String, ?>> preferences = new HashMap<>();
+        public Map<String, Map<String, TypedPref>> preferences = new HashMap<>();
         public List<BookSource> bookSources = new ArrayList<>();
         // "Book progress" category - local audiobook playback position and per-book stats.
         // Applies to both flavors (unlike radios/podcasts/librivox, which are full-only).
         public List<ZikFile> zikFiles = new ArrayList<>();
         public List<Folder> folders = new ArrayList<>();
+    }
+
+    private static Map<String, TypedPref> toTypedPrefs(Map<String, ?> raw) {
+        Map<String, TypedPref> typed = new HashMap<>();
+        for (Map.Entry<String, ?> entry : raw.entrySet()) {
+            Object value = entry.getValue();
+            TypedPref tp = new TypedPref();
+            if (value instanceof Boolean) {
+                tp.type = "boolean";
+            } else if (value instanceof Float) {
+                tp.type = "float";
+            } else if (value instanceof Integer) {
+                tp.type = "int";
+            } else if (value instanceof Long) {
+                tp.type = "long";
+            } else if (value instanceof String) {
+                tp.type = "string";
+            } else {
+                continue; // StringSet or unknown type - not used anywhere in this app currently
+            }
+            tp.value = String.valueOf(value);
+            typed.put(entry.getKey(), tp);
+        }
+        return typed;
     }
 
     public abstract String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
@@ -47,15 +83,15 @@ public abstract class BaseBackupManager {
         data.timestamp = System.currentTimeMillis();
 
         if (includePreferences) {
-            data.preferences.put("SHARED_PREFERENCES_OPTIONS", Option.getSharedPrefs(context).getAll());
-            data.preferences.put("SHARED_PREFERENCES_DIVERSE",
-                    context.getSharedPreferences("SHARED_PREFERENCES_DIVERSE", Context.MODE_PRIVATE).getAll());
-            data.preferences.put("SHARED_PREFERENCES_STATS",
-                    context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll());
-            data.preferences.put("SHARED_PREFERENCE_ADMIN",
-                    context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll());
-            data.preferences.put("SHARED_PREFERENCE_SEARCH_HISTORY",
-                    context.getSharedPreferences("search_history_store", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCES_OPTIONS", toTypedPrefs(Option.getSharedPrefs(context).getAll()));
+            data.preferences.put("SHARED_PREFERENCES_DIVERSE", toTypedPrefs(
+                    context.getSharedPreferences("SHARED_PREFERENCES_DIVERSE", Context.MODE_PRIVATE).getAll()));
+            data.preferences.put("SHARED_PREFERENCES_STATS", toTypedPrefs(
+                    context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll()));
+            data.preferences.put("SHARED_PREFERENCE_ADMIN", toTypedPrefs(
+                    context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll()));
+            data.preferences.put("SHARED_PREFERENCE_SEARCH_HISTORY", toTypedPrefs(
+                    context.getSharedPreferences("search_history_store", Context.MODE_PRIVATE).getAll()));
 
             //Just for Admin visual check
             //data.preferences.put("SHARED_PREFERENCE_CENSORSHIP",
@@ -75,23 +111,36 @@ public abstract class BaseBackupManager {
     protected void importBaseData(BaseBackupData data, boolean includePreferences, boolean includeLibrivox,
             boolean includeBookProgress) {
         if (includePreferences && data.preferences != null) {
-            for (Map.Entry<String, Map<String, ?>> entry : data.preferences.entrySet()) {
+            for (Map.Entry<String, Map<String, TypedPref>> entry : data.preferences.entrySet()) {
                 String prefName = entry.getKey();
                 SharedPreferences sp = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
                 editor.clear();
-                for (Map.Entry<String, ?> prefEntry : entry.getValue().entrySet()) {
-                    Object value = prefEntry.getValue();
-                    if (value instanceof Boolean)
-                        editor.putBoolean(prefEntry.getKey(), (Boolean) value);
-                    else if (value instanceof Float)
-                        editor.putFloat(prefEntry.getKey(), (Float) value);
-                    else if (value instanceof Integer)
-                        editor.putInt(prefEntry.getKey(), (Integer) value);
-                    else if (value instanceof Long)
-                        editor.putLong(prefEntry.getKey(), (Long) value);
-                    else if (value instanceof String)
-                        editor.putString(prefEntry.getKey(), (String) value);
+                for (Map.Entry<String, TypedPref> prefEntry : entry.getValue().entrySet()) {
+                    TypedPref tp = prefEntry.getValue();
+                    if (tp == null || tp.type == null)
+                        continue;
+                    try {
+                        switch (tp.type) {
+                            case "boolean":
+                                editor.putBoolean(prefEntry.getKey(), Boolean.parseBoolean(tp.value));
+                                break;
+                            case "float":
+                                editor.putFloat(prefEntry.getKey(), Float.parseFloat(tp.value));
+                                break;
+                            case "int":
+                                editor.putInt(prefEntry.getKey(), Integer.parseInt(tp.value));
+                                break;
+                            case "long":
+                                editor.putLong(prefEntry.getKey(), Long.parseLong(tp.value));
+                                break;
+                            case "string":
+                                editor.putString(prefEntry.getKey(), tp.value);
+                                break;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // corrupt/unexpected value for this key - skip it, don't fail the whole restore
+                    }
                 }
                 editor.apply();
             }

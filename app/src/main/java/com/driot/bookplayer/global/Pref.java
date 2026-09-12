@@ -237,6 +237,17 @@ public class Pref {
         return stats.getLong("TOTAL_PLAY_IN_MS_" + playMode, 0);
     }
 
+    // Set when the app restores from the automatic OS-backup safety-net snapshot after an
+    // apparently-lost/wiped install (see MainActivity's recovery prompt / AutoBackupSnapshotManager).
+    // Stored in the same "stats" prefs as FIRST_OPEN_DATE so it's included in future backups too.
+    public static void setLastRecoveryDate() {
+        stats.edit().putString("LAST_RECOVERY_DATE", Tonio.getCurrentDateTimeString()).apply();
+    }
+
+    public static String getLastRecoveryDate() {
+        return stats.getString("LAST_RECOVERY_DATE", "");
+    }
+
     /////////////////// PODCAST DETAIL FAVORITE and AUTODOWNLOAD animations
     /////////////////// ///////////////////
     ///
