@@ -9,9 +9,11 @@ import static com.driot.bookplayer.helpers.StorageHelper.getFolderSize;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -38,6 +40,10 @@ public class StatsViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<String> dbStats = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    // Placeholder character baked into the "copied"/"linked" line text so an icon can later
+    // replace it via ImageSpan, without disturbing the indexOf-based color-span lookups below.
+    private static final String ICON_ANCHOR = " ";
+
     public StatsViewModel(@NonNull Application application) {
         super(application);
         loadStorageInfo();
@@ -50,6 +56,31 @@ public class StatsViewModel extends LoggingAndroidViewModel {
      */
     private Context getLocalizedContext() {
         return com.driot.bookplayer.helpers.LocaleHelper.wrapContextWithAppLocale(getApplication());
+    }
+
+    /**
+     * Replaces the leading {@link #ICON_ANCHOR} character of a "copied"/"linked" line with a
+     * small icon, mirroring the copy/link icons used in MoveBookActivity's destination-group
+     * headers - same visual language for the same reserved-storage-vs-linked-storage split.
+     */
+    private void applyStorageIcon(SpannableString spannable, String plainText, String line, Context ctx, int iconRes,
+            int tintColor) {
+        if (line == null || line.isEmpty())
+            return;
+        int start = plainText.indexOf(line);
+        if (start < 0)
+            return;
+        Drawable d = ContextCompat.getDrawable(ctx, iconRes);
+        if (d == null)
+            return;
+        d = d.mutate();
+        // The vector's own baked-in ?attr/colorControlNormal tint is a generic gray that gets
+        // lost against the surrounding colored text - force it to match the line's color instead.
+        d.setColorFilter(tintColor, android.graphics.PorterDuff.Mode.SRC_IN);
+        int size = (int) (14 * ctx.getResources().getDisplayMetrics().density);
+        d.setBounds(0, 0, size, size);
+        spannable.setSpan(new ImageSpan(d, ImageSpan.ALIGN_BASELINE),
+                start, start + ICON_ANCHOR.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     public LiveData<StorageInfo> getInternalStorageInfo() {
@@ -162,11 +193,11 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                     + ctx.getString(R.string.MB_device_memory)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, availableMegs2)
                     + ctx.getString(R.string.MB_available_on_device)
-                    + "\n" + "\n" + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
+                    + "\n" + "\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
                     + ctx.getString(R.string.MB_taken_by_audio_files)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, currentAppSize)
                     + ctx.getString(R.string.MB_taken_by_BookPlayer_app)
-                    + "\n" + "\n" + Tonio.formatMemPadding(app, linkedAudiosMB)
+                    + "\n" + "\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, sizeImages) + ctx.getString(R.string.MB_taken_by_images)
                     + "\n" + "\n" + Tonio.formatMemPadding(app, sizeCachedImages) + ctx.getString(R.string.MB_taken_by_cached_images)
@@ -175,14 +206,14 @@ public class StatsViewModel extends LoggingAndroidViewModel {
 
             // Create SpannableString with colors matching storage bar
             SpannableString internalText = new SpannableString(internalTextPlain);
-            int lightBlueColor = ContextCompat.getColor(app, R.color.pastel_blue_500); // Light blue for BookPlayer
+            int lightBlueColor = ContextCompat.getColor(app, R.color.storage_copy_color); // Light blue for BookPlayer
                                                                                        // audio files
             int darkBlueColor = ContextCompat.getColor(app, R.color.pastel_blue_900); // Dark blue for BookPlayer app
                                                                                       // (app + db + logs + images)
-            int greenColor = ContextCompat.getColor(app, R.color.green_500); // Green for linked audios
+            int greenColor = ContextCompat.getColor(app, R.color.storage_link_color); // Green for linked audios
 
             // Color "MB taken by audio files" (copied audio) - LIGHT BLUE
-            String audioFilesLine = Tonio.formatMemPadding(app, currentAudiosSizeInternal)
+            String audioFilesLine = ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
                     + ctx.getString(R.string.MB_taken_by_audio_files);
             int audioFilesStart = internalTextPlain.indexOf(audioFilesLine);
             if (audioFilesStart >= 0) {
@@ -191,6 +222,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         audioFilesStart + audioFilesLine.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            applyStorageIcon(internalText, internalTextPlain, audioFilesLine, ctx, R.drawable.ic_content_copy_24px, lightBlueColor);
 
             // Color "MB taken by BookPlayer app" - DARK BLUE (app + db + logs + images)
             String appLine = Tonio.formatMemPadding(app, currentAppSize)
@@ -234,7 +266,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
             }
 
             // Color "MB taken by linked audios" - GREEN
-            String linkedAudiosLine = Tonio.formatMemPadding(app, linkedAudiosMB)
+            String linkedAudiosLine = ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios);
             int linkedAudiosStart = internalTextPlain.indexOf(linkedAudiosLine);
             if (linkedAudiosStart >= 0) {
@@ -243,6 +275,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         linkedAudiosStart + linkedAudiosLine.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            applyStorageIcon(internalText, internalTextPlain, linkedAudiosLine, ctx, R.drawable.ic_link_2_24px, greenColor);
 
             long appStorageBytes = StorageInfoCacheHelper.getCachedInternalApp();
             internalStorageInfo.postValue(new StorageInfo(
@@ -276,18 +309,18 @@ public class StatsViewModel extends LoggingAndroidViewModel {
 
             String sdCardTextPlain = Tonio.formatMemPadding(app, total) + ctx.getString(R.string.MB_SD_card_memory)
                     + "\n\n" + Tonio.formatMemPadding(app, available) + ctx.getString(R.string.MB_available_on_SD_card)
-                    + "\n\n" + Tonio.formatMemPadding(app, currentAudiosSizeSD)
+                    + "\n\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeSD)
                     + ctx.getString(R.string.MB_taken_by_audio_files)
-                    + "\n\n" + Tonio.formatMemPadding(app, linkedAudiosMB)
+                    + "\n\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios);
 
             // Create SpannableString with colors matching storage bar
             SpannableString sdCardText = new SpannableString(sdCardTextPlain);
-            int blueColor = ContextCompat.getColor(app, R.color.pastel_blue_500); // Blue for BookPlayer used
-            int greenColor = ContextCompat.getColor(app, R.color.green_500); // Green for linked audios
+            int blueColor = ContextCompat.getColor(app, R.color.storage_copy_color); // Blue for BookPlayer used
+            int greenColor = ContextCompat.getColor(app, R.color.storage_link_color); // Green for linked audios
 
             // Color "MB taken by audio files" (copied audio) - BLUE
-            String audioFilesLine = Tonio.formatMemPadding(app, currentAudiosSizeSD)
+            String audioFilesLine = ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeSD)
                     + ctx.getString(R.string.MB_taken_by_audio_files);
             int audioFilesStart = sdCardTextPlain.indexOf(audioFilesLine);
             if (audioFilesStart >= 0) {
@@ -296,9 +329,10 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         audioFilesStart + audioFilesLine.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            applyStorageIcon(sdCardText, sdCardTextPlain, audioFilesLine, ctx, R.drawable.ic_content_copy_24px, blueColor);
 
             // Color "MB taken by linked audios" - GREEN
-            String linkedAudiosLine = Tonio.formatMemPadding(app, linkedAudiosMB)
+            String linkedAudiosLine = ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios);
             int linkedAudiosStart = sdCardTextPlain.indexOf(linkedAudiosLine);
             if (linkedAudiosStart >= 0) {
@@ -307,6 +341,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         linkedAudiosStart + linkedAudiosLine.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            applyStorageIcon(sdCardText, sdCardTextPlain, linkedAudiosLine, ctx, R.drawable.ic_link_2_24px, greenColor);
 
             sdCardStorageInfo.postValue(new StorageInfo(
                     totalSDCardBytes,
@@ -397,9 +432,9 @@ public class StatsViewModel extends LoggingAndroidViewModel {
         String internalTextPlain = Tonio.formatMemPadding(app, totalMemory) + ctx.getString(R.string.MB_device_memory)
                 + "\n" + "\n" + Tonio.formatMemPadding(app, availableMegs2)
                 + ctx.getString(R.string.MB_available_on_device)
-                + "\n" + "\n" + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
+                + "\n" + "\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
                 + ctx.getString(R.string.MB_taken_by_audio_files)
-                + "\n" + "\n" + Tonio.formatMemPadding(app, linkedAudiosMB)
+                + "\n" + "\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                 + ctx.getString(R.string.MB_taken_by_linked_audios)
                 + "\n" + "\n" + Tonio.formatMemPadding(app, currentAppSize)
                 + ctx.getString(R.string.MB_taken_by_BookPlayer_app)
@@ -409,14 +444,14 @@ public class StatsViewModel extends LoggingAndroidViewModel {
 
         // Create SpannableString with colors matching storage bar
         SpannableString internalText = new SpannableString(internalTextPlain);
-        int lightBlueColor = ContextCompat.getColor(app, R.color.pastel_blue_500); // Light blue for BookPlayer audio
+        int lightBlueColor = ContextCompat.getColor(app, R.color.storage_copy_color); // Light blue for BookPlayer audio
                                                                                    // files
         int darkBlueColor = ContextCompat.getColor(app, R.color.pastel_blue_900); // Dark blue for BookPlayer app (app +
                                                                                   // db + logs + images)
-        int greenColor = ContextCompat.getColor(app, R.color.green_500); // Green for linked audios
+        int greenColor = ContextCompat.getColor(app, R.color.storage_link_color); // Green for linked audios
 
         // Color "MB taken by audio files" (copied audio) - LIGHT BLUE
-        String audioFilesLine = Tonio.formatMemPadding(app, currentAudiosSizeInternal)
+        String audioFilesLine = ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeInternal)
                 + ctx.getString(R.string.MB_taken_by_audio_files);
         int audioFilesStart = internalTextPlain.indexOf(audioFilesLine);
         if (audioFilesStart >= 0) {
@@ -425,6 +460,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                     audioFilesStart + audioFilesLine.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        applyStorageIcon(internalText, internalTextPlain, audioFilesLine, ctx, R.drawable.ic_content_copy_24px, lightBlueColor);
 
         // Color "MB taken by BookPlayer app" - DARK BLUE (app + db + logs + images)
         String appLine = Tonio.formatMemPadding(app, currentAppSize)
@@ -468,7 +504,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
         }
 
         // Color "MB taken by linked audios" - GREEN
-        String linkedAudiosLine = Tonio.formatMemPadding(app, linkedAudiosMB)
+        String linkedAudiosLine = ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                 + ctx.getString(R.string.MB_taken_by_linked_audios);
         int linkedAudiosStart = internalTextPlain.indexOf(linkedAudiosLine);
         if (linkedAudiosStart >= 0) {
@@ -477,6 +513,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                     linkedAudiosStart + linkedAudiosLine.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        applyStorageIcon(internalText, internalTextPlain, linkedAudiosLine, ctx, R.drawable.ic_link_2_24px, greenColor);
 
         // Post internal storage results immediately (don't wait for SD card)
         if (totalMemory > 0) {
@@ -523,17 +560,17 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                     + "\n\n" + Tonio.formatMemPadding(app, available) + ctx.getString(R.string.MB_available_on_SD_card)
                     + "\n\n" + ctx.getString(R.string.calculating_storage)
                     + " " + ctx.getString(R.string.MB_taken_by_audio_files)
-                    + "\n\n" + Tonio.formatMemPadding(app, linkedAudiosInitialMB)
+                    + "\n\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosInitialMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios);
 
             // Create SpannableString with colors matching storage bar
             SpannableString sdCardTextInitial = new SpannableString(sdCardTextInitialPlain);
-            int blueColor = ContextCompat.getColor(app, R.color.pastel_blue_500); // Blue for BookPlayer used
-            int greenColor = ContextCompat.getColor(app, R.color.green_500); // Green for linked audios
+            int blueColor = ContextCompat.getColor(app, R.color.storage_copy_color); // Blue for BookPlayer used
+            int greenColor = ContextCompat.getColor(app, R.color.storage_link_color); // Green for linked audios
 
             // Color "MB taken by linked audios" - GREEN (audio files line shows
             // "calculating..." so skip it)
-            String linkedAudiosLine = Tonio.formatMemPadding(app, linkedAudiosInitialMB)
+            String linkedAudiosLine = ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosInitialMB)
                     + ctx.getString(R.string.MB_taken_by_linked_audios);
             int linkedAudiosStart = sdCardTextInitialPlain.indexOf(linkedAudiosLine);
             if (linkedAudiosStart >= 0) {
@@ -542,6 +579,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         linkedAudiosStart + linkedAudiosLine.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            applyStorageIcon(sdCardTextInitial, sdCardTextInitialPlain, linkedAudiosLine, ctx, R.drawable.ic_link_2_24px, greenColor);
 
             long totalSDCardBytes = total * 1048576L;
             long availableSDCardBytes = available * 1048576L;
@@ -588,19 +626,19 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                             + ctx.getString(R.string.MB_SD_card_memory)
                             + "\n\n" + Tonio.formatMemPadding(app, available)
                             + ctx.getString(R.string.MB_available_on_SD_card)
-                            + "\n\n" + Tonio.formatMemPadding(app, currentAudiosSizeSD)
+                            + "\n\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeSD)
                             + ctx.getString(R.string.MB_taken_by_audio_files)
-                            + "\n\n" + Tonio.formatMemPadding(app, linkedAudiosMB)
+                            + "\n\n" + ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                             + ctx.getString(R.string.MB_taken_by_linked_audios);
 
                     // Create SpannableString with colors matching storage bar
                     SpannableString sdCardText = new SpannableString(sdCardTextPlain);
-                    int blueColorInner = ContextCompat.getColor(app, R.color.pastel_blue_500); // Blue for BookPlayer
+                    int blueColorInner = ContextCompat.getColor(app, R.color.storage_copy_color); // Blue for BookPlayer
                                                                                                // used
-                    int greenColorInner = ContextCompat.getColor(app, R.color.green_500); // Green for linked audios
+                    int greenColorInner = ContextCompat.getColor(app, R.color.storage_link_color); // Green for linked audios
 
                     // Color "MB taken by audio files" (copied audio) - BLUE
-                    String audioFilesLineInner = Tonio.formatMemPadding(app, currentAudiosSizeSD)
+                    String audioFilesLineInner = ICON_ANCHOR + Tonio.formatMemPadding(app, currentAudiosSizeSD)
                             + ctx.getString(R.string.MB_taken_by_audio_files);
                     int audioFilesStartInner = sdCardTextPlain.indexOf(audioFilesLineInner);
                     if (audioFilesStartInner >= 0) {
@@ -609,9 +647,10 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                                 audioFilesStartInner + audioFilesLineInner.length(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
+                    applyStorageIcon(sdCardText, sdCardTextPlain, audioFilesLineInner, ctx, R.drawable.ic_content_copy_24px, blueColorInner);
 
                     // Color "MB taken by linked audios" - GREEN
-                    String linkedAudiosLineInner = Tonio.formatMemPadding(app, linkedAudiosMB)
+                    String linkedAudiosLineInner = ICON_ANCHOR + Tonio.formatMemPadding(app, linkedAudiosMB)
                             + ctx.getString(R.string.MB_taken_by_linked_audios);
                     int linkedAudiosStartInner = sdCardTextPlain.indexOf(linkedAudiosLineInner);
                     if (linkedAudiosStartInner >= 0) {
@@ -620,6 +659,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                                 linkedAudiosStartInner + linkedAudiosLineInner.length(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
+                    applyStorageIcon(sdCardText, sdCardTextPlain, linkedAudiosLineInner, ctx, R.drawable.ic_link_2_24px, greenColorInner);
 
                     long usedByBookPlayerSDCardBytes = currentAudiosSizeSD * 1048576L;
                     long usedByOthersSDCardBytesUpdated = usedTotalSDCardBytes - usedByBookPlayerSDCardBytes;

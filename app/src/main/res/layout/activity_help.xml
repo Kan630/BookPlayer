@@ -101,7 +101,7 @@
             <View style="@style/myStyleViewSimpleHorizontalBar"/>
             <TextView style="@style/HelpTitle"
                 android:text="@string/help_url_title"
-                android:drawableStart="@drawable/ic_link_24px"
+                android:drawableStart="@drawable/ic_cloud_download_24px"
                 android:drawablePadding="10dp"
                 android:drawableTint="?colorPrimary"
                 />

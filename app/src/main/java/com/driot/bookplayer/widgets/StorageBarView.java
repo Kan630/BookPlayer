@@ -61,8 +61,8 @@ public class StorageBarView extends View {
 
         // Load colors from resources
         colorUsedByOthers = getContext().getColor(R.color.gray_500);
-        colorUsedByBookPlayer = getContext().getColor(R.color.pastel_blue_500); // Blue for BookPlayer audio files
-        colorLinkedAudios = getContext().getColor(R.color.green_500); // Green for linked audios
+        colorUsedByBookPlayer = getContext().getColor(R.color.storage_copy_color); // matches copy icon/text color
+        colorLinkedAudios = getContext().getColor(R.color.storage_link_color); // matches link icon/text color
         colorAppStorage = getContext().getColor(R.color.pastel_blue_900); // Dark blue for app storage (app + db + logs + images)
         colorExpectedMemory = getContext().getColor(R.color.yellow_500);
         borderColor = getContext().getColor(R.color.gray_500);

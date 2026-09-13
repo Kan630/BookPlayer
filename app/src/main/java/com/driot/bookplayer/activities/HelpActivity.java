@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -9,12 +10,42 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
 public class HelpActivity extends BaseActivity {
+
+    // Resolves <img src="..."> tags in help_*_text strings to app drawables (the copy/link icons
+    // in help_text_manual_import), tinted to match the app-wide copy/link colors. Maps known
+    // source names directly to R.drawable ids rather than Resources.getIdentifier(name, type,
+    // getPackageName()) - the full/pure flavors' applicationId ("com.driot.bookplayerfull"/"pure",
+    // plus a ".debug" suffix on debug builds) doesn't match the resource package (fixed to
+    // "com.driot.bookplayer" via the module's namespace), so getIdentifier() with getPackageName()
+    // always returned 0 and the icons silently failed to render.
+    private final Html.ImageGetter drawableNameImageGetter = source -> {
+        int resId;
+        int tintColor;
+        if ("ic_content_copy_24px".equals(source)) {
+            resId = R.drawable.ic_content_copy_24px;
+            tintColor = androidx.core.content.ContextCompat.getColor(this, R.color.storage_copy_color);
+        } else if ("ic_link_2_24px".equals(source)) {
+            resId = R.drawable.ic_link_2_24px;
+            tintColor = androidx.core.content.ContextCompat.getColor(this, R.color.storage_link_color);
+        } else {
+            return null;
+        }
+        Drawable d = androidx.core.content.ContextCompat.getDrawable(this, resId);
+        if (d == null)
+            return null;
+        d = d.mutate();
+        d.setColorFilter(tintColor, android.graphics.PorterDuff.Mode.SRC_IN);
+        int size = ViewHelper.dp(this, 16);
+        d.setBounds(0, 0, size, size);
+        return d;
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +67,8 @@ public class HelpActivity extends BaseActivity {
         ll = findViewById(R.id.ll_help_text_manual_import);
         tv = findViewById(R.id.tv_help_text_manual_import);
         ll.setVisibility(LinearLayout.VISIBLE);
-        tv.setText(Html.fromHtml(getString(R.string.help_text_manual_import), Html.FROM_HTML_MODE_LEGACY));
+        tv.setText(Html.fromHtml(getString(R.string.help_text_manual_import), Html.FROM_HTML_MODE_LEGACY,
+                drawableNameImageGetter, null));
 
         ll = findViewById(R.id.ll_help_text_librivox);
         tv = findViewById(R.id.tv_help_text_librivox);

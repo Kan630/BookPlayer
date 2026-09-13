@@ -43,7 +43,7 @@
                     <ImageButton
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_link_24px"
+                        android:src="@drawable/ic_cloud_download_24px"
                         android:scaleType="centerInside"
                         android:background="@android:color/transparent"
                         app:tint="?attr/colorOnSurface"

@@ -118,6 +118,15 @@
     <color name="pastel_blue_700">#29B6F6</color>
     <color name="pastel_blue_900">#0288D1</color>
 
+    <!-- App-wide "copied to reserved storage" vs "linked from shared storage" colors - used
+         consistently for icon tints, text, and storage bars everywhere the app draws this
+         distinction (MoveBookActivity, StatsActivity, Import Settings, the Manual). Deliberately
+         a different hue family from pastel_blue_900 (the separate "BookPlayer app" third color
+         in StatsActivity's storage bar) so the three stay visually distinguishable. Dark/saturated
+         enough here for contrast on a light background; see values-night for the dark-theme pair. -->
+    <color name="storage_copy_color">#303F9F</color>
+    <color name="storage_link_color">#2E7D32</color>
+
     <!-- Indigo Theme Colors -->
     <color name="indigo_500">#3F51B5</color>
     <color name="indigo_700">#303F9F</color>

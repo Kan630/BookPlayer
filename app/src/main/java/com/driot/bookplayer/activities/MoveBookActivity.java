@@ -1,12 +1,14 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -58,6 +60,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class MoveBookActivity extends BaseActivity {
 
     private static final int REQ_CONFIRM_MOVE = 4001;
+
+    // Placeholder character baked into the "copied"/"linked" line text so an icon can later
+    // replace it via ImageSpan, without disturbing the ForegroundColorSpan offsets below.
+    private static final String ICON_ANCHOR = " ";
 
     private Folder folder;
     private StorageHelper.MemoryLocationType currentType;
@@ -136,7 +142,8 @@ public class MoveBookActivity extends BaseActivity {
         llDestinations.removeAllViews();
         boolean sdAvailable = StorageHelper.isExternalSDCardAvailable(this);
 
-        addGroupHeader(R.string.move_group_copy_title, R.string.move_group_copy_subtitle, R.color.pastel_blue_500);
+        addGroupHeader(R.string.move_group_copy_title, R.string.move_group_copy_subtitle, R.color.storage_copy_color,
+                R.drawable.ic_content_copy_24px);
         addDestinationRow(StorageHelper.MemoryLocationType.INTERNAL_RESERVED,
                 R.drawable.ic_memory_general_smartphone_r,
                 getString(R.string.audio_location_bookplayer_reserved_storage), DestMode.RESERVED);
@@ -146,7 +153,8 @@ public class MoveBookActivity extends BaseActivity {
                     getString(R.string.audio_location_sdcard_reserved_storage), DestMode.RESERVED);
         }
 
-        addGroupHeader(R.string.move_group_link_title, R.string.move_group_link_subtitle, R.color.green_500);
+        addGroupHeader(R.string.move_group_link_title, R.string.move_group_link_subtitle, R.color.storage_link_color,
+                R.drawable.ic_link_2_24px);
         addDestinationRow(StorageHelper.MemoryLocationType.PHONE_SHARED,
                 R.drawable.ic_memory_general_smartphone,
                 getString(R.string.audio_location_smartphone_shared_storage), DestMode.LINK_DEFAULT);
@@ -168,17 +176,34 @@ public class MoveBookActivity extends BaseActivity {
         PICKER         // user picks a custom folder via SAF
     }
 
-    private void addGroupHeader(int titleRes, int subtitleRes, int colorRes) {
+    private void addGroupHeader(int titleRes, int subtitleRes, int colorRes, int iconRes) {
+        LinearLayout titleRow = new LinearLayout(this);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams titleRowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        titleRowParams.topMargin = ViewHelper.dp(this, 14);
+        titleRow.setLayoutParams(titleRowParams);
+
+        ImageView icon = new ImageView(this);
+        int iconSize = ViewHelper.dp(this, 18);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(iconSize, iconSize);
+        iconParams.setMarginEnd(ViewHelper.dp(this, 8));
+        icon.setLayoutParams(iconParams);
+        icon.setImageResource(iconRes);
+        icon.setColorFilter(getResources().getColor(colorRes, null));
+        titleRow.addView(icon);
+
         TextView title = new TextView(this);
         title.setText(getString(titleRes));
         title.setTextSize(15);
         title.setTypeface(title.getTypeface(), android.graphics.Typeface.BOLD);
         title.setTextColor(getResources().getColor(colorRes, null));
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        titleParams.topMargin = ViewHelper.dp(this, 14);
-        title.setLayoutParams(titleParams);
-        llDestinations.addView(title);
+        title.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        titleRow.addView(title);
+
+        llDestinations.addView(titleRow);
 
         TextView subtitle = new TextView(this);
         subtitle.setText(getString(subtitleRes));
@@ -259,25 +284,41 @@ public class MoveBookActivity extends BaseActivity {
             long linked) {
         long others = Math.max(0, total - free - copied - linked);
 
-        String copiedLine = getString(R.string.move_storage_copied_books, Tonio.getReadableSize(copied));
-        String linkedLine = getString(R.string.move_storage_linked_books, Tonio.getReadableSize(linked));
+        // Leading anchor character on each line gets swapped for a small icon below via
+        // ImageSpan, matching the copy/link icons used in the destination group headers above.
+        String copiedLine = ICON_ANCHOR + getString(R.string.move_storage_copied_books, Tonio.getReadableSize(copied));
+        String linkedLine = ICON_ANCHOR + getString(R.string.move_storage_linked_books, Tonio.getReadableSize(linked));
         String freeLine = getString(R.string.move_storage_free, Tonio.getReadableSize(free),
                 Tonio.getReadableSize(total));
         String fullText = copiedLine + "\n" + linkedLine + "\n" + freeLine;
 
         SpannableString spannable = new SpannableString(fullText);
-        int copiedColor = getResources().getColor(R.color.pastel_blue_500, null);
-        int linkedColor = getResources().getColor(R.color.green_500, null);
+        int copiedColor = getResources().getColor(R.color.storage_copy_color, null);
+        int linkedColor = getResources().getColor(R.color.storage_link_color, null);
         spannable.setSpan(new ForegroundColorSpan(copiedColor), 0, copiedLine.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        applyLineIcon(spannable, 0, R.drawable.ic_content_copy_24px, copiedColor);
         int linkedStart = copiedLine.length() + 1;
         spannable.setSpan(new ForegroundColorSpan(linkedColor), linkedStart, linkedStart + linkedLine.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        applyLineIcon(spannable, linkedStart, R.drawable.ic_link_2_24px, linkedColor);
         tvBody.setText(spannable);
 
         // No "appStorage" segment here (unlike StatsActivity's bar) - that overhead is already
         // folded into "others" above, since this screen only cares about copied vs linked books.
         bar.setStorageValues(total, others, copied, 0, linked);
+    }
+
+    /** Replaces the leading {@link #ICON_ANCHOR} character at {@code start} with a small icon,
+     * tinted to match the surrounding line's color rather than the vector's own baked-in
+     * ?attr/colorControlNormal gray. */
+    private void applyLineIcon(SpannableString spannable, int start, int iconRes, int tintColor) {
+        Drawable d = getResources().getDrawable(iconRes, null).mutate();
+        d.setColorFilter(tintColor, android.graphics.PorterDuff.Mode.SRC_IN);
+        int size = ViewHelper.dp(this, 14);
+        d.setBounds(0, 0, size, size);
+        spannable.setSpan(new ImageSpan(d, ImageSpan.ALIGN_BASELINE),
+                start, start + ICON_ANCHOR.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private void addDestinationRow(StorageHelper.MemoryLocationType type, int iconRes, String label,

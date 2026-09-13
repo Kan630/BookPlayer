@@ -292,8 +292,6 @@
                 style="@style/OptionTitle"
                 android:text="@string/option_screensaver_title" />
 
-            <TextView style="@style/betatest"/>
-
             <LinearLayout
                 android:id="@+id/ll_screensaver_enabled"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">

@@ -306,7 +306,7 @@
     <br><br>
     BookPlayer supports nearly all audio formats, plays video soundtracks, and can extract chapters from ZIP or M4B files.
     <br><br>
-    <b>Option 1: <font color="#FFCC80">Copy</font></b> <i>(default)</i> — The file is <b>copied</b> into BookPlayer’s <font color="#90D8E8">private memory</font>.
+    <img src="ic_content_copy_24px"> <b>Option 1: <font color="#7986CB">Copy</font></b> <i>(default)</i> — The file is <b>copied</b> into BookPlayer’s <font color="#90D8E8">private memory</font>.
     <br>
     <b>Advantages:</b>
     <ul>
@@ -314,7 +314,7 @@
     <li>Safe from accidental deletion</li>
     </ul>
     <br>
-    <b>Option 2: <font color="#FFCC80">No Copy</font></b> — Only the file path is saved. Playback occurs directly from <i>shared storage</i>.
+    <img src="ic_link_2_24px"> <b>Option 2: <font color="#81C784">Link</font></b> — Only the file path is saved. Playback occurs directly from <i>shared storage</i>.
     <br>
     <b>Advantage:</b> Saves internal space.
     <br><br>
