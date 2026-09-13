@@ -265,13 +265,13 @@
     <br>
     टैप करने पर प्लेबैक शुरू होता है।
     ]]></string>
-    <string name="help_title_manual_import">मैनुअल आयात :</string>
-    <string name="help_text_manual_import"><![CDATA[
-    जब आप <font color="#81C784"><b>मैनुअल आयात</b></font> करते हैं, तो आप <font color="#64B5F6">फ़ाइल</font> या <font color="#64B5F6">फ़ोल्डर</font> चुनकर शुरू करते हैं।
+    <string name="help_title_import">आयात :</string>
+    <string name="help_text_import"><![CDATA[
+    जब आप <font color="#81C784"><b>आयात</b></font> करते हैं, तो आप <font color="#64B5F6">फ़ाइल</font> या <font color="#64B5F6">फ़ोल्डर</font> चुनकर शुरू करते हैं।
     <br><br>
     BookPlayer लगभग सभी ऑडियो फ़ॉर्मैट को सपोर्ट करता है, वीडियो साउंडट्रैक्स चलाता है, और ZIP या M4B फ़ाइलों से अध्याय निकाल सकता है।
     <br><br>
-    <b>विकल्प 1: <font color="#FFCC80">कॉपी</font></b> <i>(डिफ़ॉल्ट)</i> — फ़ाइल BookPlayer की <font color="#90D8E8">निजी मेमोरी</font> में <b>कॉपी</b> की जाती है।
+    <b>विकल्प 1: <font color="#FFCC80">कॉपी</font></b> <i>(डिफ़ॉल्ट)</i> — फ़ाइल BookPlayer की <font color="#DD0000">निजी आरक्षित मेमोरी</font> में <b>कॉपी</b> की जाती है।
     <br>
     <b>फ़ायदे:</b>
     <ul>
@@ -279,7 +279,7 @@
     <li>अनजाने में हटाने से सुरक्षित</li>
     </ul>
     <br>
-    <b>विकल्प 2: <font color="#FFCC80">नो कॉपी</font></b> — केवल फ़ाइल पथ सहेजा जाता है। प्लेबैक सीधे <i>शेयर्ड स्टोरेज</i> से होता है।
+    <b>विकल्प 2: <font color="#FFCC80">नो कॉपी</font></b> — केवल फ़ाइल पथ सहेजा जाता है। प्लेबैक सीधे <font color="#DD0000">शेयर्ड स्टोरेज</font> से होता है।
     <br>
     <b>फ़ायदा:</b> आंतरिक स्थान बचता है।
     <br><br>

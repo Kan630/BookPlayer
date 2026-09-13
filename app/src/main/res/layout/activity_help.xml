@@ -46,19 +46,19 @@
                 />
         </LinearLayout>
 
-        <LinearLayout android:id="@+id/ll_help_text_manual_import"
+        <LinearLayout android:id="@+id/ll_help_text_import"
             android:visibility="gone"
             style="@style/wideLinearLayout_Vertical"
             >
             <View style="@style/myStyleViewSimpleHorizontalBar"/>
             <TextView style="@style/HelpTitle"
-                android:text="@string/help_title_manual_import"
+                android:text="@string/help_title_import"
                 android:drawableStart="@drawable/ic_add_book_24"
                 android:drawablePadding="10dp"
                 android:drawableTint="?colorPrimary"
                 />
             <TextView style="@style/HelpText"
-                android:id="@+id/tv_help_text_manual_import"
+                android:id="@+id/tv_help_text_import"
                 />
         </LinearLayout>
 

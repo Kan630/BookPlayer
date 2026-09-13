@@ -98,7 +98,7 @@
                     <ImageButton
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_memory_general_smartphone"
+                        android:src="@drawable/ic_mobile_2_24px"
                         android:scaleType="centerInside"
                         android:background="@android:color/transparent"
                         app:tint="?attr/colorOnSurface"

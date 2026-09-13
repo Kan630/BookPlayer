@@ -145,22 +145,22 @@ public class MoveBookActivity extends BaseActivity {
         addGroupHeader(R.string.move_group_copy_title, R.string.move_group_copy_subtitle, R.color.storage_copy_color,
                 R.drawable.ic_content_copy_24px);
         addDestinationRow(StorageHelper.MemoryLocationType.INTERNAL_RESERVED,
-                R.drawable.ic_memory_general_smartphone_r,
+                R.drawable.ic_mobile_2_r_24px,
                 getString(R.string.audio_location_bookplayer_reserved_storage), DestMode.RESERVED);
         if (sdAvailable) {
             addDestinationRow(StorageHelper.MemoryLocationType.SDCARD_RESERVED,
-                    R.drawable.ic_memory_sdcard_r,
+                    R.drawable.ic_sd_card_r_24px,
                     getString(R.string.audio_location_sdcard_reserved_storage), DestMode.RESERVED);
         }
 
         addGroupHeader(R.string.move_group_link_title, R.string.move_group_link_subtitle, R.color.storage_link_color,
                 R.drawable.ic_link_2_24px);
         addDestinationRow(StorageHelper.MemoryLocationType.PHONE_SHARED,
-                R.drawable.ic_memory_general_smartphone,
+                R.drawable.ic_mobile_2_24px,
                 getString(R.string.audio_location_smartphone_shared_storage), DestMode.LINK_DEFAULT);
         if (sdAvailable) {
             addDestinationRow(StorageHelper.MemoryLocationType.SDCARD_SHARED,
-                    R.drawable.ic_memory_sdcard,
+                    R.drawable.ic_sd_card_24px,
                     getString(R.string.audio_location_sdcard), DestMode.LINK_DEFAULT);
         }
         // Not tied to a specific MemoryLocationType until the user actually picks a folder -

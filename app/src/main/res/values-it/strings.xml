@@ -266,13 +266,13 @@
     <br>
     Un tap avvia la riproduzione.
     ]]></string>
-    <string name="help_title_manual_import">Importazione manuale :</string>
-    <string name="help_text_manual_import"><![CDATA[
-    Quando <font color="#81C784"><b>importi manualmente</b></font> un libro, inizi selezionando un <font color="#64B5F6">file</font> o una <font color="#64B5F6">cartella</font>.
+    <string name="help_title_import">Importazione :</string>
+    <string name="help_text_import"><![CDATA[
+    Quando <font color="#81C784"><b>importi</b></font> un libro, inizi selezionando un <font color="#64B5F6">file</font> o una <font color="#64B5F6">cartella</font>.
     <br><br>
     BookPlayer supporta quasi tutti i formati audio, riproduce le tracce audio dei video e può estrarre capitoli da file ZIP o M4B.
     <br><br>
-    <b>Opzione 1: <font color="#FFCC80">Copia</font></b> <i>(predefinita)</i> — Il file viene <b>copiato</b> nella <font color="#90D8E8">memoria privata</font> di BookPlayer.
+    <b>Opzione 1: <font color="#FFCC80">Copia</font></b> <i>(predefinita)</i> — Il file viene <b>copiato</b> nella <font color="#DD0000">memoria privata riservata</font> di BookPlayer.
     <br>
     <b>Vantaggi:</b>
     <ul>
@@ -280,7 +280,7 @@
     <li>Al riparo da eliminazioni accidentali</li>
     </ul>
     <br>
-    <b>Opzione 2: <font color="#FFCC80">Nessuna copia</font></b> — Viene salvato solo il percorso del file. La riproduzione avviene direttamente dalla <i>memoria condivisa</i>.
+    <b>Opzione 2: <font color="#FFCC80">Nessuna copia</font></b> — Viene salvato solo il percorso del file. La riproduzione avviene direttamente dalla <font color="#DD0000">memoria condivisa</font>.
     <br>
     <b>Vantaggio:</b> Risparmia spazio interno.
     <br><br>

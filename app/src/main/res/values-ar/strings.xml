@@ -262,13 +262,13 @@
     <br>
     ضغطة عادية تبدأ التشغيل.
 ]]></string>
-    <string name="help_title_manual_import">الاستيراد اليدوي :</string>
-    <string name="help_text_manual_import"><![CDATA[
-    عند <font color="#81C784"><b>استيرادك يدويًا</b></font> لكتاب، تبدأ باختيار <font color="#64B5F6">ملف</font> أو <font color="#64B5F6">مجلد</font>.
+    <string name="help_title_import">الاستيراد :</string>
+    <string name="help_text_import"><![CDATA[
+    عند <font color="#81C784"><b>استيرادك</b></font> لكتاب، تبدأ باختيار <font color="#64B5F6">ملف</font> أو <font color="#64B5F6">مجلد</font>.
     <br><br>
     يدعم BookPlayer تقريبًا جميع تنسيقات الصوت، ويشغل مسارات الفيديو، ويمكنه استخراج الفصول من ملفات ZIP أو M4B.
     <br><br>
-    <b>الخيار 1: <font color="#FFCC80">نسخ</font></b> <i>(افتراضي)</i> — يتم <b>نسخ</b> الملف إلى <font color="#90D8E8">الذاكرة الخاصة</font> بـ BookPlayer.
+    <b>الخيار 1: <font color="#FFCC80">نسخ</font></b> <i>(افتراضي)</i> — يتم <b>نسخ</b> الملف إلى <font color="#DD0000">الذاكرة الخاصة المحجوزة</font> بـ BookPlayer.
     <br>
     <b>المزايا:</b>
     <ul>
@@ -276,7 +276,7 @@
     <li>آمن من الحذف العرضي</li>
     </ul>
     <br>
-    <b>الخيار 2: <font color="#FFCC80">بدون نسخ</font></b> — فقط يتم حفظ مسار الملف. يتم التشغيل مباشرة من <i>التخزين المشترك</i>.
+    <b>الخيار 2: <font color="#FFCC80">بدون نسخ</font></b> — فقط يتم حفظ مسار الملف. يتم التشغيل مباشرة من <font color="#DD0000">التخزين المشترك</font>.
     <br>
     <b>الميزة:</b> توفير في المساحة الداخلية.
     <br><br>

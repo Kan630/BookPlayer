@@ -1,0 +1,13 @@
+<!-- SD card icon (reserved storage) with the shared red "R" badge composited on top - see
+     ic_badge_r.xml. Layered instead of baked into one vector so the base icon keeps its own
+     ?attr/colorControlNormal tint (from ic_sd_card_24px.xml) while the badge stays fixed red. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_sd_card_24px"/>
+    <item
+        android:width="5dp"
+        android:height="6dp"
+        android:right="5dp"
+        android:bottom="4dp"
+        android:gravity="bottom|end"
+        android:drawable="@drawable/ic_badge_r"/>
+</layer-list>

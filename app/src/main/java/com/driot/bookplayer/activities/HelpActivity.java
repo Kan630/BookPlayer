@@ -19,7 +19,7 @@ import com.driot.bookplayer.utils.log.BaseActivity;
 public class HelpActivity extends BaseActivity {
 
     // Resolves <img src="..."> tags in help_*_text strings to app drawables (the copy/link icons
-    // in help_text_manual_import), tinted to match the app-wide copy/link colors. Maps known
+    // in help_text_import), tinted to match the app-wide copy/link colors. Maps known
     // source names directly to R.drawable ids rather than Resources.getIdentifier(name, type,
     // getPackageName()) - the full/pure flavors' applicationId ("com.driot.bookplayerfull"/"pure",
     // plus a ".debug" suffix on debug builds) doesn't match the resource package (fixed to
@@ -64,10 +64,10 @@ public class HelpActivity extends BaseActivity {
         ll.setVisibility(LinearLayout.VISIBLE);
         tv.setText(Html.fromHtml(getString(R.string.help_text_general), Html.FROM_HTML_MODE_LEGACY));
 
-        ll = findViewById(R.id.ll_help_text_manual_import);
-        tv = findViewById(R.id.tv_help_text_manual_import);
+        ll = findViewById(R.id.ll_help_text_import);
+        tv = findViewById(R.id.tv_help_text_import);
         ll.setVisibility(LinearLayout.VISIBLE);
-        tv.setText(Html.fromHtml(getString(R.string.help_text_manual_import), Html.FROM_HTML_MODE_LEGACY,
+        tv.setText(Html.fromHtml(getString(R.string.help_text_import), Html.FROM_HTML_MODE_LEGACY,
                 drawableNameImageGetter, null));
 
         ll = findViewById(R.id.ll_help_text_librivox);

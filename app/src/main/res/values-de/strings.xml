@@ -266,13 +266,13 @@ Ein <font color="#81C784">Langdruck</font> auf einen <font color="#BA68C8">Titel
 <br>
 Ein Tippen startet die Wiedergabe.
 ]]></string>
-    <string name="help_title_manual_import">Manueller Import :</string>
-    <string name="help_text_manual_import"><![CDATA[
-Wenn Sie ein Buch <font color="#81C784"><b>manuell importieren</b></font>, beginnen Sie mit der Auswahl einer <font color="#64B5F6">Datei</font> oder eines <font color="#64B5F6">Ordners</font>.
+    <string name="help_title_import">Import :</string>
+    <string name="help_text_import"><![CDATA[
+Wenn Sie ein Buch <font color="#81C784"><b>importieren</b></font>, beginnen Sie mit der Auswahl einer <font color="#64B5F6">Datei</font> oder eines <font color="#64B5F6">Ordners</font>.
 <br><br>
 BookPlayer unterstützt nahezu alle Audioformate, spielt Videotonspuren ab und kann Kapitel aus ZIP- oder M4B-Dateien extrahieren.
 <br><br>
-<b>Option 1: <font color="#FFCC80">Kopieren</font></b> <i>(Standard)</i> — Die Datei wird in den <font color="#90D8E8">privaten Speicher</font> von BookPlayer <b>kopiert</b>.
+<b>Option 1: <font color="#FFCC80">Kopieren</font></b> <i>(Standard)</i> — Die Datei wird in den <font color="#DD0000">privaten reservierten Speicher</font> von BookPlayer <b>kopiert</b>.
 <br>
 <b>Vorteile:</b>
 <ul>
@@ -280,7 +280,7 @@ BookPlayer unterstützt nahezu alle Audioformate, spielt Videotonspuren ab und k
 <li>Geschützt vor versehentlichem Löschen</li>
 </ul>
 <br>
-<b>Option 2: <font color="#FFCC80">Kein Kopieren</font></b> — Nur der Dateipfad wird gespeichert. Die Wiedergabe erfolgt direkt aus dem <i>gemeinsamen Speicher</i>.
+<b>Option 2: <font color="#FFCC80">Kein Kopieren</font></b> — Nur der Dateipfad wird gespeichert. Die Wiedergabe erfolgt direkt aus dem <font color="#DD0000">gemeinsamen Speicher</font>.
 <br>
 <b>Vorteil:</b> Spart internen Speicherplatz.
 <br><br>

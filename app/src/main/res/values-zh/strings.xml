@@ -261,13 +261,13 @@
 <br>
 点击即可开始播放。
 ]]></string>
-    <string name="help_title_manual_import">手动导入：</string>
-    <string name="help_text_manual_import"><![CDATA[
-<font color="#81C784"><b>手动导入</b></font>书籍时，您需要先选择一个<font color="#64B5F6">文件</font>或<font color="#64B5F6">文件夹</font>。
+    <string name="help_title_import">导入：</string>
+    <string name="help_text_import"><![CDATA[
+<font color="#81C784"><b>导入</b></font>书籍时，您需要先选择一个<font color="#64B5F6">文件</font>或<font color="#64B5F6">文件夹</font>。
 <br><br>
 BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能从 ZIP 或 M4B 文件中提取章节。
 <br><br>
-<b>选项 1：<font color="#FFCC80">复制</font></b><i>（默认）</i> — 文件将被<b>复制</b>到 BookPlayer 的<font color="#90D8E8">私有内存</font>中。
+<b>选项 1：<font color="#FFCC80">复制</font></b><i>（默认）</i> — 文件将被<b>复制</b>到 BookPlayer 的<font color="#DD0000">专属私有内存</font>中。
 <br>
 <b>优点：</b>
 <ul>
@@ -275,7 +275,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <li>防止误删</li>
 </ul>
 <br>
-<b>选项 2：<font color="#FFCC80">不复制</font></b> — 仅保存文件路径，直接从<i>共享存储</i>播放。
+<b>选项 2：<font color="#FFCC80">不复制</font></b> — 仅保存文件路径，直接从<font color="#DD0000">共享存储</font>播放。
 <br>
 <b>优点：</b> 节省内部空间。
 <br><br>

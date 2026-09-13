@@ -294,13 +294,13 @@ public class Folder implements Parcelable {
         StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
         switch (type) {
             case INTERNAL_RESERVED:
-                return R.drawable.ic_memory_general_smartphone_r;
+                return R.drawable.ic_mobile_2_r_24px;
             case SDCARD_RESERVED:
-                return R.drawable.ic_memory_sdcard_r;
+                return R.drawable.ic_sd_card_r_24px;
             case SDCARD_SHARED:
-                return R.drawable.ic_memory_sdcard;
+                return R.drawable.ic_sd_card_24px;
             case PHONE_SHARED:
-                return R.drawable.ic_memory_general_smartphone;
+                return R.drawable.ic_mobile_2_24px;
             default:
                 return R.drawable.ic_memory_notfound;
         }

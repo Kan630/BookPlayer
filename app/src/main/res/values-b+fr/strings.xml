@@ -267,13 +267,13 @@ Un <font color="#81C784">appui long</font> sur une <font color="#BA68C8">piste</
 <br>
 Un simple appui lance la lecture.
 ]]></string>
-    <string name="help_title_manual_import">Import manuel :</string>
-    <string name="help_text_manual_import"><![CDATA[
-Lorsque vous <font color="#81C784"><b>importez manuellement</b></font> un livre, vous commencez par sélectionner un <font color="#64B5F6">fichier</font> ou un <font color="#64B5F6">dossier</font>.
+    <string name="help_title_import">Import :</string>
+    <string name="help_text_import"><![CDATA[
+Lorsque vous <font color="#81C784"><b>importez</b></font> un livre, vous commencez par sélectionner un <font color="#64B5F6">fichier</font> ou un <font color="#64B5F6">dossier</font>.
 <br><br>
 BookPlayer prend en charge presque tous les formats audio, lit les pistes son de vidéos et peut extraire les chapitres depuis des fichiers ZIP ou M4B.
 <br><br>
-<b>Option 1 : <font color="#FFCC80">Copie</font></b> <i>(par défaut)</i> — Le fichier est <b>copié</b> dans la <font color="#90D8E8">mémoire privée</font> de BookPlayer.
+<b>Option 1 : <font color="#FFCC80">Copie</font></b> <i>(par défaut)</i> — Le fichier est <b>copié</b> dans la <font color="#DD0000">mémoire privée réservée</font> de BookPlayer.
 <br>
 <b>Avantages :</b>
 <ul>
@@ -281,7 +281,7 @@ BookPlayer prend en charge presque tous les formats audio, lit les pistes son de
 <li>Protégé contre les suppressions accidentelles</li>
 </ul>
 <br>
-<b>Option 2 : <font color="#FFCC80">Sans copie</font></b> — Seul le chemin du fichier est enregistré. La lecture se fait directement depuis la <i>mémoire partagée</i>.
+<b>Option 2 : <font color="#FFCC80">Sans copie</font></b> — Seul le chemin du fichier est enregistré. La lecture se fait directement depuis la <font color="#DD0000">mémoire partagée</font>.
 <br>
 <b>Avantage :</b> économise de l\'espace interne.
 <br><br>
