@@ -1,0 +1,13 @@
+<!-- Shared red "R" badge (reserved storage) - composited over a base icon via a <layer-list>
+     (see ic_sd_card_r_24px.xml / ic_memory_general_smartphone_r.xml), instead of being baked
+     as a second <path> into every "_r" icon. Own tight viewport around just the glyph, no
+     android:tint, so it always renders as fixed red regardless of the base icon's own tint. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="20dp"
+    android:viewportWidth="32"
+    android:viewportHeight="40">
+  <path
+      android:fillColor="#DD0000"
+      android:pathData="M10,40h-10v-40h17c4,0 8,1 11,3 3,2 4,5 4,8 0,5 -3,9 -8,11l8,18h-11l-7,-17h-4v17zm0,-26h6c3,0 4,-1 4,-3s-2,-3 -4,-3h-6v6z"/>
+</vector>
