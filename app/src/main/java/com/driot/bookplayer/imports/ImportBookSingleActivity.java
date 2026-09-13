@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -86,7 +85,8 @@ public class ImportBookSingleActivity extends FullActivity {
     private com.google.android.material.button.MaterialButtonToggleGroup groupNewVsExisting;
     private LinearLayout llExistingFolderPicker;
     private Spinner destinationFolderSpinner;
-    private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
+    private com.google.android.material.button.MaterialButtonToggleGroup groupSplit, groupCopyLink, groupSdCardDevice,
+            groupDeleteKeep;
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
     private Button btnConfirm, btnCancel;
     private ProgressBar progressBarStep1, progressBarStep2;
@@ -210,6 +210,10 @@ public class ImportBookSingleActivity extends FullActivity {
 
         findViewById(R.id.cvCover).setOnClickListener(this::openCoverPickerMenu);
 
+        findViewById(R.id.btnImportOptionsSettings).setOnClickListener(v ->
+                com.driot.bookplayer.activities.SettingsHostActivity.start(this,
+                        com.driot.bookplayer.settings.ui.ImportSettingsFragment.class, true, R.string.import_settings));
+
         etBookTitle.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -242,10 +246,10 @@ public class ImportBookSingleActivity extends FullActivity {
         progressBarStep2 = findViewById(R.id.loadingProgressBarStep2);
         tvProgressStatusStep2 = findViewById(R.id.tvProgressStatusStep2);
 
-        cbSplit = findViewById(R.id.cbSplitM4B);
-        cbCopy = findViewById(R.id.cbCopyInternal);
-        cbUseSdCard = findViewById(R.id.cbUseSdCard);
-        cbDelete = findViewById(R.id.cbDeleteSource);
+        groupSplit = findViewById(R.id.groupSplit);
+        groupCopyLink = findViewById(R.id.groupCopyLink);
+        groupSdCardDevice = findViewById(R.id.groupSdCardDevice);
+        groupDeleteKeep = findViewById(R.id.groupDeleteKeep);
         llSplit = findViewById(R.id.ll_split_m4b);
         llCopy = findViewById(R.id.ll_copy_internal);
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
@@ -255,12 +259,12 @@ public class ImportBookSingleActivity extends FullActivity {
         etBookTitle.setText("...");
         programmaticTitleUpdate = false;
 
-        // init checkbox by loading default from general settings
+        // init toggle selection by loading default from general settings
         // then, it will be controlled and maybe changed by dynamic checks
-        cbSplit.setChecked(Option.getSplitM4b());
-        cbUseSdCard.setChecked(Option.getUseSdCard());
-        cbDelete.setChecked(Option.getDeleteSourceFile());
-        cbCopy.setChecked(Option.getCopyFile());
+        groupSplit.check(Option.getSplitM4b() ? R.id.btnSplitYes : R.id.btnSplitNo);
+        groupSdCardDevice.check(Option.getUseSdCard() ? R.id.btnSdCard : R.id.btnDevice);
+        groupDeleteKeep.check(Option.getDeleteSourceFile() ? R.id.btnDeleteSource : R.id.btnKeepSource);
+        groupCopyLink.check(Option.getCopyFile() ? R.id.btnCopy : R.id.btnLink);
 
         // Observe BookCandidate from ViewModel
         viewModel.getBookCandidate().observe(this, bookCandidate -> {
@@ -312,7 +316,7 @@ public class ImportBookSingleActivity extends FullActivity {
                     doChecks_step1_hashNotExist(bookCandidate.originalHash);
                     initialHashCheckTriggered = true;
                 }
-                // calculateCheckboxState();
+                // updateOptionsVisibility();
             }
 
             // Check for ebook warning
@@ -422,41 +426,47 @@ public class ImportBookSingleActivity extends FullActivity {
                 finish();
             });
 
-            llSplit.setOnClickListener(v -> cbSplit.toggle());
-            cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLogI("USER CHECKS -SPLIT- : " + isChecked);
+            groupSplit.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked)
+                    return;
+                myLogI("USER SELECTS -SPLIT- : " + (checkedId == R.id.btnSplitYes));
                 if (!internalCheckBoxStateCalculationInProgress) {
-                    calculateCheckboxState();
+                    updateOptionsVisibility();
                 }
             });
 
-            llCopy.setOnClickListener(v -> cbCopy.toggle());
-            cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLog("USER CHECKS -COPY- : " + isChecked);
-                if (!isChecked) {
+            groupCopyLink.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked)
+                    return;
+                boolean copySelected = checkedId == R.id.btnCopy;
+                myLog("USER SELECTS -COPY/LINK- : copy=" + copySelected);
+                if (!copySelected) {
                     askForPermission();
                     checkPathDoesNotAlreadyExist();
                 } else {
                     checkPathDoesNotAlreadyExist();
                 }
                 if (!internalCheckBoxStateCalculationInProgress) {
-                    calculateCheckboxState();
+                    updateOptionsVisibility();
                 }
             });
 
-            llUseSdCard.setOnClickListener(v -> cbUseSdCard.toggle());
-            cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLog("USER CHECKS -SD CARD- : " + isChecked);
+            groupSdCardDevice.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked)
+                    return;
+                myLog("USER SELECTS -SD CARD/DEVICE- : sdCard=" + (checkedId == R.id.btnSdCard));
                 if (!internalCheckBoxStateCalculationInProgress) {
-                    calculateCheckboxState();
+                    updateOptionsVisibility();
                 }
             });
 
-            llDelete.setOnClickListener(v -> cbDelete.toggle());
-            cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLog("USER CHECKS -DELETE- " + isChecked);
+            groupDeleteKeep.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked)
+                    return;
+                boolean deleteSelected = checkedId == R.id.btnDeleteSource;
+                myLog("USER SELECTS -DELETE/KEEP- : delete=" + deleteSelected);
                 if (!internalCheckBoxStateCalculationInProgress) {
-                    if (isChecked) {
+                    if (deleteSelected) {
                         MsgBox.ask(this,
                                 getString(R.string.option_alert_delete_picked_source_file_title),
                                 getString(R.string.option_alert_delete_picked_source_file_message),
@@ -504,11 +514,11 @@ public class ImportBookSingleActivity extends FullActivity {
                     if (folderToAddTo == null) {
                         String futureFolderPath;
                         long lCheck;
-                        if (!cbCopy.isChecked()) {
+                        if (!isCopySelected()) {
                             lCheck = 0;
                             futureFolderPath = uri.toString();
                         } else {
-                            futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/"
+                            futureFolderPath = getUnzipFolder(this, isSdCardSelected()).getAbsolutePath() + "/"
                                     + audioBookTitle;
                             myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
                                     + futureFolderPath + "]");
@@ -545,9 +555,9 @@ public class ImportBookSingleActivity extends FullActivity {
                     state.title = audioBookTitle;
                     state.futureFolderName = futureFolderName;
                     state.futureFolderPath = finalFutureFolderPath;
-                    state.optionSplit = cbSplit.isChecked();
-                    state.optionCopy = cbCopy.isChecked();
-                    state.optionDelete = cbDelete.isChecked();
+                    state.optionSplit = isSplitSelected();
+                    state.optionCopy = isCopySelected();
+                    state.optionDelete = isDeleteSourceSelected();
                     // Adding to an existing folder isn't a fresh single-book import, so there's
                     // no clean "jump to playback" target - leave it unset there.
                     state.targetPlaybackFileName = (folderToAddTo == null) ? targetPlaybackFileName : null;
@@ -607,67 +617,66 @@ public class ImportBookSingleActivity extends FullActivity {
     // -------------------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-    private void calculateCheckboxState() {
+    // These read the toggle groups' current selection directly rather than keeping separate
+    // boolean fields - matching the existing groupNewVsExisting.getCheckedButtonId() idiom
+    // already used elsewhere in this class. When a row is hidden (see updateOptionsVisibility()),
+    // there is no checked button to speak of for the option it represents - each method returns
+    // whatever that hidden state actually means (forced copy => true; not applicable => false),
+    // rather than disabling the row while still showing a value the user can't act on.
+    private boolean isSplitSelected() {
+        return groupSplit.getCheckedButtonId() == R.id.btnSplitYes;
+    }
+
+    private boolean isCopySelected() {
+        if (llCopy.getVisibility() != View.VISIBLE) {
+            return true; // only hidden when copy is forced - see updateOptionsVisibility()
+        }
+        return groupCopyLink.getCheckedButtonId() == R.id.btnCopy;
+    }
+
+    private boolean isSdCardSelected() {
+        if (llUseSdCard.getVisibility() != View.VISIBLE) {
+            return false; // hidden when unavailable, or not applicable while linking
+        }
+        return groupSdCardDevice.getCheckedButtonId() == R.id.btnSdCard;
+    }
+
+    private boolean isDeleteSourceSelected() {
+        if (llDelete.getVisibility() != View.VISIBLE) {
+            return false; // hidden while linking, or source can't be deleted (cloud/web)
+        }
+        return groupDeleteKeep.getCheckedButtonId() == R.id.btnDeleteSource;
+    }
+
+    /**
+     * Shows/hides each option row based on whether it's actually a real choice right now, instead
+     * of showing it grayed out and disabled - e.g. Copy/Link disappears entirely (rather than
+     * being locked on "Copy") when the format requires copying, SD Card/Device disappears when no
+     * SD card is present or Link is selected, and Delete/Keep disappears when not copying or the
+     * source can't be deleted (cloud/web).
+     */
+    private void updateOptionsVisibility() {
         internalCheckBoxStateCalculationInProgress = true;
-        myLogD("calculateCheckboxState");
+        myLogD("updateOptionsVisibility");
         BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
         if (bookCandidate == null) {
-            myLogE("bookCandidate is null when calculateCheckboxState");
+            myLogE("bookCandidate is null when updateOptionsVisibility");
+            internalCheckBoxStateCalculationInProgress = false;
             return;
         }
 
-        if (bookCandidate.supportsSplit()) {
-            llSplit.setVisibility(View.VISIBLE);
-            if (bookCandidate.requiresForcedSplitCopy(cbSplit.isChecked())) {
-                cbCopy.setChecked(true);
-                cbCopy.setEnabled(false);
-                llCopy.setEnabled(false);
-                llCopy.setAlpha(0.4f);
-            } else {
-                cbCopy.setEnabled(true);
-                llCopy.setEnabled(true);
-                llCopy.setAlpha(1.0f);
-            }
-        } else {
-            llSplit.setVisibility(View.GONE);
-        }
+        llSplit.setVisibility(bookCandidate.supportsSplit() ? View.VISIBLE : View.GONE);
 
-        if (bookCandidate.requiresForcedCopy() || forceCopy) {
-            cbCopy.setChecked(true);
-            cbCopy.setEnabled(false);
-            llCopy.setEnabled(false);
-            llCopy.setAlpha(0.4f);
-        }
+        boolean copyForced = bookCandidate.requiresForcedCopy() || forceCopy
+                || bookCandidate.requiresForcedSplitCopy(isSplitSelected());
+        llCopy.setVisibility(copyForced ? View.GONE : View.VISIBLE);
 
-        if (!StorageHelper.isExternalSDCardAvailable(this)) {
-            llUseSdCard.setVisibility(View.GONE);
-        } else {
-            llUseSdCard.setVisibility(View.VISIBLE);
-            if (cbCopy.isChecked()) {
-                cbUseSdCard.setEnabled(true);
-                llUseSdCard.setEnabled(true);
-                llUseSdCard.setAlpha(1.0f);
+        boolean showSdCard = StorageHelper.isExternalSDCardAvailable(this) && isCopySelected();
+        llUseSdCard.setVisibility(showSdCard ? View.VISIBLE : View.GONE);
 
-            } else {
-                cbUseSdCard.setChecked(false);
-                cbUseSdCard.setEnabled(false);
-                llUseSdCard.setEnabled(false);
-                llUseSdCard.setAlpha(0.4f);
-            }
-        }
-
-        // delete
-        if (cbCopy.isChecked() && !bookCandidate.sourceLocation.equals("cloud")
-                && !bookCandidate.sourceLocation.equals("web")) {
-            cbDelete.setEnabled(true);
-            llDelete.setEnabled(true);
-            llDelete.setAlpha(1.0f);
-        } else {
-            cbDelete.setChecked(false);
-            cbDelete.setEnabled(false);
-            llDelete.setEnabled(false);
-            llDelete.setAlpha(0.4f);
-        }
+        boolean showDelete = isCopySelected() && !bookCandidate.sourceLocation.equals("cloud")
+                && !bookCandidate.sourceLocation.equals("web");
+        llDelete.setVisibility(showDelete ? View.VISIBLE : View.GONE);
 
         internalCheckBoxStateCalculationInProgress = false;
     }
@@ -712,13 +721,13 @@ public class ImportBookSingleActivity extends FullActivity {
                     .callback(new PermissionRequest.Callback() {
                         @Override
                         public void onPermissionsGranted() {
-                            cbCopy.setChecked(false);
+                            groupCopyLink.check(R.id.btnLink);
                             myLog("Granted");
                         }
 
                         @Override
                         public void onPermissionsDenied() {
-                            cbCopy.setChecked(true);
+                            groupCopyLink.check(R.id.btnCopy);
                             myLog("Denied");
                             showPermissionDeniedDialog();
                         }
@@ -830,7 +839,7 @@ public class ImportBookSingleActivity extends FullActivity {
     }
 
     private void checkPathDoesNotAlreadyExist() {
-        if (!cbCopy.isChecked()) { // only for direct link (if file copied, the app must deal it self with
+        if (!isCopySelected()) { // only for direct link (if file copied, the app must deal it self with
                                    // duplicates paths)
             activateInteractive(false);
             String strPath = uri.toString();
@@ -907,29 +916,43 @@ public class ImportBookSingleActivity extends FullActivity {
         }
 
         new Thread(() -> {
-            java.io.File pickedFile = SiblingBookDetector.resolvePickedFile(this, uri);
-            SiblingBookDetector.Result result = (pickedFile != null && wantsSiblingSuggestion)
-                    ? SiblingBookDetector.detectSiblingsOf(pickedFile)
-                    : null;
+            java.io.File pickedFile;
+            SiblingBookDetector.Result result;
+            try {
+                pickedFile = SiblingBookDetector.resolvePickedFile(this, uri);
+                result = (pickedFile != null && wantsSiblingSuggestion)
+                        ? SiblingBookDetector.detectSiblingsOf(pickedFile)
+                        : null;
+            } catch (Exception e) {
+                // An uncaught exception on a raw Thread kills the whole app (no Activity/main-
+                // loop exception handler catches it) - this background lookup is a best-effort
+                // convenience (link-instead-of-copy + whole-book suggestion), never something
+                // worth crashing over. Fall back to the plain single-file import on any failure.
+                myLogEE(e, "checkSiblingBookThenProceed: resolution failed for " + uri);
+                pickedFile = null;
+                result = null;
+            }
+            java.io.File finalPickedFile = pickedFile;
+            SiblingBookDetector.Result finalResult = result;
             runOnUiThread(() -> {
                 if (isFinishing()) {
                     return;
                 }
-                if (pickedFile != null) {
+                if (finalPickedFile != null) {
                     // Resolved a real, stable filesystem path for the opened file itself -
                     // remember it so proceedAsSingleFileImport() can use it instead of the
                     // original "Open With" content:// Uri, whichever way this turns out (no
                     // siblings found, sibling suggestion not applicable, or the user declines it
                     // below).
-                    resolvedFileUri = Uri.fromFile(pickedFile);
+                    resolvedFileUri = Uri.fromFile(finalPickedFile);
                 }
-                if (result == null || result.parentDir == null || result.siblingTrackCount < 2) {
+                if (finalResult == null || finalResult.parentDir == null || finalResult.siblingTrackCount < 2) {
                     proceedAsSingleFileImport();
                     return;
                 }
-                pendingBookFolderCandidate = result.parentDir;
+                pendingBookFolderCandidate = finalResult.parentDir;
                 String message = getString(R.string.import_whole_book_suggestion_message,
-                        result.siblingTrackCount, result.parentDir.getName());
+                        finalResult.siblingTrackCount, finalResult.parentDir.getName());
                 MsgBox.ask(this,
                         getString(R.string.import_whole_book_suggestion_title),
                         message,
@@ -947,8 +970,8 @@ public class ImportBookSingleActivity extends FullActivity {
             // checkSiblingBookThenProceed()/SiblingBookDetector) - safe to link without copying,
             // same as the whole-book folder path already does with Uri.fromFile(). Without this,
             // the original "Open With" content:// Uri (typically a one-shot grant with no
-            // persistable permission) forced cbCopy on and disabled in calculateCheckboxState(),
-            // silently taking away the copy/link choice for the "just this file" case.
+            // persistable permission) forced Copy on and hid the Link choice entirely in
+            // updateOptionsVisibility(), silently taking away the choice for "just this file".
             uri = resolvedFileUri;
             forceCopy = false;
         }
@@ -1253,9 +1276,9 @@ public class ImportBookSingleActivity extends FullActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_DELETE_SOURCE) {
             if (resultCode == RESULT_OK) {
-                calculateCheckboxState();
+                updateOptionsVisibility();
             } else {
-                cbDelete.setChecked(false);
+                groupDeleteKeep.check(R.id.btnKeepSource);
             }
         } else if (requestCode == REQ_IMPORT_WHOLE_BOOK) {
             if (resultCode == RESULT_OK && pendingBookFolderCandidate != null) {
@@ -1349,17 +1372,25 @@ public class ImportBookSingleActivity extends FullActivity {
         tvProgressStatusStep2.setVisibility(View.GONE);
     }
 
+    private void setToggleGroupEnabled(com.google.android.material.button.MaterialButtonToggleGroup group,
+            boolean enabled) {
+        group.setEnabled(enabled);
+        for (int i = 0; i < group.getChildCount(); i++) {
+            group.getChildAt(i).setEnabled(enabled);
+        }
+    }
+
     private void activateInteractive(boolean activate) {
         myLog("Activate Interactive : " + activate);
 
-        cbSplit.setEnabled(activate);
+        setToggleGroupEnabled(groupSplit, activate);
         llSplit.setEnabled(activate);
-        cbCopy.setEnabled(activate);
+        setToggleGroupEnabled(groupCopyLink, activate);
         llCopy.setEnabled(activate);
-        cbDelete.setEnabled(activate);
+        setToggleGroupEnabled(groupDeleteKeep, activate);
         llDelete.setEnabled(activate);
         btnConfirm.setEnabled(activate);
-        cbUseSdCard.setEnabled(activate);
+        setToggleGroupEnabled(groupSdCardDevice, activate);
         llUseSdCard.setEnabled(activate);
 
         float alpha = activate ? 1.0f : 0.4f;
@@ -1369,7 +1400,7 @@ public class ImportBookSingleActivity extends FullActivity {
         llSplit.setAlpha(alpha);
 
         if (activate)
-            calculateCheckboxState();
+            updateOptionsVisibility();
     }
 
     @Override

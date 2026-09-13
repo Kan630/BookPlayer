@@ -282,6 +282,13 @@ public class BookCandidate implements Parcelable {
     }
 
     private String friendlySourceTypeLabel(Context context) {
+        if (sourceType == null) {
+            // Unlike every other check on this field (all "literal".equals(sourceType), safe
+            // against null), a String switch NPEs on a null selector - and sourceType is null
+            // whenever the picked file's format isn't recognized as supported (isMimeSupported
+            // already false by this point; see the constructor).
+            return context.getString(R.string.source_type_unknown);
+        }
         switch (sourceType) {
             case "Folder":
                 return context.getString(R.string.source_type_folder);

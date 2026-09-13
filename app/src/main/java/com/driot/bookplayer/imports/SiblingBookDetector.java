@@ -60,7 +60,19 @@ public final class SiblingBookDetector {
     @Nullable
     public static File resolvePickedFile(Context context, Uri pickedUri) {
         myLogD("resolvePickedFile() start for [" + pickedUri + "]");
-        String path = FileHelper.processUri(context, pickedUri);
+        String path;
+        try {
+            // FileHelper.processUri() is known to throw for some provider-specific document id
+            // formats it doesn't recognize (e.g. a Samsung Downloads-provider id shaped like
+            // "msf:1234567" instead of a plain numeric row id, which blows up
+            // Long.valueOf(id) with a NumberFormatException) - every other caller in this
+            // codebase already wraps it for exactly that reason (see
+            // FileHelper.getRealPathFromURI, OpenWithHelper.handle); this one hadn't been.
+            path = FileHelper.processUri(context, pickedUri);
+        } catch (Exception e) {
+            myLogEE(e, "resolvePickedFile: FileHelper.processUri failed for " + pickedUri);
+            path = null;
+        }
         if (path == null || path.isEmpty()) {
             FileHelper.NameAndSize nameAndSize = FileHelper.queryDisplayNameAndSize(context, pickedUri);
             myLogD("processUri empty - trying MediaStore by name/size: name=[" + nameAndSize.name

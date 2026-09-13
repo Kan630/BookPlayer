@@ -278,59 +278,184 @@
 
                 <!-- Split M4B option -->
                 <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    style="@style/wideLinearLayout_Vertical"
                     android:layout_marginTop="6dp"
                     android:id="@+id/ll_split_m4b">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/cbSplitM4B"
-                        style="@style/OptionCheckBox" />
                     <TextView
-                        android:id="@+id/tx_split_m4b"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_on_load_split_m4b" />
+                        android:text="@string/import_option_split_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupSplit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnSplitYes"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_split_yes" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnSplitNo"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_split_no" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
 
-                <!-- Copy internally -->
+                <!-- Copy vs Link -->
                 <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:layout_marginTop="6dp"
+                    style="@style/wideLinearLayout_Vertical"
+                    android:layout_marginTop="14dp"
                     android:id="@+id/ll_copy_internal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/cbCopyInternal"
-                        style="@style/OptionCheckBox" />
                     <TextView
-                        android:id="@+id/tx_copy_internal"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_on_load_copy_internal" />
+                        android:text="@string/import_option_storage_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupCopyLink"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnCopy"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            app:icon="@drawable/ic_content_copy_24px"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            android:text="@string/import_option_copy" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnLink"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            app:icon="@drawable/ic_link_2_24px"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            android:text="@string/import_option_link" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
 
-                <!-- Save on SD card -->
+                <!-- SD Card vs Device - only relevant/shown while Copy is selected above -->
                 <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:layout_marginTop="6dp"
+                    style="@style/wideLinearLayout_Vertical"
+                    android:layout_marginTop="14dp"
                     android:id="@+id/ll_use_sdcard">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/cbUseSdCard"
-                        style="@style/OptionCheckBox" />
                     <TextView
-                        android:id="@+id/tx_use_sdcard"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_on_load_use_SD_card" />
+                        android:text="@string/import_option_location_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupSdCardDevice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnSdCard"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            app:icon="@drawable/ic_sd_card_24px"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            android:text="@string/import_option_sdcard" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnDevice"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            app:icon="@drawable/ic_mobile_2_24px"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            android:text="@string/import_option_device" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
 
-                <!-- Delete source file -->
+                <!-- Delete vs Keep source file - only relevant/shown while Copy is selected above -->
                 <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:layout_marginTop="6dp"
+                    style="@style/wideLinearLayout_Vertical"
+                    android:layout_marginTop="14dp"
                     android:id="@+id/ll_delete_source">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/cbDeleteSource"
-                        style="@style/OptionCheckBox" />
                     <TextView
-                        android:id="@+id/tx_delete_source"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_on_load_delete_source" />
+                        android:text="@string/import_option_after_import_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupDeleteKeep"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnDeleteSource"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            app:icon="@drawable/ic_delete_24"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            android:text="@string/import_option_delete_source" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnKeepSource"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_keep_source" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Points to where these defaults live, since this screen only ever changes them
+                 for the book being imported right now. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvImportOptionsSettingsHint"
+                    style="@style/OptionExplainText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/import_options_settings_hint" />
+
+                <ImageButton
+                    android:id="@+id/btnImportOptionsSettings"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="2dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_settings_24"
+                    app:tint="?attr/colorPrimary"
+                    android:contentDescription="@string/import_options_settings_icon_description" />
 
             </LinearLayout>
         </LinearLayout>
