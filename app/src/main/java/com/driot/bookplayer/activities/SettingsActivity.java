@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ScrollView;
@@ -159,6 +160,16 @@ public class SettingsActivity extends FullActivity {
                 "expand_massive_import",
                 MassiveImportSettingsFragment::new,
                 savedInstanceState, false);
+
+        // Admin isn't inline settings fields like the sections above - it's a whole separate
+        // screen - so it skips registerSection()'s expand/collapse machinery and just navigates
+        // straight to AdminActivity. Admin-only, at the very bottom.
+        SettingsSectionView sectionAdmin = findViewById(R.id.section_admin);
+        if (Tonio.isAdmin()) {
+            sectionAdmin.setVisibility(View.VISIBLE);
+            sectionAdmin.getHeaderView().setOnClickListener(v ->
+                    startActivity(new Intent(this, AdminActivity.class)));
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

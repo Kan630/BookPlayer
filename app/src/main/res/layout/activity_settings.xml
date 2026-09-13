@@ -105,6 +105,14 @@
                     app:sectionTitle="@string/Utilities"
                     app:sectionIcon="@drawable/ic_service_toolbox_24" />
 
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_admin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:sectionTitle="@string/admin"
+                    app:sectionIcon="@drawable/ic_service_toolbox_24" />
+
         </LinearLayout>
 
 </ScrollView>

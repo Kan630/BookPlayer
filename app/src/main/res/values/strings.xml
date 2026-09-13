@@ -941,6 +941,18 @@
     <string name="auto_backup_recovery_positive">Restore</string>
     <string name="auto_backup_recovery_negative">Not now</string>
     <string name="book_needs_relink">This book\'s file isn\'t on this device yet - re-add it to continue where you left off.</string>
+
+    <!-- Full Backup (everything: audio files, covers, and metadata) -->
+    <string name="full_backup_title">Full Backup</string>
+    <string name="full_backup_desc">Packs everything - your audiobooks, cover images, and all app data - into a single zip file you save wherever you like: SD card, USB drive, a cloud storage app like Google Drive or Dropbox if it\'s installed, or shared directly via Quick Share, email, or any other app.</string>
+    <string name="full_backup_size_needed">Storage needed: %s</string>
+    <string name="full_backup_audio_duration">Total audio: %s</string>
+    <string name="full_backup_eta">Estimated time remaining: %s</string>
+    <string name="full_backup_start">Start Full Backup</string>
+    <string name="full_backup_progress">Copying %1$s — %2$d%% (%3$s / %4$s)</string>
+    <string name="full_backup_success">Full backup complete.</string>
+    <string name="full_backup_partial_failure">Backup finished, but some files could not be copied. Check the destination before relying on it.</string>
+    <string name="full_backup_failed">Full backup failed: %s</string>
     <string name="import_export_failed_restore">Failed to restore backup: %s</string>
     <string name="import_export_failed_import">Failed during import: %s</string>
 
