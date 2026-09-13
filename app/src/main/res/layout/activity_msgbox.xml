@@ -131,4 +131,18 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Sits above the scrim (later sibling = drawn on top = receives touch first), so
+         playback stays controllable while this dialog is up instead of being blocked entirely
+         behind the modal scrim. Populated programmatically (see MsgBoxActivity) with
+         MiniPlayHostFragment.newInstance(true) - navigation-on-tap disabled here specifically,
+         since opening a full player would abandon whatever question this dialog is waiting on;
+         it hides itself automatically when nothing is playing. -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniPlayerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -64,11 +64,15 @@ public class MiniPlayBookFragment extends LoggingFragment {
             updateSkipIcons();
         });
 
-        v.setOnClickListener(_x -> {
-            myLogI("---- user clicks on mini player root ----");
-            PlaybackCommands.resetLastUserAction(requireContext());
-            startActivity(new Intent(requireContext(), PlayActivity.class));
-        });
+        boolean disableNavigation = getArguments() != null
+                && getArguments().getBoolean(MiniPlayHostFragment.ARG_DISABLE_NAVIGATION, false);
+        if (!disableNavigation) {
+            v.setOnClickListener(_x -> {
+                myLogI("---- user clicks on mini player root ----");
+                PlaybackCommands.resetLastUserAction(requireContext());
+                startActivity(new Intent(requireContext(), PlayActivity.class));
+            });
+        }
 
         ibPrev.setOnClickListener(_v -> {
             myLogI("---- user press PREV button ----");

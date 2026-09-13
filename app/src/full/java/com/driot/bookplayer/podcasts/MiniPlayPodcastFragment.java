@@ -134,20 +134,25 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             vm.stop();
         });
 
-        v.setOnClickListener(_x -> {
-            myLogI("---- user clicks on mini player root ----");
-            PlaybackCommands.resetLastUserAction(requireContext());
-            if (vm.getState() != null && vm.getState().getValue() != null) {
-                long idPodcast = vm.getState().getValue().trackId;
-                myLogD("idPodcast = " + idPodcast);
-                AppDatabase.databaseReadExecutor.execute(() -> {
-                    Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
-                            .getById(idPodcast);
-                    startActivity(
-                            new Intent(requireContext(), PodcastEpisodeActivity.class).putExtra("podcast", podcast));
-                });
-            }
-        });
+        boolean disableNavigation = getArguments() != null
+                && getArguments().getBoolean(com.driot.bookplayer.player.MiniPlayHostFragment.ARG_DISABLE_NAVIGATION,
+                        false);
+        if (!disableNavigation) {
+            v.setOnClickListener(_x -> {
+                myLogI("---- user clicks on mini player root ----");
+                PlaybackCommands.resetLastUserAction(requireContext());
+                if (vm.getState() != null && vm.getState().getValue() != null) {
+                    long idPodcast = vm.getState().getValue().trackId;
+                    myLogD("idPodcast = " + idPodcast);
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
+                                .getById(idPodcast);
+                        startActivity(new Intent(requireContext(), PodcastEpisodeActivity.class).putExtra("podcast",
+                                podcast));
+                    });
+                }
+            });
+        }
     }
 
     private void refreshUi() {

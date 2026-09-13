@@ -117,17 +117,22 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             PlaybackCommands.toggleRadioRecording(requireContext());
         });
 
-        v.setOnClickListener(_x -> {
-            myLogI("---- user press mini player ----");
-            PlaybackCommands.resetLastUserAction(requireContext());
-            if (vm.getState() != null && vm.getState().getValue() != null) {
-                long trackId = vm.getState().getValue().trackId;
-                NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
-            } else {
-                myLog("no VM state");
-                startActivity(new Intent(requireContext(), GetRadioActivity.class));
-            }
-        });
+        boolean disableNavigation = getArguments() != null
+                && getArguments().getBoolean(com.driot.bookplayer.player.MiniPlayHostFragment.ARG_DISABLE_NAVIGATION,
+                        false);
+        if (!disableNavigation) {
+            v.setOnClickListener(_x -> {
+                myLogI("---- user press mini player ----");
+                PlaybackCommands.resetLastUserAction(requireContext());
+                if (vm.getState() != null && vm.getState().getValue() != null) {
+                    long trackId = vm.getState().getValue().trackId;
+                    NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
+                } else {
+                    myLog("no VM state");
+                    startActivity(new Intent(requireContext(), GetRadioActivity.class));
+                }
+            });
+        }
     }
 
     private void refreshUi() {

@@ -57,6 +57,18 @@ public class MsgBoxActivity extends BaseActivity {
 
         InsetHelper.apply(this);
 
+        // Reachable during the dialog (see activity_msgbox.xml) - lets the user pause/stop
+        // whatever's playing instead of being unable to touch anything behind this modal
+        // scrim until they answer. Navigation-on-tap is deliberately disabled here (see
+        // MiniPlayHostFragment.newInstance) since opening a full player would abandon whatever
+        // this dialog is waiting on; it hides itself automatically when nothing is playing.
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.miniPlayerContainer,
+                            com.driot.bookplayer.player.MiniPlayHostFragment.newInstance(true))
+                    .commit();
+        }
+
         View root = findViewById(R.id.root);
         ImageView icon = findViewById(R.id.icon);
         TextView title = findViewById(R.id.title);

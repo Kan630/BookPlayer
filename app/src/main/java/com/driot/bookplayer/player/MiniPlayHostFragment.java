@@ -24,10 +24,30 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MiniPlayHostFragment extends LoggingFragment {
 
+    // Set when this host is embedded somewhere a tap-to-open-full-player would be unwelcome -
+    // e.g. inside MsgBoxActivity, where "open the full player" would abandon whatever question
+    // the dialog is waiting on. Threaded down to whichever child fragment actually renders (see
+    // attachFirstChild/swapChild) so its row-tap-to-navigate is suppressed while transport
+    // buttons (play/pause, stop) keep working normally.
+    public static final String ARG_DISABLE_NAVIGATION = "disable_navigation";
+
     private View root;
 
     private String lastPlayType;
     private PlaybackViewModel vm;
+
+    public static MiniPlayHostFragment newInstance(boolean disableNavigation) {
+        MiniPlayHostFragment f = new MiniPlayHostFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_DISABLE_NAVIGATION, disableNavigation);
+        f.setArguments(args);
+        return f;
+    }
+
+    private boolean isNavigationDisabled() {
+        Bundle args = getArguments();
+        return args != null && args.getBoolean(ARG_DISABLE_NAVIGATION, false);
+    }
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -110,11 +130,23 @@ public class MiniPlayHostFragment extends LoggingFragment {
             setGone();
             return;
         }
+        applyDisableNavigationArg(child);
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.mini_host_container, child)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commitNowAllowingStateLoss();
         setVisible();
+    }
+
+    private void applyDisableNavigationArg(Fragment child) {
+        if (!isNavigationDisabled())
+            return;
+        Bundle args = child.getArguments();
+        if (args == null) {
+            args = new Bundle();
+        }
+        args.putBoolean(ARG_DISABLE_NAVIGATION, true);
+        child.setArguments(args);
     }
 
     private void swapChild(String playType) {
@@ -138,6 +170,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
             setGone();
             return;
         }
+        applyDisableNavigationArg(child);
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
