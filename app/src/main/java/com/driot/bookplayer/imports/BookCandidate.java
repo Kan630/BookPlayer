@@ -628,6 +628,19 @@ public class BookCandidate implements Parcelable {
         ArchiveEntryProxy getNextEntry() throws java.io.IOException;
     }
 
+    /** Pairs an extracted-and-saved archive image with its original byte size, only so the
+     * candidates can be sorted largest-first afterward - mirrors listAllCoverCandidates()'s
+     * ordering for a folder's own image files. */
+    private static final class ArchiveImageCandidate {
+        final String path;
+        final long size;
+
+        ArchiveImageCandidate(String path, long size) {
+            this.path = path;
+            this.size = size;
+        }
+    }
+
     private void scanCommonArchive(Context context, DocumentFile archiveFile, OnMetadataListener listener, ArchiveEntryProvider provider) {
         int audioCount = 0;
         int txtCount = 0;
@@ -635,8 +648,13 @@ public class BookCandidate implements Parcelable {
         String firstBigEbookName = null;
         List<AudioFileInfo> ebookFileInfos = new java.util.ArrayList<>();
 
-        byte[] largestImage = null;
-        long largestSize = 0;
+        // Every embedded image found gets extracted, not just the largest - so the user can
+        // choose among them afterward exactly like a folder import's multi-candidate picker (see
+        // scanFolderCombined/CoverPictureDetection.listAllCoverCandidates). Unlike that folder
+        // case (real files, already addressable by their own Uri), each candidate here only
+        // exists as bytes inside the archive, so it has to be saved to its own temp file first.
+        List<ArchiveImageCandidate> imageCandidates = new java.util.ArrayList<>();
+        int imageIndex = 0;
 
         try {
             ArchiveEntryProxy entry;
@@ -678,19 +696,21 @@ public class BookCandidate implements Parcelable {
                         txtCount++;
                     }
                 } else if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
-                    long size = entry.getSize();
-                    if (size > largestSize || (size == -1 && largestImage == null)) {
-                        try (InputStream eis = entry.getInputStream()) {
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            byte[] buffer = new byte[8192];
-                            int len;
-                            while ((len = eis.read(buffer)) > 0) {
-                                baos.write(buffer, 0, len);
-                            }
-                            byte[] imageBytes = baos.toByteArray();
-                            if (imageBytes.length > largestSize) {
-                                largestImage = imageBytes;
-                                largestSize = imageBytes.length;
+                    try (InputStream eis = entry.getInputStream()) {
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[8192];
+                        int len;
+                        while ((len = eis.read(buffer)) > 0) {
+                            baos.write(buffer, 0, len);
+                        }
+                        byte[] imageBytes = baos.toByteArray();
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                imageBytes, 0, imageBytes.length);
+                        if (bitmap != null) {
+                            String suffix = "_" + archiveFile.getUri().hashCode() + "_" + (imageIndex++);
+                            String savedPath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
+                            if (savedPath != null) {
+                                imageCandidates.add(new ArchiveImageCandidate(savedPath, imageBytes.length));
                             }
                         }
                     }
@@ -699,15 +719,21 @@ public class BookCandidate implements Parcelable {
 
             handleArchiveContents(context, audioCount, txtCount, bigEbookCount, firstBigEbookName, ebookFileInfos, archiveFile, listener);
 
-            if (largestImage != null && this.coverImagePath == null) {
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                        largestImage, 0, largestImage.length);
-                if (bitmap != null) {
-                    String suffix = "_" + archiveFile.getUri().hashCode();
-                    this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
-                    if (this.coverImagePath != null && listener != null) {
-                        listener.onCoverFound(this.coverImagePath);
-                    }
+            // Unconditional, like scanFolderCombined()'s own coverCandidates assignment below -
+            // this heavy-phase scan is authoritative and supersedes whatever the quick/easy phase
+            // (detectCoverForArchive) already guessed as a single cover. The old "only if
+            // coverImagePath is still null" guard here meant the full candidate list never got
+            // built at all once the easy phase had already found something - which, for
+            // archives, is almost always the case by the time this runs.
+            if (!imageCandidates.isEmpty()) {
+                imageCandidates.sort((a, b) -> Long.compare(b.size, a.size)); // largest first
+                this.coverCandidates.clear();
+                for (ArchiveImageCandidate ic : imageCandidates) {
+                    this.coverCandidates.add(ic.path);
+                }
+                this.coverImagePath = this.coverCandidates.get(0);
+                if (listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
                 }
             }
         } catch (Exception e) {
