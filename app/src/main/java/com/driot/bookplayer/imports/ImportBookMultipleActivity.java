@@ -529,4 +529,15 @@ public class ImportBookMultipleActivity extends FullActivity {
             });
         }).start();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // See ImportBookSingleActivity.onDestroy() - same nav_add stack pollution risk when this
+        // activity is cancelled/backed out of before completing, rather than only cleaned up on
+        // the success path.
+        if (isFinishing()) {
+            navHelper.removeAddBookNavSpecial();
+        }
+    }
 }

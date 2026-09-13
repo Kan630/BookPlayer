@@ -1337,4 +1337,23 @@ public class ImportBookSingleActivity extends FullActivity {
             calculateCheckboxState();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // BaseActivity.onCreate() unconditionally pushes this activity onto the nav_add stack
+        // (it's this section's getNavSectionId()) whenever it's created - including when reached
+        // externally via "Open With", which has nothing to do with the app's own Add-tab
+        // navigation. On a successful import, AddResourceActivity/ImportHelper already call
+        // removeAddBookNavSpecial() to clean that entry up. But if the user cancels or backs out
+        // here first (e.g. dismisses the sibling-book prompt, then backs out without confirming),
+        // nothing did - the stale entry (still carrying the original file's EXTRA_URI) stayed at
+        // the top of the nav_add stack forever. Tapping the "Add" tab later then replayed that
+        // stale intent as a brand-new instance, re-running onCreate() and re-showing the same
+        // sibling-book popup out of nowhere. Clean up on any real finish, not just success -
+        // removeAddBookNavSpecial() is a no-op if there's nothing of ours left to remove.
+        if (isFinishing()) {
+            navHelper.removeAddBookNavSpecial();
+        }
+    }
+
 }
