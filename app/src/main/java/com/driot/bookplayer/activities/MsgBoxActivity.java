@@ -111,6 +111,14 @@ public class MsgBoxActivity extends BaseActivity {
             btnNegative.setVisibility(View.VISIBLE);
             btnNegative.setText(neg != null ? neg : getString(android.R.string.cancel));
             btnPositive.setText(pos != null ? pos : getString(android.R.string.ok));
+            // Both buttons default to wrap_content with no weight, sized for short English text.
+            // Longer translations (e.g. French "Seulement ce fichier" / "Importer le livre
+            // entier") can together exceed the row's width - with no weight to redistribute
+            // that overflow, one button gets squeezed down to a sliver, and its text wraps
+            // letter-by-letter into a tall vertical column. Only apply this when both buttons
+            // are actually shown together (the single-button alert/info case keeps its default
+            // compact, right-aligned look, which was never the problem).
+            equalizeQuestionButtonWidths(btnNegative, btnPositive);
         } else {
             btnNegative.setVisibility(View.GONE);
             btnPositive.setText(pos != null ? pos : getString(android.R.string.ok));
@@ -159,6 +167,20 @@ public class MsgBoxActivity extends BaseActivity {
         findViewById(R.id.card).setOnClickListener(v -> {
             /* bloquer propagation */});
         myLogD("MsgBox created.   type=" + type);
+    }
+
+    private void equalizeQuestionButtonWidths(MaterialButton btnNegative, MaterialButton btnPositive) {
+        for (MaterialButton btn : new MaterialButton[] { btnNegative, btnPositive }) {
+            android.view.ViewGroup.LayoutParams params = btn.getLayoutParams();
+            if (params instanceof android.widget.LinearLayout.LayoutParams) {
+                android.widget.LinearLayout.LayoutParams llParams = (android.widget.LinearLayout.LayoutParams) params;
+                llParams.width = 0;
+                llParams.weight = 1;
+                btn.setLayoutParams(llParams);
+            }
+            btn.setMaxLines(2);
+            btn.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        }
     }
 
     private Intent withCheck(Intent src, MaterialCheckBox cb) {
