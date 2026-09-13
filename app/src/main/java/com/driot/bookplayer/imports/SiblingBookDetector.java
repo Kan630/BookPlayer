@@ -34,19 +34,32 @@ public final class SiblingBookDetector {
     }
 
     public static final class Result {
-        public final File parentDir;
-        public final int siblingTrackCount; // includes the picked file itself
+        // Resolved real filesystem path of the opened file itself - never null when a Result is
+        // returned. Safe to link (not just copy) exactly like the folder-import path below already
+        // does, unlike the original "Open With" content:// Uri, which is typically a one-shot
+        // grant with no persistable permission.
+        public final File pickedFile;
+        @Nullable
+        public final File parentDir; // null if not resolvable, or not actually a real directory
+        public final int siblingTrackCount; // includes the picked file itself; 0 if parentDir is null
 
-        Result(File parentDir, int siblingTrackCount) {
+        Result(File pickedFile, @Nullable File parentDir, int siblingTrackCount) {
+            this.pickedFile = pickedFile;
             this.parentDir = parentDir;
             this.siblingTrackCount = siblingTrackCount;
         }
     }
 
-    /** Does file I/O - call this off the main thread. */
+    /**
+     * Resolves the picked content:// Uri down to a real filesystem File, without touching its
+     * parent directory - cheap enough to call unconditionally whenever the caller needs a stable
+     * file:// path to link instead of copy (see ImportBookSingleActivity.checkSiblingBookThenProceed),
+     * independent of whether the sibling-scan below is also wanted. Does file I/O - call this off
+     * the main thread.
+     */
     @Nullable
-    public static Result detect(Context context, Uri pickedUri) {
-        myLogD("detect() start for [" + pickedUri + "]");
+    public static File resolvePickedFile(Context context, Uri pickedUri) {
+        myLogD("resolvePickedFile() start for [" + pickedUri + "]");
         String path = FileHelper.processUri(context, pickedUri);
         if (path == null || path.isEmpty()) {
             FileHelper.NameAndSize nameAndSize = FileHelper.queryDisplayNameAndSize(context, pickedUri);
@@ -55,22 +68,40 @@ public final class SiblingBookDetector {
             path = FileHelper.resolveRealPathViaMediaStore(context, nameAndSize.name, nameAndSize.size);
         }
         if (path == null || path.isEmpty()) {
-            myLogW("detect() - could not resolve a real path for [" + pickedUri + "] - giving up");
+            myLogW("resolvePickedFile() - could not resolve a real path for [" + pickedUri + "] - giving up");
             return null;
         }
-        myLogD("detect() resolved real path = [" + path + "]");
+        myLogD("resolvePickedFile() resolved real path = [" + path + "]");
+        return new File(path);
+    }
 
-        File pickedFile = new File(path);
+    /** Does file I/O - call this off the main thread. */
+    @Nullable
+    public static Result detect(Context context, Uri pickedUri) {
+        File pickedFile = resolvePickedFile(context, pickedUri);
+        if (pickedFile == null) {
+            return null;
+        }
+        return detectSiblingsOf(pickedFile);
+    }
+
+    /**
+     * Same sibling scan as {@link #detect}, but for a File the caller already resolved via
+     * {@link #resolvePickedFile} - avoids re-resolving the Uri when both are needed. Does file
+     * I/O - call this off the main thread.
+     */
+    public static Result detectSiblingsOf(File pickedFile) {
         File parentDir = pickedFile.getParentFile();
         if (parentDir == null || !parentDir.isDirectory()) {
-            myLogW("detect() - parentDir null/not a directory for [" + path + "] (parentDir=" + parentDir + ")");
-            return null;
+            myLogW("detectSiblingsOf() - parentDir null/not a directory for [" + pickedFile
+                    + "] (parentDir=" + parentDir + ")");
+            return new Result(pickedFile, null, 0);
         }
 
         File[] siblings = parentDir.listFiles();
         if (siblings == null) {
-            myLogW("detect() - listFiles() returned null for [" + parentDir + "] (permission issue?)");
-            return null;
+            myLogW("detectSiblingsOf() - listFiles() returned null for [" + parentDir + "] (permission issue?)");
+            return new Result(pickedFile, null, 0);
         }
 
         int trackCount = 0;
@@ -83,13 +114,14 @@ public final class SiblingBookDetector {
                 trackCount++;
             }
         }
-        myLogD("detect() - found " + siblings.length + " entries, " + trackCount + " audio/video tracks in ["
+        myLogD("detectSiblingsOf() - found " + siblings.length + " entries, " + trackCount + " audio/video tracks in ["
                 + parentDir + "]");
 
-        // Only the picked file itself found - not a multi-track folder.
+        // Only the picked file itself found - not a multi-track folder, but pickedFile is still
+        // returned so the caller can use it for the single-file import.
         if (trackCount < 2)
-            return null;
+            return new Result(pickedFile, null, 0);
 
-        return new Result(parentDir, trackCount);
+        return new Result(pickedFile, parentDir, trackCount);
     }
 }

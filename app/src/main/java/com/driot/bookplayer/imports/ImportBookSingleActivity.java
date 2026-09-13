@@ -108,6 +108,14 @@ public class ImportBookSingleActivity extends FullActivity {
     // onActivityResult() if the user says yes.
     private java.io.File pendingBookFolderCandidate;
 
+    // Set once checkSiblingBookThenProceed()'s real-path resolution succeeds (see
+    // SiblingBookDetector) - a stable file:// Uri for the opened file itself, safe to use in place
+    // of the original "Open With" content:// Uri (which is typically a one-shot grant) so
+    // proceedAsSingleFileImport() doesn't have to force-copy it. Null if resolution failed or
+    // hasn't run (e.g. the sibling-check is disabled in settings).
+    @Nullable
+    private Uri resolvedFileUri;
+
     // True only for the instance relaunched in Folder mode from the sibling-detector prompt. That
     // relaunch uses plain startActivity() (the original single-file instance finishes right away,
     // it isn't waiting around for a result), so unlike the normal flow - where the *caller*
@@ -873,32 +881,49 @@ public class ImportBookSingleActivity extends FullActivity {
     }
 
     /**
-     * A single file opened via "Open with" might actually be one chapter of a multi-file
-     * audiobook that just happens to live in a folder with its siblings. If we can recover a real
-     * filesystem path for the picked Uri (not always possible - see SiblingBookDetector) and find
-     * other audio/video files right next to it, ask the user whether to import the whole folder
-     * instead of just this one file, before setting up the single-file candidate UI.
+     * Two independent things happen here, both needing the picked Uri resolved down to a real
+     * filesystem path:
+     * 1. If forceCopy is set (the original "Open With" content:// Uri had no persistable
+     * permission - see OpenWithHelper/UriHelper.checkLongTermReadable), resolving a real path lets
+     * proceedAsSingleFileImport() link instead of forcing a copy - same trust level as the
+     * whole-book folder path below, which already does this. This runs regardless of the
+     * "propose whole book" setting, since it has nothing to do with sibling detection.
+     * 2. If eligible (setting on, plain audio/video, not adding to an existing folder), also scan
+     * for sibling audio/video files next to it and offer to import the whole folder instead.
      */
     private void checkSiblingBookThenProceed() {
         String name = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(this, uri);
         String type = com.driot.bookplayer.helpers.SupportedFilesHelper.getType(name);
-        boolean eligibleForCheck = folderToAddTo == null
+        boolean wantsSiblingSuggestion = folderToAddTo == null
                 && com.driot.bookplayer.global.Option.getProposeWholeBookImport()
                 && (com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type)
                         || com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type));
 
-        if (!eligibleForCheck) {
+        if (!forceCopy && !wantsSiblingSuggestion) {
+            // Already safe to link (or not applicable) and no whole-book suggestion to offer -
+            // nothing to resolve, skip the background thread entirely.
             proceedAsSingleFileImport();
             return;
         }
 
         new Thread(() -> {
-            SiblingBookDetector.Result result = SiblingBookDetector.detect(this, uri);
+            java.io.File pickedFile = SiblingBookDetector.resolvePickedFile(this, uri);
+            SiblingBookDetector.Result result = (pickedFile != null && wantsSiblingSuggestion)
+                    ? SiblingBookDetector.detectSiblingsOf(pickedFile)
+                    : null;
             runOnUiThread(() -> {
                 if (isFinishing()) {
                     return;
                 }
-                if (result == null) {
+                if (pickedFile != null) {
+                    // Resolved a real, stable filesystem path for the opened file itself -
+                    // remember it so proceedAsSingleFileImport() can use it instead of the
+                    // original "Open With" content:// Uri, whichever way this turns out (no
+                    // siblings found, sibling suggestion not applicable, or the user declines it
+                    // below).
+                    resolvedFileUri = Uri.fromFile(pickedFile);
+                }
+                if (result == null || result.parentDir == null || result.siblingTrackCount < 2) {
                     proceedAsSingleFileImport();
                     return;
                 }
@@ -917,6 +942,16 @@ public class ImportBookSingleActivity extends FullActivity {
     }
 
     private void proceedAsSingleFileImport() {
+        if (resolvedFileUri != null) {
+            // A real filesystem path was resolved for this exact file (see
+            // checkSiblingBookThenProceed()/SiblingBookDetector) - safe to link without copying,
+            // same as the whole-book folder path already does with Uri.fromFile(). Without this,
+            // the original "Open With" content:// Uri (typically a one-shot grant with no
+            // persistable permission) forced cbCopy on and disabled in calculateCheckboxState(),
+            // silently taking away the copy/link choice for the "just this file" case.
+            uri = resolvedFileUri;
+            forceCopy = false;
+        }
         if (viewModel.getBookCandidate().getValue() == null) {
             viewModel.initializeBookCandidate(uri);
         }
