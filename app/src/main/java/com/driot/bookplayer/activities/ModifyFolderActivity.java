@@ -7,9 +7,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
@@ -49,6 +54,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.podcasts.PodcastHelper;
@@ -162,10 +168,7 @@ public class ModifyFolderActivity extends BaseActivity {
             }
         });
 
-        String memoryLocationText = getString(R.string.Audio_location) + " :\n" + folder.getMemoryLocationText(this);
-        int memoryLocationIcon = folder.getMemoryLocationIcon(this);
-        ivStorageIcon.setImageResource(memoryLocationIcon);
-        tvStorageIcon.setText(memoryLocationText);
+        refreshStorageLocationDisplay(ivStorageIcon, tvStorageIcon);
         ivStorageIcon.setOnClickListener(view -> {
             myLogI("user clicks - storage icon");
             launchMoveBookActivity();
@@ -604,11 +607,8 @@ public class ModifyFolderActivity extends BaseActivity {
                     }
                     folder = fresh;
                     runOnUiThread(() -> {
-                        ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
-                        TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
-                        ivStorageIcon.setImageResource(folder.getMemoryLocationIcon(this));
-                        tvStorageIcon.setText(getString(R.string.Audio_location) + " :\n"
-                                + folder.getMemoryLocationText(this));
+                        refreshStorageLocationDisplay(findViewById(R.id.imageViewStorageIcon),
+                                findViewById(R.id.textViewStorageIcon));
                         checkZikFilesReadable();
                     });
                 });
@@ -618,6 +618,36 @@ public class ModifyFolderActivity extends BaseActivity {
         Intent i = new Intent(this, MoveBookActivity.class);
         i.putExtra(Intents.EXTRA_FOLDER, folder);
         moveBookLauncher.launch(i);
+    }
+
+    // Placeholder character right after "Audio location :" so a small copy/link icon can be
+    // swapped in via ImageSpan - same reserved-storage-vs-linked-storage split and icons as
+    // MoveBookActivity/StatsActivity.
+    private static final String ICON_ANCHOR = " ";
+
+    private void refreshStorageLocationDisplay(ImageView ivStorageIcon, TextView tvStorageIcon) {
+        ivStorageIcon.setImageResource(folder.getMemoryLocationIcon(this));
+
+        String label = getString(R.string.Audio_location) + " :\n";
+        String locationText = folder.getMemoryLocationText(this);
+        int copyLinkIconRes = folder.getCopyOrLinkIconRes(this);
+        if (copyLinkIconRes == 0) {
+            tvStorageIcon.setText(label + locationText);
+            return;
+        }
+
+        String fullText = label + ICON_ANCHOR + locationText;
+        SpannableString spannable = new SpannableString(fullText);
+        Drawable d = getResources().getDrawable(copyLinkIconRes, null).mutate();
+        int tintColor = getResources().getColor(
+                folder.isReservedLocation(this) ? R.color.storage_copy_color : R.color.storage_link_color, null);
+        d.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+        int size = ViewHelper.dp(this, 14);
+        d.setBounds(0, 0, size, size);
+        int iconStart = label.length();
+        spannable.setSpan(new ImageSpan(d, ImageSpan.ALIGN_BASELINE), iconStart, iconStart + ICON_ANCHOR.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvStorageIcon.setText(spannable);
     }
 
     private void clickChangeCover() {
@@ -1233,11 +1263,8 @@ public class ModifyFolderActivity extends BaseActivity {
                 llAutoRepairProgress.setVisibility(View.GONE);
                 if (fixed) {
                     myToast(getString(R.string.auto_repair_fixed));
-                    ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
-                    TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
-                    ivStorageIcon.setImageResource(folder.getMemoryLocationIcon(this));
-                    tvStorageIcon.setText(getString(R.string.Audio_location) + " :\n"
-                            + folder.getMemoryLocationText(this));
+                    refreshStorageLocationDisplay(findViewById(R.id.imageViewStorageIcon),
+                            findViewById(R.id.textViewStorageIcon));
                     checkZikFilesReadable();
                 } else {
                     mbPickNewLocation.setVisibility(View.VISIBLE);

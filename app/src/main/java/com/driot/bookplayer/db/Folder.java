@@ -306,6 +306,31 @@ public class Folder implements Parcelable {
         }
     }
 
+    /**
+     * Icon distinguishing "copied into BookPlayer's reserved storage" vs "linked from shared
+     * storage" - same copy/link concept and icons as MoveBookActivity/StatsActivity. 0 (no icon)
+     * when the location can't be determined.
+     */
+    public int getCopyOrLinkIconRes(Context context) {
+        StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
+        switch (type) {
+            case INTERNAL_RESERVED:
+            case SDCARD_RESERVED:
+                return R.drawable.ic_content_copy_24px;
+            case SDCARD_SHARED:
+            case PHONE_SHARED:
+                return R.drawable.ic_link_2_24px;
+            default:
+                return 0;
+        }
+    }
+
+    public boolean isReservedLocation(Context context) {
+        StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
+        return type == StorageHelper.MemoryLocationType.INTERNAL_RESERVED
+                || type == StorageHelper.MemoryLocationType.SDCARD_RESERVED;
+    }
+
     public String getMemoryLocationText(Context context) {
         StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
         switch (type) {
