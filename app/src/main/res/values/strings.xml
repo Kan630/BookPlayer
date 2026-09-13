@@ -170,9 +170,10 @@
     <string name="import_option_after_import_title">After Import</string>
     <string name="import_option_delete_source">Delete Source</string>
     <string name="import_option_keep_source">Keep Source</string>
-    <string name="import_options_settings_hint">Change the defaults for these options in Settings › Import</string>
+    <string name="import_options_settings_hint">Change default settings here →</string>
     <string name="import_options_settings_icon_description">Open Import settings</string>
     <string name="import_tracks_found_existing_and_new">%1$d tracks total (%2$d new)</string>
+    <string name="import_m4b_single_file_note">This M4B will be imported as a single track. Switch Chapters to Split above to import each chapter separately.</string>
     <string name="Logging">Logging</string>
     <string name="manual">manual</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -1009,7 +1010,7 @@
     <string name="still_in_development">still in development</string>
     <string name="weird_behavior_could_happen">weird behavior could happen</string>
     <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
-    <string name="action_change">📂 Change</string>
+    <string name="action_change">📂 Upload</string>
     <string name="action_delete">🗑️ Delete</string>
     <string name="action_generate">🎨 Generate</string>
     <string name="action_web_search">🌐 Web Search</string>

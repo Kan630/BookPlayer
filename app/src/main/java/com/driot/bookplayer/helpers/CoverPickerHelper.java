@@ -45,12 +45,18 @@ public class CoverPickerHelper {
 
         /** User wants to generate an initials-based cover. */
         void onGenerateRequested();
+
+        /** User wants to discard whatever cover override is currently applied (an upload, a
+         * generated one, or a picked candidate) and go back to the originally detected one. Only
+         * invoked when canReset was true in showCoverOptionsMenu() - callers should pass that
+         * only when there's actually something to revert. */
+        void onResetRequested();
     }
 
     public static void showCoverOptionsMenu(Activity activity, View anchor,
-            @Nullable List<String> candidatePaths, boolean webSearchSupported, Actions actions) {
+            @Nullable List<String> candidatePaths, boolean webSearchSupported, boolean canReset, Actions actions) {
         PopupMenu menu = new PopupMenu(activity, anchor);
-        final int idCandidates = 1, idUpload = 2, idWebSearch = 3, idGenerate = 4;
+        final int idCandidates = 1, idUpload = 2, idWebSearch = 3, idGenerate = 4, idReset = 5;
         int candidateCount = candidatePaths == null ? 0 : candidatePaths.size();
 
         if (candidateCount > 1) {
@@ -62,6 +68,9 @@ public class CoverPickerHelper {
             menu.getMenu().add(0, idWebSearch, 0, activity.getString(R.string.action_web_search));
         }
         menu.getMenu().add(0, idGenerate, 0, activity.getString(R.string.action_generate));
+        if (canReset) {
+            menu.getMenu().add(0, idReset, 0, activity.getString(R.string.action_reset_to_original));
+        }
 
         menu.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -73,6 +82,8 @@ public class CoverPickerHelper {
                 actions.onWebSearchRequested();
             } else if (id == idGenerate) {
                 actions.onGenerateRequested();
+            } else if (id == idReset) {
+                actions.onResetRequested();
             }
             return true;
         });

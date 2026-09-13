@@ -689,8 +689,11 @@ public class ModifyFolderActivity extends BaseActivity {
                 myLogEE(e, "openCoverPickerMenu: failed to list candidate images");
             }
             List<String> finalCandidates = candidates;
+            // Same cutoff as bResetToOriginal's own visibility below - books imported before the
+            // "keep an original copy" feature launched have nothing to revert to.
+            boolean canReset = folder.date_added >= 1769644800000L;
             runOnUiThread(() -> CoverPickerHelper.showCoverOptionsMenu(this, anchor, finalCandidates,
-                    !Tonio.isPure(this), new CoverPickerHelper.Actions() {
+                    !Tonio.isPure(this), canReset, new CoverPickerHelper.Actions() {
                         @Override
                         public void onCandidateChosen(String path) {
                             persistChosenCoverUri(path);
@@ -709,6 +712,11 @@ public class ModifyFolderActivity extends BaseActivity {
                         @Override
                         public void onGenerateRequested() {
                             clickGenerateCover();
+                        }
+
+                        @Override
+                        public void onResetRequested() {
+                            clickResetToOriginal();
                         }
                     }));
         });

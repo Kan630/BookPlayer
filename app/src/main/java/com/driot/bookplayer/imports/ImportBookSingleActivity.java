@@ -433,6 +433,10 @@ public class ImportBookSingleActivity extends FullActivity {
                 if (!internalCheckBoxStateCalculationInProgress) {
                     updateOptionsVisibility();
                 }
+                // Split vs Single File changes what the track list below should even show for an
+                // M4B (per-chapter preview vs a single-track explanatory note) - see
+                // refreshTrackListDisplay().
+                refreshTrackListDisplay();
             });
 
             groupCopyLink.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
@@ -575,10 +579,10 @@ public class ImportBookSingleActivity extends FullActivity {
                     // (manualCoverPath still null, nothing in coverCandidates) is intentionally
                     // left null here too - goFolder() regenerates the exact same fallback cover
                     // itself when Option.getCreateCover() is on, so there's nothing to seed.
+                    // coverImagePath always mirrors coverCandidates.get(0) when candidates were
+                    // found (see BookCandidate's own invariant) - no need to re-check the list here.
                     state.imagePath = (folderToAddTo == null)
-                            ? (manualCoverPath != null ? manualCoverPath
-                                    : (bookCandidate.coverCandidates.isEmpty() ? bookCandidate.coverImagePath
-                                            : bookCandidate.coverCandidates.get(0)))
+                            ? (manualCoverPath != null ? manualCoverPath : bookCandidate.coverImagePath)
                             : null;
 
                     runOnUiThread(() -> {
@@ -899,14 +903,20 @@ public class ImportBookSingleActivity extends FullActivity {
      * "propose whole book" setting, since it has nothing to do with sibling detection.
      * 2. If eligible (setting on, plain audio/video, not adding to an existing folder), also scan
      * for sibling audio/video files next to it and offer to import the whole folder instead.
+     * Excludes formats that are already a complete, self-contained book on their own - an M4B
+     * (or, once type-matched at all, any other bundle format) has its own chapters embedded, so
+     * "other files found nearby" is a coincidence of where it happens to sit, never a signal that
+     * more of the same book is next to it.
      */
     private void checkSiblingBookThenProceed() {
         String name = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(this, uri);
         String type = com.driot.bookplayer.helpers.SupportedFilesHelper.getType(name);
+        String specialType = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(name);
         boolean wantsSiblingSuggestion = folderToAddTo == null
                 && com.driot.bookplayer.global.Option.getProposeWholeBookImport()
                 && (com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type)
-                        || com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type));
+                        || com.driot.bookplayer.helpers.SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type))
+                && !com.driot.bookplayer.helpers.SupportedFilesHelper.isM4bSpecial(specialType);
 
         if (!forceCopy && !wantsSiblingSuggestion) {
             // Already safe to link (or not applicable) and no whole-book suggestion to offer -
@@ -986,6 +996,18 @@ public class ImportBookSingleActivity extends FullActivity {
     // fires, and whenever folderToAddTo changes (New Book <-> Add to Existing, or switching which
     // existing folder), since the merge depends on both.
     private void refreshTrackListDisplay() {
+        BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+        if (bookCandidate != null && "M4B".equals(bookCandidate.sourceType) && !isSplitSelected()) {
+            // "Single File" chosen: the import produces exactly one track (the whole M4B, left
+            // untouched), so the per-chapter preview below (each embedded chapter listed as if
+            // it's about to become its own track - see BookCandidate.scanM4BCombined) would be
+            // actively misleading here. Show an explanatory note instead of the list.
+            llTrackListContainer.setVisibility(View.VISIBLE);
+            tvTrackListTitle.setText(R.string.import_m4b_single_file_note);
+            llTrackList.removeAllViews();
+            return;
+        }
+
         List<AudioFileInfo> newTracks = latestScannedTracks;
         if (newTracks.isEmpty()) {
             llTrackListContainer.setVisibility(View.GONE);
@@ -1141,11 +1163,28 @@ public class ImportBookSingleActivity extends FullActivity {
         int candidateCount = bookCandidate.coverCandidates.size();
 
         if (manualCoverPath != null) {
-            ivCover.setImageURI(Uri.parse(manualCoverPath));
+            // Glide (not setImageURI/Uri.parse) because these paths aren't reliably proper Uri
+            // strings - see the coverImagePath case just below for why that distinction matters.
+            com.bumptech.glide.Glide.with(this).load(manualCoverPath).into(ivCover);
             tvCoverHint.setVisibility(View.VISIBLE);
             tvCoverHint.setText(R.string.import_tap_cover_to_change_simple);
-        } else if (!bookCandidate.coverCandidates.isEmpty()) {
-            ivCover.setImageURI(Uri.parse(bookCandidate.coverCandidates.get(0)));
+        } else if (bookCandidate.coverImagePath != null && !bookCandidate.coverImagePath.isEmpty()) {
+            // coverImagePath is the single source of truth for "the cover to show" - it's set
+            // whenever any cover is found, whether from a folder scan's multiple candidate images
+            // (coverCandidates, kept in sync with coverCandidates.get(0) - see BookCandidate) or
+            // from an embedded cover extracted from a single file (M4B/MP3/Archive - see
+            // scanM4BCombined/detectCoverForFile), which never populates coverCandidates at all.
+            // Checking coverCandidates here instead used to silently skip the preview for exactly
+            // that single-file case, even though the cover was already correctly detected.
+            //
+            // Glide instead of ivCover.setImageURI(Uri.parse(...)): coverCandidates entries are
+            // proper content:// Uri strings (DocumentFile.getUri().toString()), but an embedded
+            // cover's path is a bare absolute filesystem path from ImageHelper.saveTempBitmap()
+            // (no scheme at all). ContentResolver.openInputStream() - what setImageURI ultimately
+            // calls - requires a resolvable scheme and throws FileNotFoundException without one;
+            // ImageView swallows that as a logged warning, so the cover silently never appeared.
+            // Glide already handles bare paths, content://, file:// and http(s) uniformly.
+            com.bumptech.glide.Glide.with(this).load(bookCandidate.coverImagePath).into(ivCover);
             tvCoverHint.setVisibility(View.VISIBLE);
             tvCoverHint.setText(candidateCount > 1
                     ? getString(R.string.import_tap_cover_to_change, candidateCount)
@@ -1170,6 +1209,7 @@ public class ImportBookSingleActivity extends FullActivity {
         BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
         List<String> candidates = bookCandidate != null ? bookCandidate.coverCandidates : null;
         CoverPickerHelper.showCoverOptionsMenu(this, anchor, candidates, /* webSearchSupported= */ false,
+                /* canReset= */ manualCoverPath != null,
                 new CoverPickerHelper.Actions() {
                     @Override
                     public void onCandidateChosen(String path) {
@@ -1197,6 +1237,19 @@ public class ImportBookSingleActivity extends FullActivity {
                         i.putExtra(com.driot.bookplayer.activities.CoverGenerationActivity.EXTRA_FOLDER_ID, -1L);
                         i.putExtra(com.driot.bookplayer.activities.CoverGenerationActivity.EXTRA_TITLE, audioBookTitle);
                         startActivityForResult(i, REQ_GENERATE_COVER);
+                    }
+
+                    @Override
+                    public void onResetRequested() {
+                        // No Folder DB row / versioned "original" file exists yet at this
+                        // pre-import stage (unlike ModifyFolderActivity's own reset) - the
+                        // "original" here is simply whatever BookCandidate auto-detected before
+                        // any manual override, already sitting in coverImagePath/coverCandidates.
+                        manualCoverPath = null;
+                        BookCandidate current = viewModel.getBookCandidate().getValue();
+                        if (current != null) {
+                            updateCoverDisplay(current);
+                        }
                     }
                 });
     }
