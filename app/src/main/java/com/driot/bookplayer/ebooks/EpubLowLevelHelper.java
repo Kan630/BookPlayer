@@ -67,6 +67,14 @@ public final class EpubLowLevelHelper {
         public String opfPath;
         public String title;
         public String language; // <dc:language> - e.g. "en", "fr-FR"; null if absent
+        // Rest of the Dublin Core <metadata> block worth surfacing to the user - collected into
+        // ImportJob.setBookMetadata() by EbookSplitWorker.splitEbook(). All null if absent.
+        public String creator; // <dc:creator> - author
+        public String publisher; // <dc:publisher>
+        public String description; // <dc:description>
+        public String subject; // <dc:subject> - a book can have several; joined with "; "
+        public String date; // <dc:date>
+        public String identifier; // <dc:identifier> - e.g. ISBN/URN
         public String coverId;
         public final Map<String, String> manifestHref = new LinkedHashMap<>();
         public final Map<String, String> manifestType = new LinkedHashMap<>();
@@ -375,6 +383,30 @@ public final class EpubLowLevelHelper {
                 } else if (inMetadata
                         && ("dc:language".equalsIgnoreCase(name) || "language".equalsIgnoreCase(name))) {
                     o.language = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:creator".equalsIgnoreCase(name) || "creator".equalsIgnoreCase(name))) {
+                    o.creator = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:publisher".equalsIgnoreCase(name) || "publisher".equalsIgnoreCase(name))) {
+                    o.publisher = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:description".equalsIgnoreCase(name) || "description".equalsIgnoreCase(name))) {
+                    o.description = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:subject".equalsIgnoreCase(name) || "subject".equalsIgnoreCase(name))) {
+                    String s = EpubCommonHelper.text(x).trim();
+                    if (!s.isEmpty()) {
+                        o.subject = (o.subject == null) ? s : (o.subject + "; " + s);
+                    }
+                } else if (inMetadata && ("dc:date".equalsIgnoreCase(name) || "date".equalsIgnoreCase(name))) {
+                    o.date = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:identifier".equalsIgnoreCase(name) || "identifier".equalsIgnoreCase(name))) {
+                    if (o.identifier == null) {
+                        // First one only - EPUBs can declare several (ISBN, URN, internal uuid);
+                        // the first is conventionally the primary one.
+                        o.identifier = EpubCommonHelper.text(x).trim();
+                    }
                 } else if ("meta".equalsIgnoreCase(name)) {
                     String nm = EpubCommonHelper.attr(x, "name");
                     String prop = EpubCommonHelper.attr(x, "property");

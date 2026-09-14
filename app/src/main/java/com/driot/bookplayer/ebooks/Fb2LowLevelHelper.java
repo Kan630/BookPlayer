@@ -60,6 +60,11 @@ public final class Fb2LowLevelHelper {
     public static final class Meta {
         public String title; // <description><title-info><book-title>
         public String language; // <description><title-info><lang> - e.g. "en"; null if absent
+        // Rest of <title-info> worth surfacing to the user - collected into
+        // ImportJob.setBookMetadata() by EbookSplitWorker.splitEbook(). All null if absent.
+        public String author; // <author><first-name>+<last-name> - joined with ", " if several
+        public String genre; // <genre> - joined with "; " if several
+        public String date; // <date>
         public String coverImageId; // id without '#' from coverpage image (original case)
         // Store binaries keyed by LOWERCASE id for robust lookup
         public final java.util.Map<String, byte[]> binaries = new LinkedHashMap<>();
@@ -179,7 +184,15 @@ public final class Fb2LowLevelHelper {
         boolean inCoverpage = false; // NEW: ensure image is from <coverpage>
         boolean inBookTitle = false;
         boolean inLang = false;
+        boolean inAuthor = false;
+        boolean inAuthorFirstName = false;
+        boolean inAuthorLastName = false;
+        boolean inGenre = false;
+        boolean inDate = false;
         boolean inBinary = false;
+
+        String curAuthorFirst = null;
+        String curAuthorLast = null;
 
         String currentBinaryId = null;
         String currentBinaryType = null;
@@ -201,6 +214,18 @@ public final class Fb2LowLevelHelper {
                     inBookTitle = true;
                 } else if (inTitleInfo && "lang".equalsIgnoreCase(tag)) {
                     inLang = true;
+                } else if (inTitleInfo && "author".equalsIgnoreCase(tag)) {
+                    inAuthor = true;
+                    curAuthorFirst = null;
+                    curAuthorLast = null;
+                } else if (inAuthor && "first-name".equalsIgnoreCase(tag)) {
+                    inAuthorFirstName = true;
+                } else if (inAuthor && "last-name".equalsIgnoreCase(tag)) {
+                    inAuthorLastName = true;
+                } else if (inTitleInfo && "genre".equalsIgnoreCase(tag)) {
+                    inGenre = true;
+                } else if (inTitleInfo && "date".equalsIgnoreCase(tag)) {
+                    inDate = true;
                 } else if (inCoverpage && "image".equalsIgnoreCase(tag)) {
                     // Only treat image under coverpage as the cover
                     String href = attrNs(x, XLINK, "href");
@@ -233,6 +258,26 @@ public final class Fb2LowLevelHelper {
                     if (s != null) {
                         meta.language = (meta.language == null) ? s : (meta.language + s);
                     }
+                } else if (inAuthorFirstName) {
+                    String s = x.getText();
+                    if (s != null) {
+                        curAuthorFirst = (curAuthorFirst == null) ? s : (curAuthorFirst + s);
+                    }
+                } else if (inAuthorLastName) {
+                    String s = x.getText();
+                    if (s != null) {
+                        curAuthorLast = (curAuthorLast == null) ? s : (curAuthorLast + s);
+                    }
+                } else if (inGenre) {
+                    String s = x.getText();
+                    if (s != null && !s.trim().isEmpty()) {
+                        meta.genre = (meta.genre == null) ? s.trim() : (meta.genre + "; " + s.trim());
+                    }
+                } else if (inDate) {
+                    String s = x.getText();
+                    if (s != null) {
+                        meta.date = (meta.date == null) ? s : (meta.date + s);
+                    }
                 } else if (inBinary && binBuf != null) {
                     String s = x.getText();
                     if (s != null)
@@ -250,6 +295,28 @@ public final class Fb2LowLevelHelper {
                     inLang = false;
                     if (meta.language != null)
                         meta.language = meta.language.trim();
+                } else if ("first-name".equalsIgnoreCase(tag)) {
+                    inAuthorFirstName = false;
+                    if (curAuthorFirst != null)
+                        curAuthorFirst = curAuthorFirst.trim();
+                } else if ("last-name".equalsIgnoreCase(tag)) {
+                    inAuthorLastName = false;
+                    if (curAuthorLast != null)
+                        curAuthorLast = curAuthorLast.trim();
+                } else if ("author".equalsIgnoreCase(tag)) {
+                    inAuthor = false;
+                    String full = joinNonEmpty(" ", curAuthorFirst, curAuthorLast);
+                    if (!full.isEmpty()) {
+                        meta.author = (meta.author == null) ? full : (meta.author + ", " + full);
+                    }
+                    curAuthorFirst = null;
+                    curAuthorLast = null;
+                } else if ("genre".equalsIgnoreCase(tag)) {
+                    inGenre = false;
+                } else if ("date".equalsIgnoreCase(tag)) {
+                    inDate = false;
+                    if (meta.date != null)
+                        meta.date = meta.date.trim();
                 } else if ("title-info".equalsIgnoreCase(tag)) {
                     inTitleInfo = false;
                 } else if ("description".equalsIgnoreCase(tag)) {
@@ -494,6 +561,19 @@ public final class Fb2LowLevelHelper {
                 .replaceAll("\\n{3,}", "\n\n")
                 .trim();
         return t;
+    }
+
+    /** Joins non-null, non-blank parts with sep - e.g. joinNonEmpty(" ", "Jane", null, "Doe") -> "Jane Doe". */
+    private static String joinNonEmpty(String sep, String... parts) {
+        StringBuilder sb = new StringBuilder();
+        for (String p : parts) {
+            if (p == null || p.trim().isEmpty())
+                continue;
+            if (sb.length() > 0)
+                sb.append(sep);
+            sb.append(p.trim());
+        }
+        return sb.toString();
     }
 
     private static String attr(XmlPullParser x, String name) {

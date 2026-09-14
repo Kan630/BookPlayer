@@ -20,7 +20,8 @@ public final class MetadataFormatter {
 
     /** Order + labels for common keys; the rest will follow alphabetically. */
     private static final String[] PREFERRED_ORDER = {
-            "title", "album", "artist", "composer", "year", "genre", "track", "disc",
+            "title", "author", "album", "artist", "composer", "year", "genre", "subject",
+            "publisher", "language", "description", "date", "identifier", "track", "disc",
             "bitrate", "samplerate", "channels", "mime"
     };
 
@@ -73,6 +74,13 @@ public final class MetadataFormatter {
             case "bitrate": localized = ctx.getString(R.string.Bitrate); break;
             case "samplerate": localized = ctx.getString(R.string.sample_rate); break;
             case "channels": localized = ctx.getString(R.string.Channels); break;
+            case "author": localized = ctx.getString(R.string.Author); break;
+            case "subject": localized = ctx.getString(R.string.Subject); break;
+            case "publisher": localized = ctx.getString(R.string.Publisher); break;
+            case "language": localized = ctx.getString(R.string.Language); break;
+            case "description": localized = ctx.getString(R.string.Description); break;
+            case "date": localized = ctx.getString(R.string.Date); break;
+            case "identifier": localized = ctx.getString(R.string.Identifier); break;
             default: return prettyKey(key);
         }
         return prettyKey(localized);

@@ -212,6 +212,29 @@ public class ImportJob {
         }
 
         /**
+         * Book-level metadata for an ebook import (author, publisher, language, etc. - built in
+         * EbookSplitWorker.splitEbook() from EpubLowLevelHelper.OpfInfo / Fb2LowLevelHelper.Meta)
+         * - same book_metadata blob every chapter's ZikFile ends up with, merged in by
+         * FinalParseFolderWorker.saveSingleFile(). Stored in the metadata blob rather than a
+         * dedicated column, same reasoning as track_titles above.
+         */
+        @SuppressWarnings("unchecked")
+        public Map<String, String> getBookMetadata() {
+                Map<String, Object> meta = getMetadataMap();
+                Object m = meta.get("book_metadata");
+                if (m instanceof Map) {
+                        return (Map<String, String>) m;
+                }
+                return new LinkedHashMap<>();
+        }
+
+        public void setBookMetadata(Map<String, String> bookMetadata) {
+                Map<String, Object> meta = getMetadataMap();
+                meta.put("book_metadata", bookMetadata);
+                setMetadataMap(meta);
+        }
+
+        /**
          * The filename of the track the user originally opened (via "Open with" or the
          * "import whole book" sibling-detector hand-off), so that once this job finishes, the
          * caller can jump straight into playing that exact track instead of just showing the

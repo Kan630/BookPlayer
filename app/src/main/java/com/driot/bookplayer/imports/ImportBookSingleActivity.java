@@ -97,6 +97,10 @@ public class ImportBookSingleActivity extends FullActivity {
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard, llEpubSplitMode, llImportTtsVoice;
     private Spinner spinnerImportTtsVoice;
     private boolean ttsVoiceSpinnerInitialized = false;
+    // True from the moment the EPUB split-mode toggle triggers a rescan until
+    // refreshTrackListDisplay() sees the real rescanned list - see that toggle's listener and
+    // refreshTrackListDisplay() below.
+    private boolean epubRescanInProgress = false;
 
     @Inject
     protected AppTtsManager ttsManager;
@@ -465,7 +469,14 @@ public class ImportBookSingleActivity extends FullActivity {
                 myLogI("USER SELECTS -EPUB SPLIT MODE- : " + mode);
                 // Unlike the other toggles above, this one changes which chapters actually get
                 // extracted, not just how already-scanned data is displayed - re-run the scan so
-                // the track list below shows the real effect of the new mode.
+                // the track list below shows the real effect of the new mode. The top loading
+                // banner (progressBarStep2 etc.) does reactivate via loadingStatus, but it's
+                // easy to have scrolled past it by the time this toggle is reachable - show
+                // immediate feedback right here too, where the user is actually looking.
+                epubRescanInProgress = true;
+                llTrackListContainer.setVisibility(View.VISIBLE);
+                tvTrackListTitle.setText(R.string.import_scanning_chapters);
+                llTrackList.removeAllViews();
                 viewModel.rescanEbookChapters(mode);
             });
 
@@ -1194,9 +1205,16 @@ public class ImportBookSingleActivity extends FullActivity {
 
         List<AudioFileInfo> newTracks = latestScannedTracks;
         if (newTracks.isEmpty()) {
+            if (epubRescanInProgress) {
+                // The toggle listener already put up the "Scanning…" placeholder and made the
+                // container visible - this empty emission is just rescanEbookChapters() clearing
+                // the list before it re-populates, not "there's nothing to show". Leave it as is.
+                return;
+            }
             llTrackListContainer.setVisibility(View.GONE);
             return;
         }
+        epubRescanInProgress = false;
         llTrackListContainer.setVisibility(View.VISIBLE);
         boolean isEbook = bookCandidate != null && "Ebook".equals(bookCandidate.sourceType);
 

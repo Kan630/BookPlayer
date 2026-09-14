@@ -44,6 +44,7 @@
     <string name="Alphabetically">Alphabetically</string>
     <string name="Also">Also</string>
     <string name="Artist">Artist</string>
+    <string name="Author">Author</string>
     <string name="Audio">Audio</string>
     <string name="AudioBooks">"AudioBooks"</string>
     <string name="Auto_Delete">Auto-Delete</string>
@@ -77,6 +78,8 @@
     <string name="Delete">Delete</string>
     <string name="Deleting">Deleting</string>
     <string name="denied">denied</string>
+    <string name="Date">Date</string>
+    <string name="Description">Description</string>
     <string name="Design">Design</string> //used as the settings title for the section where user can choose color, text font
     <string name="destination">destination</string>
     <string name="device">device</string>
@@ -119,6 +122,7 @@
     <string name="homepage">homepage</string>
     <string name="icon">icon</string>
     <string name="Import">Import</string>
+    <string name="Identifier">Identifier</string>
     <string name="in">in</string>
     <string name="Integration">Integration</string>
     <string name="items">items</string>
@@ -162,6 +166,7 @@
     <string name="import_option_split_yes">Split</string>
     <string name="import_option_split_no">Single File</string>
     <string name="import_option_tts_voice_title">Voice</string>
+    <string name="import_scanning_chapters">Scanning chapters…</string>
     <string name="import_option_epub_split_title">Chapter splitting</string>
     <string name="import_option_epub_split_auto">Auto</string>
     <string name="import_option_epub_split_toc">TOC</string>
@@ -200,6 +205,7 @@
     <string name="podcasts">Podcasts</string>
     <string name="proceed">proceed</string>
     <string name="Processing">"Processing"</string>
+    <string name="Publisher">Publisher</string>
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">Radio</string>
     <string name="Radio">Radio</string>
@@ -219,6 +225,7 @@
     <string name="sort">sort</string>
     <string name="Spam">Spam</string>
     <string name="Speaking">Speaking</string>
+    <string name="Subject">Subject</string>
     <string name="Speed">Speed</string>
     <string name="import_task_start">starting…</string>
     <string name="Stats">Stats</string>

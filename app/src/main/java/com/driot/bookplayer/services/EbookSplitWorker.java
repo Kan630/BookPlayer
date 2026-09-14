@@ -116,6 +116,52 @@ public class EbookSplitWorker extends ImportWorker {
                     ? Uri.parse(ebookPath)
                     : Uri.fromFile(new File(ebookPath));
 
+            // Book-level metadata (author, publisher, language, etc.) worth surfacing via the
+            // same long-press metadata dialog audio tracks already support - see
+            // BookCandidate.detectCoverForFile() for the EPUB/FB2 field capture this mirrors, and
+            // MetadataUi/ZikFile.metadataJson for how it ends up displayed. A light, separate
+            // parse (same pattern BookCandidate's own cover/language detection already uses)
+            // rather than threading it through the chapter-extraction ExtractResult, whose shape
+            // differs between the TOC/spine EPUB paths - keeps this independent of which
+            // extraction mode runs below. ODT/DOCX/TXT/HTML get no metadata here, same scoping as
+            // the cover-candidates/language work this follows.
+            Map<String, String> bookMetadata = new LinkedHashMap<>();
+            if (EBOOK_TYPE_EPUB.equals(ebookType)) {
+                try {
+                    java.util.Map<String, byte[]> zip = EpubCommonHelper.readZip(uri, ctx);
+                    byte[] containerXml = zip.get("META-INF/container.xml");
+                    if (containerXml != null) {
+                        String opfPath = EpubCommonHelper.findOpfPath(containerXml);
+                        byte[] opfBytes = zip.get(opfPath);
+                        if (opfBytes != null) {
+                            EpubLowLevelHelper.OpfInfo opf = EpubLowLevelHelper.parseOpf(opfBytes);
+                            putIfNotEmpty(bookMetadata, "title", opf.title);
+                            putIfNotEmpty(bookMetadata, "author", opf.creator);
+                            putIfNotEmpty(bookMetadata, "language", opf.language);
+                            putIfNotEmpty(bookMetadata, "publisher", opf.publisher);
+                            putIfNotEmpty(bookMetadata, "description", opf.description);
+                            putIfNotEmpty(bookMetadata, "subject", opf.subject);
+                            putIfNotEmpty(bookMetadata, "date", opf.date);
+                            putIfNotEmpty(bookMetadata, "identifier", opf.identifier);
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogW("Could not extract EPUB book metadata: " + e.getMessage());
+                }
+            } else if (EBOOK_TYPE_FB2.equals(ebookType)) {
+                try {
+                    String xml = Fb2LowLevelHelper.readAllText(ctx, uri);
+                    Fb2LowLevelHelper.Meta meta = Fb2LowLevelHelper.parseMetaAndBinaries(xml);
+                    putIfNotEmpty(bookMetadata, "title", meta.title);
+                    putIfNotEmpty(bookMetadata, "author", meta.author);
+                    putIfNotEmpty(bookMetadata, "language", meta.language);
+                    putIfNotEmpty(bookMetadata, "genre", meta.genre);
+                    putIfNotEmpty(bookMetadata, "date", meta.date);
+                } catch (Exception e) {
+                    myLogW("Could not extract FB2 book metadata: " + e.getMessage());
+                }
+            }
+
             // Extract (cover + chapter files) using the appropriate helper
             Bitmap cover;
             List<File> chapters;
@@ -263,10 +309,20 @@ public class EbookSplitWorker extends ImportWorker {
                 myLogD(progress + "% - " + progressText.replace("\n", " - "));
             }
 
-            // Save final chapter titles to ImportJob metadata
+            // Save final chapter titles and book-level metadata to ImportJob (single combined
+            // write, both live in the same metadataJson blob - see ImportJob.setTrackTitles()/
+            // setBookMetadata()).
             ImportJob job = jobOrFail();
+            boolean metadataChanged = false;
             if (!finalTrackTitles.isEmpty()) {
                 job.setTrackTitles(finalTrackTitles);
+                metadataChanged = true;
+            }
+            if (!bookMetadata.isEmpty()) {
+                job.setBookMetadata(bookMetadata);
+                metadataChanged = true;
+            }
+            if (metadataChanged) {
                 this.repo.updateMetadataJson(job.importId, job.metadataJson);
             }
 
@@ -559,6 +615,12 @@ public class EbookSplitWorker extends ImportWorker {
             n++;
         }
         return cand;
+    }
+
+    private static void putIfNotEmpty(Map<String, String> map, String key, String value) {
+        if (value != null && !value.trim().isEmpty()) {
+            map.put(key, value.trim());
+        }
     }
 
     private static void writeUtf8(File file, String text) throws Exception {

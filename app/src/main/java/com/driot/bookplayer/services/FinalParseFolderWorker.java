@@ -62,6 +62,11 @@ public class FinalParseFolderWorker extends ImportWorker {
     ImportJob importJob;
     private org.json.JSONArray nearbyProgressArray;
     private org.json.JSONObject trackTitles;
+    // Book-level metadata (author, publisher, language, etc.) captured by
+    // EbookSplitWorker.splitEbook() for ebook imports - merged into every chapter's
+    // ZikFile.metadataJson in saveSingleFile() so it shows up in the same long-press metadata
+    // dialog audio tracks already use. Null for non-ebook imports.
+    private org.json.JSONObject bookMetadata;
 
     // Set only when this run itself created a brand-new Folder row (i.e. not an "add to existing
     // book" append) - tells rollbackPartialImport() whether to remove the whole folder or just
@@ -95,6 +100,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                     org.json.JSONObject meta = new org.json.JSONObject(importJob.metadataJson);
                     nearbyProgressArray = meta.optJSONArray("nearby_progress");
                     trackTitles = meta.optJSONObject("track_titles");
+                    bookMetadata = meta.optJSONObject("book_metadata");
                 } catch (Exception e) {
                     myLogE("Failed to parse metadataJson: " + e.getMessage());
                 }
@@ -775,6 +781,29 @@ public class FinalParseFolderWorker extends ImportWorker {
         emitSuccess();
     }
 
+    /**
+     * Fills in book-level metadata (author, publisher, language, etc.) for keys the track itself
+     * doesn't already have a value for - track-level metadata (real ID3/etc. tags, when present)
+     * always wins over the book-level fallback.
+     */
+    private java.util.Map<String, String> mergeBookMetadata(java.util.Map<String, String> trackMeta) {
+        java.util.Map<String, String> merged = (trackMeta == null) ? new java.util.LinkedHashMap<>()
+                : new java.util.LinkedHashMap<>(trackMeta);
+        if (bookMetadata != null) {
+            java.util.Iterator<String> keys = bookMetadata.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!merged.containsKey(key)) {
+                    String value = bookMetadata.optString(key, null);
+                    if (value != null && !value.isEmpty()) {
+                        merged.put(key, value);
+                    }
+                }
+            }
+        }
+        return merged;
+    }
+
     private SaveResultEnum saveSingleFile(AudioFileInfo info, long folderId, int zeOrder) {
         ZikFile file = new ZikFile();
         file.setName(info.getDisplayPath());
@@ -809,7 +838,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         file.setDuration(info.getDuration());
         file.setSize(info.getSize());
         file.date_added = System.currentTimeMillis();
-        file.metadataJson = MetaJson.toJson(info.getMeta());
+        file.metadataJson = MetaJson.toJson(mergeBookMetadata(info.getMeta()));
 
         // Check for transferred progress metadata
         org.json.JSONObject progressData = null;
