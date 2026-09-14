@@ -14,6 +14,7 @@ import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
 import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,15 +22,18 @@ import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
@@ -593,7 +597,8 @@ public class LoadManyBookTest implements LogSupport {
             throw new AssertionError("Window never gained focus before click.");
         }
 
-        // 2) get the title of the folder from DB to find it in the list
+        // 2) get the title of the folder from DB, for logging only - see findFolderPosition()
+        // for how the actual click target is resolved.
         Folder folder = AppDatabase.getInstance(appContext).folderDao().getById(idFolder);
         if (folder == null)
             throw new AssertionError("Could not find folder with id " + idFolder + " in DB");
@@ -605,18 +610,26 @@ public class LoadManyBookTest implements LogSupport {
         myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking folder...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
 
-        // Click by position (0), not by matching the folder's name: MainActivity's list is
-        // ORDER BY lLastAccess DESC (FolderDao), so the book we just imported is always at the
-        // top. Matching by hasDescendant(withText(title)) instead is fragile when the same
-        // fixture gets imported repeatedly across back-to-back runs in quick succession (as
-        // happens while iterating on this test suite itself) - deleting and re-adding a
-        // same-named folder in close succession can leave RecyclerView showing an outgoing and
-        // an incoming card with identical text simultaneously for longer than a short settle
-        // wait can reliably outlast, even though a direct DB query at that moment shows only one
-        // real row. Position 0 has no such ambiguity.
+        // Resolve the just-imported folder's actual position by its stable DB id (via the
+        // adapter's own findPositionByFolderId()), instead of assuming it's always at position 0.
+        // Position 0 used to assume the default "last played" sort always puts the just-imported
+        // book on top - but importing sets lLastAccess once at import time, while *playing* the
+        // PREVIOUS book in this same loop (including its background progress-save updates) can
+        // keep bumping that older book's lLastAccess past this import's timestamp, leaving the
+        // previous book pinned at position 0 and silently re-testing it instead. Matching by
+        // title text instead would be ambiguous whenever a same-named fixture gets imported more
+        // than once (each run creates a new row with its own id and date_added) - the id is the
+        // only unambiguous handle to the exact row this import just created, regardless of
+        // whatever sort mode/direction/timing is currently in effect.
+        int position = findFolderPosition(idFolder);
+        if (position < 0) {
+            throw new AssertionError("Folder id=" + idFolder + " (\"" + title
+                    + "\") not found in MainActivity's adapter - it may not have finished binding yet.");
+        }
+
         onView(withId(ID_MAIN_RECYCLER))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        myLog("Clicked targeted item: " + title);
+                .perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
+        myLog("Clicked targeted item: " + title + " (position " + position + ")");
         TestNavUtils.sleep(300);
 
         // 4) wait until we land on either PlayActivity or ZikFileActivity
@@ -644,6 +657,26 @@ public class LoadManyBookTest implements LogSupport {
         }
 
         throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
+    }
+
+    /**
+     * Resolves idFolder's current position in MainActivity's folder list via the adapter's own
+     * stable-id lookup ({@link FoldersRVAdapter#findPositionByFolderId}) - see the comment at its
+     * call site in {@link #openTargetedItemThenPlay} for why position/title matching is unsafe
+     * here. Returns -1 if MainActivity isn't the current activity, or the id isn't in the list.
+     */
+    private int findFolderPosition(long idFolder) {
+        final int[] result = { -1 };
+        Activity a = TestNavUtils.getCurrentResumedActivity();
+        if (!(a instanceof MainActivity))
+            return -1;
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            RecyclerView rv = a.findViewById(ID_MAIN_RECYCLER);
+            if (rv != null && rv.getAdapter() instanceof FoldersRVAdapter) {
+                result[0] = ((FoldersRVAdapter) rv.getAdapter()).findPositionByFolderId(idFolder);
+            }
+        });
+        return result[0];
     }
 
     private void runPlay(long playTime) throws InterruptedException {

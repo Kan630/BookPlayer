@@ -18,6 +18,7 @@ import org.junit.runners.Suite;
         LoadManyBookTest.class,
         ClearAndLoadManyBookTest.class,
         DeepSettingsTest.class,
+        PermissionHandlingTest.class,
 })
 public class OrderedInstrumentedTestSuite {
 }
