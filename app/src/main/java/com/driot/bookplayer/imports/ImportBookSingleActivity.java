@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,6 +32,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
+import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
@@ -46,6 +48,9 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.tts.TtsUiHelper;
+import com.driot.bookplayer.tts.VoiceItem;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
@@ -54,6 +59,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -86,8 +93,13 @@ public class ImportBookSingleActivity extends FullActivity {
     private LinearLayout llExistingFolderPicker;
     private Spinner destinationFolderSpinner;
     private com.google.android.material.button.MaterialButtonToggleGroup groupSplit, groupCopyLink, groupSdCardDevice,
-            groupDeleteKeep;
-    private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
+            groupDeleteKeep, groupEpubSplitMode;
+    private LinearLayout llSplit, llCopy, llDelete, llUseSdCard, llEpubSplitMode, llImportTtsVoice;
+    private Spinner spinnerImportTtsVoice;
+    private boolean ttsVoiceSpinnerInitialized = false;
+
+    @Inject
+    protected AppTtsManager ttsManager;
     private Button btnConfirm, btnCancel;
     private ProgressBar progressBarStep1, progressBarStep2;
     private TextView tvProgressStatusStep1, tvProgressStatusStep2;
@@ -250,10 +262,14 @@ public class ImportBookSingleActivity extends FullActivity {
         groupCopyLink = findViewById(R.id.groupCopyLink);
         groupSdCardDevice = findViewById(R.id.groupSdCardDevice);
         groupDeleteKeep = findViewById(R.id.groupDeleteKeep);
+        groupEpubSplitMode = findViewById(R.id.groupEpubSplitMode);
         llSplit = findViewById(R.id.ll_split_m4b);
         llCopy = findViewById(R.id.ll_copy_internal);
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
+        llEpubSplitMode = findViewById(R.id.ll_epub_split_mode);
+        llImportTtsVoice = findViewById(R.id.ll_import_tts_voice);
+        spinnerImportTtsVoice = findViewById(R.id.spinnerImportTtsVoice);
 
         programmaticTitleUpdate = true;
         etBookTitle.setText("...");
@@ -265,6 +281,7 @@ public class ImportBookSingleActivity extends FullActivity {
         groupSdCardDevice.check(Option.getUseSdCard() ? R.id.btnSdCard : R.id.btnDevice);
         groupDeleteKeep.check(Option.getDeleteSourceFile() ? R.id.btnDeleteSource : R.id.btnKeepSource);
         groupCopyLink.check(Option.getCopyFile() ? R.id.btnCopy : R.id.btnLink);
+        groupEpubSplitMode.check(epubSplitModeButtonId(Option.getEpubSplitMode()));
 
         // Observe BookCandidate from ViewModel
         viewModel.getBookCandidate().observe(this, bookCandidate -> {
@@ -439,6 +456,19 @@ public class ImportBookSingleActivity extends FullActivity {
                 refreshTrackListDisplay();
             });
 
+            groupEpubSplitMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked)
+                    return;
+                if (internalCheckBoxStateCalculationInProgress)
+                    return;
+                String mode = getSelectedEpubSplitMode();
+                myLogI("USER SELECTS -EPUB SPLIT MODE- : " + mode);
+                // Unlike the other toggles above, this one changes which chapters actually get
+                // extracted, not just how already-scanned data is displayed - re-run the scan so
+                // the track list below shows the real effect of the new mode.
+                viewModel.rescanEbookChapters(mode);
+            });
+
             groupCopyLink.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
                 if (!isChecked)
                     return;
@@ -562,6 +592,12 @@ public class ImportBookSingleActivity extends FullActivity {
                     state.optionSplit = isSplitSelected();
                     state.optionCopy = isCopySelected();
                     state.optionDelete = isDeleteSourceSelected();
+                    state.epubSplitMode = "epub".equalsIgnoreCase(bookCandidate.fileExtension)
+                            ? getSelectedEpubSplitMode()
+                            : null;
+                    state.ttsVoice = "Ebook".equals(bookCandidate.sourceType)
+                            ? getSelectedImportVoiceName()
+                            : null;
                     // Adding to an existing folder isn't a fresh single-book import, so there's
                     // no clean "jump to playback" target - leave it unset there.
                     state.targetPlaybackFileName = (folderToAddTo == null) ? targetPlaybackFileName : null;
@@ -631,6 +667,143 @@ public class ImportBookSingleActivity extends FullActivity {
         return groupSplit.getCheckedButtonId() == R.id.btnSplitYes;
     }
 
+    /** "auto"/"toc"/"spine" from groupEpubSplitMode's current selection. */
+    private String getSelectedEpubSplitMode() {
+        int checkedId = groupEpubSplitMode.getCheckedButtonId();
+        if (checkedId == R.id.btnEpubSplitToc)
+            return "toc";
+        if (checkedId == R.id.btnEpubSplitSpine)
+            return "spine";
+        return "auto";
+    }
+
+    /** Inverse of {@link #getSelectedEpubSplitMode()}, for seeding the toggle from Option. */
+    private static int epubSplitModeButtonId(String mode) {
+        if ("toc".equals(mode))
+            return R.id.btnEpubSplitToc;
+        if ("spine".equals(mode))
+            return R.id.btnEpubSplitSpine;
+        return R.id.btnEpubSplitAuto;
+    }
+
+    // -------------------------------------------------------------------------------------------
+    // -- TTS VOICE (ebooks only)
+    // -------------------------------------------------------------------------------------------
+
+    /**
+     * Sets up the ebook voice picker - same underlying mechanism as TTS Settings and
+     * PlayActivity's live voice switcher ({@link TtsUiHelper#setupTtsVoiceSpinnerForSettings}).
+     * On its first population, tries a language-based preselect
+     * ({@link #applyLanguageBasedPreselect}) before the user has a chance to touch it; from then
+     * on, only genuine taps update the selection and get remembered as that language's preferred
+     * voice (see {@link Option#setPreferredVoiceForLanguage}).
+     */
+    private void setupImportTtsVoiceSpinner() {
+        final boolean[] first = { true };
+        final boolean[] touched = { false };
+        final boolean[] suppressSelect = { false };
+        final String[] currentVoiceName = { Option.getTtsVoice() };
+
+        spinnerImportTtsVoice.setOnTouchListener((v, e) -> {
+            if (e.getAction() == MotionEvent.ACTION_UP) {
+                touched[0] = true;
+                v.performClick();
+            }
+            return false;
+        });
+
+        TtsUiHelper.setupTtsVoiceSpinnerForSettings(
+                this, this, spinnerImportTtsVoice, ttsManager, currentVoiceName[0],
+                voiceItem -> {
+                    if (first[0]) {
+                        first[0] = false;
+                        applyLanguageBasedPreselect(suppressSelect, currentVoiceName);
+                        return;
+                    }
+                    if (!touched[0] || suppressSelect[0])
+                        return;
+
+                    String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                            ? Option.DEFAULT_VOICE
+                            : voiceItem.name;
+                    if (picked.equalsIgnoreCase(currentVoiceName[0]))
+                        return;
+                    currentVoiceName[0] = picked;
+                    myLogI("--- user picks a VOICE for this import ---   [" + picked + "]");
+
+                    // Remember it as this language's preferred voice too, so future imports of
+                    // that language default to it - bootstraps Option.getPreferredVoiceForLanguage
+                    // from real usage rather than needing a dedicated settings UI for it yet.
+                    BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+                    String lang = (bookCandidate != null) ? bookCandidate.normalizedDetectedLanguage() : null;
+                    if (lang != null) {
+                        Option.setPreferredVoiceForLanguage(lang, picked);
+                    }
+                });
+    }
+
+    /**
+     * Tries to preselect a better voice than the just-loaded global default, now that the voice
+     * list actually exists to search: this book's remembered preferred voice for its detected
+     * language if one was saved before, else the first installed voice matching that language.
+     * Does nothing (leaving the global default selected) when language-guessing is off, no
+     * language was detected, or no installed voice matches it. Selects via the same
+     * setSelection(pos, false) + suppress-flag technique PlayActivity's own voice spinner uses,
+     * so this doesn't get mistaken for a user pick and re-persisted.
+     */
+    private void applyLanguageBasedPreselect(boolean[] suppressSelect, String[] currentVoiceName) {
+        if (!Option.getGuessBookLanguage())
+            return;
+        BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+        String lang = (bookCandidate != null) ? bookCandidate.normalizedDetectedLanguage() : null;
+        if (lang == null)
+            return;
+
+        if (!(spinnerImportTtsVoice.getAdapter() instanceof VoiceSpinnerAdapter adapter))
+            return;
+
+        String targetName = Option.getPreferredVoiceForLanguage(lang);
+        if (targetName == null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                VoiceItem vi = adapter.getItem(i);
+                if (vi != null && lang.equalsIgnoreCase(vi.twoLetterCodeLanguage)) {
+                    targetName = vi.name;
+                    break;
+                }
+            }
+        }
+        if (targetName == null || targetName.equalsIgnoreCase(currentVoiceName[0]))
+            return;
+
+        int target = -1;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            VoiceItem vi = adapter.getItem(i);
+            String n = (vi == null || vi.name == null || vi.name.isEmpty()) ? Option.DEFAULT_VOICE : vi.name;
+            if (n.equalsIgnoreCase(targetName)) {
+                target = i;
+                break;
+            }
+        }
+        if (target < 0)
+            return;
+
+        myLogI("Preselecting voice for detected book language [" + lang + "]: " + targetName);
+        suppressSelect[0] = true;
+        spinnerImportTtsVoice.setSelection(target, false);
+        adapter.setSelectedPosition(target);
+        currentVoiceName[0] = targetName;
+        spinnerImportTtsVoice.post(() -> suppressSelect[0] = false);
+    }
+
+    /** Current voice spinner selection as an engine voice name, for confirm-time state. */
+    private String getSelectedImportVoiceName() {
+        Object selected = spinnerImportTtsVoice.getSelectedItem();
+        if (selected instanceof VoiceItem vi && vi.name != null && !vi.name.isEmpty()) {
+            return vi.name;
+        }
+        return Option.DEFAULT_VOICE;
+    }
+
     private boolean isCopySelected() {
         if (llCopy.getVisibility() != View.VISIBLE) {
             return true; // only hidden when copy is forced - see updateOptionsVisibility()
@@ -670,6 +843,17 @@ public class ImportBookSingleActivity extends FullActivity {
         }
 
         llSplit.setVisibility(bookCandidate.supportsSplit() ? View.VISIBLE : View.GONE);
+
+        boolean isEpub = "Ebook".equals(bookCandidate.sourceType)
+                && "epub".equalsIgnoreCase(bookCandidate.fileExtension);
+        llEpubSplitMode.setVisibility(isEpub ? View.VISIBLE : View.GONE);
+
+        boolean isEbook = "Ebook".equals(bookCandidate.sourceType);
+        llImportTtsVoice.setVisibility(isEbook ? View.VISIBLE : View.GONE);
+        if (isEbook && !ttsVoiceSpinnerInitialized) {
+            ttsVoiceSpinnerInitialized = true;
+            setupImportTtsVoiceSpinner();
+        }
 
         boolean copyForced = bookCandidate.requiresForcedCopy() || forceCopy
                 || bookCandidate.requiresForcedSplitCopy(isSplitSelected());
@@ -1014,9 +1198,10 @@ public class ImportBookSingleActivity extends FullActivity {
             return;
         }
         llTrackListContainer.setVisibility(View.VISIBLE);
+        boolean isEbook = bookCandidate != null && "Ebook".equals(bookCandidate.sourceType);
 
         if (folderToAddTo == null) {
-            showTrackList(newTracks, 0);
+            showTrackList(newTracks, 0, isEbook);
             return;
         }
 
@@ -1037,19 +1222,22 @@ public class ImportBookSingleActivity extends FullActivity {
                         || folderToAddTo == null || folderToAddTo.getId() != targetFolderId) {
                     return;
                 }
-                showTrackList(merged, newTracks.size());
+                showTrackList(merged, newTracks.size(), isEbook);
             });
         });
     }
 
-    private void showTrackList(List<AudioFileInfo> tracks, int newTracksCount) {
+    private void showTrackList(List<AudioFileInfo> tracks, int newTracksCount, boolean isEbook) {
         String txtTitle;
         if (newTracksCount > 0 && newTracksCount < tracks.size()) {
             // Genuine merge: some tracks already existed in the target book, some are new -
             // "N tracks found" alone would read as if the whole book was just discovered.
-            txtTitle = getString(R.string.import_tracks_found_existing_and_new, tracks.size(), newTracksCount);
+            txtTitle = isEbook
+                    ? getString(R.string.import_chapters_found_existing_and_new, tracks.size(), newTracksCount)
+                    : getString(R.string.import_tracks_found_existing_and_new, tracks.size(), newTracksCount);
         } else {
-            txtTitle = getResources().getQuantityString(R.plurals.tracks_found_count, tracks.size(), tracks.size());
+            int plural = isEbook ? R.plurals.chapters_found_count : R.plurals.tracks_found_count;
+            txtTitle = getResources().getQuantityString(plural, tracks.size(), tracks.size());
         }
         tvTrackListTitle.setText(txtTitle);
         llTrackList.removeAllViews();
@@ -1416,6 +1604,8 @@ public class ImportBookSingleActivity extends FullActivity {
         llCopy.setVisibility(View.GONE);
         llUseSdCard.setVisibility(View.GONE);
         llDelete.setVisibility(View.GONE);
+        llEpubSplitMode.setVisibility(View.GONE);
+        llImportTtsVoice.setVisibility(View.GONE);
         groupNewVsExisting.setVisibility(View.GONE);
         destinationFolderSpinner.setVisibility(View.GONE);
         waitTextView.setVisibility(View.GONE);
@@ -1445,12 +1635,18 @@ public class ImportBookSingleActivity extends FullActivity {
         btnConfirm.setEnabled(activate);
         setToggleGroupEnabled(groupSdCardDevice, activate);
         llUseSdCard.setEnabled(activate);
+        setToggleGroupEnabled(groupEpubSplitMode, activate);
+        llEpubSplitMode.setEnabled(activate);
+        spinnerImportTtsVoice.setEnabled(activate);
+        llImportTtsVoice.setEnabled(activate);
 
         float alpha = activate ? 1.0f : 0.4f;
         llUseSdCard.setAlpha(alpha);
         llDelete.setAlpha(alpha);
         llCopy.setAlpha(alpha);
         llSplit.setAlpha(alpha);
+        llEpubSplitMode.setAlpha(alpha);
+        llImportTtsVoice.setAlpha(alpha);
 
         if (activate)
             updateOptionsVisibility();

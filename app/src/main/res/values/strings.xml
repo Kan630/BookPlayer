@@ -161,6 +161,11 @@
     <string name="import_option_split_title">Chapters</string>
     <string name="import_option_split_yes">Split</string>
     <string name="import_option_split_no">Single File</string>
+    <string name="import_option_tts_voice_title">Voice</string>
+    <string name="import_option_epub_split_title">Chapter splitting</string>
+    <string name="import_option_epub_split_auto">Auto</string>
+    <string name="import_option_epub_split_toc">TOC</string>
+    <string name="import_option_epub_split_spine">Spine</string>
     <string name="import_option_storage_title">Storage</string>
     <string name="import_option_copy">Copy</string>
     <string name="import_option_link">Link</string>
@@ -173,6 +178,7 @@
     <string name="import_options_settings_hint">Change default settings here →</string>
     <string name="import_options_settings_icon_description">Open Import settings</string>
     <string name="import_tracks_found_existing_and_new">%1$d tracks total (%2$d new)</string>
+    <string name="import_chapters_found_existing_and_new">%1$d chapters total (%2$d new)</string>
     <string name="import_m4b_single_file_note">This M4B will be imported as a single track. Switch Chapters to Split above to import each chapter separately.</string>
     <string name="Logging">Logging</string>
     <string name="manual">manual</string>
@@ -561,6 +567,8 @@
     <string name="option_open_play_activity">Open [Player View] when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
+    <string name="option_guess_book_language">Guess book language</string>
+    <string name="option_guess_book_language_explain">When importing an e-book, try to detect its language and preselect a matching voice instead of always using the default voice above.</string>
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
     <string name="option_tts_highlight_delay_text">delay :</string>
     <string name="option_epub_split_mode_text">How to split EPUB files into chapters:</string>
@@ -1395,6 +1403,10 @@
     <plurals name="tracks_found_count">
         <item quantity="one">%d track found</item>
         <item quantity="other">%d tracks found</item>
+    </plurals>
+    <plurals name="chapters_found_count">
+        <item quantity="one">%d chapter found</item>
+        <item quantity="other">%d chapters found</item>
     </plurals>
 
     <string name="error_download_corrupted_try_again">Download corrupted. Please try downloading again.</string>

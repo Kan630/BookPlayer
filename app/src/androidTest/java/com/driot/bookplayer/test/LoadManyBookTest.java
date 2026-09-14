@@ -307,6 +307,24 @@ public class LoadManyBookTest implements LogSupport {
         myLog("nb Books imported =" + nbImported);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
 
+        // ActivityScenarioRule's own teardown (right after this method returns) calls
+        // ActivityScenario.moveToState(DESTROYED), which has been observed to occasionally race
+        // MainActivity's lifecycle-stage tracking at that exact moment - a NullPointerException
+        // ("Current state was null unexpectedly. Last stage = STARTED") thrown from
+        // ActivityScenario.moveToState() itself, not from anything in this file, and not fixed by
+        // stopPlaybackIfAny() alone (MediaService can legitimately stay alive - "Browser clients
+        // present -> do not stop service" - even once actual audio playback has stopped).
+        // Settling to RESUMED explicitly here, from inside the test method where any resulting
+        // exception can be caught and merely logged, gives whatever transient condition causes
+        // this a chance to resolve on our own terms before the Rule's own uncatchable teardown
+        // call hits the same check.
+        try {
+            activityRule.getScenario().moveToState(androidx.lifecycle.Lifecycle.State.RESUMED);
+        } catch (Exception e) {
+            myLogW("Pre-teardown settle to RESUMED failed (informational only, not a test failure): "
+                    + e.getMessage());
+        }
+
         // Only raised now, after every fixture has been attempted and the full report above is
         // logged - a KO fixture failing gracefully is expected (see [[ko_fixture_convention]] and
         // nbKoHandled above) and never reaches here on its own.

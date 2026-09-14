@@ -6,16 +6,21 @@ import android.net.Uri;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.ebooks.DocxLowLevelHelper;
 import com.driot.bookplayer.ebooks.EpubCommonHelper;
+import com.driot.bookplayer.ebooks.EpubGutenbergHelper;
 import com.driot.bookplayer.ebooks.EpubLowLevelHelper;
 import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 import com.driot.bookplayer.ebooks.HtmlLowLevelHelper;
 import com.driot.bookplayer.ebooks.OdtLowLevelHelper;
+import com.driot.bookplayer.ebooks.TextLowLevelHelper;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.services.EbookSplitWorker;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -87,10 +92,16 @@ public class BookCandidate implements Parcelable {
     // public final List<String> trackList = new ArrayList<>();
     private ArrayList<AudioFileInfo> audioFileInfoArrayList = new ArrayList<>();
     public String coverImagePath; // Path to detected cover image (null if none)
-    // All image files found alongside the book (folder imports only), largest first.
-    // coverImagePath above always matches coverCandidates.get(0) when non-empty. Lets the
-    // pre-import screen offer a "change cover" affordance when more than one was found.
+    // Every plausible cover image found: alongside the book for folder imports, embedded in the
+    // archive/EPUB/FB2 for those. coverImagePath above always matches coverCandidates.get(0) when
+    // non-empty. Lets the pre-import screen offer a "change cover" affordance when more than one
+    // was found.
     public final ArrayList<String> coverCandidates = new ArrayList<>();
+    // Book language detected from embedded metadata (EPUB dc:language / FB2 <lang>) - a BCP-47ish
+    // tag as found in the file (e.g. "en", "fr-FR"), not yet validated against installed TTS
+    // voices. Null when absent or not yet supported for this format (ODT/DOCX/TXT/HTML). Not
+    // consumed anywhere yet - laid down for the upcoming per-book voice preselection.
+    public String detectedLanguage;
 
     public String sourceLocation = "sourceLocation...";
     public String mimeType;
@@ -150,6 +161,7 @@ public class BookCandidate implements Parcelable {
         // in.readStringList(trackList);
         audioFileInfoArrayList = in.createTypedArrayList(AudioFileInfo.CREATOR);
         in.readStringList(coverCandidates);
+        detectedLanguage = in.readString();
     }
 
     @Override
@@ -187,6 +199,7 @@ public class BookCandidate implements Parcelable {
         // dest.writeStringList(trackList);
         dest.writeTypedList(audioFileInfoArrayList);
         dest.writeStringList(coverCandidates);
+        dest.writeString(detectedLanguage);
     }
 
     @Override
@@ -447,22 +460,30 @@ public class BookCandidate implements Parcelable {
                 } else if ("Archive".equals(sourceType)) {
                     scanArchiveCombined(context, file, listener);
                 } else {
-                    this.tracksCount = 1;
                     this.coverImagePath = detectCoverForFile(context, file, sourceType);
                     myLogD("detectCoverForFile ok");
                     if (this.coverImagePath != null && listener != null) {
                         listener.onCoverFound(this.coverImagePath);
                     }
-                    // A single-file import has exactly one "track": itself. Emit it the same way
-                    // multi-track scans do (Folder/M4B/Archive above), so the pre-import track
-                    // list preview has something to show - this branch used to never call
-                    // onTrackFound() at all, silently leaving that section empty for a lone file.
-                    String fileName = safeName(file);
-                    AudioFileInfo afi = new AudioFileInfo(fileName, fileName, 0, file.length(),
-                            file.getUri().toString(), null);
-                    audioFileInfoArrayList.add(afi);
-                    if (listener != null) {
-                        listener.onTrackFound(afi);
+
+                    if ("Ebook".equals(sourceType)) {
+                        // Real chapters, not a single fake "whole file" track - see
+                        // scanEbookChaptersForPreview().
+                        scanEbookChaptersForPreview(context, file, listener, null);
+                    } else {
+                        // A single-file (audio) import has exactly one "track": itself. Emit it
+                        // the same way multi-track scans do (Folder/M4B/Archive above), so the
+                        // pre-import track list preview has something to show - this branch used
+                        // to never call onTrackFound() at all, silently leaving that section
+                        // empty for a lone file.
+                        this.tracksCount = 1;
+                        String fileName = safeName(file);
+                        AudioFileInfo afi = new AudioFileInfo(fileName, fileName, 0, file.length(),
+                                file.getUri().toString(), null);
+                        audioFileInfoArrayList.add(afi);
+                        if (listener != null) {
+                            listener.onTrackFound(afi);
+                        }
                     }
                 }
             } else {
@@ -479,6 +500,150 @@ public class BookCandidate implements Parcelable {
             myLogDD(afi.toString());
         }
         myLog("--------------------");
+    }
+
+    /**
+     * Populates the pre-import track list with the ebook's REAL chapters (title + size), instead
+     * of a single fake "whole file" placeholder - reuses the exact same per-format extraction
+     * helpers {@link com.driot.bookplayer.services.EbookSplitWorker} uses for the real import,
+     * including the same TOC-vs-spine auto-mode decision for EPUB
+     * ({@link EbookSplitWorker#shouldUseTocBasedSplitting}), so the previewed chapter count
+     * matches what actually gets imported.
+     *
+     * <p>
+     * Note: this does real parsing - and, for these low-level helpers, real disk writes of the
+     * extracted chapter text under {@code getExternalFilesDir()/<type>_<title>/} - right when the
+     * file is picked, before the user confirms anything. If they cancel, the real import (should
+     * it happen later) just redoes and overwrites the same extraction: a little duplicate work,
+     * not a correctness problem. Any leftover output from a cancelled import is the same kind of
+     * orphaned cache content the existing Admin "flush disk" tools already clean up.
+     *
+     * @param epubSplitModeOverride "auto"/"toc"/"spine" to force EPUB's split mode (e.g. from the
+     *                              import screen's toggle - see
+     *                              {@link #rescanEbookChaptersForPreview}), or null/empty to
+     *                              decide the same way {@link EbookSplitWorker} does by default
+     *                              (its own per-job override, else the global Option). Ignored
+     *                              for every non-EPUB format, which has no such choice.
+     */
+    private void scanEbookChaptersForPreview(Context context, DocumentFile file, OnMetadataListener listener,
+            @Nullable String epubSplitModeOverride) {
+        try {
+            Uri fileUri = file.getUri();
+            String ext = Objects.toString(this.fileExtension, "").toLowerCase(Locale.ROOT);
+
+            List<File> chapterFiles;
+            Map<String, String> titles;
+
+            switch (ext) {
+                case "epub": {
+                    boolean useToc;
+                    if ("toc".equals(epubSplitModeOverride)) {
+                        useToc = true;
+                    } else if ("spine".equals(epubSplitModeOverride)) {
+                        useToc = false;
+                    } else {
+                        useToc = EbookSplitWorker.shouldUseTocBasedSplitting(context, fileUri);
+                    }
+                    if (useToc) {
+                        EpubGutenbergHelper.ExtractResult r = EpubGutenbergHelper.extractAll(context, fileUri);
+                        chapterFiles = r.chapterFiles;
+                        titles = r.trackTitles;
+                    } else {
+                        EpubLowLevelHelper.ExtractResult r = EpubLowLevelHelper.extractAll(context, fileUri);
+                        chapterFiles = r.chapterFiles;
+                        titles = r.trackTitles;
+                    }
+                    break;
+                }
+                case "fb2": {
+                    Fb2LowLevelHelper.ExtractResult r = Fb2LowLevelHelper.extractAll(context, fileUri);
+                    chapterFiles = r.chapterFiles;
+                    titles = r.trackTitles;
+                    break;
+                }
+                case "odt": {
+                    OdtLowLevelHelper.ExtractResult r = OdtLowLevelHelper.extractAll(context, fileUri);
+                    chapterFiles = r.chapterFiles;
+                    titles = r.trackTitles;
+                    break;
+                }
+                case "docx": {
+                    DocxLowLevelHelper.ExtractResult r = DocxLowLevelHelper.extractAll(context, fileUri,
+                            Option.getDocxSplitIntoChapters());
+                    chapterFiles = r.chapterFiles;
+                    titles = r.trackTitles;
+                    break;
+                }
+                case "txt": {
+                    TextLowLevelHelper.ExtractResult r = TextLowLevelHelper.extractAll(context, fileUri);
+                    chapterFiles = r.chapterFiles;
+                    titles = r.trackTitles;
+                    break;
+                }
+                case "html":
+                case "htm": {
+                    HtmlLowLevelHelper.ExtractResult r = HtmlLowLevelHelper.extractAll(context, fileUri);
+                    chapterFiles = r.chapterFiles;
+                    titles = r.trackTitles;
+                    break;
+                }
+                default:
+                    chapterFiles = null;
+                    titles = null;
+            }
+
+            if (chapterFiles == null || chapterFiles.isEmpty()) {
+                throw new IllegalStateException("no chapters extracted for ." + ext);
+            }
+
+            this.tracksCount = chapterFiles.size();
+            for (File chapterFile : chapterFiles) {
+                String title = titles != null ? titles.get(chapterFile.getName()) : null;
+                if (title == null || title.trim().isEmpty()) {
+                    title = EbookSplitWorker.titleFromFileName(chapterFile.getName());
+                }
+                AudioFileInfo afi = new AudioFileInfo(chapterFile.getName(), title, 0, chapterFile.length(),
+                        null, null);
+                audioFileInfoArrayList.add(afi);
+                if (listener != null) {
+                    listener.onTrackFound(afi);
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "scanEbookChaptersForPreview() - falling back to single-file placeholder for: " + name);
+            // A parse hiccup here shouldn't leave the preview empty - fall back to the old
+            // "whole file as one track" placeholder.
+            this.tracksCount = 1;
+            String fileName = safeName(file);
+            AudioFileInfo afi = new AudioFileInfo(fileName, fileName, 0, file.length(),
+                    file.getUri().toString(), null);
+            audioFileInfoArrayList.add(afi);
+            if (listener != null) {
+                listener.onTrackFound(afi);
+            }
+        }
+    }
+
+    /**
+     * Re-runs the ebook chapter scan with an explicit EPUB split-mode override, for the import
+     * screen's live "change split mode, see the effect below" toggle - clears the previously
+     * scanned chapters first so the caller's listener only ever sees the new set. Call off the
+     * main thread (does real parsing/disk I/O - see {@link #scanEbookChaptersForPreview}).
+     *
+     * @param epubSplitModeOverride "auto"/"toc"/"spine"; ignored for non-EPUB ebook types, which
+     *                              have no such choice.
+     */
+    public void rescanEbookChaptersForPreview(Context context, String epubSplitModeOverride,
+            OnMetadataListener listener) {
+        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+        if (file == null) {
+            myLogW("rescanEbookChaptersForPreview() - could not resolve DocumentFile for: " + uri);
+            return;
+        }
+        synchronized (audioFileInfoArrayList) {
+            audioFileInfoArrayList.clear();
+        }
+        scanEbookChaptersForPreview(context, file, listener, epubSplitModeOverride);
     }
 
     private void scanM4BCombined(Context context, DocumentFile file, OnMetadataListener listener) {
@@ -1228,6 +1393,57 @@ public class BookCandidate implements Parcelable {
         return null;
     }
 
+    // Cap on how many embedded images we'll offer as cover candidates (avoids pathological
+    // EPUBs/FB2s with hundreds of images all becoming "candidates"), and the minimum size for a
+    // non-declared image to qualify at all (filters out tiny icons/spacers/bullets).
+    private static final int MAX_COVER_CANDIDATES = 6;
+    private static final int MIN_COVER_CANDIDATE_BYTES = 3_000;
+
+    /**
+     * Saves each candidate bitmap to a temp file and replaces coverCandidates with the result
+     * (first = best pick, matching every other coverCandidates producer in this class - see
+     * scanFolderCombined/scanArchiveCombined). Distinct filenames per candidate: the shared
+     * "_<uri hashCode>" suffix used elsewhere would otherwise collide across candidates from the
+     * same source file.
+     */
+    private void saveCoverCandidates(Context context, DocumentFile file, List<android.graphics.Bitmap> bitmaps) {
+        this.coverCandidates.clear();
+        String suffixBase = "_" + file.getUri().hashCode();
+        for (int i = 0; i < bitmaps.size(); i++) {
+            String suffix = (i == 0) ? suffixBase : suffixBase + "_" + i;
+            String path = ImageHelper.saveTempBitmap(context, bitmaps.get(i), suffix);
+            if (path != null)
+                this.coverCandidates.add(path);
+        }
+    }
+
+    /** Trims a raw dc:language/&lt;lang&gt; value; null/empty in, null out. Deeper validation
+     * (matching it to an actually-installed TTS voice) happens wherever this gets consumed. */
+    @Nullable
+    private static String normalizeLanguageTag(@Nullable String raw) {
+        if (raw == null)
+            return null;
+        String trimmed = raw.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * {@link #detectedLanguage} reduced to a plain 2-letter (ISO 639-1) code comparable against
+     * {@code VoiceItem.twoLetterCodeLanguage} - e.g. "en-US" or "eng" -> "en". Null if
+     * detectedLanguage is unset or doesn't resolve to a recognizable language.
+     */
+    @Nullable
+    public String normalizedDetectedLanguage() {
+        if (detectedLanguage == null)
+            return null;
+        try {
+            String lang = java.util.Locale.forLanguageTag(detectedLanguage).getLanguage();
+            return (lang == null || lang.isEmpty()) ? null : lang.toLowerCase(Locale.ROOT);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String detectCoverForFile(Context context, DocumentFile file, String type) {
         if ("M4B".equals(type) || "Audio File".equals(type)) {
             try {
@@ -1265,12 +1481,21 @@ public class BookCandidate implements Parcelable {
                             EpubLowLevelHelper.OpfInfo opf = EpubLowLevelHelper
                                     .parseOpf(opfBytes);
                             opf.opfPath = opfPath;
-                            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
-                                    .detectCoverFromEpub(zip, opf);
-                            if (result != null && result.bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                return ImageHelper.saveTempBitmap(context,
-                                        result.bitmap, suffix);
+                            // Piggybacks on this same already-open zip/already-parsed OPF - the
+                            // <dc:language> tag sits right in <metadata>, no extra I/O needed.
+                            this.detectedLanguage = normalizeLanguageTag(opf.language);
+
+                            // The manifest-declared cover first (same pick the old single-bitmap
+                            // logic made), then every other qualifying embedded image - lets the
+                            // user pick a different one via the existing cover-picker menu
+                            // (ImportBookSingleActivity.openCoverPickerMenu) when the declared
+                            // cover is wrong or missing, same as folder/archive imports already
+                            // support.
+                            List<android.graphics.Bitmap> bitmaps = EpubCommonHelper.listCoverCandidateBitmaps(
+                                    zip, opf, MAX_COVER_CANDIDATES, MIN_COVER_CANDIDATE_BYTES);
+                            if (!bitmaps.isEmpty()) {
+                                saveCoverCandidates(context, file, bitmaps);
+                                return this.coverCandidates.get(0);
                             }
                         }
                     }
@@ -1281,65 +1506,73 @@ public class BookCandidate implements Parcelable {
                     String xml = Fb2LowLevelHelper.readAllText(context, file.getUri());
                     Fb2LowLevelHelper.Meta meta = Fb2LowLevelHelper
                             .parseMetaAndBinaries(xml);
+                    // Same already-parsed <title-info> the cover-id comes from - the <lang> tag
+                    // sits right next to it, no extra I/O needed.
+                    this.detectedLanguage = normalizeLanguageTag(meta.language);
 
                     myLogD("FB2 cover detection - coverImageId: [" + meta.coverImageId
                             + "], binaries count: " + meta.binaries.size());
 
-                    byte[] imageBytes = null;
+                    // Ordered candidates: the explicit cover first, then other cover-named
+                    // images, then other images above the size floor - each bucket collects
+                    // every match (not just the first), so there are real alternatives to
+                    // offer, not just one fallback guess.
+                    java.util.List<byte[]> orderedImageBytes = new ArrayList<>();
+                    java.util.Set<String> used = new java.util.LinkedHashSet<>();
 
                     if (meta.coverImageId != null && !meta.coverImageId.isEmpty()) {
                         // Important: binaries are stored with lowercase keys
                         String lookupKey = meta.coverImageId.toLowerCase(java.util.Locale.ROOT);
-                        imageBytes = meta.binaries.get(lookupKey);
-
-                        myLogD("FB2 - Looking up cover with key: [" + lookupKey + "], found: " + (imageBytes != null));
-                    } else if (!meta.binaries.isEmpty()) {
-                        // Fallback: No explicit cover defined
-                        // 1. Try to find image with 'cover' in the name
-                        String coverKey = null;
-                        for (String key : meta.binaries.keySet()) {
-                            if (key.toLowerCase().contains("cover")) {
-                                coverKey = key;
-                                myLogD("FB2 - Found image with 'cover' in name: " + key);
-                                break;
-                            }
-                        }
-
-                        if (coverKey != null) {
-                            imageBytes = meta.binaries.get(coverKey);
-                        } else {
-                            // 2. Use the first valid image (size > 2KB) as fallback
-                            myLogD("FB2 - No cover-named image, scanning for first valid image (>2KB)");
-                            for (java.util.Map.Entry<String, byte[]> entry : meta.binaries.entrySet()) {
-                                int size = entry.getValue().length;
-                                // Filter out tiny images (icons, spacers) - 2KB threshold
-                                if (size > 2048) {
-                                    imageBytes = entry.getValue();
-                                    myLogD("FB2 - Found candidate image: " + entry.getKey() + " (" + size + " bytes)");
-                                    break;
-                                }
-                            }
-
-                            // 3. Last resort: just take the very first image if nothing else matched
-                            if (imageBytes == null && !meta.binaries.isEmpty()) {
-                                imageBytes = meta.binaries.values().iterator().next();
-                                myLogD("FB2 - No image > 2KB found, taking first available image");
-                            }
+                        byte[] declared = meta.binaries.get(lookupKey);
+                        if (declared != null) {
+                            orderedImageBytes.add(declared);
+                            used.add(lookupKey);
+                            myLogD("FB2 - declared cover key: [" + lookupKey + "]");
                         }
                     }
-
-                    if (imageBytes != null) {
-                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                imageBytes, 0, imageBytes.length);
-                        if (bitmap != null) {
-                            myLogD("FB2 - Successfully decoded cover bitmap: " + bitmap.getWidth() + "x"
-                                    + bitmap.getHeight());
-                            String suffix = "_" + file.getUri().hashCode();
-                            return ImageHelper.saveTempBitmap(context,
-                                    bitmap, suffix);
-                        } else {
-                            myLogD("FB2 - Failed to decode bitmap from bytes");
+                    for (java.util.Map.Entry<String, byte[]> entry : meta.binaries.entrySet()) {
+                        if (orderedImageBytes.size() >= MAX_COVER_CANDIDATES)
+                            break;
+                        if (used.contains(entry.getKey()))
+                            continue;
+                        if (entry.getKey().toLowerCase(java.util.Locale.ROOT).contains("cover")) {
+                            orderedImageBytes.add(entry.getValue());
+                            used.add(entry.getKey());
                         }
+                    }
+                    for (java.util.Map.Entry<String, byte[]> entry : meta.binaries.entrySet()) {
+                        if (orderedImageBytes.size() >= MAX_COVER_CANDIDATES)
+                            break;
+                        if (used.contains(entry.getKey()))
+                            continue;
+                        if (entry.getValue().length >= MIN_COVER_CANDIDATE_BYTES) {
+                            orderedImageBytes.add(entry.getValue());
+                            used.add(entry.getKey());
+                        }
+                    }
+                    // Last resort: nothing passed the size floor but some image exists - a tiny
+                    // real cover still beats no cover at all.
+                    if (orderedImageBytes.isEmpty() && !meta.binaries.isEmpty()) {
+                        orderedImageBytes.add(meta.binaries.values().iterator().next());
+                        myLogD("FB2 - no image met the size floor, taking first available image");
+                    }
+
+                    List<android.graphics.Bitmap> bitmaps = new ArrayList<>();
+                    for (byte[] bytes : orderedImageBytes) {
+                        try {
+                            android.graphics.Bitmap b = android.graphics.BitmapFactory
+                                    .decodeByteArray(bytes, 0, bytes.length);
+                            if (b != null)
+                                bitmaps.add(b);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                    if (!bitmaps.isEmpty()) {
+                        myLogD("FB2 - decoded " + bitmaps.size() + " cover candidate(s)");
+                        saveCoverCandidates(context, file, bitmaps);
+                        return this.coverCandidates.get(0);
+                    } else {
+                        myLogD("FB2 - no cover candidate could be decoded");
                     }
                 } catch (Exception e) {
                     myLogEE(e, "FB2 cover detection error");

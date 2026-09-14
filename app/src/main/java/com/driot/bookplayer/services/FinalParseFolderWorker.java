@@ -651,6 +651,10 @@ public class FinalParseFolderWorker extends ImportWorker {
             folder.setOriginalType(importJob.originalType); // DB field name
             folder.setSourceLocation(importJob.sourceLocation);
             folder.playType = importJob.playType;
+            // Voice chosen on the import screen (ebooks only) - see ImportJob.ttsVoice. Null for
+            // non-ebook imports, same as if it had never been set (PlayActivity's own voice
+            // spinner already treats a null folder.ttsVoice as "use Option.getTtsVoice()").
+            folder.ttsVoice = importJob.ttsVoice;
             folder.date_added = System.currentTimeMillis();
             folder.image = importJob.imagePath;
             folder.lLastAccess = System.currentTimeMillis(); // used to sort the Book on the main page

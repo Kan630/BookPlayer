@@ -276,6 +276,65 @@
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp">
 
+                <!-- TTS voice - ebooks only, first item in Options. -->
+                <LinearLayout
+                    style="@style/wideLinearLayout_Vertical"
+                    android:layout_marginTop="0dp"
+                    android:id="@+id/ll_import_tts_voice">
+                    <TextView
+                        android:text="@string/import_option_tts_voice_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <Spinner
+                        android:id="@+id/spinnerImportTtsVoice"
+                        style="@style/Spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- EPUB chapter-splitting method - EPUB ebooks only, right after the voice
+                     picker so its live effect on the chapter list below is easy to spot. -->
+                <LinearLayout
+                    style="@style/wideLinearLayout_Vertical"
+                    android:layout_marginTop="14dp"
+                    android:id="@+id/ll_epub_split_mode">
+                    <TextView
+                        android:text="@string/import_option_epub_split_title"
+                        style="@style/OptionSubTitle"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="4dp"/>
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupEpubSplitMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnEpubSplitAuto"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_epub_split_auto" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnEpubSplitToc"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_epub_split_toc" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/MaterialButtonForToggleGroup"
+                            android:id="@+id/btnEpubSplitSpine"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="@string/import_option_epub_split_spine" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                </LinearLayout>
+
                 <!-- Split M4B option -->
                 <LinearLayout
                     style="@style/wideLinearLayout_Vertical"

@@ -94,6 +94,7 @@ public class Option {
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     public static final boolean DEFAULT_DOCX_SPLIT_INTO_CHAPTERS = true;
     private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES_FOOTNOTES = true;
+    public static final boolean DEFAULT_GUESS_BOOK_LANGUAGE = true;
     public static final boolean DEFAULT_TTS_SNAP_TO_SENTENCE = true;
     public static final boolean DEFAULT_TTS_SHOW_LOADING_OVERLAY = true;
     public static final int DEFAULT_TTS_OVERLAY_TIMEOUT_SEC = 8;
@@ -983,6 +984,34 @@ public class Option {
 
     public static String getTtsVoice() {
         return prefs.getString("TTS_VOICE", DEFAULT_VOICE);
+    }
+
+    public static void setGuessBookLanguage(boolean guess) {
+        prefs.edit().putBoolean("GUESS_BOOK_LANGUAGE", guess).apply();
+    }
+
+    public static boolean getGuessBookLanguage() {
+        return prefs.getBoolean("GUESS_BOOK_LANGUAGE", DEFAULT_GUESS_BOOK_LANGUAGE);
+    }
+
+    /**
+     * Remembers which voice was last picked (manually, or via this same lookup) for a given
+     * 2-letter language code - used to preselect a voice on the import screen for ebooks whose
+     * detected language matches. Doubles as the bootstrap data for a possible future "preferred
+     * voice per language" settings screen (one language+voice pair at a time, with a "+" to add
+     * more) - not built yet, this is just the storage.
+     */
+    public static void setPreferredVoiceForLanguage(String lang2, String voiceName) {
+        if (lang2 == null || lang2.isEmpty() || voiceName == null || voiceName.isEmpty())
+            return;
+        prefs.edit().putString("PREFERRED_VOICE_LANG_" + lang2.toLowerCase(java.util.Locale.ROOT), voiceName).apply();
+    }
+
+    @androidx.annotation.Nullable
+    public static String getPreferredVoiceForLanguage(String lang2) {
+        if (lang2 == null || lang2.isEmpty())
+            return null;
+        return prefs.getString("PREFERRED_VOICE_LANG_" + lang2.toLowerCase(java.util.Locale.ROOT), null);
     }
 
     public static void setTtsHighlightDelayMs(int delayMs) {

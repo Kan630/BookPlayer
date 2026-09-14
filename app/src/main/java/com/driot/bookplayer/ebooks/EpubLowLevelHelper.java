@@ -66,6 +66,7 @@ public final class EpubLowLevelHelper {
     public static final class OpfInfo implements EpubCommonHelper.OpfInfoForCover {
         public String opfPath;
         public String title;
+        public String language; // <dc:language> - e.g. "en", "fr-FR"; null if absent
         public String coverId;
         public final Map<String, String> manifestHref = new LinkedHashMap<>();
         public final Map<String, String> manifestType = new LinkedHashMap<>();
@@ -371,6 +372,9 @@ public final class EpubLowLevelHelper {
                     inMetadata = true;
                 } else if (inMetadata && ("dc:title".equalsIgnoreCase(name) || "title".equalsIgnoreCase(name))) {
                     o.title = EpubCommonHelper.text(x).trim();
+                } else if (inMetadata
+                        && ("dc:language".equalsIgnoreCase(name) || "language".equalsIgnoreCase(name))) {
+                    o.language = EpubCommonHelper.text(x).trim();
                 } else if ("meta".equalsIgnoreCase(name)) {
                     String nm = EpubCommonHelper.attr(x, "name");
                     String prop = EpubCommonHelper.attr(x, "property");

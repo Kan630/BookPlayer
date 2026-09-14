@@ -206,6 +206,23 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="15dp" />
 
+        <!-- Guess book language and preselect a matching voice on the import screen -->
+        <LinearLayout
+            android:id="@+id/ll_guess_book_language"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_guess_book_language"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_guess_book_language" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_guess_book_language_explain"
+            />
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
         <TextView
             style="@style/OptionSubTitle"

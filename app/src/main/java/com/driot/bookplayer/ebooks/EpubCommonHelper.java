@@ -16,10 +16,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -225,6 +229,72 @@ public final class EpubCommonHelper {
         if (imgBytes == null)
             return null;
         return BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.length);
+    }
+
+    /**
+     * Lists every plausible cover candidate in the EPUB, not just the single best guess:
+     * the manifest-declared cover first (same pick {@link #extractCoverBitmap} would make),
+     * then every other manifest image above {@code minBytes} (skips tiny icons/spacers), up to
+     * {@code maxCandidates} total. Lets the user pick a different embedded image as the cover
+     * when the declared one is wrong or missing - see BookCandidate.coverCandidates.
+     */
+    public static List<Bitmap> listCoverCandidateBitmaps(Map<String, byte[]> zip, OpfInfoForCover opf,
+            int maxCandidates, int minBytes) {
+        List<Bitmap> out = new ArrayList<>();
+        if (zip == null || opf == null || maxCandidates <= 0)
+            return out;
+
+        String basePath = opfBase(opf.getOpfPath());
+        Set<String> seenResolvedPaths = new LinkedHashSet<>();
+
+        String declaredHref = (opf.getCoverId() != null) ? opf.getManifestHref().get(opf.getCoverId()) : null;
+        if (declaredHref != null) {
+            addCandidateIfDecodable(zip, basePath, declaredHref, out, seenResolvedPaths);
+        }
+
+        for (Map.Entry<String, String> e : opf.getManifestType().entrySet()) {
+            if (out.size() >= maxCandidates)
+                break;
+            String mt = e.getValue();
+            if (mt == null || !mt.startsWith("image/"))
+                continue;
+            String href = opf.getManifestHref().get(e.getKey());
+            if (href == null)
+                continue;
+            String resolved = normalizePath(resolve(basePath, href));
+            if (resolved == null || seenResolvedPaths.contains(resolved))
+                continue;
+            byte[] bytes = zip.get(resolved);
+            if (bytes == null || bytes.length < minBytes)
+                continue;
+            addCandidateIfDecodable(zip, basePath, href, out, seenResolvedPaths);
+        }
+        return out;
+    }
+
+    private static void addCandidateIfDecodable(Map<String, byte[]> zip, String basePath, String href,
+            List<Bitmap> out, Set<String> seenResolvedPaths) {
+        String resolved = normalizePath(resolve(basePath, href));
+        if (resolved == null || seenResolvedPaths.contains(resolved))
+            return;
+        seenResolvedPaths.add(resolved);
+        byte[] bytes = zip.get(resolved);
+        if (bytes == null) {
+            for (String k : zip.keySet()) {
+                if (k.equalsIgnoreCase(resolved)) {
+                    bytes = zip.get(k);
+                    break;
+                }
+            }
+        }
+        if (bytes == null)
+            return;
+        try {
+            Bitmap b = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            if (b != null)
+                out.add(b);
+        } catch (Throwable ignored) {
+        }
     }
 
     // ===== Encoding Detection =====

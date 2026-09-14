@@ -152,6 +152,8 @@ public class BookLoadingWorkLauncher {
             j.optionSplit = s.optionSplit;
             j.optionCopy = s.optionCopy;
             j.optionDelete = s.optionDelete;
+            j.epubSplitMode = s.epubSplitMode;
+            j.ttsVoice = s.ttsVoice;
             j.playType = s.playType;
 
             j.originalFile = s.originalFile;

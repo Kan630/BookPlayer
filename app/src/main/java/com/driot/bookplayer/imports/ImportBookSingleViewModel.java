@@ -136,6 +136,51 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
         });
     }
 
+    private java.util.concurrent.Future<?> rescanFuture;
+
+    /**
+     * Re-runs the ebook chapter scan with an explicit EPUB split-mode override (see
+     * {@link BookCandidate#rescanEbookChaptersForPreview}) - used by the import screen's
+     * split-mode toggle so the user sees the effect on the chapter list immediately. Reuses
+     * loadingStatus (1 = scanning, 2 = done) so the existing "Now scanning…" indicator shows
+     * during the rescan too, without new UI plumbing. A rapid second toggle cancels whichever
+     * rescan was still in flight rather than letting two race each other.
+     */
+    public void rescanEbookChapters(String epubSplitMode) {
+        BookCandidate candidate = bookCandidate.getValue();
+        if (candidate == null)
+            return;
+        if (rescanFuture != null && !rescanFuture.isDone()) {
+            rescanFuture.cancel(true);
+        }
+        loadingStatus.postValue(1);
+        realTimeTracks.postValue(new java.util.ArrayList<>());
+        rescanFuture = executorService.submit(() -> {
+            try {
+                candidate.rescanEbookChaptersForPreview(getApplication(), epubSplitMode,
+                        new BookCandidate.OnMetadataListener() {
+                            @Override
+                            public void onTrackFound(AudioFileInfo info) {
+                                java.util.List<AudioFileInfo> copy;
+                                synchronized (candidate.getAudioFileInfoArrayList()) {
+                                    copy = new java.util.ArrayList<>(candidate.getAudioFileInfoArrayList());
+                                }
+                                realTimeTracks.postValue(copy);
+                            }
+
+                            @Override
+                            public void onCoverFound(String imagePath) {
+                                // Chapter rescan doesn't touch the cover - nothing to do here.
+                            }
+                        });
+            } catch (Exception e) {
+                myLogEE(e, "Error rescanning ebook chapters");
+            } finally {
+                loadingStatus.postValue(2);
+            }
+        });
+    }
+
     public void cancelInitialization() {
         if (loadingFuture != null && !loadingFuture.isDone()) {
             myLogD("Cancelling BookCandidate initialization");

@@ -20,6 +20,10 @@ public class ImportBookTaskState implements Parcelable {
     public boolean optionSplit;
     public boolean optionCopy;
     public boolean optionDelete;
+    // Per-import EPUB chapter-splitting choice ("auto"/"toc"/"spine") - see ImportJob.epubSplitMode.
+    public String epubSplitMode;
+    // Chosen TTS voice for this ebook import - see ImportJob.ttsVoice.
+    public String ttsVoice;
     public String originalFile;
     public String originalHash;
     public String sourceLocation;
@@ -72,6 +76,8 @@ public class ImportBookTaskState implements Parcelable {
         optionSplit = in.readByte() != 0;
         optionCopy = in.readByte() != 0;
         optionDelete = in.readByte() != 0;
+        epubSplitMode = in.readString();
+        ttsVoice = in.readString();
         originalFile = in.readString();
         originalHash = in.readString();
         sourceLocation = in.readString();
@@ -129,6 +135,8 @@ public class ImportBookTaskState implements Parcelable {
         dest.writeByte((byte) (optionSplit ? 1 : 0));
         dest.writeByte((byte) (optionCopy ? 1 : 0));
         dest.writeByte((byte) (optionDelete ? 1 : 0));
+        dest.writeString(epubSplitMode);
+        dest.writeString(ttsVoice);
         dest.writeString(originalFile);
         dest.writeString(originalHash);
         dest.writeString(sourceLocation);

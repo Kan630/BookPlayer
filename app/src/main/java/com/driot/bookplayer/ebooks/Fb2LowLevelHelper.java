@@ -59,6 +59,7 @@ public final class Fb2LowLevelHelper {
 
     public static final class Meta {
         public String title; // <description><title-info><book-title>
+        public String language; // <description><title-info><lang> - e.g. "en"; null if absent
         public String coverImageId; // id without '#' from coverpage image (original case)
         // Store binaries keyed by LOWERCASE id for robust lookup
         public final java.util.Map<String, byte[]> binaries = new LinkedHashMap<>();
@@ -177,6 +178,7 @@ public final class Fb2LowLevelHelper {
         boolean inTitleInfo = false;
         boolean inCoverpage = false; // NEW: ensure image is from <coverpage>
         boolean inBookTitle = false;
+        boolean inLang = false;
         boolean inBinary = false;
 
         String currentBinaryId = null;
@@ -197,6 +199,8 @@ public final class Fb2LowLevelHelper {
                     inCoverpage = true; // begin cover scope
                 } else if (inTitleInfo && "book-title".equalsIgnoreCase(tag)) {
                     inBookTitle = true;
+                } else if (inTitleInfo && "lang".equalsIgnoreCase(tag)) {
+                    inLang = true;
                 } else if (inCoverpage && "image".equalsIgnoreCase(tag)) {
                     // Only treat image under coverpage as the cover
                     String href = attrNs(x, XLINK, "href");
@@ -224,6 +228,11 @@ public final class Fb2LowLevelHelper {
                     if (s != null) {
                         meta.title = (meta.title == null) ? s : (meta.title + s);
                     }
+                } else if (inLang) {
+                    String s = x.getText();
+                    if (s != null) {
+                        meta.language = (meta.language == null) ? s : (meta.language + s);
+                    }
                 } else if (inBinary && binBuf != null) {
                     String s = x.getText();
                     if (s != null)
@@ -237,6 +246,10 @@ public final class Fb2LowLevelHelper {
                     inCoverpage = false;
                 } else if ("book-title".equalsIgnoreCase(tag)) {
                     inBookTitle = false;
+                } else if ("lang".equalsIgnoreCase(tag)) {
+                    inLang = false;
+                    if (meta.language != null)
+                        meta.language = meta.language.trim();
                 } else if ("title-info".equalsIgnoreCase(tag)) {
                     inTitleInfo = false;
                 } else if ("description".equalsIgnoreCase(tag)) {

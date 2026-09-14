@@ -96,12 +96,12 @@ public class EbookSplitWorker extends ImportWorker {
 
         FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType, sourceLocation);
 
-        boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType, sourceLocation);
+        boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType, sourceLocation, j.epubSplitMode);
         return ok ? Result.success() : Result.failure();
     }
 
     private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType,
-            String sourceLocation) {
+            String sourceLocation, String epubSplitModeOverride) {
         Context ctx = getApplicationContext();
         try {
             File outFolder = new File(destinationFolderPath);
@@ -130,8 +130,12 @@ public class EbookSplitWorker extends ImportWorker {
             } else if (EBOOK_TYPE_EPUB.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
 
-                // Determine which helper to use based on setting
-                String splitMode = Option.getEpubSplitMode();
+                // Per-import choice from the import screen's toggle wins when set (see
+                // ImportJob.epubSplitMode); mass-import and other paths that never set it fall
+                // back to the global default.
+                String splitMode = (epubSplitModeOverride != null && !epubSplitModeOverride.isEmpty())
+                        ? epubSplitModeOverride
+                        : Option.getEpubSplitMode();
                 boolean useTocBased = false;
 
                 if ("toc".equals(splitMode)) {
@@ -283,8 +287,11 @@ public class EbookSplitWorker extends ImportWorker {
     /**
      * Checks if TOC-based splitting should be used in auto mode.
      * Returns true if TOC exists and has a reasonable number of entries (10-1000).
+     * Public so BookCandidate's chapter-preview scan can make the same auto-mode decision the
+     * real import will make, keeping the previewed chapter count consistent with the actual
+     * split result.
      */
-    private static boolean shouldUseTocBasedSplitting(Context ctx, Uri epubUri) {
+    public static boolean shouldUseTocBasedSplitting(Context ctx, Uri epubUri) {
         try {
             // Read EPUB zip
             java.util.Map<String, byte[]> zip = EpubCommonHelper.readZip(epubUri, ctx);
@@ -494,8 +501,12 @@ public class EbookSplitWorker extends ImportWorker {
         return s.trim();
     }
 
-    /** From file like "003_chapter-title.txt" → "chapter-title". */
-    private static String titleFromFileName(String name) {
+    /**
+     * From file like "003_chapter-title.txt" → "chapter-title". Public so BookCandidate's
+     * chapter-preview scan can derive the same fallback title when a helper didn't supply one via
+     * its trackTitles map.
+     */
+    public static String titleFromFileName(String name) {
         if (name == null)
             return null;
         String base = name;

@@ -41,7 +41,7 @@ public class TtsSettingsFragment extends LoggingFragment {
     private String lastSavedTtsVoice;
     private Spinner ttsEngineSpinner;
     private TextView ttsEngineTextView;
-    private MaterialCheckBox chkTtsSnapToSentence, chkTtsShowLoadingOverlay;
+    private MaterialCheckBox chkTtsSnapToSentence, chkTtsShowLoadingOverlay, chkGuessBookLanguage;
     private EditText etTtsHighlightDelay, etTtsChunkSize, etTtsOverlayTimeout;
     private Spinner spinnerEpubSplitMode;
     private MaterialCheckBox chkEbookRemoveReferences;
@@ -139,6 +139,13 @@ public class TtsSettingsFragment extends LoggingFragment {
             chkDocxSplitIntoChapters
                     .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setDocxSplitIntoChapters(isChecked));
         }
+
+        chkGuessBookLanguage = root.findViewById(R.id.chk_guess_book_language);
+        LinearLayout llGuessBookLanguage = root.findViewById(R.id.ll_guess_book_language);
+        chkGuessBookLanguage.setChecked(Option.getGuessBookLanguage());
+        llGuessBookLanguage.setOnClickListener(v -> chkGuessBookLanguage.toggle());
+        chkGuessBookLanguage
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setGuessBookLanguage(isChecked));
 
         chkTtsSnapToSentence = root.findViewById(R.id.chk_tts_snap_to_sentence);
         LinearLayout llTtsSnapToSentence = root.findViewById(R.id.ll_tts_snap_to_sentence);

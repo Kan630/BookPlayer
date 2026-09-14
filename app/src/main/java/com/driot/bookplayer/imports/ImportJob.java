@@ -39,6 +39,15 @@ public class ImportJob {
         public boolean optionSplit;
         public boolean optionCopy;
         public boolean optionDelete;
+        // User's per-import EPUB chapter-splitting choice ("auto"/"toc"/"spine") from the import
+        // screen's toggle - null/empty means "use Option.getEpubSplitMode() instead" (mass-import
+        // and other paths that never set this fall back to that global default). Irrelevant for
+        // non-EPUB ebook types, which have no such choice.
+        public String epubSplitMode;
+        // Chosen TTS voice (engine voice name, or Option.DEFAULT_VOICE) for this ebook import -
+        // lands on the new Folder row's ttsVoice column at creation time (see
+        // FinalParseFolderWorker.saveFolder()). Null for non-ebook imports.
+        public String ttsVoice;
 
         public String originalFile;
         public String originalHash;

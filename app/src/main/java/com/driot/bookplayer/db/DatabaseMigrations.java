@@ -555,4 +555,15 @@ public class DatabaseMigrations {
         }
     };
 
+    // Per-import EPUB split-mode choice and TTS voice selection, added to the ImportBookSingle
+    // import screen - both nullable TEXT, same pattern as metadataJson in the migration adding it.
+    static final Migration MIGRATION_33_34 = new Migration(33, 34) { // 2026-09-15
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 33 => 34");
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN epubSplitMode TEXT");
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN ttsVoice TEXT");
+        }
+    };
+
 }
