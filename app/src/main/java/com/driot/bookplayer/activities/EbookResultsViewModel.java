@@ -45,6 +45,7 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
 
     private String nextPageUrl;
     private int totalCount = 0;
+    private int lastPageSize = 0;
     private boolean isLoadingMoreFlag = false;
     volatile boolean gutendexConnected = false;
 
@@ -66,6 +67,33 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
     public LiveData<String> getEmptyMessage() { return emptyMessage; }
 
     public boolean isGutendexConnected() { return gutendexConnected; }
+
+    public int getTotalCount() { return totalCount; }
+
+    public String getFormattedTotalCount() { return formatCount(totalCount); }
+
+    public int getLoadedCount() {
+        List<EbookItem> current = items.getValue();
+        return current != null ? current.size() : 0;
+    }
+
+    public String getFormattedLoadedCount() { return formatCount(getLoadedCount()); }
+
+    /**
+     * Best-effort size of the page about to be fetched: the Gutendex API's page size
+     * isn't exposed as a constant, so this is inferred from the last page actually
+     * received, capped by however many books remain when we're near the end.
+     */
+    public int getNextBatchSize() {
+        if (lastPageSize <= 0) return 0;
+        if (totalCount > 0) {
+            int remaining = totalCount - getLoadedCount();
+            if (remaining > 0 && remaining < lastPageSize) return remaining;
+        }
+        return lastPageSize;
+    }
+
+    public String getFormattedNextBatchSize() { return formatCount(getNextBatchSize()); }
 
     public boolean canLoadMore() {
         return !isLoadingMoreFlag && nextPageUrl != null && !nextPageUrl.isEmpty();
@@ -164,6 +192,7 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
 
                 nextPageUrl = rewriteNextUrl(resp.next);
                 totalCount = resp.count;
+                lastPageSize = books.size();
                 items.postValue(mapped);
                 headerCount.postValue(buildCountText(mapped.size()));
             }
@@ -217,10 +246,11 @@ public class EbookResultsViewModel extends LoggingAndroidViewModel {
                 }
 
                 List<EbookItem> mapped = mapBooks(books);
+                totalCount = resp.count;
+                lastPageSize = books.size();
 
                 if (!mapped.isEmpty()) {
                     nextPageUrl = rewriteNextUrl(resp.next);
-                    totalCount = resp.count;
 
                     List<EbookItem> current = items.getValue();
                     List<EbookItem> newList = new ArrayList<>(current != null ? current : new ArrayList<>());

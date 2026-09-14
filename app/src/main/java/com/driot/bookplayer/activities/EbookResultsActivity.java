@@ -92,6 +92,23 @@ public class EbookResultsActivity extends FullActivity {
 
         recyclerView.setAdapter(adapter);
 
+        adapter.setFooterMessageProvider(new LoadingProgressHelper.MessageProvider() {
+            @NonNull
+            @Override
+            public String getInitialMessage() {
+                return buildFetchingNextPageMessage();
+            }
+
+            @NonNull
+            @Override
+            public String getTickMessage(long elapsedSec) {
+                if (elapsedSec < Var.GUTENBERG_FOOTER_SLOW_HINT_SEC) {
+                    return buildFetchingNextPageMessage();
+                }
+                return buildFetchingNextPageMessage() + "\n\n" + getString(R.string.gutenberg_slow_hint);
+            }
+        });
+
         // Infinite scroll
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -204,6 +221,21 @@ public class EbookResultsActivity extends FullActivity {
     protected void onDestroy() {
         super.onDestroy();
         progressHelper.stop();
+    }
+
+    private String buildFetchingNextPageMessage() {
+        int total = viewModel.getTotalCount();
+        int nextBatch = viewModel.getNextBatchSize();
+
+        if (total > 0 && nextBatch > 0) {
+            return getString(R.string.gutenberg_fetching_next_page_full,
+                    viewModel.getFormattedLoadedCount(), viewModel.getFormattedTotalCount(),
+                    viewModel.getFormattedNextBatchSize());
+        }
+        if (total > 0) {
+            return getString(R.string.gutenberg_fetching_next_page, viewModel.getFormattedTotalCount());
+        }
+        return getString(R.string.gutenberg_fetching_next_page_unknown);
     }
 
     /**

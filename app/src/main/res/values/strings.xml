@@ -1348,6 +1348,10 @@
     <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
 
     <string name="gutenberg_connected">Connected! Receiving data…\n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n</string>
+    <string name="gutenberg_fetching_next_page_full">%1$s of %2$s books loaded — fetching next %3$s…</string>
+    <string name="gutenberg_fetching_next_page">Fetching next page of %1$s books, please wait…</string>
+    <string name="gutenberg_fetching_next_page_unknown">Fetching more books, please wait…</string>
+    <string name="gutenberg_slow_hint">Gutenberg is a free volunteer project.\nIt can be quite slow…</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
     <string name="api_paging_size">Api paging size</string>

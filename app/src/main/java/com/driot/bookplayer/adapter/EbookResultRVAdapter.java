@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.ebooks.EbookItem;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -36,6 +37,7 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     private List<EbookItem> items = new ArrayList<>();
     private boolean isLoading = false;
+    private LoadingProgressHelper.MessageProvider footerMessageProvider;
 
     // Header data
     private String headerSearch = "";
@@ -57,6 +59,11 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
+    }
+
+    // --- Footer loading message API ---
+    public void setFooterMessageProvider(LoadingProgressHelper.MessageProvider provider) {
+        this.footerMessageProvider = provider;
     }
 
     // --- Items API ---
@@ -143,10 +150,13 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     static class LoadingVH extends RecyclerView.ViewHolder {
         ProgressBar progressBar;
+        TextView tvMessage;
+        final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
         LoadingVH(@NonNull View v) {
             super(v);
             progressBar = v.findViewById(R.id.progressBar);
+            tvMessage = v.findViewById(R.id.tvFooterMessage);
         }
     }
 
@@ -186,7 +196,12 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             h.tvCountryTag.setVisibility(View.GONE);
         } else if (getItemViewType(position) == VT_LOADING) {
-            // Loading footer - nothing to bind
+            LoadingVH h = (LoadingVH) vh;
+            if (footerMessageProvider != null && h.tvMessage != null) {
+                h.progressHelper.start(h.tvMessage, footerMessageProvider);
+            } else if (h.tvMessage != null) {
+                h.tvMessage.setVisibility(View.GONE);
+            }
         } else {
             int idx = position - 1;
             EbookItem item = items.get(idx);
@@ -264,5 +279,13 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     @Override
     public int getItemCount() {
         return items.size() + 1 + (isLoading ? 1 : 0); // header + items + loading footer (if loading)
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder instanceof LoadingVH) {
+            ((LoadingVH) holder).progressHelper.stop();
+        }
     }
 }
