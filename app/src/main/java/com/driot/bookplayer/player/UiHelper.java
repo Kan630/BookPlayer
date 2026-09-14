@@ -171,7 +171,7 @@ public class UiHelper {
         }
 
         if (ivCover!=null) {
-            if (s.cover != null) {
+            if (s.cover != null && !s.cover.isEmpty()) {
                 ivCover.setVisibility(View.VISIBLE);
                 Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
             } else {
