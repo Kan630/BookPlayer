@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 
 import androidx.core.content.FileProvider;
@@ -126,6 +127,21 @@ public class LoadManyBookTest implements LogSupport {
     StringBuilder logFinalPlayMsg;
     int nbPlayed = 0;
     int nbImported = 0;
+    int nbAttempted = 0;
+    // "KO"-named fixtures (see [[ko_fixture_convention]]) are deliberately broken - they're
+    // expected to fail import gracefully (no crash), so a failure there is counted here rather
+    // than treated as a test failure. Any OTHER fixture failing to import is unexpected and gets
+    // collected in unexpectedImportFailures instead. Neither bucket is used for a crash-level
+    // failure - see crashLikeImportFailures and ImportOutcome below for that distinction.
+    int nbKoHandled = 0;
+    final List<String> unexpectedImportFailures = new ArrayList<>();
+    // A failure that looks like an actual app-level bug rather than a designed, graceful error
+    // path: a timeout/hang, a broken DB invariant after a reported success, or the "Unexpected
+    // error" message that a worker's outer catch(Throwable) uses specifically when it swallowed
+    // an uncaught exception (see ImportOutcome). Always treated as a real problem worth failing
+    // the test over - even on a KO fixture, since being deliberately broken means it's expected
+    // to fail via a normal designed error, not by tripping an actual bug in the app's own code.
+    final List<String> crashLikeImportFailures = new ArrayList<>();
     String lastImport;
     int nb_TESTS;
     int current_TEST;
@@ -257,14 +273,70 @@ public class LoadManyBookTest implements LogSupport {
         }
         TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
+        myLogI(nbAttempted + " fixture(s) attempted");
         myLogI(nbImported + " books imported");
         myLogI(logFinalImportMsg.append("\n--------------------------").toString());
         myLogI(nbPlayed + " books played");
         myLogI(logFinalPlayMsg.append("\n--------------------------").toString());
+        myLogI(nbKoHandled + " KO (deliberately-broken) fixture(s) failed import gracefully, as expected");
+        if (!unexpectedImportFailures.isEmpty()) {
+            myLogE(unexpectedImportFailures.size()
+                    + " graceful-but-unexpected import failure(s) (not KO-named, but still a clean, designed error - not a crash):");
+            for (String f : unexpectedImportFailures) {
+                myLogE("  - " + f);
+            }
+        }
+        if (!crashLikeImportFailures.isEmpty()) {
+            myLogE(crashLikeImportFailures.size()
+                    + " CRASH-LEVEL import failure(s) (timeout/hang, broken DB invariant, or a swallowed uncaught "
+                    + "exception - see ImportOutcome) - counts even on a KO fixture, since that's not the "
+                    + "graceful failure a KO fixture is supposed to produce:");
+            for (String f : crashLikeImportFailures) {
+                myLogE("  - " + f);
+            }
+        }
         TestNavUtils.assertRecyclerItemCountEquals(ID_MAIN_RECYCLER, nbImported, 5_000,
                 "Mismatch between nb of imported book, and nb of actually present books");
         myLog("nb Books imported =" + nbImported);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
+
+        // Only raised now, after every fixture has been attempted and the full report above is
+        // logged - a KO fixture failing gracefully is expected (see [[ko_fixture_convention]] and
+        // nbKoHandled above) and never reaches here on its own.
+        if (!unexpectedImportFailures.isEmpty() || !crashLikeImportFailures.isEmpty()) {
+            StringBuilder msg = new StringBuilder();
+            if (!crashLikeImportFailures.isEmpty()) {
+                msg.append(crashLikeImportFailures.size()).append(" CRASH-LEVEL fixture(s) (timeout/hang, broken DB ")
+                        .append("invariant, or a swallowed uncaught exception):\n - ")
+                        .append(String.join("\n - ", crashLikeImportFailures));
+            }
+            if (!unexpectedImportFailures.isEmpty()) {
+                if (msg.length() > 0)
+                    msg.append("\n");
+                msg.append(unexpectedImportFailures.size())
+                        .append(" fixture(s) failed to import unexpectedly (not KO-named, so not an expected failure, "
+                                + "though still a clean/graceful error, not a crash):\n - ")
+                        .append(String.join("\n - ", unexpectedImportFailures));
+            }
+            throw new AssertionError(msg.toString());
+        }
+    }
+
+    /**
+     * Thrown by {@link #runImport} to tag WHY an import didn't succeed, so its catch block can
+     * tell a designed, graceful failure apart from a crash-level one (timeout/hang, a broken DB
+     * invariant, or an uncaught exception a worker's own outer catch(Throwable) swallowed instead
+     * of letting it crash the app - see the "Unexpected error" check at its throw site). Plain
+     * {@code AssertionError} (e.g. from Espresso/TestNavUtils elsewhere in this file) is still
+     * caught the same way but treated as non-crash-level, since it carries no such tag.
+     */
+    private static final class ImportOutcome extends AssertionError {
+        final boolean crashLevel;
+
+        ImportOutcome(String message, boolean crashLevel) {
+            super(message);
+            this.crashLevel = crashLevel;
+        }
     }
 
     private void goPlay(long idFolder) throws InterruptedException {
@@ -283,13 +355,16 @@ public class LoadManyBookTest implements LogSupport {
     private long runImport(Uri uri_content, String uri_type) throws InterruptedException {
         long lastTimestamp;
         lastImport = uri_content.getLastPathSegment();
+        // See [[ko_fixture_convention]]: any file/folder with "KO" in its name is a deliberately
+        // broken fixture, expected to fail import gracefully - not a real regression.
+        boolean isKoFixture = lastImport != null && lastImport.toLowerCase(Locale.ROOT).contains("ko");
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         myLog("runImport " + uri_type + " : " + uri_content);
-        myLog("runImport " + lastImport);
+        myLog("runImport " + lastImport + (isKoFixture ? " [KO fixture]" : ""));
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
         lastTimestamp = System.currentTimeMillis();
-        nbImported += 1;
+        nbAttempted += 1;
 
         importProbe = new ImportProbe(appContext);
         importProbe.start();
@@ -359,34 +434,47 @@ public class LoadManyBookTest implements LogSupport {
             if (terminal == null) {
                 OngoingTaskUiState last = importProbe.lastState();
                 String lastProgress = (last == null || last.progressText == null) ? "" : last.progressText;
-                throw new AssertionError("Timeout after " + TIMEOUT_BOOK_LOAD / 1000
-                        + "s waiting for import. Last progress: " + lastProgress);
+                // A timeout means the app never reached ANY terminal state (not even a clean
+                // FAILED) within the allotted time - always crash-level (possible hang/ANR), never
+                // the graceful failure a KO fixture is supposed to produce.
+                throw new ImportOutcome("Timeout after " + TIMEOUT_BOOK_LOAD / 1000
+                        + "s waiting for import. Last progress: " + lastProgress, true);
             }
 
             if (!Var.IMPORT_STATUS_SUCCEEDED.equals(terminal.status)) {
                 String devErr = terminal.errorText != null ? terminal.errorText : "(no errorText)";
                 String warn = terminal.warningText != null ? terminal.warningText : "";
-                throw new AssertionError("Import failed according to Probe.\n" +
+                // FinalParseFolderWorker's (and DownloadWorker's) outer catch(Throwable) - the one
+                // that swallows an actual uncaught exception instead of letting it crash the app -
+                // always reports this exact user-facing string (see ImportWorker.failResult() /
+                // R.string.unexpected_error). Every other designed error path uses its own
+                // specific message, so this string is a reliable signal that the fixture tripped a
+                // real bug, not a normal "can't read this file" kind of failure.
+                boolean looksLikeSwallowedCrash = appContext.getString(R.string.unexpected_error).equals(devErr);
+                throw new ImportOutcome("Import failed according to Probe.\n" +
                         "Status: " + terminal.status + "\n" +
                         "Title: " + terminal.title + "\n" +
                         "Progress: " + terminal.progressPercent + "% - " + terminal.progressText + "\n" +
                         "Error: " + devErr + "\n" +
-                        "Warnings: " + warn);
+                        "Warnings: " + warn, looksLikeSwallowedCrash);
             }
 
             // SUCCESS path continues below...
             myLog("Success book load (via probe)");
+            nbImported += 1;
 
-            // --- DB Reality Check ---
+            // --- DB Reality Check --- (a broken invariant here means something is actually wrong
+            // in the app/worker/test harness, not a designed error path - always crash-level)
             AppDatabase db = AppDatabase.getInstance(appContext);
             ImportJob job = db.importJobDao().getUniqueJob();
             if (job == null)
-                throw new AssertionError("ImportJob not found in DB after success");
-            myLogI("DB Reality Check: ImportJob status=" + job.status + ", futureFolderPath=" + job.futureFolderPath);
+                throw new ImportOutcome("ImportJob not found in DB after success", true);
+            myLogD("DB Reality Check: ImportJob status=" + job.status + ", futureFolderPath=" + job.futureFolderPath);
 
             if (!Var.IMPORT_STATUS_SUCCEEDED.equals(job.status)) {
-                throw new AssertionError(
-                        "DB Reality Check failed: ImportJob status is " + job.status + " but probe said SUCCEEDED");
+                throw new ImportOutcome(
+                        "DB Reality Check failed: ImportJob status is " + job.status + " but probe said SUCCEEDED",
+                        true);
             }
 
             Folder folder = db.folderDao().getFolderByPath(job.futureFolderPath);
@@ -394,8 +482,9 @@ public class LoadManyBookTest implements LogSupport {
                 // Try to find it by name as fallback or if path is absolute vs relative
                 folder = db.folderDao().getByName(job.title);
                 if (folder == null) {
-                    throw new AssertionError(
-                            "Folder not found in DB for path: " + job.futureFolderPath + " or title: " + job.title);
+                    throw new ImportOutcome(
+                            "Folder not found in DB for path: " + job.futureFolderPath + " or title: " + job.title,
+                            true);
                 }
             }
             long idFolder = folder.getId();
@@ -423,6 +512,39 @@ public class LoadManyBookTest implements LogSupport {
             TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK, "Visual Check");
 
             return idFolder;
+        } catch (AssertionError importFailure) {
+            // An import error should never stop the whole test run, whether the fixture is a KO
+            // (deliberately-broken) one or not - see the user's request that led here: the app is
+            // expected to fail gracefully either way, and this test's job is to keep going and
+            // report on it, not to die on the first bad fixture. But a graceful, designed failure
+            // and a crash-level one (timeout/hang, broken DB invariant, or an uncaught exception
+            // a worker swallowed - see ImportOutcome) are NOT the same severity: only a crash-level
+            // failure always fails the test, KO fixture or not; a graceful failure is only a
+            // problem when it hits a fixture that wasn't supposed to fail at all.
+            String label = uri_type + " - " + lastImport;
+            boolean crashLevel = (importFailure instanceof ImportOutcome) && ((ImportOutcome) importFailure).crashLevel;
+            if (crashLevel) {
+                String detail = label + " : " + importFailure.getMessage();
+                crashLikeImportFailures.add(detail);
+                myLogE("CRASH-LEVEL import failure" + (isKoFixture ? " (on a KO fixture - still not the graceful "
+                        + "failure a KO fixture is supposed to produce)" : "") + ": " + detail);
+                logFinalImportMsg.append("\n[CRASH-LEVEL FAILURE] ").append(label);
+            } else if (isKoFixture) {
+                nbKoHandled += 1;
+                myLogI("KO fixture failed import gracefully, as expected (" + nbKoHandled + " so far): "
+                        + label + " - " + importFailure.getMessage());
+                logFinalImportMsg.append("\n[KO - expected failure] ").append(label);
+            } else {
+                String detail = label + " : " + importFailure.getMessage();
+                unexpectedImportFailures.add(detail);
+                myLogE("UNEXPECTED (but graceful, non-crash) import failure (not a KO fixture): " + detail);
+                logFinalImportMsg.append("\n[UNEXPECTED FAILURE] ").append(label);
+            }
+            // The failed import may have left us on an error screen (ImportBookSingleActivity or
+            // AddResourceActivity) rather than back on MainActivity - get back there so the next
+            // fixture in the loop starts from a clean state.
+            TestNavUtils.maybePressBackTo(MainActivity.class, 4, 1_000);
+            return -1;
         } finally {
             if (importProbe != null)
                 importProbe.stop();
