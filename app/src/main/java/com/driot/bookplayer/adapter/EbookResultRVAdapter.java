@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -197,6 +198,11 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             h.tvCountryTag.setVisibility(View.GONE);
         } else if (getItemViewType(position) == VT_LOADING) {
             LoadingVH h = (LoadingVH) vh;
+            if (h.progressBar != null && h.progressBar.getIndeterminateDrawable() != null) {
+                h.progressBar.getIndeterminateDrawable().setColorFilter(
+                        ContextCompat.getColor(appContext, R.color.green_300),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+            }
             if (footerMessageProvider != null && h.tvMessage != null) {
                 h.progressHelper.start(h.tvMessage, footerMessageProvider);
             } else if (h.tvMessage != null) {

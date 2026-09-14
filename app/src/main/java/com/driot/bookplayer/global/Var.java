@@ -30,7 +30,7 @@ public class Var {
 
         public static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 10;
         public static final int GUTENDEX_READ_TIMEOUT_SEC = 90;
-        public static final int GUTENBERG_FOOTER_SLOW_HINT_SEC = 5;
+        public static final int GUTENBERG_FOOTER_SLOW_HINT_SEC = 2;
         public static final int ARCHIVE_CONNECT_TIMEOUT_SEC = 10;
         public static final int ARCHIVE_READ_TIMEOUT_SEC = 60;
 
