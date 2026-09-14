@@ -22,4 +22,12 @@
         path="Download/"
         />
 
+    <!-- Covers any mounted volume (secondary/SD card included), not just primary external
+         storage - needed so FileProvider.getUriForFile() can grant a content:// Uri for a file
+         living on a removable SD card (e.g. instrumented-test fixtures read directly from
+         <sd-card-root>/fixtures/, see LoadManyBookTest). -->
+    <root-path
+        name="root"
+        path="." />
+
 </paths>

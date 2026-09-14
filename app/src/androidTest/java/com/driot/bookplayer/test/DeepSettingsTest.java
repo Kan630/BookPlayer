@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.not;
 
+import android.Manifest;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
@@ -97,6 +98,16 @@ public class DeepSettingsTest implements LogSupport {
         appContext = ApplicationProvider.getApplicationContext();
         KanLogger.init(appContext);
         Option.setTechLog(true);
+
+        // Pass 2 randomly toggles every checkbox, including ones that trigger a runtime
+        // permission request (e.g. the Play Behaviour visualizer needs RECORD_AUDIO). That pops
+        // a system permission dialog belonging to a different package, which leaves this app
+        // with no RESUMED activity and fails every subsequent Espresso call with
+        // NoActivityResumedException - dismissAnyDialog() below only knows how to dismiss this
+        // app's own AlertDialogs, not the OS permission UI. Grant every dangerous permission the
+        // app can request up front so the dialog never appears. Wrapped per-permission since a
+        // permission gated to a higher/lower minSdkVersion than the current device throws here.
+        grantAllDangerousPermissionsIfPossible();
 
         Configuration config = new Configuration.Builder()
                 .setMinimumLoggingLevel(Log.DEBUG)
@@ -253,6 +264,12 @@ public class DeepSettingsTest implements LogSupport {
         // Small wait for potential background saves
         TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_END, "WAIT_DELAY_SECTION_INTERACTION_END");
 
+        // A checkbox toggled above may have left a confirmation open (e.g. chk_delete_source_file
+        // -> MsgBoxActivity) that the per-checkbox dismissAnyDialog() calls didn't catch in time -
+        // unlike those, this step isn't wrapped in try/catch, so leaving it open here would fail
+        // the whole section with NoMatchingViewException instead of just skipping one control.
+        dismissAnyDialog();
+
         // Collapse
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, false);
@@ -316,6 +333,32 @@ public class DeepSettingsTest implements LogSupport {
         };
     }
 
+    // Every dangerous permission the app can request from within Settings (see
+    // AndroidManifest.xml). Some are gated to a minSdkVersion above or below what a given test
+    // device runs, so each grant is attempted independently and failures are swallowed.
+    private static final String[] DANGEROUS_PERMISSIONS = {
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.NEARBY_WIFI_DEVICES,
+            Manifest.permission.READ_MEDIA_AUDIO,
+    };
+
+    private void grantAllDangerousPermissionsIfPossible() {
+        for (String permission : DANGEROUS_PERMISSIONS) {
+            try {
+                InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                        .grantRuntimePermission(appContext.getPackageName(), permission);
+            } catch (Exception e) {
+                myLogD("Could not grant " + permission + " (likely unsupported on this API level): "
+                        + e.getMessage());
+            }
+        }
+    }
+
     private void dismissAnyDialog() {
         try {
             androidx.test.uiautomator.UiDevice device = androidx.test.uiautomator.UiDevice
@@ -324,6 +367,17 @@ public class DeepSettingsTest implements LogSupport {
                     .findObject(new androidx.test.uiautomator.UiSelector().resourceId("android:id/button1"));
             androidx.test.uiautomator.UiObject btn2 = device
                     .findObject(new androidx.test.uiautomator.UiSelector().resourceId("android:id/button2"));
+            // Not every confirmation in this app is a framework AlertDialog living inside the
+            // same Activity - e.g. chk_delete_source_file in the Import section pops MsgBoxActivity,
+            // a whole separate Activity (activity_msgbox.xml, buttons btnPositive/btnNegative),
+            // which STOPS the SettingsActivity underneath. Its button ids are this app's own, so
+            // they need the real package name, and matching by id (not text) keeps this working
+            // no matter which random language Pass 2's language-section spinner already picked.
+            String pkg = appContext.getPackageName();
+            androidx.test.uiautomator.UiObject msgBoxPositive = device.findObject(
+                    new androidx.test.uiautomator.UiSelector().resourceId(pkg + ":id/btnPositive"));
+            androidx.test.uiautomator.UiObject msgBoxNegative = device.findObject(
+                    new androidx.test.uiautomator.UiSelector().resourceId(pkg + ":id/btnNegative"));
             androidx.test.uiautomator.UiObject okBtn = device.findObject(
                     new androidx.test.uiautomator.UiSelector().textMatches("(?i)ok|annuler|cancel|oui|yes"));
 
@@ -334,6 +388,14 @@ public class DeepSettingsTest implements LogSupport {
             } else if (btn2.exists()) {
                 btn2.click();
                 myLog("Dismissed a dialog via button2");
+                TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            } else if (msgBoxPositive.exists()) {
+                msgBoxPositive.click();
+                myLog("Dismissed MsgBoxActivity via btnPositive");
+                TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            } else if (msgBoxNegative.exists()) {
+                msgBoxNegative.click();
+                myLog("Dismissed MsgBoxActivity via btnNegative");
                 TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
             } else if (okBtn.exists()) {
                 okBtn.click();

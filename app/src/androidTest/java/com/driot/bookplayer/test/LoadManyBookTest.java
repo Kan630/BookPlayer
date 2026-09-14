@@ -16,15 +16,14 @@ import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.IdRes;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
@@ -40,6 +39,8 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.player.PlayList;
+import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.testutil.ImportProbe;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -57,13 +58,13 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -85,23 +86,29 @@ public class LoadManyBookTest implements LogSupport {
     private static final int ID_PLAY_BUTTON = R.id.ibPlayPause; // play button on PlayActivity
     private final static long PLAY_TIME = 3_000;
 
+    // Some fixture categories (e.g. "ebooks", pulled straight off a real personal collection on
+    // the SD card) can hold hundreds of files - importing+playing every single one would turn
+    // this test into a multi-hour run without meaningfully improving regression coverage over a
+    // smaller representative sample. Cap each category to a random sample instead.
+    private static final int MAX_FIXTURES_PER_CATEGORY = 5;
+
     private static final class TestCase {
         final String uri_type;
-        final String assetFolderPath; // e.g. "fixtures/m4b/"
+        final String subfolderName; // e.g. "m4b" - resolved under the discovered fixtures root
 
-        TestCase(String uri_type, String assetFolderPath) {
+        TestCase(String uri_type, String subfolderName) {
             this.uri_type = uri_type;
-            this.assetFolderPath = assetFolderPath.endsWith("/") ? assetFolderPath : (assetFolderPath + "/");
+            this.subfolderName = subfolderName;
         }
     }
 
     //Do not change that List layout, I like it like this for easy change
     private static final List<TestCase> TESTS = Arrays.asList(
-              new TestCase("File", "fixtures/zip")
-            , new TestCase("File", "fixtures/ebooks")
-            , new TestCase("Folder", "fixtures/folders")
-            , new TestCase("File", "fixtures/m4b")
-            , new TestCase("File", "fixtures/single_files"));
+              new TestCase("File", "zip")
+            , new TestCase("File", "ebooks")
+            , new TestCase("Folder", "folders")
+            , new TestCase("File", "m4b")
+            , new TestCase("File", "single_files"));
 
     private ImportProbe importProbe;
 
@@ -159,7 +166,6 @@ public class LoadManyBookTest implements LogSupport {
     public void loadManyBooks() throws Exception {
         myLog("loadManyBooks");
 
-        Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
         logFinalImportMsg = new StringBuilder(
                 "--------------------------\n--------------------------\nFinal Import Message\n--------------------------");
         logFinalPlayMsg = new StringBuilder(
@@ -168,17 +174,20 @@ public class LoadManyBookTest implements LogSupport {
         // TODO Should not be used, hide potential user errors, check other test classes
         ImportHelper.cancelCurrentImport(appContext);
 
-        // sanity log to prove assets are visible
-        String[] root = testContext.getAssets().list("");
-        myLog("test assets root size = " + (root == null ? -1 : root.length));
-        assert root != null;
-        assert root.length > 0; // throw new AssertionError(...
-
-        // Clean staging dir for a fresh run
-        File stagingRoot = new File(appContext.getCacheDir(), "fixtures");
-        deleteQuiet(stagingRoot);
-        // noinspection ResultOfMethodCallIgnored
-        stagingRoot.mkdirs();
+        // Fixtures live as real files directly on device storage (SD card or internal) under a
+        // "fixtures" folder - never bundled into the androidTest APK's assets. That would mean
+        // re-copying a large, ever-growing set of real book files into the app/src/androidTest
+        // source tree and repackaging/reinstalling on every single test run just to pick up a
+        // fixture change, which is exactly what this is deliberately avoiding: fixtures are
+        // populated once, directly on the device, and read from there in place.
+        File fixturesRoot = findFixturesRoot(appContext);
+        if (fixturesRoot == null) {
+            throw new AssertionError("No 'fixtures' directory found on any mounted storage volume "
+                    + "(checked primary storage and every volume from getExternalFilesDirs()). "
+                    + "Put real book/ebook/zip/m4b files under <storage-root>/fixtures/{zip,ebooks,folders,m4b,single_files}/ "
+                    + "on this device - see README_FIXTURES.txt.");
+        }
+        myLog("Using fixtures root: " + fixturesRoot.getAbsolutePath());
 
         myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
         myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
@@ -186,26 +195,34 @@ public class LoadManyBookTest implements LogSupport {
         nb_TESTS = TESTS.size();
         current_TEST = 0;
         for (TestCase tc : TESTS) {
-            myLog(tc.uri_type + " - " + tc.assetFolderPath);
+            myLog(tc.uri_type + " - " + tc.subfolderName);
         }
 
         for (TestCase tc : TESTS) {
             current_TEST += 1;
-            List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use
-                                                                                                              // testContext
+            File caseRoot = new File(fixturesRoot, tc.subfolderName);
+            List<File> files = randomSample(listFilesRecursively(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
             myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
-            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
+            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, caseRoot, files.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
-                List<String> subdirs = listAssetSubdirectories(testContext.getAssets(), tc.assetFolderPath);
+                List<File> subdirs = randomSample(listSubdirectories(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
                 nb_subTESTS = subdirs.size();
                 current_subTEST = 0;
-                myLog("Found " + nb_subTESTS + " folders to import under " + tc.assetFolderPath);
-                for (String assetDir : subdirs) {
+                myLog("Found " + nb_subTESTS + " folders to import under " + caseRoot);
+                for (File dir : subdirs) {
                     current_subTEST += 1;
-                    Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
+                    // Unlike a single file, importing "a folder" means the app's own import
+                    // logic recursively lists that folder itself (a real File.listFiles() scan,
+                    // not just a read of already-known paths) to discover its tracks - which
+                    // fails the same way our own discovery would have, since it's a directory
+                    // outside this app's sandbox. Mirror just this one book's files into the
+                    // app's own cache (discovered via MediaStore, same as above) so that scan has
+                    // something it can freely enumerate.
+                    File cacheDir = mirrorFolderToCache(appContext, dir, listFilesRecursively(appContext, dir));
+                    Uri dirUri = Uri.fromFile(cacheDir); // same-app -> file:// OK
                     long idFolder = runImport(dirUri, tc.uri_type);
                     if (idFolder != -1) {
                         goPlay(idFolder);
@@ -216,11 +233,11 @@ public class LoadManyBookTest implements LogSupport {
                         return;
                 }
             } else {
-                nb_subTESTS = assetFiles.size();
+                nb_subTESTS = files.size();
                 current_subTEST = 0;
-                for (String assetPath : assetFiles) {
+                for (File file : files) {
                     current_subTEST += 1;
-                    Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
+                    Uri contentUri = fileToContentUri(appContext, file);
                     long idFolder = runImport(contentUri, tc.uri_type);
                     if (idFolder != -1) {
                         goPlay(idFolder);
@@ -409,53 +426,151 @@ public class LoadManyBookTest implements LogSupport {
 
     }
 
-    private static List<String> listAssetFilesRecursively(AssetManager am, String root) throws IOException {
-        List<String> out = new ArrayList<>();
-        Deque<String> stack = new ArrayDeque<>();
-        String normalizedRoot = root.endsWith("/") ? root.substring(0, root.length() - 1) : root;
-        stack.push(normalizedRoot);
+    /** Returns at most `max` elements of `list`, chosen at random (whole list if it's smaller). */
+    private static <T> List<T> randomSample(List<T> list, int max) {
+        if (list.size() <= max)
+            return list;
+        List<T> shuffled = new ArrayList<>(list);
+        Collections.shuffle(shuffled);
+        return shuffled.subList(0, max);
+    }
 
-        while (!stack.isEmpty()) {
-            String dir = stack.pop();
-            String[] list = am.list(dir);
-            if (list == null)
-                continue;
-            for (String name : list) {
-                String child = dir + "/" + name;
-                String[] nested = am.list(child);
-                if (nested != null && nested.length > 0) {
-                    stack.push(child);
-                } else {
-                    out.add(child); // file
+    /**
+     * Locates a real "fixtures" directory on device storage - primary storage first, then every
+     * volume reported by {@link Context#getExternalFilesDirs}, which is the portable way to
+     * enumerate mounted volumes (SD card included) without StorageManager reflection. Each
+     * volume's app-private "…/Android/data/<pkg>/files" dir is walked back up to that volume's
+     * real root (the parent of "Android"), then checked for a "fixtures" subfolder. A stat on an
+     * already-known path like this works fine without any special permission on API 30+ - see
+     * queryIndexedPathsUnderPrefix() below for why bulk directory *listing* is a different story.
+     */
+    private static File findFixturesRoot(Context context) {
+        List<File> candidateRoots = new ArrayList<>();
+        File primary = Environment.getExternalStorageDirectory();
+        if (primary != null)
+            candidateRoots.add(primary);
+
+        File[] externalFilesDirs = context.getExternalFilesDirs(null);
+        if (externalFilesDirs != null) {
+            for (File dir : externalFilesDirs) {
+                if (dir == null)
+                    continue;
+                File node = dir;
+                while (node != null && !"Android".equals(node.getName())) {
+                    node = node.getParentFile();
+                }
+                File volumeRoot = (node != null) ? node.getParentFile() : null;
+                if (volumeRoot != null)
+                    candidateRoots.add(volumeRoot);
+            }
+        }
+
+        for (File root : candidateRoots) {
+            File fixtures = new File(root, "fixtures");
+            if (fixtures.isDirectory())
+                return fixtures;
+        }
+        return null;
+    }
+
+    /**
+     * All paths MediaStore has indexed under `rootPath/` (any depth). Directory enumeration
+     * (File.listFiles()) on a path outside this app's own sandbox is blocked/returns empty under
+     * scoped storage without MANAGE_EXTERNAL_STORAGE - confirmed on the Samsung A16 test device,
+     * where Knox disables the "All files access" toggle for this app entirely (greyed out in
+     * Settings, and `adb shell appops set MANAGE_EXTERNAL_STORAGE allow` silently doesn't stick
+     * either). A *stat* on an already-known exact path (File.exists()/isFile()/isDirectory(), or
+     * opening it for reading) still works fine though - it's specifically bulk listing that's
+     * blocked. MediaStore.Files is the sanctioned, scoped-storage-compliant way to discover which
+     * paths exist under a folder (it indexes every file type, not just media); this app's SD card
+     * fixtures were already indexed by the OS's own media scan. Each returned path is then
+     * File.isFile()/isDirectory() checked (a stat, not a listing) to classify it.
+     */
+    private static List<String> queryIndexedPathsUnderPrefix(Context context, String rootPath) {
+        List<String> out = new ArrayList<>();
+        Uri filesUri = android.provider.MediaStore.Files.getContentUri("external");
+        String[] projection = { android.provider.MediaStore.Files.FileColumns.DATA };
+        String selection = android.provider.MediaStore.Files.FileColumns.DATA + " LIKE ?";
+        String[] args = { rootPath + "/%" };
+        try (android.database.Cursor c = context.getContentResolver().query(filesUri, projection, selection, args, null)) {
+            if (c != null) {
+                int idx = c.getColumnIndexOrThrow(android.provider.MediaStore.Files.FileColumns.DATA);
+                while (c.moveToNext()) {
+                    String p = c.getString(idx);
+                    if (p != null)
+                        out.add(p);
                 }
             }
         }
         return out;
     }
 
-    /**
-     * Copy an asset into cache/fixtures and return a FileProvider content:// Uri.
-     */
-    private static Uri stageAssetAsContentUri(Context appCtx, Context testCtx, String assetPath) throws IOException {
-        File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
-        File outFile = new File(stagingRoot, assetPath);
-        File parent = outFile.getParentFile();
-        if (parent != null && !parent.exists())
-            parent.mkdirs();
+    /** Recursively lists every regular file under `root` (files only, no directories). */
+    private static List<File> listFilesRecursively(Context context, File root) {
+        List<File> out = new ArrayList<>();
+        if (root == null)
+            return out;
+        for (String path : queryIndexedPathsUnderPrefix(context, root.getAbsolutePath())) {
+            File f = new File(path);
+            if (f.isFile())
+                out.add(f);
+        }
+        return out;
+    }
 
-        if (!outFile.exists()) {
-            try (InputStream in = testCtx.getAssets().open(assetPath); // <-- testCtx here
-                    FileOutputStream out = new FileOutputStream(outFile)) {
+    /** Direct subdirectories of `root` (no files, not recursive). */
+    private static List<File> listSubdirectories(Context context, File root) {
+        List<File> out = new ArrayList<>();
+        if (root == null)
+            return out;
+        String rootPath = root.getAbsolutePath();
+        for (String path : queryIndexedPathsUnderPrefix(context, rootPath)) {
+            String rel = path.substring(Math.min(rootPath.length() + 1, path.length()));
+            if (!rel.isEmpty() && !rel.contains("/")) { // direct child only
+                File f = new File(path);
+                if (f.isDirectory())
+                    out.add(f);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * content:// Uri for a real file already sitting on device storage - no copy needed, since
+     * unlike an asset packed inside the APK this is already a plain file on disk. Requires the
+     * FileProvider's paths config to cover the file's location - see the root-path entry in
+     * res/xml/file_provider.xml (covers any mounted volume, not just primary storage).
+     */
+    private static Uri fileToContentUri(Context appCtx, File file) {
+        String authority = BuildConfig.APPLICATION_ID + ".FileProvider";
+        return FileProvider.getUriForFile(appCtx, authority, file);
+    }
+
+    /**
+     * Copies `sourceFiles` (already discovered via {@link #listFilesRecursively}) into a mirror
+     * of `sourceDir` under this app's own cache dir, preserving their paths relative to
+     * `sourceDir`. Only needed for the Folder test case - see the comment at its call site.
+     */
+    private static File mirrorFolderToCache(Context appCtx, File sourceDir, List<File> sourceFiles)
+            throws IOException {
+        File destDir = new File(new File(appCtx.getCacheDir(), "fixtures_staging"), sourceDir.getName());
+        deleteQuiet(destDir);
+        String sourceRootPath = sourceDir.getAbsolutePath();
+        for (File srcFile : sourceFiles) {
+            String rel = srcFile.getAbsolutePath().substring(sourceRootPath.length() + 1);
+            File destFile = new File(destDir, rel);
+            File parent = destFile.getParentFile();
+            if (parent != null && !parent.exists())
+                parent.mkdirs();
+            try (InputStream in = new FileInputStream(srcFile);
+                    FileOutputStream out = new FileOutputStream(destFile)) {
                 byte[] buf = new byte[8192];
                 int n;
                 while ((n = in.read(buf)) >= 0)
                     out.write(buf, 0, n);
             }
         }
-
-        // authority must match your manifest ("${applicationId}.FileProvider")
-        String authority = BuildConfig.APPLICATION_ID + ".FileProvider";
-        return FileProvider.getUriForFile(appCtx, authority, outFile);
+        return destDir;
     }
 
     private static void deleteQuiet(File f) {
@@ -469,65 +584,6 @@ public class LoadManyBookTest implements LogSupport {
         }
         // noinspection ResultOfMethodCallIgnored
         f.delete();
-    }
-
-    /** Return full asset paths for direct subdirectories of `root` (no files). */
-    private static List<String> listAssetSubdirectories(AssetManager am, String root) throws IOException {
-        String normalized = root.endsWith("/") ? root.substring(0, root.length() - 1) : root;
-        List<String> out = new ArrayList<>();
-        String[] children = am.list(normalized);
-        if (children == null)
-            return out;
-        for (String name : children) {
-            String child = normalized + "/" + name;
-            String[] nested = am.list(child);
-            if (nested != null && nested.length > 0) { // directory in assets
-                out.add(child);
-            }
-        }
-        return out;
-    }
-
-    /**
-     * Copy an entire asset directory tree to cache/fixtures and return a file://
-     * Uri to the dir.
-     */
-    private static Uri stageAssetDirectoryAsFileUri(Context appCtx, Context testCtx, String assetDirPath)
-            throws IOException {
-        File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
-        File outDir = new File(stagingRoot, assetDirPath);
-        copyAssetDirRecursively(testCtx.getAssets(), assetDirPath, outDir);
-        return Uri.fromFile(outDir); // same-app -> file:// OK
-    }
-
-    /** Recursive copy of an assets directory to a real filesystem directory. */
-    private static void copyAssetDirRecursively(AssetManager am, String assetDir, File destDir) throws IOException {
-        if (!destDir.exists() && !destDir.mkdirs()) {
-            throw new IOException("Failed to create dir: " + destDir);
-        }
-        String[] list = am.list(assetDir);
-        if (list == null)
-            return;
-        for (String name : list) {
-            String childAssetPath = assetDir + "/" + name;
-            String[] nested = am.list(childAssetPath);
-            if (nested != null && nested.length > 0) {
-                // directory
-                copyAssetDirRecursively(am, childAssetPath, new File(destDir, name));
-            } else {
-                // file
-                File outFile = new File(destDir, name);
-                if (!outFile.getParentFile().exists())
-                    outFile.getParentFile().mkdirs();
-                try (InputStream in = am.open(childAssetPath);
-                        FileOutputStream out = new FileOutputStream(outFile)) {
-                    byte[] buf = new byte[8192];
-                    int n;
-                    while ((n = in.read(buf)) >= 0)
-                        out.write(buf, 0, n);
-                }
-            }
-        }
     }
 
     /** Call this right after an import when you're back on MainActivity. */
@@ -549,8 +605,17 @@ public class LoadManyBookTest implements LogSupport {
         myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking folder...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
 
+        // Click by position (0), not by matching the folder's name: MainActivity's list is
+        // ORDER BY lLastAccess DESC (FolderDao), so the book we just imported is always at the
+        // top. Matching by hasDescendant(withText(title)) instead is fragile when the same
+        // fixture gets imported repeatedly across back-to-back runs in quick succession (as
+        // happens while iterating on this test suite itself) - deleting and re-adding a
+        // same-named folder in close succession can leave RecyclerView showing an outgoing and
+        // an incoming card with identical text simultaneously for longer than a short settle
+        // wait can reliably outlast, even though a direct DB query at that moment shows only one
+        // real row. Position 0 has no such ambiguity.
         onView(withId(ID_MAIN_RECYCLER))
-                .perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(title)), click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         myLog("Clicked targeted item: " + title);
         TestNavUtils.sleep(300);
 
@@ -563,12 +628,17 @@ public class LoadManyBookTest implements LogSupport {
             return;
         }
 
-        // 5) intermediate screen: pick a random track, then expect PlayActivity
+        // 5) intermediate screen: pick a random track, then confirm playback actually started
         if (TestNavUtils.isOn(ZikFileActivity.class)) {
             myLog("On ZikFileActivity → will click a random track");
             clickRandomItemInRecycler(ID_TRACKS_RECYCLER);
-            TestNavUtils.assertWaitForActivity(PlayActivity.class, 5_000,
-                    "Expected PlayActivity after choosing a track");
+            // Whether this navigates to PlayActivity depends on the user's own
+            // Option.getOpenPlayActivity() preference (see StartPlayHelper.onZikFileClick(),
+            // which unconditionally starts MediaService playback but only opens PlayActivity
+            // when that option, sameTrack, or TTS applies) - with it off, clicking a track starts
+            // real playback while deliberately staying on ZikFileActivity. So don't assert on
+            // which Activity ends up resumed here; runPlay() below verifies actual playback state
+            // instead, which is correct either way.
             runPlay(playTime);
             return;
         }
@@ -576,7 +646,8 @@ public class LoadManyBookTest implements LogSupport {
         throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
     }
 
-    private void runPlay(long playTime) {
+    private void runPlay(long playTime) throws InterruptedException {
+        waitForPlaybackToStart(TIMEOUT_VISUAL_CHECK + 5_000);
         sleep(playTime, "PLAY TIME");
         PlayList pl = PlayList.getInstance();
         if (pl != null && pl.getZikFile() != null) {
@@ -592,9 +663,38 @@ public class LoadManyBookTest implements LogSupport {
         } else {
             throw new AssertionError("Playlist not properly instantiated");
         }
-        pressPlay();
+        nbPlayed += 1;
+        myLog("Confirmed playback n°" + nbPlayed);
+        if (TestNavUtils.isOn(PlayActivity.class)) {
+            // Also exercise the on-screen play/pause control when it's actually there - real
+            // playback is already confirmed above via PlayList regardless of this.
+            pressPlay();
+        } else {
+            myLog("Not on PlayActivity (Option.getOpenPlayActivity() is off) - real playback "
+                    + "already confirmed via PlaybackUiState/PlayList, skipping the on-screen "
+                    + "play/pause button check since that control isn't on screen here.");
+        }
         sleep(1_000, "END PLAY");
         TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
+    }
+
+    /**
+     * Waits for MediaService to actually start playing (PlaybackUiState.playing == true), rather
+     * than assuming any particular Activity is on screen - see the comment at this method's call
+     * site in openTargetedItemThenPlay() for why a screen transition isn't a reliable signal here.
+     */
+    private void waitForPlaybackToStart(long timeoutMs) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            PlaybackUiState state = PlaybackUiBus.get().state().getValue();
+            if (state != null && state.playing) {
+                myLog("Playback confirmed started: " + state);
+                return;
+            }
+            Thread.sleep(200);
+        }
+        throw new AssertionError("Playback never started (PlaybackUiState.playing never became true) within "
+                + timeoutMs + "ms");
     }
 
     /** Clicks a random item in the given RecyclerView (by id). */
@@ -604,7 +704,7 @@ public class LoadManyBookTest implements LogSupport {
         if (count <= 0)
             throw new AssertionError("Recycler has no items to click (id=" + recyclerId + ")");
         int index = (int) (Math.random() * count);
-        myLog("Clicking item index " + index + 1 + " / " + count);
+        myLog("Clicking item index " + (index + 1) + " / " + count);
 
         myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking track...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
@@ -624,8 +724,7 @@ public class LoadManyBookTest implements LogSupport {
             Thread.sleep(DEBUG_VISUAL_CHECK);
 
             onView(withId(ID_PLAY_BUTTON)).perform(click());
-            nbPlayed += 1;
-            myLog("Pressed Play n°" + nbPlayed);
+            myLog("Pressed on-screen Play button");
             return;
         } catch (Exception ignored) {
         }
