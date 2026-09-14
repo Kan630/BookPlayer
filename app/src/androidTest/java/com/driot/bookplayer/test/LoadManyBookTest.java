@@ -17,11 +17,14 @@ import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.util.Log;
 
 import androidx.annotation.IdRes;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
@@ -55,6 +58,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.MediaService;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 
 import org.junit.Before;
@@ -78,6 +82,13 @@ import androidx.core.content.FileProvider;
 public class LoadManyBookTest implements LogSupport {
 
     private Context appContext;
+
+    // Set once at the start of loadManyBooks() by discoverFixtureItems()'s setup: a persisted SAF
+    // tree grant covering the fixtures folder (see findPersistedFixturesTreeUri()) if one exists,
+    // else null and fixturesRootFile is used as the (permission-limited) fallback instead. See
+    // [[fixture_discovery_saf_fix]] for why the fallback can under-discover non-audio fixtures.
+    private Uri fixturesTreeUri;
+    private File fixturesRootFile;
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
     private final static long TIMEOUT_TEST_END = 1 * 60_000;
@@ -200,14 +211,36 @@ public class LoadManyBookTest implements LogSupport {
         // source tree and repackaging/reinstalling on every single test run just to pick up a
         // fixture change, which is exactly what this is deliberately avoiding: fixtures are
         // populated once, directly on the device, and read from there in place.
-        File fixturesRoot = findFixturesRoot(appContext);
-        if (fixturesRoot == null) {
-            throw new AssertionError("No 'fixtures' directory found on any mounted storage volume "
-                    + "(checked primary storage and every volume from getExternalFilesDirs()). "
-                    + "Put real book/ebook/zip/m4b files under <storage-root>/fixtures/{zip,ebooks,folders,m4b,single_files}/ "
-                    + "on this device - see README_FIXTURES.txt.");
+        //
+        // Preferred discovery: a persisted SAF tree grant covering the fixtures folder (see
+        // findPersistedFixturesTreeUri() / [[fixture_discovery_saf_fix]]) - full, type-agnostic
+        // directory listing, exactly like a real user picking that folder via "Open Folder".
+        // Fallback: MediaStore.Files, kept for devices where that one-time grant hasn't been done
+        // yet - but on API 33+ with only READ_MEDIA_AUDIO granted (this app's actual permission
+        // set - see AndroidManifest.xml, READ_EXTERNAL_STORAGE is capped at maxSdkVersion 32),
+        // that query is silently scoped to audio-type rows only: non-audio fixtures (zip/ebooks)
+        // and even bare directory-placeholder rows (needed to find subfolders at all) come back
+        // empty even though they're really there on disk.
+        fixturesTreeUri = findPersistedFixturesTreeUri(appContext);
+        if (fixturesTreeUri != null) {
+            myLog("Using SAF-granted fixtures tree: " + fixturesTreeUri);
+        } else {
+            myLogW("No persisted SAF grant found for the fixtures folder - falling back to "
+                    + "MediaStore-based discovery, which under this app's permission set only sees audio "
+                    + "files/folders (see [[fixture_discovery_saf_fix]]). To fix: in the app, Add Book > "
+                    + "Open Folder (or Mass Import), pick the 'fixtures' folder once, then cancel out of "
+                    + "the import screen that follows - that persists a grant this test will reuse from "
+                    + "then on.");
+            fixturesRootFile = findFixturesRoot(appContext);
+            if (fixturesRootFile == null) {
+                throw new AssertionError("No 'fixtures' directory found on any mounted storage volume "
+                        + "(checked primary storage and every volume from getExternalFilesDirs()), and no "
+                        + "persisted SAF grant for it either. Put real book/ebook/zip/m4b files under "
+                        + "<storage-root>/fixtures/{zip,ebooks,folders,m4b,single_files}/ on this device - "
+                        + "see README_FIXTURES.txt.");
+            }
+            myLog("Using fixtures root: " + fixturesRootFile.getAbsolutePath());
         }
-        myLog("Using fixtures root: " + fixturesRoot.getAbsolutePath());
 
         myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
         myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
@@ -220,57 +253,31 @@ public class LoadManyBookTest implements LogSupport {
 
         for (TestCase tc : TESTS) {
             current_TEST += 1;
-            File caseRoot = new File(fixturesRoot, tc.subfolderName);
-            List<File> files = randomSample(listFilesRecursively(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
+            List<FixtureItem> items = discoverFixtureItems(tc);
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
             myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
-            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, caseRoot, files.size()));
+            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d item(s)", tc.uri_type,
+                    tc.subfolderName, items.size()));
             myLogD("--------------------------------------------------");
-            if ("Folder".equals(tc.uri_type)) {
-                List<File> subdirs = randomSample(listSubdirectories(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
-                nb_subTESTS = subdirs.size();
-                current_subTEST = 0;
-                myLog("Found " + nb_subTESTS + " folders to import under " + caseRoot);
-                for (File dir : subdirs) {
-                    current_subTEST += 1;
-                    // Unlike a single file, importing "a folder" means the app's own import
-                    // logic recursively lists that folder itself (a real File.listFiles() scan,
-                    // not just a read of already-known paths) to discover its tracks - which
-                    // fails the same way our own discovery would have, since it's a directory
-                    // outside this app's sandbox. Mirror just this one book's files into the
-                    // app's own cache (discovered via MediaStore, same as above) so that scan has
-                    // something it can freely enumerate.
-                    File cacheDir = mirrorFolderToCache(appContext, dir, listFilesRecursively(appContext, dir));
-                    Uri dirUri = Uri.fromFile(cacheDir); // same-app -> file:// OK
-                    long idFolder = runImport(dirUri, tc.uri_type);
-                    if (idFolder != -1) {
-                        goPlay(idFolder);
-                    } else {
-                        myLogW("Skipping playback for skipped/duplicate import: " + dirUri);
-                    }
-                    if (DEBUG_MODE_NO_LOOP)
-                        return;
+
+            nb_subTESTS = items.size();
+            current_subTEST = 0;
+            for (FixtureItem item : items) {
+                current_subTEST += 1;
+                long idFolder = runImport(item.importUri, tc.uri_type, item.label);
+                if (idFolder != -1) {
+                    goPlay(idFolder);
+                } else {
+                    myLogW("Skipping playback for skipped/duplicate/failed import: " + item.importUri);
                 }
-            } else {
-                nb_subTESTS = files.size();
-                current_subTEST = 0;
-                for (File file : files) {
-                    current_subTEST += 1;
-                    Uri contentUri = fileToContentUri(appContext, file);
-                    long idFolder = runImport(contentUri, tc.uri_type);
-                    if (idFolder != -1) {
-                        goPlay(idFolder);
-                    } else {
-                        myLogW("Skipping playback for skipped/duplicate import: " + contentUri);
-                    }
-                    if (DEBUG_MODE_NO_LOOP)
-                        return;
-                }
+                if (DEBUG_MODE_NO_LOOP)
+                    return;
             }
             logFinalImportMsg.append("\n--------------------------");
             logFinalPlayMsg.append("\n--------------------------");
         }
+        stopPlaybackIfAny();
         TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         myLogI(nbAttempted + " fixture(s) attempted");
@@ -346,15 +353,157 @@ public class LoadManyBookTest implements LogSupport {
         openTargetedItemThenPlay(idFolder, PLAY_TIME);
     }
 
+    /**
+     * Sends MediaService a direct, UI-independent stop command. Needed at the very end of the
+     * loop: {@link #runPlay} only presses the on-screen pause button when
+     * {@code Option.getOpenPlayActivity()} is on and PlayActivity is actually showing - when it's
+     * off, the last book played is left running in the background indefinitely. Leaving it
+     * running when {@code ActivityScenarioRule} then tears MainActivity down at the end of this
+     * test can race with the rule's own lifecycle-state tracking (observed as
+     * "Current state was null unexpectedly. Last stage = STARTED" from
+     * {@code ActivityScenario.moveToState()}, itself thrown from the rule's teardown, not from
+     * anything in this file).
+     */
+    private void stopPlaybackIfAny() {
+        try {
+            appContext.startService(new Intent(appContext, MediaService.class).setAction("CMD_STOP"));
+            myLog("Sent CMD_STOP to MediaService to ensure nothing is left playing after this test");
+        } catch (Exception e) {
+            myLogW("Failed to send CMD_STOP to MediaService: " + e.getMessage());
+        }
+        TestNavUtils.sleep(500, "settle after CMD_STOP");
+    }
+
+    /** One fixture ready to hand to {@link #runImport}: a display label plus its import URI. */
+    private static final class FixtureItem {
+        final String label;
+        final Uri importUri;
+
+        FixtureItem(String label, Uri importUri) {
+            this.label = label;
+            this.importUri = importUri;
+        }
+    }
+
+    /**
+     * Finds a persisted SAF tree grant covering the on-device "fixtures" folder, if the one-time
+     * setup step has been done (in the app: Add Book > Open Folder or Mass Import, pick the
+     * "fixtures" folder once, cancel out of the import screen that follows - that call already
+     * takes a persistable grant, see GetOtherActivity.launchAddResource()). SAF tree document ids
+     * are "volumeId:relativePath" (e.g. "3334-3933:fixtures"), so matching on the id ending with
+     * ":fixtures" (case-insensitive) reliably picks out that one grant among any others a normal
+     * user has accumulated (one per "linked", non-copied folder ever added to the app).
+     */
+    private static Uri findPersistedFixturesTreeUri(Context context) {
+        for (UriPermission perm : context.getContentResolver().getPersistedUriPermissions()) {
+            if (!perm.isReadPermission())
+                continue;
+            Uri uri = perm.getUri();
+            if (!DocumentsContract.isTreeUri(uri))
+                continue;
+            try {
+                String docId = DocumentsContract.getTreeDocumentId(uri);
+                if (docId != null && docId.toLowerCase(Locale.ROOT).endsWith(":fixtures")) {
+                    return uri;
+                }
+            } catch (Exception ignored) {
+                // Not a well-formed tree document id - not our grant.
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Discovers the fixtures for one TestCase, already capped to MAX_FIXTURES_PER_CATEGORY and
+     * randomly sampled - via the SAF tree grant when available ({@link #fixturesTreeUri}, see
+     * [[fixture_discovery_saf_fix]]), else via the MediaStore-based fallback.
+     */
+    private List<FixtureItem> discoverFixtureItems(TestCase tc) throws IOException {
+        if (fixturesTreeUri != null) {
+            return discoverViaSaf(tc);
+        }
+        return discoverViaMediaStore(tc);
+    }
+
+    private List<FixtureItem> discoverViaSaf(TestCase tc) {
+        DocumentFile fixturesRoot = DocumentFile.fromTreeUri(appContext, fixturesTreeUri);
+        DocumentFile caseRoot = (fixturesRoot != null) ? fixturesRoot.findFile(tc.subfolderName) : null;
+        if (caseRoot == null || !caseRoot.isDirectory()) {
+            myLogW("SAF: '" + tc.subfolderName + "' not found under the granted fixtures tree");
+            return new ArrayList<>();
+        }
+
+        List<FixtureItem> out = new ArrayList<>();
+        if ("Folder".equals(tc.uri_type)) {
+            DocumentFile[] children = caseRoot.listFiles();
+            if (children != null) {
+                for (DocumentFile child : children) {
+                    if (child.isDirectory()) {
+                        out.add(new FixtureItem(child.getName(), child.getUri()));
+                    }
+                }
+            }
+        } else {
+            collectFilesRecursivelySaf(caseRoot, out);
+        }
+        return randomSample(out, MAX_FIXTURES_PER_CATEGORY);
+    }
+
+    /** Recursively collects plain files (skipping directories) under a SAF DocumentFile tree. */
+    private void collectFilesRecursivelySaf(DocumentFile dir, List<FixtureItem> out) {
+        DocumentFile[] children = dir.listFiles();
+        if (children == null)
+            return;
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                collectFilesRecursivelySaf(child, out);
+            } else {
+                out.add(new FixtureItem(child.getName(), child.getUri()));
+            }
+        }
+    }
+
+    /**
+     * The original MediaStore.Files-based discovery, kept as a fallback for devices where the
+     * one-time SAF grant (see {@link #findPersistedFixturesTreeUri}) hasn't been done yet - see
+     * [[fixture_discovery_saf_fix]] for why it under-discovers without a broader storage
+     * permission this app doesn't otherwise need.
+     */
+    private List<FixtureItem> discoverViaMediaStore(TestCase tc) throws IOException {
+        File caseRoot = new File(fixturesRootFile, tc.subfolderName);
+        List<FixtureItem> out = new ArrayList<>();
+        if ("Folder".equals(tc.uri_type)) {
+            List<File> subdirs = randomSample(listSubdirectories(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
+            for (File dir : subdirs) {
+                // Unlike a single file, importing "a folder" means the app's own import logic
+                // recursively lists that folder itself (a real File.listFiles() scan, not just a
+                // read of already-known paths) to discover its tracks - which fails the same way
+                // our own discovery would have, since it's a directory outside this app's
+                // sandbox. Mirror just this one book's files into the app's own cache (discovered
+                // via MediaStore, same as above) so that scan has something it can freely
+                // enumerate. Not needed in the SAF path above - that URI is already backed by a
+                // real, granted tree the app can enumerate directly.
+                File cacheDir = mirrorFolderToCache(appContext, dir, listFilesRecursively(appContext, dir));
+                out.add(new FixtureItem(dir.getName(), Uri.fromFile(cacheDir)));
+            }
+        } else {
+            List<File> files = randomSample(listFilesRecursively(appContext, caseRoot), MAX_FIXTURES_PER_CATEGORY);
+            for (File file : files) {
+                out.add(new FixtureItem(file.getName(), fileToContentUri(appContext, file)));
+            }
+        }
+        return out;
+    }
+
     /// -----------------------------------------------------------------------------------------------------------------------------------------
     /// -----------------------------------------------------------------------------------------------------------------------------------------
     /// -----------------------------------------------------------------------------------------------------------------------------------------
 
     // ---------- Helpers ----------
 
-    private long runImport(Uri uri_content, String uri_type) throws InterruptedException {
+    private long runImport(Uri uri_content, String uri_type, String displayName) throws InterruptedException {
         long lastTimestamp;
-        lastImport = uri_content.getLastPathSegment();
+        lastImport = (displayName != null && !displayName.isEmpty()) ? displayName : uri_content.getLastPathSegment();
         // See [[ko_fixture_convention]]: any file/folder with "KO" in its name is a deliberately
         // broken fixture, expected to fail import gracefully - not a real regression.
         boolean isKoFixture = lastImport != null && lastImport.toLowerCase(Locale.ROOT).contains("ko");
@@ -387,6 +536,7 @@ public class LoadManyBookTest implements LogSupport {
             myLog("Waiting for btnConfirm to be enabled or errorTextView to show error...");
             long startWait = System.currentTimeMillis();
             boolean isDuplicate = false;
+            boolean isUnsupportedType = false;
             while (System.currentTimeMillis() - startWait < TIMEOUT_SINGLE_IMPORT_READY) {
                 try {
                     // Check button
@@ -407,8 +557,28 @@ public class LoadManyBookTest implements LogSupport {
                     } catch (Exception ignored) {
                         // View might not be visible yet or not a TextView
                     }
+                    // ImportBookSingleActivity redirects straight to SupportedExtensionsActivity
+                    // (and finishes itself) when the picked file's extension isn't one this
+                    // app's import pipeline handles at all - e.g. a .pdf sampled from
+                    // fixtures/ebooks; .pdf is genuinely absent from this app's own supported-
+                    // extensions list (confirmed on that screen: docx/epub/fb2/htm/html/odt/txt,
+                    // no pdf). Not an import failure of any kind - this fixture was never meant
+                    // to go through this path - so dismiss it and move on without counting it.
+                    try {
+                        onView(withId(R.id.btnOk)).check(matches(isDisplayed()));
+                        isUnsupportedType = true;
+                        break;
+                    } catch (Exception ignored) {
+                    }
                     Thread.sleep(500);
                 }
+            }
+
+            if (isUnsupportedType) {
+                myLog("File type not supported by this import path - dismissing SupportedExtensionsActivity");
+                onView(withId(R.id.btnOk)).perform(click());
+                TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
+                return -1;
             }
 
             if (isDuplicate) {
@@ -512,15 +682,20 @@ public class LoadManyBookTest implements LogSupport {
             TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK, "Visual Check");
 
             return idFolder;
-        } catch (AssertionError importFailure) {
+        } catch (RuntimeException | AssertionError importFailure) {
             // An import error should never stop the whole test run, whether the fixture is a KO
             // (deliberately-broken) one or not - see the user's request that led here: the app is
             // expected to fail gracefully either way, and this test's job is to keep going and
-            // report on it, not to die on the first bad fixture. But a graceful, designed failure
-            // and a crash-level one (timeout/hang, broken DB invariant, or an uncaught exception
-            // a worker swallowed - see ImportOutcome) are NOT the same severity: only a crash-level
-            // failure always fails the test, KO fixture or not; a graceful failure is only a
-            // problem when it hits a fixture that wasn't supposed to fail at all.
+            // report on it, not to die on the first bad fixture. Catching RuntimeException too
+            // (not just AssertionError) matters in practice: Espresso itself throws plain
+            // RuntimeExceptions (e.g. NoMatchingViewException) for screens this method doesn't
+            // otherwise recognize - without this, one unrecognized screen would still kill the
+            // whole loop exactly like the AssertionError-only version used to. But a graceful,
+            // designed failure and a crash-level one (timeout/hang, broken DB invariant, or an
+            // uncaught exception a worker swallowed - see ImportOutcome) are NOT the same
+            // severity: only a crash-level failure always fails the test, KO fixture or not; a
+            // graceful failure is only a problem when it hits a fixture that wasn't supposed to
+            // fail at all.
             String label = uri_type + " - " + lastImport;
             boolean crashLevel = (importFailure instanceof ImportOutcome) && ((ImportOutcome) importFailure).crashLevel;
             if (crashLevel) {
