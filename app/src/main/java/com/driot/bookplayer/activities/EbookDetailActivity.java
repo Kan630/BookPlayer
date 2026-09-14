@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,13 +32,19 @@ import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.nav.FullActivity;
+import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.tts.VoiceItem;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -48,6 +55,9 @@ public class EbookDetailActivity extends FullActivity {
     private static final int REQ_DOWNLOAD_ROAMING = 2002;
 
     private EbookDetailViewModel viewModel;
+
+    @Inject
+    protected AppTtsManager ttsManager;
 
     private String pendingDownloadUrl;
     private String pendingDownloadPath;
@@ -383,6 +393,15 @@ public class EbookDetailActivity extends FullActivity {
         java.io.File coverFile = ImageHelper.getGutendexImageFile(this, gutendexId);
         state.imagePath = coverFile.exists() ? coverFile.getAbsolutePath() : null;
 
+        // Gutendex already tells us the book's language up front (no need to detect it from the
+        // downloaded EPUB's OPF, unlike the manual-import flow) - reuse it to preselect a voice
+        // the same way ImportBookSingleActivity.applyLanguageBasedPreselect() does, so Gutenberg
+        // downloads land with a fitting voice instead of always falling back to the global
+        // default. See pickVoiceForLanguage() below for details/fallbacks.
+        state.ttsVoice = pickVoiceForLanguage(language);
+        myLogD("Gutenberg import [" + title + "] - language=[" + language + "] -> preselected ttsVoice=["
+                + state.ttsVoice + "]");
+
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 
@@ -392,6 +411,61 @@ public class EbookDetailActivity extends FullActivity {
         FirebaseAnalyticsHelper.tellEbookDownloadFromGutendex(title);
 
         finish();
+    }
+
+    /**
+     * Mirrors ImportBookSingleActivity's language-based voice preselect
+     * ({@code applyLanguageBasedPreselect}), adapted for this no-spinner, background download
+     * flow: this book's remembered preferred voice for its language
+     * ({@link Option#getPreferredVoiceForLanguage}) if one was saved before, else the
+     * best-ranked installed voice matching that language (same ordering the settings/import
+     * voice spinners use - embedded first, then quality, latency, name). Returns null (falls
+     * back to the global default voice downstream, same as before this feature existed) when
+     * language-guessing is off, no language is known, or the TTS engine isn't ready yet / has no
+     * matching installed voice.
+     */
+    @Nullable
+    private String pickVoiceForLanguage(@Nullable String lang) {
+        if (!Option.getGuessBookLanguage() || lang == null || lang.trim().isEmpty())
+            return null;
+
+        String lang2;
+        try {
+            lang2 = Locale.forLanguageTag(lang.trim()).getLanguage();
+        } catch (Exception e) {
+            lang2 = null;
+        }
+        if (lang2 == null || lang2.isEmpty())
+            return null;
+
+        String remembered = Option.getPreferredVoiceForLanguage(lang2);
+        if (remembered != null && !remembered.isEmpty())
+            return remembered;
+
+        if (ttsManager == null || !ttsManager.isReady())
+            return null;
+
+        List<VoiceItem> matches = new ArrayList<>();
+        try {
+            for (Voice v : ttsManager.getVoices()) {
+                VoiceItem vi = new VoiceItem(v);
+                if (lang2.equalsIgnoreCase(vi.twoLetterCodeLanguage)) {
+                    matches.add(vi);
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "pickVoiceForLanguage - listing installed voices");
+            return null;
+        }
+        if (matches.isEmpty())
+            return null;
+
+        matches.sort(Comparator
+                .comparing((VoiceItem i) -> !i.embedded)
+                .thenComparing((VoiceItem i) -> -i.quality)
+                .thenComparingInt(i -> i.latency)
+                .thenComparing(i -> i.name, String.CASE_INSENSITIVE_ORDER));
+        return matches.get(0).name;
     }
 
     @Override
