@@ -43,6 +43,13 @@
                     />
 
                 <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_storage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/storage_settings_title"
+                    app:sectionIcon="@drawable/ic_memory_24" />
+
+                <com.driot.bookplayer.views.SettingsSectionView
                     android:id="@+id/section_import"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -97,13 +104,6 @@
                     android:layout_height="wrap_content"
                     app:sectionTitle="@string/network_preferences_title"
                     app:sectionIcon="@drawable/ic_cloud_24" />
-
-                <com.driot.bookplayer.views.SettingsSectionView
-                    android:id="@+id/section_storage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sectionTitle="@string/storage_settings_title"
-                    app:sectionIcon="@drawable/ic_memory_24" />
 
                 <com.driot.bookplayer.views.SettingsSectionView
                     android:id="@+id/section_utilities"

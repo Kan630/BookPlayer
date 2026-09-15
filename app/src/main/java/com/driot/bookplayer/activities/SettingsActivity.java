@@ -99,6 +99,13 @@ public class SettingsActivity extends FullActivity {
                 DesignSettingsFragment::new,
                 savedInstanceState, false);
 
+        SettingsSectionView sectionStorage = findViewById(R.id.section_storage);
+        registerSection(
+                sectionStorage,
+                "expand_storage",
+                StorageSettingsFragment::new,
+                savedInstanceState, true);
+
         SettingsSectionView sectionImport = findViewById(R.id.section_import);
         registerSection(
                 sectionImport,
@@ -146,13 +153,6 @@ public class SettingsActivity extends FullActivity {
                 sectionNetwork,
                 "expand_network",
                 NetworkSettingsFragment::new,
-                savedInstanceState, true);
-
-        SettingsSectionView sectionStorage = findViewById(R.id.section_storage);
-        registerSection(
-                sectionStorage,
-                "expand_storage",
-                StorageSettingsFragment::new,
                 savedInstanceState, true);
 
         SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);

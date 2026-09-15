@@ -197,6 +197,7 @@
     <string name="No">No</string>
     <string name="open">open</string>
     <string name="others">others</string>
+    <string name="storage_legend_app">app</string>
     <string name="paste">paste</string>
     <string name="Pause">Pause</string> //means pause audio playback
     <string name="Permission">Permission</string>
@@ -552,7 +553,7 @@
     <string name="option_theme_mode_force_explain">When enabled, the app ignores your device\'s light/dark setting and uses your choice below. When disabled, the app follows the system.</string>
 
     <string name="option_orientation_lock_app_global">Screen Orientation</string>
-    <string name="lock_app_orientation">Lock app orientation</string>
+    <string name="lock_app_orientation">Override system orientation</string>
     <string name="option_orientation_lock_app_global_explain">Here you can choose to lock the screen orientation for the entire app, regardless of the current device setting.</string>
 
     <string name="option_display_bottom_nav_bar_title">Bottom navigation bar</string>
