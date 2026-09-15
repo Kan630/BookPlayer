@@ -4,14 +4,10 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.not;
 
 import android.Manifest;
 import android.content.Context;
@@ -21,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -53,7 +50,7 @@ import java.util.concurrent.Executors;
 
 /**
  * DeepSettingsTest: Stress test for SettingsActivity.
- * Pass 1: Collapse/Expand every section, scroll while expanded.
+ * Pass 1: Open/close every category's detail screen, scroll while open.
  * Pass 2: Interact with every CheckBox and EditText with random values.
  */
 @RunWith(AndroidJUnit4.class)
@@ -143,31 +140,33 @@ public class DeepSettingsTest implements LogSupport {
         String sectionName = appContext.getResources().getResourceEntryName(sectionId);
         myLogD("Testing stability for section: " + sectionName);
 
-        // Scroll to section and expand
+        // Scroll to the row in the category list and open its detail screen
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
-        verifyExpanded(sectionId, true);
+        verifyDetailOpen(true);
 
-        // Scroll up/down while expanded
-        myLogD("Scrolling while expanded...");
-        onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
+        // Scroll up/down within the open detail screen (its own ScrollView, id/scrollView -
+        // the category list's ScrollView of the same id is GONE underneath it, so isDisplayed()
+        // disambiguates)
+        myLogD("Scrolling while detail is open...");
+        onView(allOf(withId(R.id.scrollView), isDisplayed()))
                 .perform(TestNavUtils.scrollScrollViewToBottom());
         TestNavUtils.sleep(WAIT_DELAY_SECTION_AFTER_SCROLL, "WAIT_DELAY_SECTION_AFTER_SCROLL");
-        onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
+        onView(allOf(withId(R.id.scrollView), isDisplayed()))
                 .perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.sleep(WAIT_DELAY_SECTION_AFTER_SCROLL, "WAIT_DELAY_SECTION_AFTER_SCROLL");
 
-        // Collapse
-        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
-        verifyExpanded(sectionId, false);
+        // Back to the category list
+        Espresso.pressBack();
+        verifyDetailOpen(false);
     }
 
     private void testSectionInteractions(int sectionId) {
         String sectionName = appContext.getResources().getResourceEntryName(sectionId);
         myLogI("Testing interactions for section: " + sectionName);
 
-        // Expand
+        // Open the category's detail screen
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
-        verifyExpanded(sectionId, true);
+        verifyDetailOpen(true);
         TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_START, "WAIT_DELAY_SECTION_INTERACTION_START"); // Wait for
                                                                                                           // fragment to
                                                                                                           // load and
@@ -175,7 +174,9 @@ public class DeepSettingsTest implements LogSupport {
 
         final java.util.List<View> targetViews = new java.util.ArrayList<>();
 
-        onView(withId(sectionId)).perform(new ViewAction() {
+        // Its fragment now lives in the detail pane's container, not inside the
+        // SettingsSectionView row anymore - walk that subtree instead.
+        onView(withId(R.id.detailFragmentContainer)).perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();
@@ -270,9 +271,9 @@ public class DeepSettingsTest implements LogSupport {
         // the whole section with NoMatchingViewException instead of just skipping one control.
         dismissAnyDialog();
 
-        // Collapse
-        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
-        verifyExpanded(sectionId, false);
+        // Back to the category list
+        Espresso.pressBack();
+        verifyDetailOpen(false);
     }
 
     private final String[] randomValues = { "", "123", "abc", "VeryLongStressTestString1234567890!@#$%^&*()", "0.5",
@@ -286,17 +287,15 @@ public class DeepSettingsTest implements LogSupport {
         }
     }
 
-    private void verifyExpanded(int sectionId, boolean expanded) {
-        onView(withId(sectionId)).check((view, noViewFoundException) -> {
-            if (view instanceof SettingsSectionView) {
-                SettingsSectionView ssv = (SettingsSectionView) view;
-                if (ssv.isContainerVisible() != expanded) {
-                    throw new AssertionError("Section " + appContext.getResources().getResourceEntryName(sectionId) +
-                            " expanded state mismatch. Expected: " + expanded + ", Actual: "
-                            + ssv.isContainerVisible());
-                }
-            } else {
-                throw new AssertionError("View with id " + sectionId + " is not a SettingsSectionView");
+    private void verifyDetailOpen(boolean open) {
+        onView(withId(R.id.detailContainer)).check((view, noViewFoundException) -> {
+            if (view == null) {
+                throw new AssertionError("detailContainer not found");
+            }
+            boolean actuallyOpen = view.getVisibility() == View.VISIBLE;
+            if (actuallyOpen != open) {
+                throw new AssertionError("Detail pane open-state mismatch. Expected: " + open
+                        + ", Actual: " + actuallyOpen);
             }
         });
     }
