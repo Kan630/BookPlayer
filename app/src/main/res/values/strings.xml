@@ -744,6 +744,7 @@
     <string name="option_radio_recording_as_music_subtitle"><i>"New recordings get the Music book type (next/previous track buttons instead of forward/backward). Turn off to save them as the Radio book type instead."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">Recording isn\'t available for this station.</string>
+    <string name="radio_recording_not_available_low_storage">Can\'t start recording: not enough free storage, (settings).</string>
     <string name="radio_recording_no_live_stream">Couldn\'t find the live station for this recording.</string>
     <string name="radio_recording_saved">Recording saved: %1$s (%2$s)</string>
     <string name="radio_recording_failed">Recording failed.</string>

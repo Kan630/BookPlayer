@@ -1009,6 +1009,23 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String coverUrl = pl.getImageUrl();
             long stationId = pl.getTrackId();
             myLogI("--- USER TOGGLES radio recording ON --- station=" + stationName + " bufferedMs=" + bufferedMs);
+
+            // Pre-flight low-storage check - refuse to start rather than starting and getting
+            // auto-stopped by checkRadioRecordingStorage() on the very next tick, which left a
+            // near-empty file and no clear "why" (its own toast could even be masked by the
+            // "recording saved"/"recording failed" toast the finish listener fires right after).
+            String name = (stationName != null && !stationName.isEmpty()) ? stationName : "Radio";
+            File folder = RadioRecordingHelper.buildRecordingFolder(this, name);
+            long freeBytes = StorageHelper.getUsableSpaceForPath(folder.getPath());
+            long minFreeBytes = StorageHelper.getMinFreeStorageMbForPath(this, folder.getPath()) * 1024L * 1024L;
+            if (freeBytes > 0 && freeBytes < minFreeBytes) {
+                myLogW("handleRadioRecordToggle: refusing to start - " + (freeBytes / (1024 * 1024))
+                        + "MB free, need " + (minFreeBytes / (1024 * 1024)) + "MB");
+                myToastE(getString(R.string.radio_recording_not_available_low_storage));
+                broadcastUiState("handleRadioRecordToggle");
+                return;
+            }
+
             radioRecordingLowStorageWarned = false;
             boolean started = radioRecorder.start(url, stationName, coverUrl, stationId, bufferedMs);
             if (!started) {
