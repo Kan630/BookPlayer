@@ -16,7 +16,7 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <!-- Automotive block (top margin 0) -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp">
@@ -58,8 +58,13 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_show_radios_explain_text"
                 />
-            <View style="@style/myStyleViewSimpleHorizontalBar"
-                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
 
             <LinearLayout
                 android:id="@+id/ll_automotive_let_car_autoplay"
@@ -91,10 +96,13 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_auto_resume_on_car_connect_explain_text"
                 />
-            <View style="@style/myStyleViewSimpleHorizontalBar"
-                android:layout_marginTop="20dp"
-                />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
 
             <LinearLayout
                 android:id="@+id/ll_automotive_stop_on_exit"
@@ -111,11 +119,8 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_stop_on_exit_explain_text"
                 />
-
-
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

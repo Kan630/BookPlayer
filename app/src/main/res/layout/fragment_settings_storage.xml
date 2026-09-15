@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_container"
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp">
+
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/storage_settings_title" style="@style/OptionMasterTitle"/>
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <!-- SD Card - shown only when an SD card is actually detected -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/ll_container_sd_card"
+            style="@style/SettingsGroupCard"
+            android:visibility="gone">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_sdcard_title"
+                android:layout_marginTop="0dp"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_use_sd_card"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_use_sd_card"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_sdcard_text" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:textSize="14sp"
+                android:text="@string/option_sdcard_text_caution" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
+
+            <!-- Minimum free storage before downloading - shown once regardless of how many
+                 volumes are below (StorageSettingsFragment) -->
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:layout_marginTop="0dp"
+                android:text="@string/option_min_free_storage_title" />
+
+            <!-- Internal volume: label only shown (with total/free) when there's an SD card too,
+                 to disambiguate - with a single volume there's nothing to disambiguate -->
+            <TextView
+                android:id="@+id/tv_storage_volume_internal"
+                style="@style/OptionExplainText"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                tools:text="Internal (total 64.0 GB, free 12.3 GB)" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="40dp"
+                android:paddingEnd="16dp">
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_min_free_storage_mb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:valueFrom="100.0"
+                    android:valueTo="10240.0"
+                    android:stepSize="10.0" />
+                <TextView
+                    android:id="@+id/tv_min_free_storage_mb_value"
+                    style="@style/OptionMiniText"
+                    android:layout_width="64dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="5.0 GB" />
+            </LinearLayout>
+
+            <com.driot.bookplayer.widgets.StorageBarView
+                android:id="@+id/storageBarInternal"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Legend - hidden by default, toggled by tapping the bar above -->
+            <include
+                android:id="@+id/ll_legend_internal"
+                layout="@layout/view_storage_legend" />
+
+            <!-- SD card volume block - shown only when an SD card is actually detected -->
+            <LinearLayout
+                android:id="@+id/ll_min_free_storage_sdcard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_storage_volume_sdcard"
+                    style="@style/OptionExplainText"
+                    android:layout_marginTop="16dp"
+                    tools:text="SD card (total 128.0 GB, free 45.6 GB)" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="40dp"
+                    android:paddingEnd="16dp">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_min_free_storage_sdcard_mb"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="100.0"
+                        android:valueTo="10240.0"
+                        android:stepSize="10.0" />
+                    <TextView
+                        android:id="@+id/tv_min_free_storage_sdcard_mb_value"
+                        style="@style/OptionMiniText"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="5.0 GB" />
+                </LinearLayout>
+
+                <com.driot.bookplayer.widgets.StorageBarView
+                    android:id="@+id/storageBarSdCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <include
+                    android:id="@+id/ll_legend_sdcard"
+                    layout="@layout/view_storage_legend" />
+            </LinearLayout>
+
+            <!-- Explain text shown once, applies to whichever volume(s) are above -->
+            <TextView
+                style="@style/OptionExplainText"
+                android:layout_marginTop="16dp"
+                android:text="@string/option_min_free_storage_explain" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

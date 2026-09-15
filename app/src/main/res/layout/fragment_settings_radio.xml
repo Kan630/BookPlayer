@@ -18,102 +18,112 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Navigation"/>
-        <TextView
-            style="@style/OptionSubTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/option_radio_landing_screen" />
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/groupRadioLandingScreen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnRadioLandingSearch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/Search" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnRadioLandingFavorites"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/Favorites" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnRadioLandingHistory"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/History" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-        <TextView
-            android:id="@+id/tvRadioLandingScreenSubtitle"
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_landing_screen_subtitle"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Recording"/>
-        <LinearLayout
-            android:id="@+id/ll_option_radio_recording_enabled"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_radio_recording_enabled"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
+        <!-- Navigation -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_recording_enabled" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_recording_enabled_subtitle"
-            />
-
-        <LinearLayout
-            android:id="@+id/ll_option_radio_recording_as_music"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_radio_recording_as_music"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Navigation"/>
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_recording_as_music" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_recording_as_music_subtitle"
-            />
+                style="@style/OptionSubTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_radio_landing_screen" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupRadioLandingScreen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnRadioLandingSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/Search" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnRadioLandingFavorites"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/Favorites" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnRadioLandingHistory"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/History" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+            <TextView
+                android:id="@+id/tvRadioLandingScreenSubtitle"
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_landing_screen_subtitle"
+                />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Recording -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Recording"/>
+            <LinearLayout
+                android:id="@+id/ll_option_radio_recording_enabled"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_recording_enabled"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_recording_enabled" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_recording_enabled_subtitle"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_option_radio_recording_as_music"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_recording_as_music"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_recording_as_music" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_recording_as_music_subtitle"
+                />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Time before sleep -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
             >
             <TextView
                 style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
                 android:text="@string/option_timeBeforeSleep" />
 
 
@@ -166,134 +176,132 @@
             style="@style/OptionExplainText"
             android:text="@string/option_radio_sleep_copy_subtitle"
             />
+        </com.google.android.material.card.MaterialCardView>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Spam"/>
-        <LinearLayout
-            android:id="@+id/ll_option_radio_remove_duplicates"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_radio_remove_duplicates"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
+        <!-- Spam -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_remove_duplicates" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_remove_duplicates_subtitle"
-            />
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Spam"/>
+            <LinearLayout
+                android:id="@+id/ll_option_radio_remove_duplicates"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
 
-        <LinearLayout
-            android:id="@+id/ll_option_radio_remove_dubious"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            >
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_radio_remove_dubious"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_remove_duplicates"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_remove_duplicates" />
+            </LinearLayout>
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_remove_dubious" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_remove_dubious_subtitle"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Technical"/>
-
-        <LinearLayout
-            android:id="@+id/ll_Search"
-            style="@style/LinearLayoutOptionsVertical">
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_remove_duplicates_subtitle"
+                />
 
             <LinearLayout
+                android:id="@+id/ll_option_radio_remove_dubious"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_width="match_parent"
-                android:layout_marginTop="0dp"
                 >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_remove_dubious"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
                 <TextView
-                    style="@style/OptionPodcastTextBeforeEditText"
-                    android:textSize="16sp"
-                    android:text="@string/api_paging_size"
-                    android:layout_marginStart="10dp"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_remove_dubious" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_remove_dubious_subtitle"
+                />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                    />
-                <EditText
-                    style="@style/OptionPodcastEditText"
-                    android:layout_width="70dp"
-                    android:textSize="16sp"
-                    android:id="@+id/et_api_nb_results"
+        <!-- Technical -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Technical"/>
+
+            <LinearLayout
+                android:id="@+id/ll_Search"
+                style="@style/LinearLayoutOptionsVertical"
+                android:layout_marginTop="0dp">
+
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="0dp"
+                    >
+                    <TextView
+                        style="@style/OptionPodcastTextBeforeEditText"
+                        android:textSize="16sp"
+                        android:text="@string/api_paging_size"
+                        android:layout_marginStart="10dp"
+
+                        />
+                    <EditText
+                        style="@style/OptionPodcastEditText"
+                        android:layout_width="70dp"
+                        android:textSize="16sp"
+                        android:id="@+id/et_api_nb_results"
+                        />
+                </LinearLayout>
+                <TextView
+                    android:text="Min = 20"
+                    style="@style/OptionMiniText"
+                    android:layout_marginStart="10dp"/>
+
+                <TextView
+                    android:text="Max = 1000"
+                    style="@style/OptionMiniText"
+                    android:layout_marginStart="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_radio_renew_url"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="0dp">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_radio_renew_url"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_renew_url"
                     />
             </LinearLayout>
             <TextView
-                android:text="Min = 20"
-                style="@style/OptionMiniText"
-                android:layout_marginStart="10dp"/>
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_renew_url_subtitle"
+                />
 
+            <LinearLayout
+                android:id="@+id/ll_radio_use_cloudfare"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="20dp"
+                >
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_radio_use_cloudfare"
+                    style="@style/OptionCheckBox"
+                    android:layout_height="match_parent" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_use_cloudfare" />
+            </LinearLayout>
             <TextView
-                android:text="Max = 1000"
-                style="@style/OptionMiniText"
-                android:layout_marginStart="10dp"/>
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:id="@+id/ll_radio_renew_url"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_radio_renew_url"
-                style="@style/OptionCheckBox"
-                android:layout_height="match_parent" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_renew_url"
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_use_cloudfare_subtitle"
                 />
         </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_renew_url_subtitle"
-            />
-
-
-        <LinearLayout
-            android:id="@+id/ll_radio_use_cloudfare"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="20dp"
-            >
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/chk_radio_use_cloudfare"
-            style="@style/OptionCheckBox"
-            android:layout_height="match_parent" />
-        <TextView
-            style="@style/OptionCheckBoxText"
-            android:text="@string/option_radio_use_cloudfare" />
-    </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_use_cloudfare_subtitle"
-            />
-        <!--
-    <TextView
-        style="@style/OptionSubTitle"
-        android:text="@string/option_radio_use_cloudfare_subtitle" />
-        -->
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginTop="20dp"
-            />
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

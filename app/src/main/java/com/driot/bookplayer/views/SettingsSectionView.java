@@ -10,16 +10,18 @@ import android.widget.TextView;
 import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentContainerView;
 
 import com.driot.bookplayer.R;
 
+/**
+ * A tappable row in the top-level settings list: icon, title and a trailing chevron
+ * indicating that tapping it opens that category's settings screen.
+ */
 public class SettingsSectionView extends LinearLayout {
 
     private TextView tvTitle;
     private ImageButton ivIcon;
     private View headerClickable;
-    private FragmentContainerView fragmentContainer;
 
     public SettingsSectionView(Context context) {
         this(context, null);
@@ -37,10 +39,8 @@ public class SettingsSectionView extends LinearLayout {
         headerClickable = findViewById(R.id.headerCard);
         tvTitle = findViewById(R.id.tvTitle);
         ivIcon = findViewById(R.id.ivIcon);
-        fragmentContainer = findViewById(R.id.fragmentContainer);
 
         headerClickable.setId(View.generateViewId());
-        fragmentContainer.setId(View.generateViewId());
 
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SettingsSectionView);
@@ -61,16 +61,8 @@ public class SettingsSectionView extends LinearLayout {
         return headerClickable;
     }
 
-    public int getContainerId() {
-        return fragmentContainer.getId();
-    }
-
-    public void showContainer(boolean show) {
-        fragmentContainer.setVisibility(show ? VISIBLE : GONE);
-    }
-
-    public boolean isContainerVisible() {
-        return fragmentContainer.getVisibility() == VISIBLE;
+    public CharSequence getTitle() {
+        return tvTitle.getText();
     }
 
     public void setTitle(CharSequence title) {

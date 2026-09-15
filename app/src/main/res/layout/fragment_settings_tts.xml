@@ -16,364 +16,358 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_spinner_tts_engine"
-            style="@style/OptionSubTitle"
-            android:text="@string/TTS_Engine" />
-        <Spinner
-            android:id="@+id/spinner_tts_engine"
-            style="@style/Spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginTop="40dp"/>
-        <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="10dp"
-            android:text="@string/Playback" />
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Snap to sentence start on resume -->
-        <LinearLayout
-            android:id="@+id/ll_tts_snap_to_sentence"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_tts_snap_to_sentence"
-                style="@style/OptionCheckBox" />
+        <!-- TTS Engine -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_tts_snap_to_sentence" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_tts_snap_to_sentence_explain"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout
-            android:id="@+id/ll_tts_use_theme_color_for_cursor"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_tts_use_theme_color_for_cursor"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_tts_use_theme_color_for_cursor" />
-        </LinearLayout>
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginTop="40dp"/>
-        <LinearLayout
-            style="@style/wideLinearLayout_Horizontal">
-            <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="10dp"
-                android:text="@string/Full_Screen"/>
-            <ImageView
+                android:id="@+id/tv_spinner_tts_engine"
+                style="@style/OptionSubTitle"
+                android:text="@string/TTS_Engine" />
+            <Spinner
+                android:id="@+id/spinner_tts_engine"
+                style="@style/Spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="5dp"
-                android:src="@drawable/ic_fullscreen_24px"/>
-        </LinearLayout>
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Display playback controls in full screen -->
-        <LinearLayout
-            android:id="@+id/ll_tts_fullscreen_controls"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_tts_fullscreen_controls"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_tts_fullscreen_controls" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/OptionCheckBoxText"
-            android:layout_marginTop="16dp"
-            android:text="@string/option_tts_fullscreen_text_size" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="40dp"
-            android:paddingEnd="16dp">
-            <com.google.android.material.slider.Slider
-                android:id="@+id/slider_tts_fullscreen_text_size"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:valueFrom="5.0"
-                android:valueTo="40.0"
-                android:stepSize="1.0" />
-            <TextView
-                android:id="@+id/tv_tts_fullscreen_text_size_value"
-                style="@style/OptionMiniText"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="20" />
-        </LinearLayout>
-
-
-        <!-- IMPORT -->
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginTop="30dp"/>
-        <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="10dp"
-            android:text="@string/Import" />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionSubTitle"
-            android:text="@string/option_tts_language_text" />
-        <Spinner
-            android:id="@+id/spinner_voice_item"
-            style="@style/Spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="15dp" />
-
-        <!-- Guess book language and preselect a matching voice on the import screen -->
-        <LinearLayout
-            android:id="@+id/ll_guess_book_language"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_guess_book_language"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_guess_book_language" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_guess_book_language_explain"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-        <TextView
-            style="@style/OptionSubTitle"
-            android:text="@string/option_epub_split_mode_text"
-            />
-
-        <Spinner
-            android:id="@+id/spinner_epub_split_mode"
-            style="@style/Spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="0dp" />
-
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_epub_split_mode_explain_text"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Split DOCX into chapters -->
-        <LinearLayout
-            android:id="@+id/ll_docx_split_into_chapters"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_docx_split_into_chapters"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_docx_split_into_chapters" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_docx_split_into_chapters_explain"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-
-        <!-- Remove reference markers (footnotes) in ebooks -->
-        <LinearLayout
-            android:id="@+id/ll_ebook_remove_references"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="10dp"
-            >
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_ebook_remove_references"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_ebook_remove_references" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_ebook_remove_references_explain"
-            />
-
-
-
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginTop="40dp"
-            />
-        <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="10dp"
-            android:text="@string/Technical" />
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Display loading overlay -->
-        <LinearLayout
-            android:id="@+id/ll_tts_show_loading_overlay"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_tts_show_loading_overlay"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_tts_show_loading_overlay" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/ll_tts_overlay_timeout"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_width="match_parent"
-            android:layout_marginStart="60dp"
-            android:layout_marginTop="0dp"
-            android:textSize="16sp"
-            >
-            <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/option_tts_overlay_timeout_text"
-                 />
-            <EditText
-                android:id="@+id/et_tts_overlay_timeout"
-                style="@style/EditText"
-                android:layout_width="40sp"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:paddingStart="4sp"
-                android:paddingEnd="4sp"
-                android:textAlignment="textEnd"
-                />
-            <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/sec"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="10dp"
                 />
         </LinearLayout>
-        <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
-        <TextView android:text="Max = 20" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_tts_overlay_timeout_explain"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Engine: chunk size -->
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Engine_buffer"
-            android:textStyle="italic"
-            />
-
-        <LinearLayout
-            android:id="@+id/ll_tts_chunk_size"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_width="match_parent"
-            android:gravity="center">
-
+        <!-- Playback -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
             <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/option_tts_chunk_size_text"
-                android:textSize="24sp" />
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Playback" />
 
-            <EditText
-                android:id="@+id/et_tts_chunk_size"
-                style="@style/EditText"
-                android:layout_width="70sp"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:paddingStart="4sp"
-                android:paddingEnd="4sp"
-                android:textAlignment="textEnd"
-                android:textSize="24sp" />
+            <!-- Snap to sentence start on resume -->
+            <LinearLayout
+                android:id="@+id/ll_tts_snap_to_sentence"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="0dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_tts_snap_to_sentence"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_tts_snap_to_sentence" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_tts_snap_to_sentence_explain"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_tts_use_theme_color_for_cursor"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="16dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_tts_use_theme_color_for_cursor"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_tts_use_theme_color_for_cursor" />
+            </LinearLayout>
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
-        <TextView android:id="@+id/tv_tts_chunk_size_max" android:text="Max = 7000" style="@style/OptionMiniText" />
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_tts_chunk_size_explain_text"
-            />
+        <!-- Full Screen -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <LinearLayout
+                style="@style/wideLinearLayout_Horizontal">
+                <TextView
+                    style="@style/OptionTitle"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/Full_Screen"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:src="@drawable/ic_fullscreen_24px"/>
+            </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Highlight delay -->
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/option_tts_highlight_delay_title"
-            android:textStyle="italic"
-            />
-
-        <LinearLayout
-            android:id="@+id/ll_tts_highlight_delay"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_width="match_parent"
-            android:gravity="center">
+            <!-- Display playback controls in full screen -->
+            <LinearLayout
+                android:id="@+id/ll_tts_fullscreen_controls"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_tts_fullscreen_controls"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_tts_fullscreen_controls" />
+            </LinearLayout>
 
             <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/option_tts_highlight_delay_text"
-                android:textSize="24sp" />
+                style="@style/OptionCheckBoxText"
+                android:layout_marginTop="16dp"
+                android:text="@string/option_tts_fullscreen_text_size" />
 
-            <EditText
-                android:id="@+id/et_tts_highlight_delay"
-                style="@style/EditText"
-                android:layout_width="70sp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
-                android:paddingStart="4sp"
-                android:paddingEnd="4sp"
-                android:textAlignment="textEnd"
-                android:textSize="24sp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="40dp"
+                android:paddingEnd="16dp">
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_tts_fullscreen_text_size"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:valueFrom="5.0"
+                    android:valueTo="40.0"
+                    android:stepSize="1.0" />
+                <TextView
+                    android:id="@+id/tv_tts_fullscreen_text_size_value"
+                    style="@style/OptionMiniText"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="20" />
+            </LinearLayout>
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Import -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Import" />
 
             <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/ms."
-                android:textSize="24sp" />
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="10dp"
+                android:text="@string/option_tts_language_text" />
+            <Spinner
+                android:id="@+id/spinner_voice_item"
+                style="@style/Spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Guess book language and preselect a matching voice on the import screen -->
+            <LinearLayout
+                android:id="@+id/ll_guess_book_language"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="0dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_guess_book_language"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_guess_book_language" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_guess_book_language_explain"
+                />
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="16dp"
+                android:text="@string/option_epub_split_mode_text"
+                />
+
+            <Spinner
+                android:id="@+id/spinner_epub_split_mode"
+                style="@style/Spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="0dp" />
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_epub_split_mode_explain_text"
+                />
+
+            <!-- Split DOCX into chapters -->
+            <LinearLayout
+                android:id="@+id/ll_docx_split_into_chapters"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="16dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_docx_split_into_chapters"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_docx_split_into_chapters" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_docx_split_into_chapters_explain"
+                />
+
+            <!-- Remove reference markers (footnotes) in ebooks -->
+            <LinearLayout
+                android:id="@+id/ll_ebook_remove_references"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="16dp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_ebook_remove_references"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_ebook_remove_references" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_ebook_remove_references_explain"
+                />
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <TextView android:text="Min = 0" style="@style/OptionMiniText" />
-        <TextView android:text="Max = 400" style="@style/OptionMiniText" />
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_tts_highlight_delay_explain_text"
-            />
+        <!-- Technical -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Technical" />
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <!-- Display loading overlay -->
+            <LinearLayout
+                android:id="@+id/ll_tts_show_loading_overlay"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="0dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_tts_show_loading_overlay"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_tts_show_loading_overlay" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_tts_overlay_timeout"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="0dp"
+                android:textSize="16sp"
+                >
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/option_tts_overlay_timeout_text"
+                     />
+                <EditText
+                    android:id="@+id/et_tts_overlay_timeout"
+                    style="@style/EditText"
+                    android:layout_width="40sp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    />
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/sec"
+                    />
+            </LinearLayout>
+            <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
+            <TextView android:text="Max = 20" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_tts_overlay_timeout_explain"
+                />
+
+            <!-- Engine: chunk size -->
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="16dp"
+                android:text="@string/Engine_buffer"
+                android:textStyle="italic"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_tts_chunk_size"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent"
+                android:gravity="center">
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/option_tts_chunk_size_text"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/et_tts_chunk_size"
+                    style="@style/EditText"
+                    android:layout_width="70sp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
+            <TextView android:id="@+id/tv_tts_chunk_size_max" android:text="Max = 7000" style="@style/OptionMiniText" />
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_tts_chunk_size_explain_text"
+                />
+
+            <!-- Highlight delay -->
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="16dp"
+                android:text="@string/option_tts_highlight_delay_title"
+                android:textStyle="italic"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_tts_highlight_delay"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent"
+                android:gravity="center">
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/option_tts_highlight_delay_text"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/et_tts_highlight_delay"
+                    style="@style/EditText"
+                    android:layout_width="70sp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/ms."
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView android:text="Min = 0" style="@style/OptionMiniText" />
+            <TextView android:text="Max = 400" style="@style/OptionMiniText" />
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_tts_highlight_delay_explain_text"
+                />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
