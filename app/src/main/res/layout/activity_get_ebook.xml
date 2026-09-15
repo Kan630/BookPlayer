@@ -102,7 +102,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:text="@string/most_downloaded"
-                        style="@style/GetResourceButton" />
+                        style="@style/Widget.BookPlayer.Button.Secondary" />
                     <Button
                         android:id="@+id/bEbookBookshelves"
                         android:layout_width="match_parent"
@@ -110,7 +110,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:text="@string/Bookshelves"
-                        style="@style/GetResourceButton" />
+                        style="@style/Widget.BookPlayer.Button.Secondary" />
 
                     <View style="@style/GetResourceHorizontalBar"/>
 

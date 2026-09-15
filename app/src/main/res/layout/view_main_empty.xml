@@ -157,16 +157,9 @@
         <Button
             android:id="@+id/btnWelcomeAddBook"
             android:text="@string/welcome_button_add"
-            style="@style/simpleText"
+            style="@style/Widget.BookPlayer.Button.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="?attr/colorPrimary"
-            android:textColor="?attr/colorOnPrimary"
-            android:textAllCaps="false"
             android:layout_marginBottom="16dp" />
 
         <!-- Small hint at the bottom -->

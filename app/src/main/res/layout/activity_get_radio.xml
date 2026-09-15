@@ -88,7 +88,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
-                        style="@style/GetResourceButton_low_margin"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
@@ -100,7 +102,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bHistory"
                         android:text="@string/History"
-                        style="@style/GetResourceButton_low_margin"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
@@ -129,18 +133,6 @@
                     >
 
                     <Button
-                        android:id="@+id/bRadioTopClicked"
-                        android:text="@string/top_click"
-                        style="@style/radio_btn"
-                        />
-
-                    <Button
-                        android:id="@+id/bRadioTopVoted"
-                        android:text="@string/top_vote"
-                        style="@style/radio_btn"
-                        />
-
-                    <Button
                         android:id="@+id/bRadioLastClicked"
                         android:text="@string/last_click"
                         style="@style/radio_btn"
@@ -149,6 +141,29 @@
                     <Button
                         android:id="@+id/bRadioLastChanged"
                         android:text="@string/last_change"
+                        style="@style/radio_btn"
+                        />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="16dp"
+                    android:baselineAligned="false"
+                    android:gravity="top"
+                    >
+
+                    <Button
+                        android:id="@+id/bRadioTopClicked"
+                        android:text="@string/top_click"
+                        style="@style/radio_btn"
+                        />
+
+                    <Button
+                        android:id="@+id/bRadioTopVoted"
+                        android:text="@string/top_vote"
                         style="@style/radio_btn"
                         />
 

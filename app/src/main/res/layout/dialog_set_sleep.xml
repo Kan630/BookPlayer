@@ -32,7 +32,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
         <Button
             android:id="@+id/btn_preset_02"
@@ -41,7 +42,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
         <Button
             android:id="@+id/btn_preset_03"
@@ -50,7 +52,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
         <Button
             android:id="@+id/btn_preset_04"
@@ -59,7 +62,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
         <Button
             android:id="@+id/btn_preset_05"
@@ -68,7 +72,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
         <Button
             android:id="@+id/btn_preset_06"
@@ -77,7 +82,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_columnWeight="1"
-            android:layout_rowWeight="1" />
+            android:layout_rowWeight="1"
+            style="@style/Widget.BookPlayer.Button.Secondary" />
 
     </GridLayout>
 

@@ -81,7 +81,8 @@
                     <Button
                         android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
-                        style="@style/GetResourceButton"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_marginStart="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="0dp"
@@ -124,6 +125,7 @@
                     style="@style/GetResourceTextTopOfButton" />
                 <Button
                     android:id="@+id/bLibrivoxTrending"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -133,6 +135,7 @@
                      />
                 <Button
                     android:id="@+id/bLibrivoxLastAdded"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
@@ -142,6 +145,7 @@
                     />
                 <Button
                     android:id="@+id/bLibrivoxByGenre"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"

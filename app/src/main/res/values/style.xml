@@ -439,6 +439,23 @@
         <item name="android:layout_marginEnd">8dp</item>
     </style>
 
+    <!-- ***************** BUTTON ROLES (Material 3) ***************** -->
+    <!-- The 3 roles from the button audit - every Button/MaterialButton in the app should use
+         one of these instead of going unstyled or reaching for a raw Widget.Material3.* name
+         directly, so any future adjustment (shape, elevation) happens in one place. -->
+
+    <!-- The one thing a screen most wants you to do: Start, Save, Confirm, a lone CTA. -->
+    <style name="Widget.BookPlayer.Button.Primary" parent="Widget.Material3.Button" />
+
+    <!-- A secondary action next to a primary one, or one of several peer/utility actions where
+         no single one is "the" action (admin/debug screens, a detail screen's action menu,
+         browse-screen shortcuts, choice-like presets). -->
+    <style name="Widget.BookPlayer.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton" />
+
+    <!-- Low-emphasis: Cancel/Dismiss, or a button that sits inline with other content instead
+         of standing on its own. -->
+    <style name="Widget.BookPlayer.Button.Text" parent="Widget.Material3.Button.TextButton" />
+
 
     <!-- ***************** SETTINGS SCREENS ***************** -->
 
@@ -514,7 +531,7 @@
     </style>
 
 
-    <style name="radio_btn">
+    <style name="radio_btn" parent="Widget.BookPlayer.Button.Secondary">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">64dp</item>
         <item name="android:layout_weight">1</item>

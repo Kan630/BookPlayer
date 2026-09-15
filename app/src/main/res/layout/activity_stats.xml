@@ -74,6 +74,7 @@
 
             <Button
                 android:id="@+id/bt_DetailedStats"
+                style="@style/Widget.BookPlayer.Button.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -234,6 +235,7 @@
 
         <Button
             android:id="@+id/bt_01"
+            style="@style/Widget.BookPlayer.Button.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -244,6 +246,7 @@
             />
         <Button
             android:id="@+id/bt_DeleteCache"
+            style="@style/Widget.BookPlayer.Button.Secondary"
             android:layout_marginTop="40sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -266,6 +269,7 @@
             />
         <Button
             android:id="@+id/bt_DeleteSystemCache"
+            style="@style/Widget.BookPlayer.Button.Secondary"
             android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -289,6 +293,7 @@
             />
         <Button
             android:id="@+id/bt_04"
+            style="@style/Widget.BookPlayer.Button.Secondary"
             android:layout_marginTop="40sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -105,7 +105,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnNegative"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/Widget.BookPlayer.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@android:string/cancel"
@@ -113,14 +113,16 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnNeutral"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:text="@android:string/ok"
                     android:visibility="gone"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPositive"
+                    style="@style/Widget.BookPlayer.Button.Primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"

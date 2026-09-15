@@ -74,7 +74,8 @@
                     <Button
                         android:id="@+id/bDirectDownload"
                         android:text="@string/DirectDownload_button"
-                        style="@style/GetResourceButton"
+                        style="@style/Widget.BookPlayer.Button.Primary"
+                        android:layout_marginStart="20dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"

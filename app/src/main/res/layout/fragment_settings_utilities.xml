@@ -25,12 +25,20 @@
                 />
 
             <Button
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/btn_reset_settings_values_to_default"
                 android:text="@string/reset_to_default"
                 />
             <Button
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/btn_reset_settings_values_for_power_user"
                 android:text="@string/reset_for_power_user"
                 />
@@ -51,7 +59,11 @@
                 />
 
             <Button
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/btn_reset_app"
                 android:text="@string/cancel_ongoing_operation"
                 />
@@ -74,12 +86,20 @@
                 android:layout_marginBottom="10dp"/>
 
             <Button
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/btn_backup_library"
                 android:text="@string/utilities_backup_library" />
 
             <Button
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/btn_restore_library"
                 android:text="@string/utilities_restore_library" />
 

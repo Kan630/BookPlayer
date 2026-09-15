@@ -22,13 +22,21 @@
 
         <Button
             android:id="@+id/btnPaste"
-            style="@style/GetResourceEditTextButtons"
+            style="@style/Widget.BookPlayer.Button.Text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:text="@string/emoji_paste"
             android:contentDescription="@string/paste" />
 
         <Button
             android:id="@+id/btnClear"
-            style="@style/GetResourceEditTextButtons"
+            style="@style/Widget.BookPlayer.Button.Text"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:text="@string/emoji_clear"
             android:contentDescription="@string/clear" />
     </LinearLayout>

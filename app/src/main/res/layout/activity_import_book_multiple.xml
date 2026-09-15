@@ -290,12 +290,13 @@
             android:layout_height="wrap_content"
             android:text="@android:string/cancel"
             android:layout_marginEnd="16dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+            style="@style/Widget.BookPlayer.Button.Text" />
 
         <Button
             android:id="@+id/btnConfirmImport"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Widget.BookPlayer.Button.Primary"
             android:text="@string/Import" />
     </LinearLayout>
 </LinearLayout>

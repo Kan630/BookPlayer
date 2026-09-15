@@ -73,6 +73,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/mbPickNewLocation"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -226,26 +227,31 @@
                     android:gravity="center_vertical">
                     <Button
                         android:id="@+id/bChangeCover"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_change" />
                     <Button
                         android:id="@+id/bDeleteCover"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_delete" />
                     <Button
                         android:id="@+id/bGenerateCover"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_generate" />
                     <Button
                         android:id="@+id/bWebSearch"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_web_search" />
                     <Button
                         android:id="@+id/bResetToOriginal"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_reset_to_original" />
@@ -414,6 +420,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bChangeTracksOrder"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -437,6 +444,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bResetTracksOrder"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/reset_track_order" />
@@ -459,6 +467,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bAddNewTracks"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/add_new_tracks"
@@ -482,6 +491,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bReset"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/bReset"
@@ -506,6 +516,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bExport"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Export_3pt"
@@ -529,6 +540,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bShare"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Quick_Share_3dots"
@@ -552,6 +564,7 @@
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bDelete"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Delete"

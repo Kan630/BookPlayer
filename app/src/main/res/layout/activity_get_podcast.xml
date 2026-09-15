@@ -86,7 +86,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
-                        style="@style/GetResourceButton_low_margin"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
@@ -98,7 +100,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bHistory"
                         android:text="@string/History"
-                        style="@style/GetResourceButton_low_margin"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
@@ -126,7 +130,8 @@
                 <Button
                     android:id="@+id/bPodcastTrending"
                     android:text="@string/Trending"
-                    style="@style/GetResourceButton"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
+                    android:layout_marginStart="20dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"

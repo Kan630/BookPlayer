@@ -224,6 +224,7 @@
     <Button
         android:id="@+id/bSetSleep"
         android:text="@string/btnSleepSet"
+        style="@style/Widget.BookPlayer.Button.Secondary"
         android:textSize="13sp"
         android:paddingVertical="0dp"
         android:textAlignment="gravity"

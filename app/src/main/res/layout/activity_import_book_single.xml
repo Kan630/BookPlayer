@@ -237,6 +237,7 @@
 
             <Button
                 android:id="@+id/btnCancel"
+                style="@style/Widget.BookPlayer.Button.Text"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -247,6 +248,7 @@
 
             <Button
                 android:id="@+id/btnConfirm"
+                style="@style/Widget.BookPlayer.Button.Primary"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"

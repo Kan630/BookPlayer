@@ -67,7 +67,11 @@
                 />
             <Button
                 android:id="@+id/b_destinationFolder"
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:text="@string/export_download_folder_button"
                 android:layout_marginBottom="5dp"
                 />
@@ -116,11 +120,19 @@
             >
             <Button
                 android:id="@+id/btnCancelExport"
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:text="@android:string/cancel" />
             <Button
                 android:id="@+id/btnStartExport"
-                style="@style/GetResourceButton"
+                style="@style/Widget.BookPlayer.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:text="@string/export_start_button" />
         </LinearLayout>
         <ProgressBar

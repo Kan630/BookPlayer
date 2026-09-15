@@ -48,22 +48,38 @@
                     <Button
                         android:id="@+id/bAutoTest_b1"
                         android:text="@string/AutoTest_b1_text"
-                        style="@style/GetResourceButton"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
                         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
                     <Button
                         android:id="@+id/bAutoTest_b2"
                         android:text="@string/AutoTest_b2_text"
-                        style="@style/GetResourceButton" />
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp" />
 
                     <Button
                         android:id="@+id/bAutoTest_b3"
                         android:text="@string/AutoTest_b3_text"
-                        style="@style/GetResourceButton" />
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp" />
                     <Button
                         android:id="@+id/bAutoTest_b4"
                         android:text="@string/AutoTest_b4_text"
-                        style="@style/GetResourceButton" />
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp" />
                     <TextView
                         android:layout_height="30dp"
                         android:layout_width="match_parent"
@@ -149,7 +165,11 @@
                 <Button
                     android:id="@+id/bOpenFile"
                     android:text="@string/File_and_icon"
-                    style="@style/GetResourceButton"
+                    style="@style/Widget.BookPlayer.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
@@ -168,7 +188,11 @@
                 <Button
                     android:id="@+id/bOpenZipFile"
                     android:text="ZIP"
-                    style="@style/GetResourceButton_low_margin"
+                    style="@style/Widget.BookPlayer.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
                     />
@@ -176,7 +200,11 @@
                 <Button
                     android:id="@+id/bOpenM4bFile"
                     android:text="M4B"
-                    style="@style/GetResourceButton_low_margin"
+                    style="@style/Widget.BookPlayer.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
                     />
@@ -185,7 +213,11 @@
                 <Button
                     android:id="@+id/bOpenEpubFile"
                     android:text="EPUB"
-                    style="@style/GetResourceButton_low_margin"
+                    style="@style/Widget.BookPlayer.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
                     />
@@ -200,7 +232,11 @@
                 <Button
                     android:id="@+id/bOpenFolder"
                     android:text="@string/Folder_and_icon"
-                    style="@style/GetResourceButton"
+                    style="@style/Widget.BookPlayer.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
@@ -234,7 +270,11 @@
                         <Button
                             android:id="@+id/bMassImport"
                             android:text="@string/bMassImport"
-                            style="@style/GetResourceButton"
+                            style="@style/Widget.BookPlayer.Button.Primary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="20dp"
                             android:backgroundTint="?attr/colorPrimaryVariant"
                             android:textColor="?attr/colorOnPrimary" />
                         <ImageButton
