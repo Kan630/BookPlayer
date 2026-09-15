@@ -48,6 +48,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class SettingsActivity extends FullActivity {
 
     private static final String DETAIL_BACKSTACK_TAG = "settings_detail";
+    private static final String KEY_DETAIL_TITLE = "settings_detail_title";
 
     ScrollView scrollView;
     private View detailContainer;
@@ -122,6 +123,19 @@ public class SettingsActivity extends FullActivity {
             showDetail(detailOpen);
         });
 
+        // addOnBackStackChangedListener() above only fires on *future* changes, not for a
+        // back stack the FragmentManager already restored during super.onCreate() (e.g. after
+        // Activity.recreate() following a theme change) - without this, the detail pane's
+        // fragment is correctly restored underneath, but detailContainer/scrollView visibility
+        // stays at their default XML state (list visible), so the user appears to be dumped
+        // back on the category list instead of staying on the screen they were on.
+        boolean detailOpen = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        showDetail(detailOpen);
+        if (detailOpen && savedInstanceState != null) {
+            CharSequence restoredTitle = savedInstanceState.getCharSequence(KEY_DETAIL_TITLE);
+            if (restoredTitle != null) tvDetailTitle.setText(restoredTitle);
+        }
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -154,6 +168,13 @@ public class SettingsActivity extends FullActivity {
     }
 
     private void openCategory(CharSequence title, Fragment frag) {
+        // The list only actually becomes hidden once the back-stack-changed listener fires,
+        // which happens asynchronously after this transaction commits - not synchronously here.
+        // Without this guard, a fast double-tap on two different rows (easy to do by accident)
+        // pushes two fragments onto the back stack in one go, so a single back press doesn't
+        // return to the list - exactly the kind of "weird" nav behavior a race like this causes.
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) return;
+
         Bundle args = (frag.getArguments() != null) ? frag.getArguments() : new Bundle();
         args.putBoolean("ARG_SHOW_LOCAL_TITLE", false);
         frag.setArguments(args);
@@ -208,6 +229,9 @@ public class SettingsActivity extends FullActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("scroll_position", scrollView.getScrollY());
+        if (detailContainer.getVisibility() == View.VISIBLE) {
+            outState.putCharSequence(KEY_DETAIL_TITLE, tvDetailTitle.getText());
+        }
     }
 
     @Override

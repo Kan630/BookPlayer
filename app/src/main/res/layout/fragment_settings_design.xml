@@ -83,7 +83,7 @@
                 style="@style/SettingsGroupTitle"
                 android:text="@string/option_pick_theme_color_title" />
 
-            <!-- 6 rows of 3 buttons (18 total), same ids you already use -->
+            <!-- 8 rows of 3 buttons (24 total), same ids you already use -->
             <LinearLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
@@ -143,6 +143,27 @@
                 <ImageButton android:id="@+id/btn_color_17" style="@style/OptionsColorButtons"
                     android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
                 <ImageButton android:id="@+id/btn_color_18" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <!-- 6 new skins added under the Material 3 migration -->
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_19" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_20" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_21" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_22" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_23" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_24" style="@style/OptionsColorButtons" />
             </LinearLayout>
 
             <!-- Color Viewer Section -->

@@ -230,4 +230,74 @@
 
     <color name="green_dark_SurfacePressed">#D4E0D7</color>
     <color name="green_dark_SurfaceActivated">#C6D2C9</color>
+
+    <!-- ============================================================
+         6 new skins added under the Material 3 migration - not part
+         of the original 18. Base 300/500/700/900 values are Google's
+         own Material color swatches (same convention as Green/Orange/
+         Cyan/Indigo above); Surface/Pressed/Activated tints computed
+         algorithmically (HSL) to match the same L/S range as the
+         existing skins rather than hand-picked. -->
+
+    <!-- Cobalt Theme Colors (Material Blue) -->
+    <color name="cobalt_300">#64B5F6</color>
+    <color name="cobalt_500">#2196F3</color>
+    <color name="cobalt_700">#1976D2</color>
+    <color name="cobalt_900">#0D47A1</color>
+
+    <!-- Teal Theme Colors (Material Teal) -->
+    <color name="md_teal_300">#4DB6AC</color>
+    <color name="md_teal_500">#009688</color>
+    <color name="md_teal_700">#00796B</color>
+    <color name="md_teal_900">#004D40</color>
+
+    <!-- Deep Orange Theme Colors -->
+    <color name="deep_orange_300">#FF8A65</color>
+    <color name="deep_orange_500">#FF5722</color>
+    <color name="deep_orange_700">#E64A19</color>
+    <color name="deep_orange_900">#BF360C</color>
+
+    <!-- Lime Theme Colors -->
+    <color name="lime_300">#DCE775</color>
+    <color name="lime_500">#CDDC39</color>
+    <color name="lime_700">#AFB42B</color>
+    <color name="lime_900">#827717</color>
+
+    <!-- Blue Grey Theme Colors -->
+    <color name="blue_grey_300">#90A4AE</color>
+    <color name="blue_grey_500">#607D8B</color>
+    <color name="blue_grey_700">#455A64</color>
+    <color name="blue_grey_900">#263238</color>
+
+    <!-- Deep Purple Theme Colors -->
+    <color name="deep_purple_300">#9575CD</color>
+    <color name="deep_purple_500">#673AB7</color>
+    <color name="deep_purple_700">#512DA8</color>
+    <color name="deep_purple_900">#311B92</color>
+
+    <!-- values (LIGHT) : surfaces très claires, légèrement teintées par thème -->
+    <color name="cobalt_Surface">#F1F7FB</color>
+    <color name="md_teal_Surface">#F1FBFA</color>
+    <color name="deep_orange_Surface">#FBF4F1</color>
+    <color name="lime_Surface">#FAFBF1</color>
+    <color name="blue_grey_Surface">#F1F8FB</color>
+    <color name="deep_purple_Surface">#F5F1FB</color>
+
+    <color name="cobalt_SurfacePressed">#D9E3EA</color>
+    <color name="cobalt_SurfaceActivated">#C9D3DC</color>
+
+    <color name="md_teal_SurfacePressed">#D9EAE9</color>
+    <color name="md_teal_SurfaceActivated">#C9DCDA</color>
+
+    <color name="deep_orange_SurfacePressed">#EADDD9</color>
+    <color name="deep_orange_SurfaceActivated">#DCCDC9</color>
+
+    <color name="lime_SurfacePressed">#E9EAD9</color>
+    <color name="lime_SurfaceActivated">#DADCC9</color>
+
+    <color name="blue_grey_SurfacePressed">#D9E5EA</color>
+    <color name="blue_grey_SurfaceActivated">#C9D6DC</color>
+
+    <color name="deep_purple_SurfacePressed">#DFD9EA</color>
+    <color name="deep_purple_SurfaceActivated">#D0C9DC</color>
 </resources>

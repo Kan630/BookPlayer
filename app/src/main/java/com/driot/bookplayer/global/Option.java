@@ -538,6 +538,19 @@ public class Option {
                 return R.style.Theme_BookPlayer_Green;
             case "greenDark":
                 return R.style.Theme_BookPlayer_GreenDark;
+            // 6 new skins added under the Material 3 migration
+            case "cobalt":
+                return R.style.Theme_BookPlayer_Cobalt;
+            case "teal":
+                return R.style.Theme_BookPlayer_Teal;
+            case "deepOrange":
+                return R.style.Theme_BookPlayer_DeepOrange;
+            case "lime":
+                return R.style.Theme_BookPlayer_Lime;
+            case "blueGrey":
+                return R.style.Theme_BookPlayer_BlueGrey;
+            case "deepPurple":
+                return R.style.Theme_BookPlayer_DeepPurple;
             case "gray":
             default:
                 if (themeKey.startsWith("custom_")) {

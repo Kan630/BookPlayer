@@ -100,4 +100,31 @@
     <color name="green_dark_SurfacePressed">#1C2C23</color>
     <color name="green_dark_SurfaceActivated">#2B3A31</color>
 
+    <!-- 6 new skins added under the Material 3 migration - see values/colors.xml for the
+         base 300/500/700/900 swatches (unchanged between day/night). -->
+    <color name="cobalt_Surface">#0D1821</color>
+    <color name="md_teal_Surface">#0D211F</color>
+    <color name="deep_orange_Surface">#21120D</color>
+    <color name="lime_Surface">#1F210D</color>
+    <color name="blue_grey_Surface">#0D1B21</color>
+    <color name="deep_purple_Surface">#140D21</color>
+
+    <color name="cobalt_SurfacePressed">#232E36</color>
+    <color name="cobalt_SurfaceActivated">#2F3B44</color>
+
+    <color name="md_teal_SurfacePressed">#233635</color>
+    <color name="md_teal_SurfaceActivated">#2F4442</color>
+
+    <color name="deep_orange_SurfacePressed">#362823</color>
+    <color name="deep_orange_SurfaceActivated">#44342F</color>
+
+    <color name="lime_SurfacePressed">#353623</color>
+    <color name="lime_SurfaceActivated">#42442F</color>
+
+    <color name="blue_grey_SurfacePressed">#233036</color>
+    <color name="blue_grey_SurfaceActivated">#2F3D44</color>
+
+    <color name="deep_purple_SurfacePressed">#2A2336</color>
+    <color name="deep_purple_SurfaceActivated">#362F44</color>
+
 </resources>

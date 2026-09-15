@@ -146,6 +146,13 @@ public class DesignSettingsFragment extends LoggingFragment {
                 { R.id.btn_color_16, "greenLight", R.style.Theme_BookPlayer_GreenLight },
                 { R.id.btn_color_17, "green", R.style.Theme_BookPlayer_Green },
                 { R.id.btn_color_18, "greenDark", R.style.Theme_BookPlayer_GreenDark },
+                // 6 new skins added under the Material 3 migration
+                { R.id.btn_color_19, "cobalt", R.style.Theme_BookPlayer_Cobalt },
+                { R.id.btn_color_20, "teal", R.style.Theme_BookPlayer_Teal },
+                { R.id.btn_color_21, "deepOrange", R.style.Theme_BookPlayer_DeepOrange },
+                { R.id.btn_color_22, "lime", R.style.Theme_BookPlayer_Lime },
+                { R.id.btn_color_23, "blueGrey", R.style.Theme_BookPlayer_BlueGrey },
+                { R.id.btn_color_24, "deepPurple", R.style.Theme_BookPlayer_DeepPurple },
         };
 
         int currentThemeResId = Option.getThemeColor();
@@ -351,7 +358,25 @@ public class DesignSettingsFragment extends LoggingFragment {
     private void changeBaseTheme(String newBase) {
         myLog("new Base theme is [" + newBase + "]");
         Option.setThemeColor(newBase);
+        myToast(toDisplayName(newBase));
         signalAndRecreate();
+    }
+
+    /** "deepOrange" -> "Deep Orange", "gray" -> "Gray" - avoids needing a separate display
+     *  name per theme key just for this toast. */
+    private static String toDisplayName(String camelCaseKey) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < camelCaseKey.length(); i++) {
+            char c = camelCaseKey.charAt(i);
+            if (i == 0) {
+                sb.append(Character.toUpperCase(c));
+            } else if (Character.isUpperCase(c)) {
+                sb.append(' ').append(c);
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     private boolean isSystemDarkMode() {
