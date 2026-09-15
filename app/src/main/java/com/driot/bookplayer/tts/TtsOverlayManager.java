@@ -3,6 +3,9 @@ package com.driot.bookplayer.tts;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
+
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -23,6 +26,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 public class TtsOverlayManager {
 
     private final WeakReference<BaseActivity> activityRef;
+    @Nullable
+    private final AppTtsManager ttsManager;
     private final Handler uiH = new Handler(Looper.getMainLooper());
     private final Runnable loadingRunnable;
     /**
@@ -38,7 +43,12 @@ public class TtsOverlayManager {
     private String currentPhase = "";
 
     public TtsOverlayManager(BaseActivity activity) {
+        this(activity, null);
+    }
+
+    public TtsOverlayManager(BaseActivity activity, @Nullable AppTtsManager ttsManager) {
         this.activityRef = new WeakReference<>(activity);
+        this.ttsManager = ttsManager;
         this.safetyTimeoutRunnable = new Runnable() {
             @Override
             public void run() {
@@ -48,12 +58,18 @@ public class TtsOverlayManager {
                 PlayActivity playAct = (PlayActivity) act;
 
                 if (auto_hide_countdown_seconds <= 0) {
-                    myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & pausing playback");
+                    // The engine may still be cold-binding (e.g. right after switching TTS
+                    // engine in Settings - some engines take much longer than others to bind).
+                    boolean stillWarmingUp = ttsManager != null && !ttsManager.isReady();
+                    myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & pausing playback"
+                            + " (stillWarmingUp=" + stillWarmingUp + ")");
                     loadingProgressOverlayTimerStarted = false;
                     overlayVisible = false;
                     playAct.showTtsLoading(false);
                     PlaybackCommands.pause(playAct);
-                    myToastEE(null, "TTS error: timeout");
+                    myToastEE(null, playAct.getString(stillWarmingUp
+                            ? R.string.tts_engine_still_warming_up
+                            : R.string.tts_error_timeout));
                 } else {
                     overlayVisible = true;
                     playAct.showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");

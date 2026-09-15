@@ -281,7 +281,10 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 List<VoiceItem> list = new ArrayList<>();
                 try {
                     for (Voice v : ttsSnap.getVoices()) {
-                        list.add(new VoiceItem(v));
+                        VoiceItem vi = new VoiceItem(v);
+                        myLog("voice: " + VoiceItem.describeVoice(v) + " -> twoLetterCodeLanguage=["
+                                + vi.twoLetterCodeLanguage + "]");
+                        list.add(vi);
                     }
                     list.sort(Comparator
                             .comparing((VoiceItem i) -> i.twoLetterCodeLanguage, String::compareToIgnoreCase)

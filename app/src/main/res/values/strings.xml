@@ -1119,6 +1119,8 @@
     <string name="error_generic">An unexpected error occurred</string>
     <string name="share_station_not_ready">Station details still loading - try sharing again in a moment</string>
     <string name="tts_error_warmup_timeout">Voice warm-up timed out</string>
+    <string name="tts_error_timeout">TTS error: timeout</string>
+    <string name="tts_engine_still_warming_up">The TTS engine is still starting up - this can take longer right after switching engines. Please wait a moment and try again.</string>
     <string name="tts_error_voice_set_failed">Failed to apply voice</string>
     <string name="tts_error_synth_failed">Warm-up synthesis failed</string>
     <string name="source_flag">source flag</string>

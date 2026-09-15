@@ -11,7 +11,10 @@ import com.driot.bookplayer.helpers.FlagHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 
 public class VoiceItem {
@@ -44,8 +47,7 @@ public class VoiceItem {
         this.features = (f == null ? Collections.emptySet() : f);
         this.embedded = features.contains("embeddedTts");
 
-        String lang2 = this.locale != null && !this.locale.getLanguage().isEmpty()
-                ? this.locale.getLanguage() : "und";
+        String lang2 = normalizeToTwoLetterLanguage(this.locale);
         String country = (this.locale != null && !this.locale.getCountry().isEmpty()) ? this.locale.getCountry() : "";
 
         this.twoLetterCodeLanguage = lang2;
@@ -101,7 +103,7 @@ public class VoiceItem {
                 myLogW("tts.getLanguage(): " + loc.getCountry());
             }
 
-            String lang = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
+            String lang = normalizeToTwoLetterLanguage(loc);
             String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
 
             String display = prettyLoc.isEmpty()
@@ -207,5 +209,47 @@ public class VoiceItem {
     }
     private static String cap(String s) {
         return (s == null || s.isEmpty()) ? "" : Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    // Lazily-built ISO 639-2/T (3-letter) -> ISO 639-1 (2-letter) lookup. Needed because
+    // some TTS engines (observed: Samsung TTS, e.g. Voice locale "eng"/"fra"/"deu") report
+    // Voice#getLocale() with a 3-letter language code instead of Google's 2-letter one, and
+    // java.util.Locale#getLanguage() does not convert between the two - without this, every
+    // language-based voice match (e.g. ImportBookSingleActivity's book-language preselect)
+    // silently fails for such engines because "en".equalsIgnoreCase("eng") is false.
+    private static volatile Map<String, String> iso3ToIso2;
+
+    private static Map<String, String> iso3ToIso2Map() {
+        Map<String, String> m = iso3ToIso2;
+        if (m == null) {
+            m = new HashMap<>();
+            for (String code2 : Locale.getISOLanguages()) {
+                try {
+                    String code3 = new Locale(code2).getISO3Language();
+                    if (code3 != null && !code3.isEmpty()) {
+                        m.put(code3.toLowerCase(Locale.ROOT), code2);
+                    }
+                } catch (MissingResourceException ignored) {
+                }
+            }
+            iso3ToIso2 = m;
+        }
+        return m;
+    }
+
+    /** Normalizes a Voice's locale language to a 2-letter ISO 639-1 code, converting a
+     *  3-letter ISO 639-2/T code if that's what the engine reported. Falls back to
+     *  whatever the engine gave us (lower-cased) if it can't be mapped, or "und" if unknown. */
+    private static String normalizeToTwoLetterLanguage(@Nullable Locale locale) {
+        if (locale == null)
+            return "und";
+        String lang = locale.getLanguage();
+        if (lang == null || lang.isEmpty())
+            return "und";
+        lang = lang.toLowerCase(Locale.ROOT);
+        if (lang.length() == 2)
+            return lang;
+        String mapped = iso3ToIso2Map().get(lang);
+        return (mapped != null) ? mapped : lang;
     }
 }

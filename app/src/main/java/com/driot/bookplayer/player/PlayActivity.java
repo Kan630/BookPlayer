@@ -40,6 +40,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.TtsOverlayManager;
 import com.driot.bookplayer.tts.TtsReaderController;
@@ -63,6 +64,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import javax.inject.Inject;
 
 import com.bumptech.glide.Glide;
 
@@ -110,6 +113,9 @@ public class PlayActivity extends BaseActivity {
     private String lastCoverUri = null;
 
     private FrequencyVisualizerView frequencyVisualizerView;
+
+    @Inject
+    protected AppTtsManager ttsManager;
 
     private TtsReaderController ttsReaderController;
     private TtsOverlayManager ttsOverlayManager;
@@ -222,7 +228,7 @@ public class PlayActivity extends BaseActivity {
             initTtsVoiceSpinner(folder);
             ttsReaderController = new TtsReaderController(this, rvTtsText);
             ttsReaderController.bind(this, vm);
-            ttsOverlayManager = new TtsOverlayManager(this);
+            ttsOverlayManager = new TtsOverlayManager(this, ttsManager);
             findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
                 TtsReaderActivity.start(PlayActivity.this);
             });
