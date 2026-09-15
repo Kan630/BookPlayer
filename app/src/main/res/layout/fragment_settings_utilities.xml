@@ -16,6 +16,7 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical">
 
@@ -41,9 +42,9 @@
                 android:textStyle="italic"
                 />
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical">
 
@@ -64,9 +65,9 @@
                 android:textStyle="italic"
                 />
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical">
 
@@ -86,13 +87,12 @@
                 style="@style/GetResourceButton"
                 android:id="@+id/btn_restore_library"
                 android:text="@string/utilities_restore_library" />
-                
+
             <TextView
                 style="@style/OptionSubTitle"
                 android:text="@string/utilities_backup_restore_desc"
                 android:textStyle="italic" />
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

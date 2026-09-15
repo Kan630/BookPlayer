@@ -33,8 +33,8 @@
 
             <ImageButton
                 android:id="@+id/ivIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:scaleType="centerInside"
                 android:background="@android:color/transparent"
                 app:tint="?attr/colorOnSurface"
@@ -43,14 +43,18 @@
                 android:clickable="false"
                 />
 
+            <ImageView
+                android:id="@+id/ivChevron"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_chevron_right_24"
+                app:tint="?attr/colorOnSurfaceVariant"
+                android:importantForAccessibility="no"
+                />
+
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- The fragment host; stays gone until expanded -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
 </merge>

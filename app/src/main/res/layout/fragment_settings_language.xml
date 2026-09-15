@@ -16,6 +16,7 @@
         </LinearLayout>
 
         <!-- App language -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp"
@@ -34,5 +35,6 @@
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

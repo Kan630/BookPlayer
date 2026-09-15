@@ -18,6 +18,7 @@
         </LinearLayout>
 
         <!-- Copy file -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTextDefaultFor"
@@ -79,10 +80,10 @@
                 android:text="@string/option_copy_file_subtitle" />
 
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Create cover -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
@@ -100,10 +101,10 @@
                     android:text="@string/option_create_cover_text" />
             </LinearLayout>
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Metadata titles -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
@@ -121,10 +122,10 @@
                     android:text="@string/option_metadata_titles_text" />
             </LinearLayout>
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Split M4B -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTextDefaultFor"
@@ -154,10 +155,10 @@
                 android:text="@string/option_split_m4b_subtitle_note"
                 android:textStyle="italic" />
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Delete source file -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTextDefaultFor"
@@ -184,10 +185,10 @@
                     android:text="@string/option_delete_source_file_text" />
             </LinearLayout>
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Open With -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
@@ -256,10 +257,10 @@
                     android:text="@string/option_open_with_action_both" />
             </RadioGroup>
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Multi-file book detection -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
@@ -281,8 +282,7 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_propose_whole_book_subtitle" />
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

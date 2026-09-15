@@ -17,6 +17,7 @@
         </LinearLayout>
 
         <!-- Network preferences (first block marginTop=0) -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp">
@@ -64,7 +65,6 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_network_preference_subtext" />
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

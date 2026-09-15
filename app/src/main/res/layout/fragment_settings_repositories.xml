@@ -19,8 +19,11 @@
         </LinearLayout>
 
 
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
         <TextView
             style="@style/OptionTitle"
+            android:layout_marginTop="0dp"
             android:text="@string/cover_search_repositories"/>
 
         <!-- Open Library -->
@@ -79,12 +82,14 @@
         <TextView
             style="@style/OptionExplainText"
             android:text="@string/cover_search_repositories_explain" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
         <TextView
             style="@style/OptionTitle"
+            android:layout_marginTop="0dp"
             android:text="@string/Gutenberg_Ebooks"/>
 
         <TextView
@@ -129,10 +134,8 @@
             android:minHeight="36dp"
             android:layout_marginEnd="30dp"
             />
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

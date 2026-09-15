@@ -17,62 +17,69 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Navigation"
-             />
-        <TextView
-            style="@style/OptionSubTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/option_podcast_landing_screen" />
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/groupPodcastLandingScreen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnPodcastLandingSearch"
-                android:layout_width="0dp"
+        <!-- Navigation -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/Navigation"
+                 />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/Search" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnPodcastLandingFavorites"
-                android:layout_width="0dp"
+                android:text="@string/option_podcast_landing_screen" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupPodcastLandingScreen"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/Favorites" />
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                style="@style/MaterialButtonForToggleGroup"
-                android:id="@+id/btnPodcastLandingHistory"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="@string/History" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-        <TextView
-            android:id="@+id/tvPodcastLandingScreenSubtitle"
-            style="@style/OptionExplainText"
-            android:text="@string/option_podcast_landing_screen_subtitle"
-            android:layout_marginBottom="5dp" />
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnPodcastLandingSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/Search" />
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnPodcastLandingFavorites"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/Favorites" />
 
+                <com.google.android.material.button.MaterialButton
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:id="@+id/btnPodcastLandingHistory"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:text="@string/History" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+            <TextView
+                android:id="@+id/tvPodcastLandingScreenSubtitle"
+                style="@style/OptionExplainText"
+                android:text="@string/option_podcast_landing_screen_subtitle"
+                android:layout_marginBottom="5dp" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Search -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             android:id="@+id/ll_Search"
-            style="@style/LinearLayoutOptionsVertical">
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
 
             <TextView
                 style="@style/OptionTitle"
@@ -103,130 +110,137 @@
                 android:text="Max = 1000"
                 style="@style/OptionMiniText" />
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/Specific_view" />
-
-        <LinearLayout
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_open_specific_view"
-            android:layout_marginTop="0dp">
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_podcast_open_specific_view"
-                style="@style/OptionCheckBox" />
-
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_podcast_open_specific_view" />
-        </LinearLayout>
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_podcast_open_specific_view_subtitle"
-            android:layout_marginBottom="5dp" />
-        <TextView
-            style="@style/OptionExplainText"
-            android:text="@string/option_podcast_open_specific_view_subtitle2"
-            android:layout_marginBottom="5dp" />
-
-        <LinearLayout
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_episodes_expand"
-            android:layout_marginTop="0dp">
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_podcast_episodes_expand"
-                style="@style/OptionCheckBox" />
-
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_podcast_episodes_expand" />
-
-            <ImageButton
-                android:id="@+id/ib_podcast_episodes_expand"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_content_expand_24"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="10dp" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/OptionTextDefaultFor"
-            android:layout_marginTop="10dp"
-            android:text="@string/default_for" />
-
-        <LinearLayout
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_episodes_sort_order"
-            android:layout_marginTop="0dp">
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_podcast_episodes_sort_order"
-                style="@style/OptionCheckBox" />
-
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_podcast_episodes_sort_order" />
-
-            <ImageButton
-                android:id="@+id/ib_podcast_episodes_sort_order"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_sort_swap_vert_24"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="10dp" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-    <LinearLayout
-        android:id="@+id/ll_Download"
-        style="@style/LinearLayoutOptionsVertical">
-
-
-        <LinearLayout
-            style="@style/simpleLinearLayout_Horizontal"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp">
-
+        <!-- Specific view -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
             <TextView
                 style="@style/OptionTitle"
-                android:text="@string/download_noun"
-                android:layout_marginTop="0dp" />
-        </LinearLayout>
+                android:layout_marginTop="0dp"
+                android:text="@string/Specific_view" />
 
-        <LinearLayout
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_add_date_to_episode_name"
-            android:layout_marginTop="0dp">
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_podcast_open_specific_view"
+                android:layout_marginTop="0dp">
 
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_podcast_add_date_to_episode_name"
-                style="@style/OptionCheckBox" />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_podcast_open_specific_view"
+                    style="@style/OptionCheckBox" />
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_podcast_open_specific_view" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_podcast_open_specific_view_subtitle"
+                android:layout_marginBottom="5dp" />
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_podcast_open_specific_view_subtitle2"
+                android:layout_marginBottom="5dp" />
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_podcast_episodes_expand"
+                android:layout_marginTop="0dp">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_podcast_episodes_expand"
+                    style="@style/OptionCheckBox" />
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_podcast_episodes_expand" />
+
+                <ImageButton
+                    android:id="@+id/ib_podcast_episodes_expand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_content_expand_24"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp" />
+            </LinearLayout>
 
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_podcast_chk_podcast_add_date_to_episode_name" />
+                style="@style/OptionTextDefaultFor"
+                android:layout_marginTop="10dp"
+                android:text="@string/default_for" />
 
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_podcast_episodes_sort_order"
+                android:layout_marginTop="0dp">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_podcast_episodes_sort_order"
+                    style="@style/OptionCheckBox" />
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_podcast_episodes_sort_order" />
+
+                <ImageButton
+                    android:id="@+id/ib_podcast_episodes_sort_order"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_sort_swap_vert_24"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp" />
+            </LinearLayout>
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        <!-- Download -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
-            android:id="@+id/ll_AutoDownload"
-            style="@style/LinearLayoutOptionsVertical">
+            android:id="@+id/ll_Download"
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
 
             <LinearLayout
                 style="@style/simpleLinearLayout_Horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="5dp">
+
+                <TextView
+                    style="@style/OptionTitle"
+                    android:text="@string/download_noun"
+                    android:layout_marginTop="0dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_podcast_add_date_to_episode_name"
+                android:layout_marginTop="0dp">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_podcast_add_date_to_episode_name"
+                    style="@style/OptionCheckBox" />
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_podcast_chk_podcast_add_date_to_episode_name" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Auto Download -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout
+            android:id="@+id/ll_AutoDownload"
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
+
+            <LinearLayout
+                style="@style/simpleLinearLayout_Horizontal"
+                android:layout_marginTop="0dp"
                 android:layout_marginBottom="5dp">
 
                 <TextView
@@ -323,14 +337,17 @@
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_podcast_autodownloaded_at_the_top" />
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
+        <!-- Auto Delete -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             android:id="@+id/ll_AutoDelete"
-            style="@style/LinearLayoutOptionsVertical">
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
             <TextView
                 style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
                 android:text="@string/Auto_Delete" />
             <LinearLayout
                 android:id="@+id/ll_podcast_auto_delete"
@@ -385,8 +402,7 @@
                 android:text="Max = 100"
                 style="@style/OptionMiniText" />
         </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

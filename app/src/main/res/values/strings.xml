@@ -52,6 +52,7 @@
     <string name="auto_download">auto-download</string>
     <string name="auto_download_short">auto</string>
     <string name="Automotive">Automotive</string> //Auto section of settings
+    <string name="back">Back</string>
     <string name="bars">bars</string>
     <string name="Bitrate">Bitrate</string>
     <string name="Bookshelves">"Bookshelves"</string>
