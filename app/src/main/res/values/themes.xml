@@ -18,6 +18,15 @@
         <item name="colorSurfacePressed">@color/purple_SurfacePressed</item>
         <item name="colorGraySecondary">@color/gray_secondary</item>
 
+        <!-- Material 3 roles the app didn't have under M2 - aliased to existing per-skin
+             colors above rather than hand-authoring new ones for all 17 skins. These are
+             consumed by default M3 component styles (e.g. BottomNavigationView's selected-item
+             pill uses colorSecondaryContainer/colorOnSecondaryContainer) that previously had no
+             equivalent under M2, so they silently fell back to Material's generic baseline
+             purple regardless of the active skin. -->
+        <item name="colorSecondaryContainer">?attr/colorSurfaceActivated</item>
+        <item name="colorOnSecondaryContainer">?attr/colorOnSurface</item>
+
         <!-- System bars / window -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:windowBackground">?attr/colorSurface</item>
