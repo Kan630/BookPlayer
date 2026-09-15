@@ -25,6 +25,7 @@ import com.driot.bookplayer.settings.ui.NetworkSettingsFragment;
 import com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
+import com.driot.bookplayer.settings.ui.StorageSettingsFragment;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment;
 
@@ -145,6 +146,13 @@ public class SettingsActivity extends FullActivity {
                 sectionNetwork,
                 "expand_network",
                 NetworkSettingsFragment::new,
+                savedInstanceState, true);
+
+        SettingsSectionView sectionStorage = findViewById(R.id.section_storage);
+        registerSection(
+                sectionStorage,
+                "expand_storage",
+                StorageSettingsFragment::new,
                 savedInstanceState, true);
 
         SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);

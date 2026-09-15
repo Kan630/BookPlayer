@@ -99,6 +99,13 @@
                     app:sectionIcon="@drawable/ic_cloud_24" />
 
                 <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_storage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/storage_settings_title"
+                    app:sectionIcon="@drawable/ic_memory_24" />
+
+                <com.driot.bookplayer.views.SettingsSectionView
                     android:id="@+id/section_utilities"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
