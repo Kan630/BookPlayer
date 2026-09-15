@@ -276,6 +276,23 @@ public class StorageHelper {
         return sd != null ? getTotalSpace(sd) : -1;
     }
 
+    /** File#getUsableSpace() returns 0 for a path that doesn't exist yet, so walk up to the
+     *  nearest existing ancestor (eventually the volume root, which always exists) first. Used
+     *  by app-controlled free-space checks (see Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD) instead of
+     *  relying solely on WorkManager's setRequiresStorageNotLow, whose OS-level "storage low"
+     *  threshold is vendor-defined and can be far more conservative than stock Android. */
+    public static long getUsableSpaceForPath(String path) {
+        try {
+            File f = new File(path);
+            while (f != null && !f.exists()) {
+                f = f.getParentFile();
+            }
+            return (f != null) ? f.getUsableSpace() : 0;
+        } catch (Throwable ignored) {
+            return 0;
+        }
+    }
+
     private static long getAvailableSpace(File path) {
         try {
             StatFs stat = new StatFs(path.getPath());

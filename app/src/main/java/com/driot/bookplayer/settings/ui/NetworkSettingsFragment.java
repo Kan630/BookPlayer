@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,11 +16,16 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.google.android.material.slider.Slider;
+
+import java.util.Locale;
 
 public class NetworkSettingsFragment extends LoggingFragment {
 
     private Spinner spinnerUser;
     private Spinner spinnerAuto;
+    private Slider sliderMinFreeStorage;
+    private TextView tvMinFreeStorageValue;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -36,8 +42,11 @@ public class NetworkSettingsFragment extends LoggingFragment {
 
         spinnerUser = root.findViewById(R.id.spinner_download_user);
         spinnerAuto = root.findViewById(R.id.spinner_download_auto);
+        sliderMinFreeStorage = root.findViewById(R.id.slider_min_free_storage_mb);
+        tvMinFreeStorageValue = root.findViewById(R.id.tv_min_free_storage_mb_value);
 
         setupSpinners();
+        setupMinFreeStorageSlider();
 
         return root;
     }
@@ -77,5 +86,28 @@ public class NetworkSettingsFragment extends LoggingFragment {
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    private void setupMinFreeStorageSlider() {
+        if (sliderMinFreeStorage == null)
+            return;
+
+        int currentMb = Option.getMinFreeStorageMbForDownload();
+        sliderMinFreeStorage.setValue((float) currentMb);
+        if (tvMinFreeStorageValue != null)
+            tvMinFreeStorageValue.setText(formatMb(currentMb));
+
+        sliderMinFreeStorage.addOnChangeListener((slider, value, fromUser) -> {
+            int mb = (int) value;
+            if (tvMinFreeStorageValue != null)
+                tvMinFreeStorageValue.setText(formatMb(mb));
+            Option.setMinFreeStorageMbForDownload(mb);
+        });
+    }
+
+    private static String formatMb(int mb) {
+        return mb >= 1024
+                ? String.format(Locale.getDefault(), "%.1f GB", mb / 1024f)
+                : mb + " MB";
     }
 }

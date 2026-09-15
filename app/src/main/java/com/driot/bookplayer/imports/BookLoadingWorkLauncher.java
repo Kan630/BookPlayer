@@ -368,20 +368,23 @@ public class BookLoadingWorkLauncher {
         });
     }
 
+    // Deliberately does NOT set setRequiresStorageNotLow(true): that constraint tracks the
+    // OS-wide "device storage low" broadcast, whose threshold is vendor-defined and can be far
+    // more conservative than stock Android (e.g. ColorOS/Oppo flags ~9.7GB free as "low" -
+    // observed hanging this exact constraint forever on a device with ~5.9GB free, leaving the
+    // whole import work chain permanently BLOCKED with no error surfaced). DownloadWorker does
+    // its own app-controlled free-space check instead - see Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD.
     private static Constraints buildDownloadConstraints() {
         NetworkHelper.NetworkPolicyManual policy = Option.getNetworkPolicyManualDownload();
         return switch (policy) {
             case NETWORK_POLICY_UNMETERED -> new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.UNMETERED)
-                    .setRequiresStorageNotLow(true)
                     .build();
             case NETWORK_POLICY_NOT_ROAMING -> new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.NOT_ROAMING)
-                    .setRequiresStorageNotLow(true)
                     .build();
             default -> new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresStorageNotLow(true)
                     .build();
         };
     }

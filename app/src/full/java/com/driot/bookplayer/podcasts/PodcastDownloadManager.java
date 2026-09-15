@@ -7,13 +7,33 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.StorageHelper;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 import java.io.File;
 import java.util.List;
 
 public class PodcastDownloadManager {
 
+    /** Covers all three entry points (auto-download, manual single-episode, batch "download
+     *  last N") with the same user-configurable threshold used for book/ebook downloads (Settings
+     *  > Download) - PodcastDownloadEpisodeWorker itself has no free-space awareness, so without
+     *  this a low-storage device would just retry a doomed download forever. */
     public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes,
             File targetFolder, Runnable onComplete) {
+        long freeBytes = StorageHelper.getUsableSpaceForPath(targetFolder.getPath());
+        int minFreeMb = Option.getMinFreeStorageMbForDownload();
+        long minFreeBytes = minFreeMb * 1024L * 1024L;
+        if (freeBytes > 0 && freeBytes < minFreeBytes) {
+            long freeMB = freeBytes / (1024 * 1024);
+            myLogW("enqueueDownloads: skipped, low storage (" + freeMB + "MB free, need " + minFreeMb + "MB)");
+            myToastE(context.getString(R.string.podcast_download_skipped_low_storage, freeMB, minFreeMb));
+            return;
+        }
+
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
 

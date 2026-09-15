@@ -126,6 +126,21 @@ public class Var {
 
         public static final int MAX_IMAGE_SIZE_KB = 200;
 
+        // App-controlled minimum free space required before starting a book download. We check
+        // this ourselves (instead of relying solely on WorkManager's setRequiresStorageNotLow
+        // constraint) because some OEMs define "storage low" far more conservatively than stock
+        // Android - e.g. observed ColorOS (Oppo) flagging the device as low on storage with
+        // ~5.9GB free (its own threshold sits around 9.7GB) - which left that constraint
+        // permanently unsatisfied and the whole import work chain stuck BLOCKED forever with no
+        // error ever surfaced to the user.
+        public static final int MIN_FREE_STORAGE_MB_FOR_DOWNLOAD = 5120; // 5GB
+
+        // Radio recording writes continuously and can run for hours, so it gets an earlier
+        // heads-up on top of the same MIN_FREE_STORAGE_MB_FOR_DOWNLOAD hard threshold: once free
+        // space drops below (threshold * this multiplier), warn once so a recording doesn't just
+        // stop cold mid-way. E.g. with the 5GB default, the warning fires under 6GB.
+        public static final double RADIO_RECORDING_LOW_STORAGE_WARNING_MULTIPLIER = 1.2;
+
         public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
         public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = false; // for
 

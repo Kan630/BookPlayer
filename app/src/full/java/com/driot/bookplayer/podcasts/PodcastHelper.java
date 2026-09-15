@@ -4,6 +4,7 @@ import com.driot.bookplayer.BuildConfig;
 import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.Episode;
@@ -687,14 +688,27 @@ public class PodcastHelper {
         final int nbPodcastAutoDownload = AppDatabase.getDatabase(context).podcastDao().getNbAutoDownload();
         /// Podcasts AutoDownload
         if (nbPodcastAutoDownload > 0 && (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY)) {
-            if (NetworkHelper.hasInternet(context)) {
-                PodcastHelper.checkForNewEpisodesToAutoDownload(context, Var.PODCAST_INDEX_ORG_SINCE);
-            } else {
+            if (!NetworkHelper.hasInternet(context)) {
                 myLogD("no internet => bypassing podcast auto-download");
+            } else if (isStorageTooLowForDownload(context)) {
+                myLogW("Podcast auto-download skipped - low storage");
+                myToast(context.getString(R.string.podcast_autodownload_skipped_low_storage));
+            } else {
+                PodcastHelper.checkForNewEpisodesToAutoDownload(context, Var.PODCAST_INDEX_ORG_SINCE);
             }
         }
         /// Podcasts AutoDelete
         PodcastHelper.checkForEpisodesToAutoDelete(context);
+    }
+
+    /** Same app-controlled threshold used for book downloads (Option.getMinFreeStorageMbForDownload,
+     *  Settings > Download) - checked against wherever podcasts actually land (internal or SD
+     *  card, per Option.getUseSdCard()), not the OS's own often-inaccurate "storage low" signal. */
+    private static boolean isStorageTooLowForDownload(Context context) {
+        File dir = getUnzipFolder(context, Option.getUseSdCard());
+        long freeBytes = com.driot.bookplayer.helpers.StorageHelper.getUsableSpaceForPath(dir.getPath());
+        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        return freeBytes > 0 && freeBytes < minFreeBytes;
     }
 
     public static boolean backupDataHasPodcasts(BackupManager.BackupData data) {

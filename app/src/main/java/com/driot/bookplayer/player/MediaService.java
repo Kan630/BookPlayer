@@ -38,6 +38,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.tts.TtsEngine;
@@ -50,6 +51,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -140,18 +142,58 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private MediaServiceDiagnostics diagnostics;
     private EpisodeCoverOverride episodeCover;
     private RadioRecorder radioRecorder;
+    private boolean radioRecordingLowStorageWarned = false;
 
     /** Drives the mini radio player's live-updating info (recording elapsed time/size while
-     * recording, buffered-ahead seconds otherwise) - self-stops once radio is no longer playing. */
+     * recording, buffered-ahead seconds otherwise) - self-stops once radio is no longer playing.
+     * Also the natural once-a-second hook for the recording low-storage check below, since it
+     * already only runs while radio is active. */
     private final Runnable radioMiniTickRunnable = new Runnable() {
         @Override
         public void run() {
             if (isRadio()) {
+                if (radioRecorder.isRecording())
+                    checkRadioRecordingStorage();
                 broadcastUiState("radioMiniTick");
                 main.postDelayed(this, DELAY_CHECK_TIMER_SLEEP);
             }
         }
     };
+
+    /** Radio recording writes continuously and can run for hours - warn once (not every tick)
+     * as free space approaches the same threshold used for downloads, and auto-stop (saving
+     * what's captured so far) once it's actually crossed, rather than letting the write just
+     * fail mid-stream. */
+    private void checkRadioRecordingStorage() {
+        File folder = radioRecorder.getRecordingFolder();
+        if (folder == null)
+            return;
+        long freeBytes = StorageHelper.getUsableSpaceForPath(folder.getPath());
+        if (freeBytes <= 0)
+            return; // couldn't resolve free space, don't act on an unreliable reading
+
+        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        if (freeBytes < minFreeBytes) {
+            myLogW("checkRadioRecordingStorage: stopping - " + (freeBytes / (1024 * 1024)) + "MB free");
+            long bufferedMs = (engine instanceof ExoRadioPlayerEngine)
+                    ? ((ExoRadioPlayerEngine) engine).getBufferedDurationMs()
+                    : 0;
+            radioRecorder.stop(bufferedMs);
+            myToastE(getString(R.string.radio_recording_stopped_low_storage));
+            broadcastUiState("radioRecordingLowStorageStop");
+            return;
+        }
+
+        long warningBytes = (long) (minFreeBytes * Var.RADIO_RECORDING_LOW_STORAGE_WARNING_MULTIPLIER);
+        if (freeBytes < warningBytes) {
+            if (!radioRecordingLowStorageWarned) {
+                radioRecordingLowStorageWarned = true;
+                myToastE(getString(R.string.radio_recording_low_storage_warning));
+            }
+        } else {
+            radioRecordingLowStorageWarned = false;
+        }
+    }
 
     private final Runnable stopRunnable = () -> {
         if (boundClientCount.get() == 0) {
@@ -967,6 +1009,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String coverUrl = pl.getImageUrl();
             long stationId = pl.getTrackId();
             myLogI("--- USER TOGGLES radio recording ON --- station=" + stationName + " bufferedMs=" + bufferedMs);
+            radioRecordingLowStorageWarned = false;
             boolean started = radioRecorder.start(url, stationName, coverUrl, stationId, bufferedMs);
             if (!started) {
                 myToastE(getString(R.string.radio_recording_not_available));

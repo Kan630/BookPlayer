@@ -825,6 +825,14 @@ public class Option {
                 Math.min(index, NetworkHelper.NetworkPolicyAuto.values().length - 1))];
     }
 
+    public static void setMinFreeStorageMbForDownload(int mb) {
+        prefs.edit().putInt("MIN_FREE_STORAGE_MB_FOR_DOWNLOAD", mb).apply();
+    }
+
+    public static int getMinFreeStorageMbForDownload() {
+        return prefs.getInt("MIN_FREE_STORAGE_MB_FOR_DOWNLOAD", Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD);
+    }
+
     /////////////////// PODCAST ///////////////////
     public static void setPodcastAutoDelete(boolean bool) {
         prefs.edit().putBoolean("PODCAST_AUTO_DELETE", bool).apply();

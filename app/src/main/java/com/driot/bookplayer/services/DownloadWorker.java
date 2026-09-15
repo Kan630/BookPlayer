@@ -22,8 +22,10 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.utils.Tonio;
@@ -124,6 +126,20 @@ public class DownloadWorker extends ImportWorker {
         if (urlStr == null || destFolder == null) {
             myLogE("Missing input data: url or dest_folder");
             emitFailed(TASK_NAME, "Missing input data", null);
+            return Result.failure();
+        }
+
+        // App-controlled free-space check (user-configurable, see Option.getMinFreeStorageMbForDownload
+        // / Settings > Download) - we don't rely on WorkManager's setRequiresStorageNotLow
+        // constraint here.
+        int minFreeMb = Option.getMinFreeStorageMbForDownload();
+        long freeBytes = StorageHelper.getUsableSpaceForPath(destFolder);
+        long minFreeBytes = minFreeMb * 1024L * 1024L;
+        if (freeBytes > 0 && freeBytes < minFreeBytes) {
+            long freeMB = freeBytes / (1024 * 1024);
+            myLogE("Not enough free storage: " + freeMB + "MB free, need " + minFreeMb + "MB");
+            emitFailed(TASK_NAME, "Low storage: " + freeMB + "MB free",
+                    ctx.getString(R.string.download_error_low_storage, freeMB, minFreeMb));
             return Result.failure();
         }
 

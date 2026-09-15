@@ -87,6 +87,13 @@ public class RadioRecorder extends LoggerHelper {
         return active;
     }
 
+    /** Folder the active recording is being written into, or null if not recording. */
+    public File getRecordingFolder() {
+        synchronized (lock) {
+            return (outFile != null) ? outFile.getParentFile() : null;
+        }
+    }
+
     public long getElapsedMs() {
         return active ? System.currentTimeMillis() - startTimeMs : 0;
     }
