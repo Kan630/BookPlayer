@@ -566,4 +566,15 @@ public class DatabaseMigrations {
         }
     };
 
+    // Book-level metadata (author, language, publisher, ...) for ebooks, set once at import
+    // time in FinalParseFolderWorker.saveFolder() - see Folder.metadataJson. Audiobooks keep
+    // their per-track metadata on ZikFile.metadataJson, unaffected by this column.
+    static final Migration MIGRATION_34_35 = new Migration(34, 35) { // 2026-09-15
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 34 => 35");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN metadataJson TEXT");
+        }
+    };
+
 }

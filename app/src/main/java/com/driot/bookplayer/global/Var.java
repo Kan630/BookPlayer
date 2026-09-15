@@ -122,6 +122,7 @@ public class Var {
         public static final int GRID_LAYOUT_SPACER_RADIO = 2;
 
         public static final int TTS_WPM_IMPORT = 180;
+        public static final long TTS_SNAP_TO_SENTENCE_MIN_PAUSE_MS = 5_000; // only snap to sentence start if paused this long
 
         public static final int MAX_IMAGE_SIZE_KB = 200;
 

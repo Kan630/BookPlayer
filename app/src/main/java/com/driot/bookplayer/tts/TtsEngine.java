@@ -15,6 +15,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.player.EngineListener;
 import com.driot.bookplayer.player.PlayerEngine;
@@ -63,6 +64,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     private float volume = 1f;
     private int restartCount = 0;
+    private long pausedAtMs = 0;
 
     private boolean registeredWithMgr = false;
 
@@ -144,9 +146,15 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 return; // wait for onTtsReady → prepareAsync → start again
             }
         }
+        // Only snap to the sentence start if we've genuinely been paused for a while;
+        // a brief pause (e.g. quick tap of the pause button) shouldn't rewind speech.
+        boolean pauseLongEnough = pausedAtMs == 0
+                || (System.currentTimeMillis() - pausedAtMs) >= Var.TTS_SNAP_TO_SENTENCE_MIN_PAUSE_MS;
+        pausedAtMs = 0;
+
         playing = true;
         tts.setSpeechRate(speechRate);
-        speakFromOffset(resumeOffsetChars);
+        speakFromOffset(resumeOffsetChars, pauseLongEnough);
     }
 
     @Override
@@ -187,6 +195,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (tts != null)
             tts.stop();
         playing = false;
+        pausedAtMs = System.currentTimeMillis();
     }
 
     @Override
@@ -194,6 +203,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (tts != null)
             tts.stop();
         playing = false;
+        pausedAtMs = 0;
     }
 
     @Override
@@ -546,6 +556,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     }
 
     private void speakFromOffset(int offsetChars) {
+        speakFromOffset(offsetChars, true);
+    }
+
+    private void speakFromOffset(int offsetChars, boolean allowSnapToSentence) {
         if (disposed || tts == null)
             return;
 
@@ -564,7 +578,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                         .putExtra(Intents.EXTRA_TTS_END, off));
 
         String tag = String.valueOf(restartCount);
-        tts.speakFromOffset(text, off, volume, tag); // all chunking lives in TtsHelper
+        tts.speakFromOffset(text, off, volume, tag, allowSnapToSentence); // all chunking lives in TtsHelper
     }
 
     private int logicalTextEndIndex() {

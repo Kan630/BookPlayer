@@ -661,6 +661,9 @@ public class FinalParseFolderWorker extends ImportWorker {
             // non-ebook imports, same as if it had never been set (PlayActivity's own voice
             // spinner already treats a null folder.ttsVoice as "use Option.getTtsVoice()").
             folder.ttsVoice = importJob.ttsVoice;
+            // Book-level metadata (author, language, publisher, ...) for ebooks - see
+            // Folder.metadataJson. Null for non-ebook imports, same as bookMetadata itself.
+            folder.metadataJson = (bookMetadata != null) ? bookMetadata.toString() : null;
             folder.date_added = System.currentTimeMillis();
             folder.image = importJob.imagePath;
             folder.lLastAccess = System.currentTimeMillis(); // used to sort the Book on the main page

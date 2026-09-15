@@ -48,10 +48,15 @@ public class TtsHelper {
 
     // ======== SPEAK API ========
     public void speakFromOffset(String text, int startOffset, float volume) {
-        speakFromOffset(text, startOffset, volume, null);
+        speakFromOffset(text, startOffset, volume, null, true);
     }
 
     public void speakFromOffset(String text, int startOffset, float volume, @Nullable String tag) {
+        speakFromOffset(text, startOffset, volume, tag, true);
+    }
+
+    public void speakFromOffset(String text, int startOffset, float volume, @Nullable String tag,
+            boolean allowSnapToSentence) {
         if (tts == null || text == null || text.isEmpty()) {
             myLogD("speakFromOffset : empty");
             return;
@@ -113,7 +118,7 @@ public class TtsHelper {
 
         // Snap to preceding sentence start to avoid partial words/sentences
         int snapStart = clampedStart;
-        if (Option.getTtsSnapToSentence()) {
+        if (Option.getTtsSnapToSentence() && allowSnapToSentence) {
             if (clampedStart > first.start) {
                 // Find start of sentence containing clampedStart within the chunk text
                 int relStart = clampedStart - first.start;

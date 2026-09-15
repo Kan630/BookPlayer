@@ -12,7 +12,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.TypedValue;
@@ -60,6 +62,8 @@ import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.services.DeleteFolderWorker;
+import com.driot.bookplayer.utils.MetaJson;
+import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -185,6 +189,7 @@ public class ModifyFolderActivity extends BaseActivity {
         setupBookTypeSection();
 
         checkZikFilesReadable();
+        populateEbookMetadataSection();
 
         String info = "";
         info = info + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " "
@@ -1226,6 +1231,35 @@ public class ModifyFolderActivity extends BaseActivity {
                 }
             });
         });
+    }
+
+    // Ebook-only: show book-level metadata (author, language, publisher, ...) captured at
+    // import time onto Folder.metadataJson (see FinalParseFolderWorker.saveFolder()).
+    // Audiobooks keep their per-track metadata on ZikFile.metadataJson instead, untouched here.
+    private void populateEbookMetadataSection() {
+        LinearLayout llEbookMetadata = findViewById(R.id.ll_ebook_metadata);
+        if (!Var.PLAY_TYPE_TEXT.equals(folder.playType)) {
+            llEbookMetadata.setVisibility(View.GONE);
+            return;
+        }
+
+        java.util.Map<String, String> meta = MetaJson.fromJson(folder.metadataJson);
+        CharSequence pretty = MetadataFormatter.format(this, meta);
+
+        if (pretty != null && pretty.length() > 0) {
+            TextView tvEbookMetadata = findViewById(R.id.tv_ebook_metadata);
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            String header = getString(R.string.metadata) + " :";
+            int start = sb.length();
+            sb.append(header).append('\n').append('\n');
+            sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
+                    start, start + header.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.append(pretty);
+            tvEbookMetadata.setText(sb);
+            llEbookMetadata.setVisibility(View.VISIBLE);
+        } else {
+            llEbookMetadata.setVisibility(View.GONE);
+        }
     }
 
     // ------------------------------------------------------------------------------------

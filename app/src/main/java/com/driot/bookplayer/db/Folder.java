@@ -83,6 +83,12 @@ public class Folder implements Parcelable {
     @ColumnInfo(name = "jsonData")
     public String jsonData;
 
+    // Book-level metadata (author, language, publisher, ...) captured at import time -
+    // ebooks only, see FinalParseFolderWorker.saveFolder(). Null for audiobooks, which keep
+    // their per-track metadata on ZikFile.metadataJson instead.
+    @ColumnInfo(name = "metadataJson")
+    public String metadataJson;
+
     @ColumnInfo(defaultValue = "0")
     public long date_maj;
 
@@ -134,6 +140,7 @@ public class Folder implements Parcelable {
         speed = in.readDouble();
         ttsVoice = in.readString();
         jsonData = in.readString();
+        metadataJson = in.readString();
         date_maj = in.readLong();
         timeListened = in.readLong();
         nbZikFile = in.readLong();
@@ -173,6 +180,7 @@ public class Folder implements Parcelable {
         dest.writeDouble(speed);
         dest.writeString(ttsVoice);
         dest.writeString(jsonData);
+        dest.writeString(metadataJson);
         dest.writeLong(date_maj);
         dest.writeLong(timeListened);
         dest.writeLong(nbZikFile);

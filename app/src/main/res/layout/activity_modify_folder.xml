@@ -145,6 +145,23 @@
 
             </RelativeLayout>
 
+            <LinearLayout
+                android:id="@+id/ll_ebook_metadata"
+                style="@style/wideLinearLayout_Vertical"
+                android:background="@drawable/bg_chip"
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:padding="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_ebook_metadata"
+                    style="@style/myStyleInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
             <TextView
