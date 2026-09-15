@@ -48,6 +48,8 @@ public class ImportBookMultipleActivity extends FullActivity {
     private LinearLayout llSdCardStorage;
     private LinearLayout llStorageSection;
     private TextView tvSelectedSummary;
+    private TextView tvStorageWarning;
+    private TextView tvStorageError;
 
     private ProgressBar massImportprogressBar;
     private TextView tvMassImportProgressText;
@@ -173,6 +175,8 @@ public class ImportBookMultipleActivity extends FullActivity {
 
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
         tvSelectedSummary.setVisibility(View.GONE);
+        tvStorageWarning = findViewById(R.id.tvStorageWarning);
+        tvStorageError = findViewById(R.id.tvStorageError);
 
         massImportprogressBar = findViewById(R.id.massImportprogressBar);
         tvMassImportProgressText = findViewById(R.id.tvMassImportProgressText);
@@ -235,16 +239,68 @@ public class ImportBookMultipleActivity extends FullActivity {
         List<BookCandidate> items = adapter.getItems();
         int selectedCount = 0;
         long selectedSize = 0;
+        long requiredSize = 0;
         for (BookCandidate c : items) {
             if (c.isSelected() && !c.isAlreadyImported()) {
                 selectedCount++;
                 if (c.size > 0) {
                     selectedSize += c.size;
+                    requiredSize += StorageHelper.estimateRequiredBytesForImport(c.size, c.fileExtension);
                 }
             }
         }
         String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(selectedSize);
         tvSelectedSummary.setText(getString(R.string.mass_import_selected_summary, selectedCount, sizeStr));
+        checkStorageThresholds(selectedSize, requiredSize);
+    }
+
+    /** Advisory only, same rationale as ImportBookSingleActivity.checkStorageThresholds() - a
+     * user manually picking local files can bypass the orange warning, but the red error also
+     * disables confirm since that batch is guaranteed to fail partway through anyway. Re-evaluated
+     * on every selection change (checkbox toggles), unlike Single's one-shot version, since these
+     * are dedicated TextViews rather than a shared additive warning area. */
+    private void checkStorageThresholds(long selectedSize, long requiredSize) {
+        if (tvStorageWarning == null || tvStorageError == null)
+            return;
+        if (selectedSize <= 0) {
+            tvStorageWarning.setVisibility(View.GONE);
+            tvStorageError.setVisibility(View.GONE);
+            return;
+        }
+
+        long available = Option.getUseSdCard()
+                ? StorageHelper.getAvailableRemovableSDCardSize(this)
+                : StorageHelper.getAvailableInternalMemorySize();
+        if (available <= 0) {
+            tvStorageWarning.setVisibility(View.GONE);
+            tvStorageError.setVisibility(View.GONE);
+            return;
+        }
+
+        // Peak requirement (zip/m4b need extra headroom while copy+extract coexist) - used only
+        // for "can this literally complete at all".
+        if (requiredSize > available) {
+            tvStorageError.setText(getString(R.string.Not_enough_memory) + "\n"
+                    + com.driot.bookplayer.utils.Tonio.formatSizeMB(available) + " "
+                    + getString(R.string.MB_available_on_device));
+            tvStorageError.setVisibility(View.VISIBLE);
+            tvStorageWarning.setVisibility(View.GONE);
+            btnConfirmImport.setEnabled(false);
+            return;
+        }
+        tvStorageError.setVisibility(View.GONE);
+
+        // Final resting size (zips get deleted after a successful extraction) - used for "would
+        // this leave you under your configured comfort margin".
+        long remainingAfter = available - selectedSize;
+        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        if (remainingAfter < minFreeBytes) {
+            tvStorageWarning.setText(getString(R.string.storage_low_warning_import,
+                    com.driot.bookplayer.utils.Tonio.getReadableSize(remainingAfter)));
+            tvStorageWarning.setVisibility(View.VISIBLE);
+        } else {
+            tvStorageWarning.setVisibility(View.GONE);
+        }
     }
 
     private void recalculateStorageBar() {

@@ -279,6 +279,7 @@
     <string name="nav_settings">Settings</string>
 
     <string name="Not_enough_memory">Not enough memory</string>
+    <string name="storage_low_warning_import">This would leave only %1$s free, below your Settings &gt; Download threshold.</string>
     <string name="download_error_low_storage">Not enough free storage to download this book (%1$d MB free, %2$d MB required). Free up some space, or lower this threshold in Settings > Download, and try again.</string>
     <string name="podcast_autodownload_skipped_low_storage">Podcast auto-download skipped: low storage</string>
     <string name="podcast_download_skipped_low_storage">Download skipped: not enough storage (%1$d MB free, %2$d MB required)</string>

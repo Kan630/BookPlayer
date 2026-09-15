@@ -235,6 +235,27 @@
         android:layout_marginHorizontal="16dp"
         />
 
+    <!-- Storage warning/error for the current selection - mirrors ImportBookSingleActivity's
+         warningTextView/errorTextView visual language (orange advisory, red blocking). -->
+    <TextView
+        android:id="@+id/tvStorageWarning"
+        style="@style/OptionAfterPickedInfo"
+        android:textColor="@color/orange"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        tools:text="Low free storage: 3.2 GB available."
+        />
+    <TextView
+        android:id="@+id/tvStorageError"
+        style="@style/OptionAfterPickedInfo"
+        android:textColor="@color/red_500"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        tools:text="Not enough memory"
+        />
+
     <!-- List Area -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCandidates"

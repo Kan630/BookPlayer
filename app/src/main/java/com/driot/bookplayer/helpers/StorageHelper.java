@@ -271,6 +271,21 @@ public class StorageHelper {
         return sd != null ? getAvailableSpace(sd) : -1;
     }
 
+    /** Same coefficient logic/intent as CopyFileWorker.isSizeOk() (zip/m4b need extra headroom
+     *  since they get copied then, for zips, extracted alongside the copy) - used for advisory
+     *  UI-side warnings in the import activities, not to replace that worker-side check. */
+    public static long estimateRequiredBytesForImport(long sizeBytes, @Nullable String fileExtension) {
+        if (sizeBytes <= 0)
+            return sizeBytes;
+        String ext = fileExtension != null ? fileExtension.toLowerCase(java.util.Locale.ROOT) : "";
+        long coef = 1;
+        if (Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(ext))
+            coef = Var.ZIP_SIZE_MAX_COEF;
+        else if ("m4b".equals(ext))
+            coef = Var.M4B_SIZE_MAX_COEF;
+        return sizeBytes * coef;
+    }
+
     public static long getTotalRemovableSDCardSize(Context context) {
         File sd = getRemovableSDCardPath(context);
         return sd != null ? getTotalSpace(sd) : -1;

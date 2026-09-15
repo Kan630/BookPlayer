@@ -89,6 +89,8 @@ public class ImportBookSingleActivity extends FullActivity {
     private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
+    private boolean storageWarningShown = false;
+    private boolean storageErrorShown = false;
     private com.google.android.material.button.MaterialButtonToggleGroup groupNewVsExisting;
     private LinearLayout llExistingFolderPicker;
     private Spinner destinationFolderSpinner;
@@ -347,6 +349,7 @@ public class ImportBookSingleActivity extends FullActivity {
                         + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
             }
 
+            checkStorageThresholds(bookCandidate);
         });
 
         // Observe real-time tracks
@@ -502,6 +505,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 myLog("USER SELECTS -SD CARD/DEVICE- : sdCard=" + (checkedId == R.id.btnSdCard));
                 if (!internalCheckBoxStateCalculationInProgress) {
                     updateOptionsVisibility();
+                    checkStorageThresholds(viewModel.getBookCandidate().getValue());
                 }
             });
 
@@ -827,6 +831,45 @@ public class ImportBookSingleActivity extends FullActivity {
             return false; // hidden when unavailable, or not applicable while linking
         }
         return groupSdCardDevice.getCheckedButtonId() == R.id.btnSdCard;
+    }
+
+    /** Advisory only - unlike DownloadWorker/CopyFileWorker's own hard checks (left untouched),
+     * this is purely informational for a user who picked a local file themselves and may well
+     * know what they're doing: orange warning if free space AFTER this import would drop below
+     * the user-configurable threshold (Settings > Download), red error only when the file
+     * plainly won't fit at all (mirrors CopyFileWorker.isSizeOk()'s spirit) - which also blocks
+     * confirm, since that import is guaranteed to fail anyway. One-shot per activity instance -
+     * re-evaluated on SD/device toggle changes, but not un-shown if conditions improve (not
+     * worth the complexity for a screen open for at most a few seconds). */
+    private void checkStorageThresholds(@Nullable BookCandidate candidate) {
+        if (candidate == null || candidate.size <= 0 || (storageWarningShown && storageErrorShown))
+            return;
+
+        long available = isSdCardSelected()
+                ? StorageHelper.getAvailableRemovableSDCardSize(this)
+                : StorageHelper.getAvailableInternalMemorySize();
+        if (available <= 0)
+            return;
+
+        // Peak requirement (zip/m4b need extra headroom while copy+extract coexist) - used only
+        // for "can this literally complete at all".
+        long required = StorageHelper.estimateRequiredBytesForImport(candidate.size, candidate.fileExtension);
+        if (!storageErrorShown && required > available) {
+            storageErrorShown = true;
+            showError(getString(R.string.Not_enough_memory) + "\n" + Tonio.formatSizeMB(available) + " "
+                    + getString(R.string.MB_available_on_device));
+            stopAndDisableEverything();
+            return;
+        }
+
+        // Final resting size (the zip, if any, gets deleted after a successful extraction) -
+        // used for "would this leave you under your configured comfort margin".
+        long remainingAfter = available - candidate.size;
+        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        if (!storageWarningShown && remainingAfter < minFreeBytes) {
+            storageWarningShown = true;
+            showWarning(getString(R.string.storage_low_warning_import, Tonio.getReadableSize(remainingAfter)));
+        }
     }
 
     private boolean isDeleteSourceSelected() {
