@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -28,9 +27,6 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 public class ImportSettingsFragment extends LoggingFragment {
 
     private static final int REQ_DELETE_SOURCE_FILE = 2001;
-
-    private LinearLayout llContainerSdCard;
-    private MaterialCheckBox chkUseSdCard;
 
     private LinearLayout llCopyFile;
     private MaterialCheckBox chkCopyFile;
@@ -74,19 +70,6 @@ public class ImportSettingsFragment extends LoggingFragment {
         View titleContainer = root.findViewById(R.id.ll_title);
         if (titleContainer != null) {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
-        }
-
-        // ====== SD Card block ======
-        llContainerSdCard = root.findViewById(R.id.ll_container_sd_card);
-        chkUseSdCard = root.findViewById(R.id.chk_use_sd_card);
-        LinearLayout llUseSdCard = root.findViewById(R.id.ll_use_sd_card);
-
-        boolean sdAvailable = StorageHelper.isExternalSDCardAvailable(requireContext());
-        llContainerSdCard.setVisibility(sdAvailable ? View.VISIBLE : View.GONE);
-        if (sdAvailable) {
-            chkUseSdCard.setChecked(Option.getUseSdCard());
-            llUseSdCard.setOnClickListener(v -> chkUseSdCard.toggle());
-            chkUseSdCard.setOnCheckedChangeListener((button, checked) -> Option.setUseSdCard(checked));
         }
 
         // ====== Copy file ======

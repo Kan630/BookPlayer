@@ -839,9 +839,10 @@
     <string name="option_download_auto_title">Auto download</string>
     <string name="option_download_user_title">Manual download</string>
     <string name="option_min_free_storage_title">Minimum free storage</string>
-    <string name="option_min_free_storage_title_internal">Minimum free storage (internal)</string>
-    <string name="option_min_free_storage_title_sdcard">Minimum free storage (SD card)</string>
-    <string name="option_min_free_storage_explain">Downloads won\'t start unless at least this much free space remains on the device. Manual imports will get a warning. Radio recordings will be prevented.</string>
+    <string name="storage_volume_internal_label">Internal</string>
+    <string name="storage_volume_sdcard_label">SD card</string>
+    <string name="storage_volume_info">%1$s (total %2$s, free %3$s)</string>
+    <string name="option_min_free_storage_explain">Downloads won\'t start unless at least this much free space remains on the device. Manual imports will get a warning. Radio recordings will be refused.</string>
     <string name="download_any">📶 Any connection</string>
     <string name="download_bis_unmetered">🆓 Unmetered only</string>
     <string name="download_not_roaming">🏠 Not roaming</string>
