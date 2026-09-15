@@ -20,10 +20,9 @@
 
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
         <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="0dp"
+            style="@style/SettingsGroupTitle"
             android:text="@string/cover_search_repositories"/>
 
         <!-- Open Library -->
@@ -86,16 +85,15 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
         <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="0dp"
+            style="@style/SettingsGroupTitle"
             android:text="@string/Gutenberg_Ebooks"/>
 
         <TextView
-            style="@style/OptionTitle"
-            android:textSize="16sp"
-            android:layout_marginStart="40dp"
+            style="@style/SettingsGroupSubheading"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
             android:text="@string/lists_and_search"/>
 
         <LinearLayout
@@ -115,10 +113,8 @@
             android:text="@string/option_gutendex_use_mirrors_and_cache_explain" />
 
         <TextView
-            style="@style/OptionTitle"
-            android:textSize="16sp"
-            android:layout_marginStart="40dp"
-            android:layout_marginBottom="10dp"
+            style="@style/SettingsGroupSubheading"
+            android:layout_marginStart="20dp"
             android:text="@string/Download"/>
 
         <TextView

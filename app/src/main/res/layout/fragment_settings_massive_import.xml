@@ -18,7 +18,7 @@
         <TextView style="@style/betatest"/>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <!-- Display Storage Bar -->
             <LinearLayout

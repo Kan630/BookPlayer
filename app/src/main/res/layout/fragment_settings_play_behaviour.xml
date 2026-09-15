@@ -18,9 +18,9 @@
 
         <!-- Auto-play next chapter -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_autoplay_next_chapter" />
             <LinearLayout
                 android:id="@+id/ll_autoplay_next_chapter"
@@ -37,12 +37,9 @@
 
         <!-- Time before sleep -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp"
-            >
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_timeBeforeSleep" />
 
             <LinearLayout
@@ -83,9 +80,9 @@
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             android:id="@+id/ll_BackwardForward_vert"
-            style="@style/LinearLayoutOptionsVertical">
+            style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_backward_forward_title" />
 
             <LinearLayout
@@ -124,10 +121,9 @@
 
         <!-- Track View -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/Track_View" />
 
             <LinearLayout
@@ -180,9 +176,9 @@
 
         <!-- Play view -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_play_view"
                 />
             <TextView
@@ -293,10 +289,9 @@
 
         <!-- Screensaver -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_screensaver_title" />
 
             <LinearLayout
@@ -454,9 +449,9 @@
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout
             android:id="@+id/ll_beep"
-            style="@style/LinearLayoutOptionsVertical">
+            style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_beep_title" />
 
             <LinearLayout
@@ -496,9 +491,9 @@
 
         <!-- Positioning -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_positioning_title" />
 
             <LinearLayout
@@ -527,9 +522,9 @@
 
         <!-- If app closed -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_if_app_close_title" />
             <LinearLayout
                 android:id="@+id/ll_stop_audio_if_user_closes_app"

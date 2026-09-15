@@ -17,13 +17,11 @@
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_reset_settings_values"
-                android:layout_marginBottom="15dp"
                 />
 
             <Button
@@ -45,13 +43,11 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/reset_app"
-                android:layout_marginBottom="15dp"
                 />
 
             <Button
@@ -68,15 +64,14 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/OptionTitle"
-                android:text="@string/utilities_backup_restore_title"
-                android:layout_marginBottom="15dp" />
+                style="@style/SettingsGroupTitle"
+                android:text="@string/utilities_backup_restore_title" />
             <TextView
-                style="@style/betatest"/>
+                style="@style/betatest"
+                android:layout_marginBottom="10dp"/>
 
             <Button
                 style="@style/GetResourceButton"

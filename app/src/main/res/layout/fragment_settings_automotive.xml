@@ -17,15 +17,11 @@
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
-                android:text="@string/Automotive"
-                android:visibility="gone"
+                style="@style/SettingsGroupTitle"
+                android:text="@string/General"
                 />
 
             <LinearLayout
@@ -62,9 +58,12 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/Playback"
+                />
 
             <LinearLayout
                 android:id="@+id/ll_automotive_let_car_autoplay"
@@ -100,9 +99,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <LinearLayout
                 android:id="@+id/ll_automotive_stop_on_exit"

@@ -19,14 +19,16 @@
 
         <!-- Copy file -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
                 style="@style/OptionTextDefaultFor"
+                android:layout_marginTop="0dp"
                 android:text="@string/default_for" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
@@ -55,14 +57,15 @@
 
                 <TextView
                     android:id="@+id/txtCopyFileHead"
-                    style="@style/OptionTitle"
+                    style="@style/SettingsGroupTitle"
                     android:text="@string/option_copy_file_title"
-                    android:layout_marginTop="0dp" />
+                    android:layout_marginBottom="0dp" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ll_copy_file"
                 style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp"
                 android:layout_height="wrap_content">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_copy_file"
@@ -84,9 +87,9 @@
 
         <!-- Create cover -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_create_cover" />
 
             <LinearLayout
@@ -105,9 +108,9 @@
 
         <!-- Metadata titles -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_metadata_titles" />
 
             <LinearLayout
@@ -126,13 +129,14 @@
 
         <!-- Split M4B -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
                 style="@style/OptionTextDefaultFor"
+                android:layout_marginTop="0dp"
                 android:text="@string/default_for" />
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_split_m4b"
                 android:layout_marginTop="0dp" />
 
@@ -159,13 +163,14 @@
 
         <!-- Delete source file -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
                 style="@style/OptionTextDefaultFor"
+                android:layout_marginTop="0dp"
                 android:text="@string/default_for" />
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_delete_source_file_title"
                 android:layout_marginTop="0dp" />
 
@@ -175,7 +180,8 @@
 
             <LinearLayout
                 android:id="@+id/ll_delete_source_file"
-                style="@style/LayoutWrapContentMargin20horizontal">
+                style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_delete_source_file"
                     style="@style/OptionCheckBox" />
@@ -189,9 +195,9 @@
 
         <!-- Open With -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_open_with_title" />
 
             <TextView
@@ -200,7 +206,8 @@
 
             <LinearLayout
                 android:id="@+id/ll_open_with"
-                style="@style/LayoutWrapContentMargin20horizontal">
+                style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_open_with"
                     style="@style/OptionCheckBox" />
@@ -212,7 +219,8 @@
 
             <LinearLayout
                 android:id="@+id/ll_open_with_all"
-                style="@style/LayoutWrapContentMargin20horizontal">
+                style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_open_with_all"
                     style="@style/OptionCheckBox" />
@@ -261,14 +269,15 @@
 
         <!-- Multi-file book detection -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_propose_whole_book_title" />
 
             <LinearLayout
                 android:id="@+id/ll_propose_whole_book"
-                style="@style/LayoutWrapContentMargin20horizontal">
+                style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_propose_whole_book"
                     style="@style/OptionCheckBox" />

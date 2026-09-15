@@ -22,12 +22,11 @@
             android:id="@+id/ll_container_sd_card"
             style="@style/SettingsGroupCard"
             android:visibility="gone">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_sdcard_title"
-                android:layout_marginTop="0dp"
                 />
 
             <LinearLayout
@@ -49,15 +48,12 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <!-- Minimum free storage before downloading - shown once regardless of how many
                  volumes are below (StorageSettingsFragment) -->
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_min_free_storage_title" />
 
             <!-- Internal volume: label only shown (with total/free) when there's an SD card too,

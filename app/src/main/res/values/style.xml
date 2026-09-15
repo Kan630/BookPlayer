@@ -453,6 +453,42 @@
         <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
 
+    <!-- Uniform padding for what sits inside a SettingsGroupCard - replaces the old ad hoc
+         mix of LinearLayoutOptionsVertical's asymmetric top/bottom margins plus per-row
+         marginStart hacks, which is why group titles used to land at inconsistent distances
+         from the card edge. -->
+    <style name="SettingsGroupCardContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <!-- The one and only look for a group's heading inside a SettingsGroupCard - no margins
+         of its own (SettingsGroupCardContent's padding already provides the inset), so it
+         always sits the same distance from the card's top/start edge. -->
+    <style name="SettingsGroupTitle" parent="textColorFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <!-- A secondary heading nested under a SettingsGroupTitle, for the rare card that groups
+         more than one topic under one title (e.g. Repositories' Gutenberg card: "Lists and
+         search" / "Download"). Deliberately smaller/muted so it never competes with the
+         card's own SettingsGroupTitle. -->
+    <style name="SettingsGroupSubheading" parent="textColorFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
     <style name="SettingsDetailHeader">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>

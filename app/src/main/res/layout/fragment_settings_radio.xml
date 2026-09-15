@@ -20,10 +20,9 @@
 
         <!-- Navigation -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/Navigation"/>
             <TextView
                 style="@style/OptionSubTitle"
@@ -76,10 +75,9 @@
 
         <!-- Recording -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/Recording"/>
             <LinearLayout
                 android:id="@+id/ll_option_radio_recording_enabled"
@@ -117,13 +115,9 @@
 
         <!-- Time before sleep -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="0dp"
-            >
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/option_timeBeforeSleep" />
 
 
@@ -158,32 +152,29 @@
 
             <TextView android:text="Min = 1 min" style="@style/OptionMiniText" />
             <TextView android:text="Max = 1 year (526.000)" style="@style/OptionMiniText" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_marginTop="0dp"
-            android:layout_marginStart="20dp"
-            android:id="@+id/ll_option_radio_sleep_copy"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_option_radio_sleep_copy"
-                style="@style/OptionCheckBox" />
+
+            <LinearLayout
+                android:id="@+id/ll_option_radio_sleep_copy"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_sleep_copy"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_sleep_copy" />
+            </LinearLayout>
             <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_sleep_copy" />
+                style="@style/OptionExplainText"
+                android:text="@string/option_radio_sleep_copy_subtitle"
+                />
         </LinearLayout>
-        <TextView
-            android:layout_marginTop="0dp"
-            style="@style/OptionExplainText"
-            android:text="@string/option_radio_sleep_copy_subtitle"
-            />
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Spam -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/Spam"/>
             <LinearLayout
                 android:id="@+id/ll_option_radio_remove_duplicates"
@@ -223,10 +214,9 @@
 
         <!-- Technical -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout style="@style/LinearLayoutOptionsVertical" android:layout_marginTop="0dp">
+        <LinearLayout style="@style/SettingsGroupCardContent">
             <TextView
-                style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/Technical"/>
 
             <LinearLayout

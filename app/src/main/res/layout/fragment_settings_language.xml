@@ -17,15 +17,10 @@
 
         <!-- App language -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp"
-            android:layout_marginStart="20dp"
-            >
+        <LinearLayout style="@style/SettingsGroupCardContent">
 
             <TextView
-                style="@style/simpleTextWrap"
-                android:layout_marginBottom="8dp"
+                style="@style/SettingsGroupTitle"
                 android:text="@string/app_language" />
 
             <Spinner
