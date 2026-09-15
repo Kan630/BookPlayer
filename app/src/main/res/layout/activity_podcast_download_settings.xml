@@ -340,15 +340,20 @@
                         android:max="10"
                         android:progress="10" />
 
-                    <EditText
-                        android:id="@+id/etDownloadLastN"
-                        android:layout_width="64dp"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                        android:layout_width="80dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:inputType="number"
-                        android:maxLength="5"
-                        android:gravity="center"
-                        android:text="10" />
+                        android:layout_marginStart="10dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDownloadLastN"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:maxLength="5"
+                            android:gravity="center"
+                            android:text="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
                 <TextView

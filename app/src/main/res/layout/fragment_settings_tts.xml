@@ -260,16 +260,18 @@
                     style="@style/simpleTextWrap"
                     android:text="@string/option_tts_overlay_timeout_text"
                      />
-                <EditText
-                    android:id="@+id/et_tts_overlay_timeout"
-                    style="@style/EditText"
-                    android:layout_width="40sp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="55sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_tts_overlay_timeout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
                 <TextView
                     style="@style/simpleTextWrap"
                     android:text="@string/sec"
@@ -299,16 +301,18 @@
                     android:text="@string/option_tts_chunk_size_text"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/et_tts_chunk_size"
-                    style="@style/EditText"
-                    android:layout_width="70sp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_tts_chunk_size"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        android:textSize="24sp" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
@@ -335,16 +339,18 @@
                     android:text="@string/option_tts_highlight_delay_text"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/et_tts_highlight_delay"
-                    style="@style/EditText"
-                    android:layout_width="70sp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_tts_highlight_delay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        android:textSize="24sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/simpleTextWrap"

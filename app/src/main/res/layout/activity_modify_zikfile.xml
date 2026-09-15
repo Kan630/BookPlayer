@@ -63,17 +63,20 @@
                 android:layout_marginTop="20dp"
                 android:paddingHorizontal="20dp" />
 
-            <EditText style="@style/EditText"
-                android:id="@+id/etRename"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.BookPlayer.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:padding="8dp"
-                android:paddingVertical="10sp"
-                android:inputType="textMultiLine"
-                android:textSize="20sp" />
+                android:layout_marginBottom="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRename"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:textSize="20sp" />
+            </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
 

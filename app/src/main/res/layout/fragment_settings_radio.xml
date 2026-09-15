@@ -133,16 +133,18 @@
                     android:text="@string/option_timeBeforeSleep_text"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/et_option_radio_sleep_value"
-                    style="@style/EditText"
-                    android:layout_height="wrap_content"
-                    android:layout_width="70sp"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_option_radio_sleep_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        android:textSize="24sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/simpleTextWrap"
@@ -236,12 +238,18 @@
                         android:layout_marginStart="10dp"
 
                         />
-                    <EditText
-                        style="@style/OptionPodcastEditText"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                         android:layout_width="70dp"
-                        android:textSize="16sp"
-                        android:id="@+id/et_api_nb_results"
-                        />
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textSize="16sp"
+                            android:id="@+id/et_api_nb_results"
+                            />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
                 <TextView
                     android:text="Min = 20"

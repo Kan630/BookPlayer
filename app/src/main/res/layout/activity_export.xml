@@ -103,14 +103,17 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginBottom="10dp"
                 />
-            <EditText
-                android:id="@+id/etDestinationFileName"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.BookPlayer.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/EditText"
-                android:padding="8dp"
-                android:layout_marginBottom="10dp"
-                />
+                android:layout_marginBottom="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDestinationFileName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
         <LinearLayout
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"

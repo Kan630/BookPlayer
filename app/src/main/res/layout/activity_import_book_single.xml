@@ -179,16 +179,20 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <EditText
-                        android:id="@+id/etBookTitle"
-                        style="@style/simpleText"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/import_book_title_hint"
-                        android:inputType="text"
-                        android:maxLines="2"
-                        android:textStyle="bold"
-                        />
+                        android:hint="@string/import_book_title_hint">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBookTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:maxLines="2"
+                            android:textStyle="bold"
+                            />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
                         android:id="@+id/tvCoverHint"

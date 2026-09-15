@@ -176,18 +176,20 @@
                 android:textSize="20sp"
                 android:textStyle="normal" />
 
-            <EditText
-                android:id="@+id/etRename"
-                style="@style/EditText"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.BookPlayer.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="30dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:padding="10dp"
-                android:paddingVertical="10dp"
-                android:inputType="textMultiLine"
-                android:textSize="20sp" />
+                android:layout_marginBottom="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRename"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:textSize="20sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -280,14 +282,17 @@
                 android:orientation="horizontal"
                 android:gravity="center">
 
-                <EditText
-                    android:id="@+id/etIntroCut"
-                    style="@style/EditText"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:padding="5dp"
-                    android:inputType="number"
-                    android:textSize="20sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etIntroCut"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textSize="20sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/OptionSubTitle"
@@ -328,14 +333,17 @@
                 android:orientation="horizontal"
                 android:gravity="center">
 
-                <EditText
-                    android:id="@+id/etEndCut"
-                    style="@style/EditText"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:padding="5dp"
-                    android:inputType="number"
-                    android:textSize="20sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEndCut"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textSize="20sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/OptionSubTitle"

@@ -54,16 +54,18 @@
                     android:text="@string/option_timeBeforeSleep_text"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/etTimeBeforeSleep"
-                    style="@style/EditText"
-                    android:layout_height="wrap_content"
-                    android:layout_width="70sp"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etTimeBeforeSleep"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        android:textSize="24sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/simpleTextWrap"
@@ -97,16 +99,18 @@
                     android:text="@string/option_backward_forward_text"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/etForwardSeconds"
-                    style="@style/EditText"
-                    android:layout_height="wrap_content"
-                    android:layout_width="70sp"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                    android:layout_width="80sp"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etForwardSeconds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:textAlignment="textEnd"
+                        android:textSize="24sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     style="@style/simpleTextWrap"
@@ -371,18 +375,20 @@
                         android:text="@string/option_screensaver_delay_text"
                         android:textSize="16sp" />
 
-                    <EditText
-                        android:id="@+id/etScreensaverDelay"
-                        style="@style/EditText"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                        android:layout_width="70sp"
                         android:layout_height="wrap_content"
-                        android:layout_width="50sp"
-                        android:inputType="number"
-                        android:paddingStart="10sp"
-                        android:paddingEnd="10sp"
-                        android:textAlignment="textEnd"
                         android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:textSize="18sp" />
+                        android:layout_marginEnd="8dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etScreensaverDelay"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textAlignment="textEnd"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
                         style="@style/simpleTextWrap"

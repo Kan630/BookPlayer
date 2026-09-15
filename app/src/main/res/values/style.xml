@@ -456,6 +456,20 @@
          of standing on its own. -->
     <style name="Widget.BookPlayer.Button.Text" parent="Widget.Material3.Button.TextButton" />
 
+    <!-- ***************** TEXT FIELDS (Material 3) ***************** -->
+    <!-- Real M3 text fields: replaces the old hand-drawn solid-colorSecondary box
+         (rounded_corner_theme) and the plain unstyled EditText fallback with the actual
+         TextInputLayout/TextInputEditText components - outlined box, colorOutline stroke,
+         floating label support, ripple/focus states for free. -->
+
+    <!-- Full-size fields (search boxes, free-text entry). -->
+    <style name="Widget.BookPlayer.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox" />
+
+    <!-- Small inline numeric fields that used to be a fixed 40-70dp box sitting between two
+         bits of label text (e.g. "Return max [ 50 ] podcasts") - Dense trims the box's internal
+         padding so it doesn't balloon in a tight row. -->
+    <style name="Widget.BookPlayer.TextInputLayout.Compact" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense" />
+
 
     <!-- ***************** SETTINGS SCREENS ***************** -->
 
