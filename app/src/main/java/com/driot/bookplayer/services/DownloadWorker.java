@@ -22,7 +22,6 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -129,10 +128,10 @@ public class DownloadWorker extends ImportWorker {
             return Result.failure();
         }
 
-        // App-controlled free-space check (user-configurable, see Option.getMinFreeStorageMbForDownload
-        // / Settings > Download) - we don't rely on WorkManager's setRequiresStorageNotLow
-        // constraint here.
-        int minFreeMb = Option.getMinFreeStorageMbForDownload();
+        // App-controlled free-space check (user-configurable, see Settings > Download - separate
+        // thresholds for internal vs SD card) - we don't rely on WorkManager's
+        // setRequiresStorageNotLow constraint here.
+        int minFreeMb = StorageHelper.getMinFreeStorageMbForPath(ctx, destFolder);
         long freeBytes = StorageHelper.getUsableSpaceForPath(destFolder);
         long minFreeBytes = minFreeMb * 1024L * 1024L;
         if (freeBytes > 0 && freeBytes < minFreeBytes) {

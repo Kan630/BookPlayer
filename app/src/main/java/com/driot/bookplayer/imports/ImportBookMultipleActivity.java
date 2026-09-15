@@ -293,7 +293,10 @@ public class ImportBookMultipleActivity extends FullActivity {
         // Final resting size (zips get deleted after a successful extraction) - used for "would
         // this leave you under your configured comfort margin".
         long remainingAfter = available - selectedSize;
-        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        int minFreeMb = Option.getUseSdCard()
+                ? Option.getMinFreeStorageMbForSdCard()
+                : Option.getMinFreeStorageMbForDownload();
+        long minFreeBytes = minFreeMb * 1024L * 1024L;
         if (remainingAfter < minFreeBytes) {
             tvStorageWarning.setText(getString(R.string.storage_low_warning_import,
                     com.driot.bookplayer.utils.Tonio.getReadableSize(remainingAfter)));

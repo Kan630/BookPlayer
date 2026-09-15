@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.widgets.StorageBarView;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -101,6 +102,8 @@ public class StatsActivity extends BaseActivity {
                         storageInfo.linkedAudiosBytes, // linked audios
                         storageInfo.appStorageBytes // app storage (dark blue)
                 );
+                storageBarInternal.setMinFreeThresholdBytes(
+                        Option.getMinFreeStorageMbForDownload() * 1024L * 1024L);
                 storageBarInternal.setVisibility(View.VISIBLE);
                 storageBarInternal.invalidate();
             }
@@ -123,6 +126,8 @@ public class StatsActivity extends BaseActivity {
                         storageInfo.linkedAudiosBytes, // linked audios
                         0 // appStorage (only for internal storage)
                 );
+                storageBarSDCard.setMinFreeThresholdBytes(
+                        Option.getMinFreeStorageMbForSdCard() * 1024L * 1024L);
                 // Force redraw to ensure the bar updates
                 storageBarSDCard.invalidate();
                 // Show the entire SD card storage section

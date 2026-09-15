@@ -291,6 +291,16 @@ public class StorageHelper {
         return sd != null ? getTotalSpace(sd) : -1;
     }
 
+    /** Picks the right one of Option's two independent "minimum free storage" thresholds
+     *  (internal vs SD card, Settings > Download) for whatever volume `path` actually resolves
+     *  to - internal and SD capacities can differ wildly, so a single threshold isn't meaningful
+     *  for both. */
+    public static int getMinFreeStorageMbForPath(Context context, String path) {
+        MemoryLocationType type = getMemoryLocationType(context, path);
+        boolean isSdCard = (type == MemoryLocationType.SDCARD_RESERVED || type == MemoryLocationType.SDCARD_SHARED);
+        return isSdCard ? Option.getMinFreeStorageMbForSdCard() : Option.getMinFreeStorageMbForDownload();
+    }
+
     /** File#getUsableSpace() returns 0 for a path that doesn't exist yet, so walk up to the
      *  nearest existing ancestor (eventually the volume root, which always exists) first. Used
      *  by app-controlled free-space checks (see Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD) instead of

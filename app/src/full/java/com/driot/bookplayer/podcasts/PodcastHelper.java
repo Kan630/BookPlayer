@@ -707,7 +707,8 @@ public class PodcastHelper {
     private static boolean isStorageTooLowForDownload(Context context) {
         File dir = getUnzipFolder(context, Option.getUseSdCard());
         long freeBytes = com.driot.bookplayer.helpers.StorageHelper.getUsableSpaceForPath(dir.getPath());
-        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        long minFreeBytes = com.driot.bookplayer.helpers.StorageHelper
+                .getMinFreeStorageMbForPath(context, dir.getPath()) * 1024L * 1024L;
         return freeBytes > 0 && freeBytes < minFreeBytes;
     }
 

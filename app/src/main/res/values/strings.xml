@@ -837,6 +837,8 @@
     <string name="option_download_auto_title">Auto download</string>
     <string name="option_download_user_title">Manual download</string>
     <string name="option_min_free_storage_title">Minimum free storage before downloading</string>
+    <string name="option_min_free_storage_title_internal">Minimum free storage (internal) before downloading</string>
+    <string name="option_min_free_storage_title_sdcard">Minimum free storage (SD card) before downloading</string>
     <string name="option_min_free_storage_explain">Downloads won\'t start unless at least this much free space remains on the device.</string>
     <string name="download_any">📶 Any connection</string>
     <string name="download_bis_unmetered">🆓 Unmetered only</string>

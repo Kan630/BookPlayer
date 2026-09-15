@@ -8,7 +8,6 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.StorageHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -19,13 +18,14 @@ import java.util.List;
 public class PodcastDownloadManager {
 
     /** Covers all three entry points (auto-download, manual single-episode, batch "download
-     *  last N") with the same user-configurable threshold used for book/ebook downloads (Settings
-     *  > Download) - PodcastDownloadEpisodeWorker itself has no free-space awareness, so without
-     *  this a low-storage device would just retry a doomed download forever. */
+     *  last N") with the same user-configurable thresholds used for book/ebook downloads
+     *  (Settings > Download - separate for internal vs SD card) - PodcastDownloadEpisodeWorker
+     *  itself has no free-space awareness, so without this a low-storage device would just retry
+     *  a doomed download forever. */
     public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes,
             File targetFolder, Runnable onComplete) {
         long freeBytes = StorageHelper.getUsableSpaceForPath(targetFolder.getPath());
-        int minFreeMb = Option.getMinFreeStorageMbForDownload();
+        int minFreeMb = StorageHelper.getMinFreeStorageMbForPath(context, targetFolder.getPath());
         long minFreeBytes = minFreeMb * 1024L * 1024L;
         if (freeBytes > 0 && freeBytes < minFreeBytes) {
             long freeMB = freeBytes / (1024 * 1024);

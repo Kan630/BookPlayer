@@ -64,8 +64,9 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_network_preference_subtext" />
 
-            <!-- Minimum free storage before downloading -->
+            <!-- Minimum free storage before downloading (internal) -->
             <TextView
+                android:id="@+id/tv_min_free_storage_title"
                 style="@style/OptionCheckBoxText"
                 android:layout_marginTop="16dp"
                 android:text="@string/option_min_free_storage_title" />
@@ -97,6 +98,49 @@
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_min_free_storage_explain" />
+
+            <!-- Minimum free storage before downloading (SD card) - shown only when an SD
+                 card is actually detected (NetworkSettingsFragment) -->
+            <LinearLayout
+                android:id="@+id/ll_min_free_storage_sdcard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/option_min_free_storage_title_sdcard" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="40dp"
+                    android:paddingEnd="16dp">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_min_free_storage_sdcard_mb"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="100.0"
+                        android:valueTo="10240.0"
+                        android:stepSize="10.0" />
+                    <TextView
+                        android:id="@+id/tv_min_free_storage_sdcard_mb_value"
+                        style="@style/OptionMiniText"
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="5.0 GB" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/OptionExplainText"
+                    android:text="@string/option_min_free_storage_explain" />
+            </LinearLayout>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

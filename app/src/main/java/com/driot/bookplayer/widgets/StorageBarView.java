@@ -23,18 +23,21 @@ public class StorageBarView extends View {
 
     private Paint paint;
     private Paint borderPaint;
+    private Paint thresholdPaint;
     private long totalStorage = 0;
     private long usedByOthers = 0;
     private long usedByBookPlayer = 0;
     private long linkedAudios = 0;
     private long appStorage = 0; // BookPlayer app storage (app + db + logs + images)
     private long expectedAddedMemory = 0;
+    private long minFreeThresholdBytes = 0; // Option.getMinFreeStorageMbForDownload(), Settings > Download
     private int colorUsedByOthers;
     private int colorUsedByBookPlayer;
     private int colorLinkedAudios;
     private int colorAppStorage; // Dark blue for app storage
     private int colorExpectedMemory;
     private int borderColor;
+    private int colorThreshold;
 
     public StorageBarView(Context context) {
         super(context);
@@ -59,6 +62,10 @@ public class StorageBarView extends View {
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(2f);
 
+        thresholdPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        thresholdPaint.setStyle(Paint.Style.STROKE);
+        thresholdPaint.setStrokeWidth(getContext().getResources().getDisplayMetrics().density * 2.5f); // 2.5dp
+
         // Load colors from resources
         colorUsedByOthers = getContext().getColor(R.color.gray_500);
         colorUsedByBookPlayer = getContext().getColor(R.color.storage_copy_color); // matches copy icon/text color
@@ -67,6 +74,17 @@ public class StorageBarView extends View {
         colorExpectedMemory = getContext().getColor(R.color.yellow_500);
         borderColor = getContext().getColor(R.color.gray_500);
         borderPaint.setColor(borderColor);
+        colorThreshold = getContext().getColor(R.color.orange);
+        thresholdPaint.setColor(colorThreshold);
+    }
+
+    /** Marks, with a vertical orange line, the point in the bar past which free space would
+     *  drop below the given threshold (bytes) - i.e. the line sits at (total - threshold) from
+     *  the left, not at "threshold" itself, since free space is the undrawn portion at the
+     *  right end of the bar. Pass 0 to hide it. */
+    public void setMinFreeThresholdBytes(long thresholdBytes) {
+        this.minFreeThresholdBytes = thresholdBytes;
+        invalidate();
     }
 
     /**
@@ -215,6 +233,15 @@ public class StorageBarView extends View {
         }
 
         // Remaining space is transparent (not drawn, shows parent background)
+
+        // Threshold marker: vertical line at the point where free space (to the right of it)
+        // would equal minFreeThresholdBytes.
+        if (minFreeThresholdBytes > 0) {
+            float thresholdRatio = 1f - ((float) minFreeThresholdBytes / totalStorage);
+            thresholdRatio = Math.max(0f, Math.min(1f, thresholdRatio));
+            float markerX = barWidth * thresholdRatio;
+            canvas.drawLine(markerX, 0, markerX, barHeight, thresholdPaint);
+        }
     }
 
     @Override

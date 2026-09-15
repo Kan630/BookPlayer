@@ -172,7 +172,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (freeBytes <= 0)
             return; // couldn't resolve free space, don't act on an unreliable reading
 
-        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        long minFreeBytes = StorageHelper.getMinFreeStorageMbForPath(this, folder.getPath()) * 1024L * 1024L;
         if (freeBytes < minFreeBytes) {
             myLogW("checkRadioRecordingStorage: stopping - " + (freeBytes / (1024 * 1024)) + "MB free");
             long bufferedMs = (engine instanceof ExoRadioPlayerEngine)

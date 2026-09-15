@@ -13,6 +13,7 @@ import androidx.annotation.StyleRes;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -830,7 +831,62 @@ public class Option {
     }
 
     public static int getMinFreeStorageMbForDownload() {
-        return prefs.getInt("MIN_FREE_STORAGE_MB_FOR_DOWNLOAD", Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD);
+        int stored = prefs.getInt("MIN_FREE_STORAGE_MB_FOR_DOWNLOAD", -1);
+        return (stored >= 0) ? snapToSliderStep(stored) : defaultMinFreeStorageMbForDownload();
+    }
+
+    /** Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD (5GB) is fine as a default on a modern phone, but
+     * absurd on an old/small-storage one - so until the user picks a value themselves, default
+     * to whichever is smaller: that flat 5GB, or 10% of the device's total storage (e.g. a 10GB
+     * device defaults to 1GB). Total capacity doesn't change, so this is cheap to recompute on
+     * every read rather than needing a one-time seed at first launch. */
+    // Must match the Settings > Download slider's valueFrom/valueTo/stepSize
+    // (fragment_settings_network.xml, slider_min_free_storage_mb) - the Material Slider throws
+    // if handed a value outside that range or not landing exactly on the step grid.
+    private static final int MIN_FREE_STORAGE_SLIDER_MIN_MB = 100;
+    private static final int MIN_FREE_STORAGE_SLIDER_MAX_MB = 10240;
+    private static final int MIN_FREE_STORAGE_SLIDER_STEP_MB = 10;
+
+    private static int defaultMinFreeStorageMbForDownload() {
+        long totalBytes = StorageHelper.getTotaLInternalMemorySize();
+        if (totalBytes <= 0)
+            return Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD;
+        long tenPercentMb = totalBytes / 10 / (1024 * 1024);
+        long capped = Math.min(Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD, tenPercentMb);
+        return snapToSliderStep(capped);
+    }
+
+    /** Rounds to the slider's step grid and clamps to its range - a raw division result (or any
+     * externally-sourced/legacy value) can otherwise land off-step or out of range, which crashes
+     * Slider#setValue(). */
+    private static int snapToSliderStep(long mb) {
+        long clamped = Math.max(MIN_FREE_STORAGE_SLIDER_MIN_MB, Math.min(MIN_FREE_STORAGE_SLIDER_MAX_MB, mb));
+        long stepsFromMin = Math.round((clamped - MIN_FREE_STORAGE_SLIDER_MIN_MB) / (double) MIN_FREE_STORAGE_SLIDER_STEP_MB);
+        return (int) (MIN_FREE_STORAGE_SLIDER_MIN_MB + stepsFromMin * MIN_FREE_STORAGE_SLIDER_STEP_MB);
+    }
+
+    // Same idea as getMinFreeStorageMbForDownload() above but for the SD card, shown as a
+    // second slider only when Settings detects one (StorageHelper.isExternalSDCardAvailable) -
+    // a device's internal and SD card capacities can differ wildly, so they need independent
+    // thresholds and independent dynamic defaults.
+    public static void setMinFreeStorageMbForSdCard(int mb) {
+        prefs.edit().putInt("MIN_FREE_STORAGE_MB_FOR_SDCARD", mb).apply();
+    }
+
+    public static int getMinFreeStorageMbForSdCard() {
+        int stored = prefs.getInt("MIN_FREE_STORAGE_MB_FOR_SDCARD", -1);
+        return (stored >= 0) ? snapToSliderStep(stored) : defaultMinFreeStorageMbForSdCard();
+    }
+
+    private static int defaultMinFreeStorageMbForSdCard() {
+        if (appContext == null)
+            return Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD;
+        long totalBytes = StorageHelper.getTotalRemovableSDCardSize(appContext);
+        if (totalBytes <= 0)
+            return Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD;
+        long tenPercentMb = totalBytes / 10 / (1024 * 1024);
+        long capped = Math.min(Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD, tenPercentMb);
+        return snapToSliderStep(capped);
     }
 
     /////////////////// PODCAST ///////////////////

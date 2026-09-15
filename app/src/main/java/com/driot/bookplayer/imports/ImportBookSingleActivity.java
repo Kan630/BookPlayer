@@ -865,7 +865,10 @@ public class ImportBookSingleActivity extends FullActivity {
         // Final resting size (the zip, if any, gets deleted after a successful extraction) -
         // used for "would this leave you under your configured comfort margin".
         long remainingAfter = available - candidate.size;
-        long minFreeBytes = Option.getMinFreeStorageMbForDownload() * 1024L * 1024L;
+        int minFreeMb = isSdCardSelected()
+                ? Option.getMinFreeStorageMbForSdCard()
+                : Option.getMinFreeStorageMbForDownload();
+        long minFreeBytes = minFreeMb * 1024L * 1024L;
         if (!storageWarningShown && remainingAfter < minFreeBytes) {
             storageWarningShown = true;
             showWarning(getString(R.string.storage_low_warning_import, Tonio.getReadableSize(remainingAfter)));
