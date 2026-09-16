@@ -138,6 +138,7 @@
                     android:layout_width="140dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:id="@+id/et_option_radio_sleep_value"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -242,6 +243,7 @@
                         style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                         android:layout_height="wrap_content">
                         <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"

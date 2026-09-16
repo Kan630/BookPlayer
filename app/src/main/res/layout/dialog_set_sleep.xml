@@ -13,6 +13,7 @@
         android:layout_marginTop="10dp"
         android:hint="@string/custom_value_in_minutes">
         <com.google.android.material.textfield.TextInputEditText
+            style="@style/Widget.BookPlayer.TextInputEditText"
             android:id="@+id/inputMinutes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

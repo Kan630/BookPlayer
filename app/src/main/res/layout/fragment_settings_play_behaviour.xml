@@ -58,6 +58,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:id="@+id/etTimeBeforeSleep"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -102,6 +103,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:id="@+id/etForwardSeconds"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -379,6 +381,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                             android:id="@+id/etScreensaverDelay"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

@@ -19,7 +19,9 @@
             android:hint="@string/type_here_">
 
             <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                style="@style/Widget.BookPlayer.TextInputEditText"
                 android:id="@+id/editText"
+                android:dropDownHeight="240dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionSearch"

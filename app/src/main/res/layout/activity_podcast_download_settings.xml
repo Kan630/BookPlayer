@@ -345,6 +345,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp">
                         <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                             android:id="@+id/etDownloadLastN"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

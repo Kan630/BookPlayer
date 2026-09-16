@@ -109,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp">
                 <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.BookPlayer.TextInputEditText"
                     android:id="@+id/etDestinationFileName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

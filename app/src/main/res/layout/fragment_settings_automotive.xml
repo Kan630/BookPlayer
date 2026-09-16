@@ -62,7 +62,7 @@
 
             <TextView
                 style="@style/SettingsGroupTitle"
-                android:text="@string/Playback"
+                android:text="@string/On_Connect"
                 />
 
             <LinearLayout
@@ -100,6 +100,11 @@
 
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/On_Disconnect"
+                />
 
             <LinearLayout
                 android:id="@+id/ll_automotive_stop_on_exit"

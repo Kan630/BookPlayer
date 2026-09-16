@@ -475,6 +475,13 @@
         <item name="android:layout_width">100dp</item>
     </style>
 
+    <!-- The TextInputLayout styles above only shape the box. The typed-in child also needs the
+         matching OutlinedBox child style, or it inherits the theme's plain editTextStyle padding
+         instead - which is tighter than the outline expects, so the text visually touches the
+         box border. Apply these to every TextInputEditText (or AutoCompleteTextView) child. -->
+    <style name="Widget.BookPlayer.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox" />
+    <style name="Widget.BookPlayer.TextInputEditText.Compact" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense" />
+
 
     <!-- ***************** SETTINGS SCREENS ***************** -->
 

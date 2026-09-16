@@ -94,6 +94,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
@@ -267,6 +268,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
@@ -291,6 +293,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
@@ -321,6 +324,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
@@ -339,15 +343,16 @@
             <TextView
                 android:text="Max = 1440  (= 1day = 60x24 min)"
                 style="@style/OptionMiniText" />
-        </LinearLayout>
-        <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_autodownloaded_at_the_top">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_podcast_autodownloaded_at_the_top"
-                style="@style/OptionCheckBox"/>
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/option_podcast_autodownloaded_at_the_top" />
+
+            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_podcast_autodownloaded_at_the_top">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_podcast_autodownloaded_at_the_top"
+                    style="@style/OptionCheckBox"/>
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_podcast_autodownloaded_at_the_top" />
+            </LinearLayout>
         </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -383,6 +388,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
@@ -407,6 +413,7 @@
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
