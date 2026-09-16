@@ -31,7 +31,7 @@
                 android:minLines="2"
                 android:overScrollMode="ifContentScrolls"
                 android:gravity="top|start"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -39,8 +39,8 @@
         <ImageButton
             android:id="@+id/btnPaste"
             android:layout_marginStart="10dp"
-            android:layout_width="38dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:contentDescription="@string/paste"
             android:background="@drawable/ic_content_paste_24"
             android:layout_gravity="center"

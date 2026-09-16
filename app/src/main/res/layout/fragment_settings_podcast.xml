@@ -92,7 +92,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="70dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -266,7 +265,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="50dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -291,7 +289,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="50dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -322,7 +319,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="80dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -385,7 +381,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="50dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
@@ -410,7 +405,6 @@
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="50dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"

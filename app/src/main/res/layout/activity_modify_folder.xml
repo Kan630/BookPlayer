@@ -284,7 +284,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="80dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etIntroCut"
@@ -335,7 +334,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="80dp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEndCut"

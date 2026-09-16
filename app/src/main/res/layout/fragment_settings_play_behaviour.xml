@@ -56,7 +56,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="80sp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTimeBeforeSleep"
@@ -101,7 +100,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="80sp"
                     android:layout_height="wrap_content">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etForwardSeconds"
@@ -377,7 +375,6 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                        android:layout_width="70sp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp">

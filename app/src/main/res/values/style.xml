@@ -467,8 +467,13 @@
 
     <!-- Small inline numeric fields that used to be a fixed 40-70dp box sitting between two
          bits of label text (e.g. "Return max [ 50 ] podcasts") - Dense trims the box's internal
-         padding so it doesn't balloon in a tight row. -->
-    <style name="Widget.BookPlayer.TextInputLayout.Compact" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense" />
+         padding so it doesn't balloon in a tight row. 100dp is the standard width: comfortably
+         fits 4 digits (the largest common case, e.g. chunk size up to 7000) without per-field
+         guessing; individual fields can still override android:layout_width when their value
+         range genuinely needs more (e.g. a field that accepts up to 6 digits). -->
+    <style name="Widget.BookPlayer.TextInputLayout.Compact" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+        <item name="android:layout_width">100dp</item>
+    </style>
 
 
     <!-- ***************** SETTINGS SCREENS ***************** -->
