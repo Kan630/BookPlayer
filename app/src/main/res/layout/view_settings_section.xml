@@ -20,6 +20,18 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_overlay_card_theme">
 
+            <ImageButton
+                android:id="@+id/ivIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerInside"
+                android:background="@android:color/transparent"
+                app:tint="?attr/colorOnSurface"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/icon"
+                android:clickable="false"
+                />
+
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
@@ -29,18 +41,7 @@
                 android:textStyle="bold"
                 android:textSize="22sp"
                 android:layout_gravity="center_vertical"
-                />
-
-            <ImageButton
-                android:id="@+id/ivIcon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:scaleType="centerInside"
-                android:background="@android:color/transparent"
-                app:tint="?attr/colorOnSurface"
                 android:layout_marginStart="20dp"
-                android:contentDescription="@string/icon"
-                android:clickable="false"
                 />
 
             <ImageView
@@ -48,6 +49,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginStart="4dp"
+                android:layout_gravity="center_vertical"
                 android:src="@drawable/ic_chevron_right_24"
                 app:tint="?attr/colorOnSurfaceVariant"
                 android:importantForAccessibility="no"
