@@ -23,6 +23,15 @@
         <attr name="scrollOnFocus" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="SettingsNumberField">
+        <attr name="beforeText" format="string" />
+        <attr name="afterText" format="string" />
+        <attr name="minText" format="string" />
+        <attr name="maxText" format="string" />
+        <attr name="numberBoxWidth" format="dimension" />
+        <attr name="fieldTextSize" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="PlayHeatMapView">
         <attr name="heatmapColor" format="color" />
     </declare-styleable>

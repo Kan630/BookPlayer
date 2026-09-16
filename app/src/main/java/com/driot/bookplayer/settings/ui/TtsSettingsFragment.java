@@ -24,6 +24,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.driot.bookplayer.views.SettingsNumberField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,18 +102,17 @@ public class TtsSettingsFragment extends LoggingFragment {
                 });
 
         // Fields
-        etTtsHighlightDelay = root.findViewById(R.id.et_tts_highlight_delay);
+        SettingsNumberField fieldTtsHighlightDelay = root.findViewById(R.id.field_tts_highlight_delay);
+        etTtsHighlightDelay = fieldTtsHighlightDelay.getEditText();
         etTtsHighlightDelay.setText(String.valueOf(Option.getTtsHighlightDelayMs()));
 
-        etTtsChunkSize = root.findViewById(R.id.et_tts_chunk_size);
+        SettingsNumberField fieldTtsChunkSize = root.findViewById(R.id.field_tts_chunk_size);
+        etTtsChunkSize = fieldTtsChunkSize.getEditText();
         etTtsChunkSize.setText(String.valueOf(Option.getTtsChunkSize()));
 
         // Update max value display with device-specific maximum
-        TextView tvMax = root.findViewById(R.id.tv_tts_chunk_size_max);
-        if (tvMax != null) {
-            int maxInputLength = TextToSpeech.getMaxSpeechInputLength();
-            tvMax.setText(getString(com.driot.bookplayer.R.string.max_value_label) + maxInputLength);
-        }
+        int maxInputLength = TextToSpeech.getMaxSpeechInputLength();
+        fieldTtsChunkSize.setMaxText(getString(com.driot.bookplayer.R.string.max_value_label) + maxInputLength);
 
         // EPUB Split Mode spinner
         spinnerEpubSplitMode = root.findViewById(R.id.spinner_epub_split_mode);
@@ -170,7 +170,8 @@ public class TtsSettingsFragment extends LoggingFragment {
                     .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsFullscreenControls(isChecked));
         }
 
-        etTtsOverlayTimeout = root.findViewById(R.id.et_tts_overlay_timeout);
+        SettingsNumberField fieldTtsOverlayTimeout = root.findViewById(R.id.field_tts_overlay_timeout);
+        etTtsOverlayTimeout = fieldTtsOverlayTimeout.getEditText();
         etTtsOverlayTimeout.setText(String.valueOf(Option.getTtsOverlayTimeoutSec()));
 
         // Theme color for cursor

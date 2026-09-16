@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -248,44 +249,15 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_tts_show_loading_overlay" />
             </LinearLayout>
-            <LinearLayout
-                android:id="@+id/ll_tts_overlay_timeout"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            <com.driot.bookplayer.views.SettingsNumberField
+                android:id="@+id/field_tts_overlay_timeout"
                 android:layout_width="match_parent"
-                android:layout_marginStart="60dp"
-                android:layout_marginTop="0dp"
-                android:gravity="center"
-                >
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:text="@string/option_tts_overlay_timeout_text"
-                    android:textSize="24sp"
-                     />
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/et_tts_overlay_timeout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp"
-                        />
-                </com.google.android.material.textfield.TextInputLayout>
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:text="@string/sec"
-                    android:textSize="24sp"
-                    />
-            </LinearLayout>
-            <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
-            <TextView android:text="Max = 20" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:beforeText="@string/option_tts_overlay_timeout_text"
+                app:afterText="@string/sec"
+                app:minText="Min = 5"
+                app:maxText="Max = 20" />
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_tts_overlay_timeout_explain"
@@ -297,35 +269,15 @@
                 android:text="@string/Engine_buffer"
                 />
 
-            <LinearLayout
-                android:id="@+id/ll_tts_chunk_size"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            <com.driot.bookplayer.views.SettingsNumberField
+                android:id="@+id/field_tts_chunk_size"
                 android:layout_width="match_parent"
-                android:gravity="center">
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/option_tts_chunk_size_text"
-                    android:textSize="24sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/et_tts_chunk_size"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
-            <TextView android:id="@+id/tv_tts_chunk_size_max" android:text="Max = 7000" style="@style/OptionMiniText" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:beforeText="@string/option_tts_chunk_size_text"
+                app:afterText="@string/chars"
+                app:minText="Min = 1200"
+                app:maxText="Max = 7000" />
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_tts_chunk_size_explain_text"
@@ -337,42 +289,15 @@
                 android:text="@string/option_tts_highlight_delay_title"
                 />
 
-            <LinearLayout
-                android:id="@+id/ll_tts_highlight_delay"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            <com.driot.bookplayer.views.SettingsNumberField
+                android:id="@+id/field_tts_highlight_delay"
                 android:layout_width="match_parent"
-                android:gravity="center">
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:text="@string/option_tts_highlight_delay_text"
-                    android:textSize="24sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/et_tts_highlight_delay"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:text="@string/ms."
-                    android:textSize="24sp" />
-            </LinearLayout>
-
-            <TextView android:text="Min = 0" style="@style/OptionMiniText" />
-            <TextView android:text="Max = 400" style="@style/OptionMiniText" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:beforeText="@string/option_tts_highlight_delay_text"
+                app:afterText="@string/ms."
+                app:minText="Min = 0"
+                app:maxText="Max = 400" />
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_tts_highlight_delay_explain_text"

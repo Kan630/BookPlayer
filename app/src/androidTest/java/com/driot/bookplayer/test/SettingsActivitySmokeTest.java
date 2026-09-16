@@ -114,7 +114,7 @@ public class SettingsActivitySmokeTest implements LogSupport {
                 R.id.et_librivox_api_nb_results            // <-- replace
         });
         plan.put(R.id.section_tts, new int[] {
-                R.id.et_tts_chunk_size,               // <-- replace
+                R.id.field_tts_chunk_size,               // <-- replace
                 R.id.spinnerTtsVoice                // if exposed when expanded
         });
         plan.put(R.id.section_automotive, new int[] {

@@ -204,7 +204,7 @@
     <string name="Permission">Permission</string>
     <string name="Playback">Playback</string>
     <string name="Podcasts">Podcasts</string>
-    <string name="podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
     <string name="proceed">proceed</string>
     <string name="Processing">"Processing"</string>
     <string name="Publisher">Publisher</string>
@@ -480,7 +480,7 @@
 
     <string name="option_timeBeforeSleep">Automatic Pause</string>
 
-    <string name="option_timeBeforeSleep_text">after :</string>
+    <string name="option_timeBeforeSleep_text">after</string>
     <string name="option_copy_file_title">Copy files internally</string>
     <string name="option_backward_forward_title">Backward/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
@@ -1144,7 +1144,7 @@
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
     <string name="option_tts_highlight_delay_outOfBounds">Highlight delay</string>
-    <string name="option_tts_chunk_size_text">Chunk size (in chars) :</string>
+    <string name="option_tts_chunk_size_text">Chunk size :</string>
     <string name="tts_chunk_size">Chunk size</string>
     <string name="change_tracks_order">change tracks order</string>
     <string name="Failed_to_create_the_destionation_file">Failed to create the destination file.</string>
