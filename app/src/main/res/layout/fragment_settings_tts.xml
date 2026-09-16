@@ -254,11 +254,14 @@
                 android:layout_width="match_parent"
                 android:layout_marginStart="60dp"
                 android:layout_marginTop="0dp"
-                android:textSize="16sp"
+                android:gravity="center"
                 >
                 <TextView
                     style="@style/simpleTextWrap"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
                     android:text="@string/option_tts_overlay_timeout_text"
+                    android:textSize="24sp"
                      />
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.BookPlayer.TextInputLayout.Compact"
@@ -270,11 +273,15 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:textAlignment="textEnd"
+                        android:textSize="24sp"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
                 <TextView
                     style="@style/simpleTextWrap"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
                     android:text="@string/sec"
+                    android:textSize="24sp"
                     />
             </LinearLayout>
             <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
@@ -298,6 +305,8 @@
 
                 <TextView
                     style="@style/simpleTextWrap"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:text="@string/option_tts_chunk_size_text"
                     android:textSize="24sp" />
 
@@ -336,6 +345,8 @@
 
                 <TextView
                     style="@style/simpleTextWrap"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
                     android:text="@string/option_tts_highlight_delay_text"
                     android:textSize="24sp" />
 
@@ -354,6 +365,8 @@
 
                 <TextView
                     style="@style/simpleTextWrap"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
                     android:text="@string/ms."
                     android:textSize="24sp" />
             </LinearLayout>

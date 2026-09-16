@@ -244,12 +244,20 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
     </style>
+    <!-- width=0dp + weight lets these wrap onto a second line instead of overflowing off
+         the edge of the screen - some languages (French "pour un maximum de", German
+         compounds, etc.) run much longer than the English original and don't fit as a
+         single-line wrap_content label next to a fixed-width number box. -->
     <style name="OptionPodcastTextBeforeEditText" parent="OptionPodcastText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">2</item>
         <item name="android:layout_marginStart">30dp</item>
         <item name="android:layout_marginEnd">10dp</item>
         <item name="android:text">after</item>
     </style>
     <style name="OptionPodcastTextAfterEditText" parent="OptionPodcastText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">3</item>
         <item name="android:layout_marginStart">5dp</item>
     </style>
     <style name="OptionPodcastEditText" parent="EditText">
