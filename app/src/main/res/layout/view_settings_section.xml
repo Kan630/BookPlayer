@@ -10,6 +10,8 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
         style="@style/MainContainer">
 
         <LinearLayout
