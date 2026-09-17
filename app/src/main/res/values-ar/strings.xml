@@ -549,7 +549,7 @@
     <string name="DirectDownload_desc">الصق الرابط أدناه واضغط على الزر لتنزيل ودمج كتاب صوتي مباشرة.</string>
     <string name="DirectDownload_button">حمّله فقط</string>
     <string name="LibrivoxSearch_desc">"ابحث مباشرة في LibriVox للعثور على كتابك الصوتي. إنه أرشيف مجاني في الملكية العامة، يضم بشكل أساسي أعمالاً باللغة الإنجليزية وبعضها بلغات أخرى."</string>
-    <string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
+    <string name="PodcastSearch_desc">شكراً لـ podcastindex.org على توفير سجل مجاني مفتوح المصدر للبودكاست</string>
     <string name="podcast_image_desc">صورة البودكاست</string>
     <string name="podcast_no_results">لم يتم العثور على بودكاست</string>
     <string name="search_nothing_specified">لم يتم تحديد شيء</string>
@@ -1027,7 +1027,8 @@
     <string name="preview_badge">معاينة</string>
     <string name="preview_not_in_library">ليست في مكتبتك بعد</string>
     <string name="librivox_search_edittext_title">ابحث حسب المؤلف أو العنوان...\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
-    <string name="podcast_search_edittext_title">ابحث... (جميع اللغات)\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
+    <string name="podcast_search_edittext_title">ابحث... (جميع اللغات)</string>
+    <string name="podcast_search_edittext_tip">نصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
     <string name="import_settings">إعدادات الاستيراد</string>
     <string name="option_split_m4b_subtitle">إذا لم يتم التحديد، سيتم استيراد ملفات M4B كمسارات مفردة.</string>
     <string name="option_split_m4b_subtitle_note">ملاحظة: ميزة تقسيم الفصول تدعم حالياً فقط ملفات M4B القياسية جداً.</string>

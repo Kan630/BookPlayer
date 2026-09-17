@@ -76,11 +76,9 @@
 
                 </LinearLayout>
 
-                <View style="@style/GetResourceHorizontalBar" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <!-- Favorites + History -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
@@ -111,46 +109,62 @@
                         app:iconPadding="4dp" />
 
                 </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <View style="@style/GetResourceHorizontalBar"/>
+                <!-- Quick lists -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
+
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/quick_lists" />
+
+                    <Spinner
+                        android:id="@+id/spinnerLang"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="20dp"
+                        style="@style/GetResourceSpinner" />
+
+                    <Button
+                        android:id="@+id/bPodcastTrending"
+                        android:text="@string/Trending"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="4dp" />
+
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Search -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
+
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/podcast_search_edittext_title" />
+
+                    <TextView
+                        style="@style/OptionExplainText"
+                        android:text="@string/podcast_search_edittext_tip" />
+
+                    <com.driot.bookplayer.views.EditText1lineWithSearch
+                        android:id="@+id/etPodcast"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:scrollOnFocus="true"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/txtPodcastSearch_desc"
+                    android:layout_marginTop="10dp"
                     android:text="@string/PodcastSearch_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <Spinner
-                    android:id="@+id/spinnerLang"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginEnd="20dp"
-                    style="@style/GetResourceSpinner" />
-
-                <Button
-                    android:id="@+id/bPodcastTrending"
-                    android:text="@string/Trending"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_marginStart="20dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginEnd="4dp" />
-
-                <View style="@style/GetResourceHorizontalBar" />
-
-                <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/podcast_search_edittext_title"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditText1lineWithSearch
-                    android:id="@+id/etPodcast"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:scrollOnFocus="true"
-                    android:layout_marginTop="30dp" />
+                    style="@style/OptionExplainText" />
 
             </LinearLayout>
         </ScrollView>

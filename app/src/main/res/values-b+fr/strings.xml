@@ -567,7 +567,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="DirectDownload_desc">Collez un lien ci-dessous puis appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
     <string name="DirectDownload_button">Télécharger</string>
     <string name="LibrivoxSearch_desc">Recherchez directement sur LibriVox pour trouver un livre audio. C\'est un dépôt gratuit de livres tombés dans le domaine public, principalement en anglais mais aussi dans d\'autres langues.</string>
-    <string name="PodcastSearch_desc">Parcourir des podcasts grâce au registre open source podcastindex.org</string>
+    <string name="PodcastSearch_desc">Merci à podcastindex.org pour leur registre open source gratuit de podcasts</string>
     <string name="podcast_image_desc">Image du podcast</string>
     <string name="podcast_no_results">Aucun podcast trouvé</string>
     <string name="search_nothing_specified">Aucun critère précisé</string>
@@ -1074,7 +1074,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="preview_badge">Aperçu</string>
     <string name="preview_not_in_library">Pas encore dans votre bibliothèque</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre…\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
-    <string name="podcast_search_edittext_title">Recherche… (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
+    <string name="podcast_search_edittext_title">Recherche… (toutes langues)</string>
+    <string name="podcast_search_edittext_tip">Astuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="import_settings">Paramètres d\'importation</string>
     <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>

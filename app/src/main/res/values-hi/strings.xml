@@ -552,7 +552,7 @@
     <string name="DirectDownload_desc">नीचे लिंक पेस्ट करें और बटन दबाएँ — एक ही बार में ऑडियोबुक डाउनलोड और एकीकृत हो जाएगी।</string>
     <string name="DirectDownload_button">बस ले आओ</string>
     <string name="LibrivoxSearch_desc">"अपनी ऑडियोबुक खोजने के लिए सीधे LibriVox पर खोजें। यह एक मुफ़्त, पब्लिक-डोमेन रिपॉजिटरी है जिसमें अधिकतर अंग्रेज़ी रचनाएँ हैं और कुछ अन्य भाषाओं में भी उपलब्ध हैं।"</string>
-    <string name="PodcastSearch_desc">ओपन सोर्स रजिस्ट्री podcastindex.org की मदद से पॉडकास्ट ब्राउज़ करें</string>
+    <string name="PodcastSearch_desc">podcastindex.org को मुफ्त ओपन सोर्स पॉडकास्ट रजिस्ट्री देने के लिए धन्यवाद</string>
     <string name="podcast_image_desc">पॉडकास्ट छवि</string>
     <string name="podcast_no_results">कोई पॉडकास्ट नहीं मिला</string>
     <string name="search_nothing_specified">कुछ भी निर्दिष्ट नहीं</string>
@@ -1029,7 +1029,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="preview_badge">पूर्वावलोकन</string>
     <string name="preview_not_in_library">अभी तक आपकी लाइब्रेरी में नहीं है</string>
     <string name="librivox_search_edittext_title">लेखक या शीर्षक से खोजें...\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
-    <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
+    <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)</string>
+    <string name="podcast_search_edittext_tip">सुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="import_settings">आयात सेटिंग्स</string>
     <string name="option_split_m4b_subtitle">यदि अनचेक किया गया, तो M4B फ़ाइलें एकल ट्रैक के रूप में आयात की जाएंगी।</string>
     <string name="option_split_m4b_subtitle_note">नोट: अध्याय विभाजन सुविधा वर्तमान में केवल बहुत मानक M4B फ़ाइलों का समर्थन करती है।</string>

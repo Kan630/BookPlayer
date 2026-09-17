@@ -625,7 +625,7 @@
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
     <string name="DirectDownload_button">Just Get It</string>
     <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
-    <string name="PodcastSearch_desc">Browse podcasts thanks to open source registery podcastindex.org</string>
+    <string name="PodcastSearch_desc">Thanks to podcastindex.org for providing a free open source podcast registry</string>
     <string name="podcast_image_desc">Podcast image</string>
     <string name="podcast_no_results">No podcast found</string>
     <string name="search_nothing_specified">Nothing specified</string>
@@ -1208,7 +1208,8 @@
     <string name="preview_badge">Preview</string>
     <string name="preview_not_in_library">Not in your library yet</string>
     <string name="librivox_search_edittext_title">Search by author or title…\nTip: a single word often gives better results</string>
-    <string name="podcast_search_edittext_title">Search… (all languages)\nTip: a single word often gives better results</string>
+    <string name="podcast_search_edittext_title">Search… (all languages)</string>
+    <string name="podcast_search_edittext_tip">Tip: a single word often gives better results</string>
     <string name="import_settings">Import settings</string>
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>

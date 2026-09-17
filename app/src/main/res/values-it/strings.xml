@@ -555,7 +555,7 @@
     <string name="DirectDownload_desc">Incolla un link qui sotto e premi il pulsante per scaricare e integrare un audiolibro in un\'unica operazione.</string>
     <string name="DirectDownload_button">Scarica subito</string>
     <string name="LibrivoxSearch_desc">"Cerca direttamente su LibriVox per trovare il tuo audiolibro. È un archivio gratuito di pubblico dominio, principalmente in inglese con alcune opere in altre lingue."</string>
-    <string name="PodcastSearch_desc">Sfoglia i podcast grazie al registro open source podcastindex.org</string>
+    <string name="PodcastSearch_desc">Grazie a podcastindex.org per il registro open source gratuito di podcast</string>
     <string name="podcast_image_desc">Immagine del podcast</string>
     <string name="podcast_no_results">Nessun podcast trovato</string>
     <string name="search_nothing_specified">Nessun criterio specificato</string>
@@ -1033,7 +1033,8 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="preview_badge">Anteprima</string>
     <string name="preview_not_in_library">Non ancora nella tua libreria</string>
     <string name="librivox_search_edittext_title">Cerca per autore o titolo…\nSuggerimento: una sola parola spesso dà risultati migliori</string>
-    <string name="podcast_search_edittext_title">Cerca… (tutte le lingue)\nSuggerimento: una sola parola spesso dà risultati migliori</string>
+    <string name="podcast_search_edittext_title">Cerca… (tutte le lingue)</string>
+    <string name="podcast_search_edittext_tip">Suggerimento: una sola parola spesso dà risultati migliori</string>
     <string name="import_settings">Impostazioni di importazione</string>
     <string name="option_split_m4b_subtitle">Se non selezionato, i file M4B verranno importati come tracce singole.</string>
     <string name="option_split_m4b_subtitle_note">Nota: la funzione di divisione in capitoli supporta attualmente solo file M4B molto standard.</string>
