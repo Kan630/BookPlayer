@@ -353,6 +353,8 @@ public class PlayActivity extends BaseActivity {
             }
 
             bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+            bPlayPause.setText(s.playing ? R.string.Pause : R.string.Play);
+            bPlayPause.setContentDescription(getString(s.playing ? R.string.Pause : R.string.Play));
 
             // Check screensaver activation
             checkAndLaunchScreensaver(s);

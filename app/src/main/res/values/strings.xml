@@ -201,6 +201,7 @@
     <string name="storage_legend_app">app</string>
     <string name="paste">paste</string>
     <string name="Pause">Pause</string> //means pause audio playback
+    <string name="Play">Play</string> //means start/resume audio playback
     <string name="Permission">Permission</string>
     <string name="Playback">Playback</string>
     <string name="Podcasts">Podcasts</string>

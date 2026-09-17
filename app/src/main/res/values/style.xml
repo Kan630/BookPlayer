@@ -109,6 +109,9 @@
         <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="iconTint">?attr/colorOnPrimary</item>
         <item name="cornerRadius">12dp</item>
+        <item name="iconSize">30sp</item>
+        <item name="iconGravity">textTop</item>
+        <item name="iconPadding">4dp</item>
     </style>
 
 
