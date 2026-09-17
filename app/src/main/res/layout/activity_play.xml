@@ -74,6 +74,7 @@
             android:text="@string/rewind"
             android:contentDescription="@string/rewind"
             app:icon="@drawable/ic_media_fast_rewind_24"
+            app:iconSize="30sp"
             app:iconGravity="textTop"
             app:iconPadding="4dp"
             />
@@ -82,9 +83,12 @@
             android:id="@+id/ibPlayPause"
             style="@style/PlayActivityActionButtons"
             android:contentDescription="@string/play"
+            android:text="@string/pause"
+            android:textColor="@android:color/transparent"
             app:icon="@drawable/ic_hourglass_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
+            app:iconSize="30sp"
+            app:iconGravity="textTop"
+            app:iconPadding="4dp"
             android:layout_marginHorizontal="6dp"
             />
 
@@ -93,6 +97,7 @@
             style="@style/PlayActivityActionButtons"
             android:text="@string/forward"
             android:contentDescription="@string/rewind"
+            app:iconSize="30sp"
             app:icon="@drawable/ic_media_fast_forward_24"
             app:iconGravity="textTop"
             app:iconPadding="4dp"
