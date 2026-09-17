@@ -43,14 +43,14 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
 
     // --- Internals ---
     private RadioBrowserRepository repo;
-    private @GetRadioCardListActivity.FacetMode int currentMode = GetRadioCardListActivity.MODE_TAG;
+    private @GetRadioCardListFragment.FacetMode int currentMode = GetRadioCardListFragment.MODE_TAG;
     private Call<?> pendingCall;
 
     public GetRadioCardListViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public void init(@GetRadioCardListActivity.FacetMode int mode, RadioBrowserRepository repo) {
+    public void init(@GetRadioCardListFragment.FacetMode int mode, RadioBrowserRepository repo) {
         this.currentMode = mode;
         this.repo = repo;
     }
@@ -80,7 +80,7 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
 
     public void seedFromCache(List<TagItem> cached) {
         if (cached == null || cached.isEmpty()) return;
-        if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+        if (currentMode == GetRadioCardListFragment.MODE_LANGUAGE) {
             langCardsLive.setValue(buildLanguageCards(cached));
             applyFilter();
         } else {
@@ -108,7 +108,7 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
                 if (rsp.isSuccessful() && rsp.body() != null) {
                     List<TagItem> raw = rsp.body();
                     RadioCacheHelper.saveCache(getApplication(), currentMode, raw);
-                    if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+                    if (currentMode == GetRadioCardListFragment.MODE_LANGUAGE) {
                         langCardsLive.setValue(buildLanguageCards(raw));
                     } else {
                         itemsLive.setValue(raw);
@@ -132,13 +132,13 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
 
         cancelled = false;
         switch (currentMode) {
-            case GetRadioCardListActivity.MODE_COUNTRY:
+            case GetRadioCardListFragment.MODE_COUNTRY:
                 repo.getTopCountries(Var.RADIO_LIST_MAX_CARD_ITEM, callback);
                 break;
-            case GetRadioCardListActivity.MODE_LANGUAGE:
+            case GetRadioCardListFragment.MODE_LANGUAGE:
                 repo.getTopLanguages(Var.RADIO_LIST_MAX_CARD_ITEM, callback);
                 break;
-            case GetRadioCardListActivity.MODE_TAG:
+            case GetRadioCardListFragment.MODE_TAG:
             default:
                 repo.getTopTags(Var.RADIO_LIST_MAX_CARD_ITEM, callback);
                 break;
@@ -166,7 +166,7 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
     }
 
     private void applyFilter() {
-        if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+        if (currentMode == GetRadioCardListFragment.MODE_LANGUAGE) {
             applyLangFilter();
         } else {
             applyTagFilter();

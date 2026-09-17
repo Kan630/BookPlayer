@@ -17,11 +17,11 @@ public class RadioCacheHelper {
 
     private static String getFileName(int mode) {
         switch (mode) {
-            case GetRadioCardListActivity.MODE_TAG:
+            case GetRadioCardListFragment.MODE_TAG:
                 return "tags_cache.json";
-            case GetRadioCardListActivity.MODE_COUNTRY:
+            case GetRadioCardListFragment.MODE_COUNTRY:
                 return "countries_cache.json";
-            case GetRadioCardListActivity.MODE_LANGUAGE:
+            case GetRadioCardListFragment.MODE_LANGUAGE:
                 return "languages_cache.json";
             default:
                 return "unknown_cache.json";
