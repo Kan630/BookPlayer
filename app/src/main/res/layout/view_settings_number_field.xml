@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvBefore"
+            style="@style/simpleTextWrap"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_marginEnd="10dp"
+            android:textSize="24sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fieldBoxLayout"
+            style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etField"
+                style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textAlignment="textEnd"
+                android:textSize="24sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvAfter"
+            style="@style/simpleTextWrap"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_marginStart="10dp"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMin"
+        style="@style/OptionMiniText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvMax"
+        style="@style/OptionMiniText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</merge>
