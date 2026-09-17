@@ -1102,9 +1102,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="welcome_button_add">Ajoutez votre premier livre</string>
     <string name="welcome_hint">Astuce : personnalisez couleurs et options dans les Paramètres.</string>
     <string name="btn_get_local_book_title">Il est sur mon appareil (ou carte SD, ou Drive).</string>
-    <string name="btn_direct_link_title">J\'ai un lien de téléchargement direct.</string>
+    <string name="btn_direct_link_title">Je veux coller un lien que j\'ai déjà.</string>
     <string name="btn_browse_audiobooks_title">Je veux parcourir un registre public gratuit.</string>
-    <string name="direct_link">http direct</string>
+    <string name="direct_link">Coller le lien</string>
     <string name="load_one_book">charger 1 livre</string>
     <string name="load_multiple_book">charger plusieurs livres</string>
     <string name="reset_track_order">réinitialiser l\'ordre des pistes</string>

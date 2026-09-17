@@ -1093,9 +1093,9 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="welcome_button_add">अपनी पहली किताब जोड़ें</string>
     <string name="welcome_hint">टिप: सेटिंग्स में रंग और विकल्प बदल सकते हैं।</string>
     <string name="btn_get_local_book_title">यह मेरे डिवाइस पर है (या SD कार्ड या ड्राइव)।</string>
-    <string name="btn_direct_link_title">मेरे पास सीधा डाउनलोड लिंक है।</string>
+    <string name="btn_direct_link_title">मैं अपने पास मौजूद लिंक पेस्ट करना चाहता हूँ।</string>
     <string name="btn_browse_audiobooks_title">मैं निशुल्क सार्वजनिक रजिस्टर ब्राउज़ करना चाहता हूँ।</string>
-    <string name="direct_link">प्रत्यक्ष लिंक</string>
+    <string name="direct_link">लिंक पेस्ट करें</string>
     <string name="load_one_book">1 किताब लोड</string>
     <string name="load_multiple_book">किताबें लोड</string>
     <string name="reset_track_order">ट्रैक क्रम रीसेट</string>

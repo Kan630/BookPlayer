@@ -1091,9 +1091,9 @@
     <string name="welcome_button_add">أضف كتابك الأول</string>
     <string name="welcome_hint">نصيحة: يمكنك تخصيص الألوان والخيارات في الإعدادات.</string>
     <string name="btn_get_local_book_title">إنه على جهازي (أو بطاقة SD أو درايف).</string>
-    <string name="btn_direct_link_title">لدي رابط تحميل مباشر.</string>
+    <string name="btn_direct_link_title">أريد لصق رابط أمتلكه بالفعل.</string>
     <string name="btn_browse_audiobooks_title">أريد تصفح سجل عام مجاني.</string>
-    <string name="direct_link">رابط مباشر</string>
+    <string name="direct_link">لصق الرابط</string>
     <string name="load_one_book">تحميل كتاب</string>
     <string name="load_multiple_book">تحميل كتب</string>
     <string name="reset_track_order">إعادة ترتيب المقاطع</string>

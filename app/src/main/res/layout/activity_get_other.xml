@@ -148,117 +148,109 @@
                         />
                 </LinearLayout>
 
-                <View style="@style/myStyleViewSimpleHorizontalBar" />
-                <TextView
-                    android:id="@+id/tv_load_one_book"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginStart="20dp"
-                    android:textSize="24dp"
-                    android:text="@string/load_one_book" />
+                <!-- Load one book -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
-                <TextView
-                    android:id="@+id/bOpenFile_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginStart="20dp"
-                    android:text="@string/bOpenFile_desc" />
-
-                <Button
-                    android:id="@+id/bOpenFile"
-                    android:text="@string/File_and_icon"
-                    style="@style/Widget.BookPlayer.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:backgroundTint="?attr/colorPrimaryVariant"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/bOpenFilteredFile_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginStart="20dp"
-                    android:text="@string/bOpenFilteredFile_desc" />
-
-                <LinearLayout
-                    style="@style/simpleLinearLayout_Horizontal"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="10dp"
-                    >
-                <Button
-                    android:id="@+id/bOpenZipFile"
-                    android:text="ZIP"
-                    style="@style/Widget.BookPlayer.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:backgroundTint="?attr/colorPrimaryVariant"
-                    android:textColor="?attr/colorOnPrimary"
-                    />
-
-                <Button
-                    android:id="@+id/bOpenM4bFile"
-                    android:text="M4B"
-                    style="@style/Widget.BookPlayer.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:backgroundTint="?attr/colorPrimaryVariant"
-                    android:textColor="?attr/colorOnPrimary"
-                    />
-
-
-                <Button
-                    android:id="@+id/bOpenEpubFile"
-                    android:text="EPUB"
-                    style="@style/Widget.BookPlayer.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:backgroundTint="?attr/colorPrimaryVariant"
-                    android:textColor="?attr/colorOnPrimary"
-                    />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/bOpenFolder_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginStart="20dp"
-                    android:text="@string/bOpenFolder_desc" />
-
-                <Button
-                    android:id="@+id/bOpenFolder"
-                    android:text="@string/Folder_and_icon"
-                    style="@style/Widget.BookPlayer.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:backgroundTint="?attr/colorPrimaryVariant"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-                <LinearLayout style="@style/wideLinearLayout_Vertical"
-                    android:id="@+id/ll_massive_import">
                     <TextView
+                        android:id="@+id/tv_load_one_book"
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/load_one_book" />
+
+                    <TextView
+                        android:id="@+id/bOpenFile_desc"
                         style="@style/GetResourceTextTopOfButton"
-                        android:layout_marginStart="20dp"
-                        android:textSize="24dp"
+                        android:layout_marginStart="0dp"
+                        android:text="@string/bOpenFile_desc" />
+
+                    <Button
+                        android:id="@+id/bOpenFile"
+                        android:text="@string/File_and_icon"
+                        style="@style/Widget.BookPlayer.Button.Primary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="?attr/colorPrimaryVariant"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+                    <TextView
+                        android:id="@+id/bOpenFilteredFile_desc"
+                        style="@style/GetResourceTextTopOfButton"
+                        android:layout_marginStart="0dp"
+                        android:text="@string/bOpenFilteredFile_desc" />
+
+                    <LinearLayout
+                        style="@style/simpleLinearLayout_Horizontal"
+                        android:layout_marginBottom="10dp"
+                        >
+                    <Button
+                        android:id="@+id/bOpenZipFile"
+                        android:text="ZIP"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        />
+
+                    <Button
+                        android:id="@+id/bOpenM4bFile"
+                        android:text="M4B"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        />
+
+
+                    <Button
+                        android:id="@+id/bOpenEpubFile"
+                        android:text="EPUB"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/bOpenFolder_desc"
+                        style="@style/GetResourceTextTopOfButton"
+                        android:layout_marginStart="0dp"
+                        android:text="@string/bOpenFolder_desc" />
+
+                    <Button
+                        android:id="@+id/bOpenFolder"
+                        android:text="@string/Folder_and_icon"
+                        style="@style/Widget.BookPlayer.Button.Primary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="?attr/colorPrimaryVariant"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Load multiple books -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/ll_massive_import"
+                    style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
+                    <TextView
+                        style="@style/SettingsGroupTitle"
                         android:text="@string/load_multiple_book" />
 
                     <TextView
                         android:id="@+id/bMassImport_desc"
                         style="@style/GetResourceTextTopOfButton"
+                        android:layout_marginStart="0dp"
                         android:text="@string/bOpenMassImport_desc" />
 
                     <TextView
                         style="@style/warningTextView"
-                        android:layout_marginStart="30dp"
+                        android:layout_marginStart="0dp"
                         android:text="@string/beta_test" />
 
                     <LinearLayout
@@ -273,8 +265,6 @@
                             style="@style/Widget.BookPlayer.Button.Primary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp"
                             android:backgroundTint="?attr/colorPrimaryVariant"
                             android:textColor="?attr/colorOnPrimary" />
                         <ImageButton
@@ -287,8 +277,8 @@
                             android:background="@android:color/transparent"
                             app:tint="?attr/colorOnSurface" />
                     </LinearLayout>
-                        <View style="@style/GetResourceHorizontalBar"/>
                 </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </ScrollView>

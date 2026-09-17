@@ -63,7 +63,8 @@ public class GetDirectLinkActivity extends FullActivity {
 
         Button bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
-        etDirectDownload.getEditText().setHint("https://...");
+        etDirectDownload.setHint(getString(R.string.direct_link_hint));
+        etDirectDownload.setHistoryKey("direct_link"); // keep history separate from other screens
 
         importDimScrim = findViewById(R.id.importDimScrim);
         importDimMessage = findViewById(R.id.importDimMessage);

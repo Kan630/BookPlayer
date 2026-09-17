@@ -1098,9 +1098,9 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="welcome_button_add">Füge dein erstes Buch hinzu</string>
     <string name="welcome_hint">Tipp: Farben und Optionen in den Einstellungen anpassen.</string>
     <string name="btn_get_local_book_title">Es ist auf meinem Gerät (oder SD-Karte oder Drive).</string>
-    <string name="btn_direct_link_title">Ich habe einen direkten Downloadlink.</string>
+    <string name="btn_direct_link_title">Ich möchte einen Link einfügen, den ich bereits habe.</string>
     <string name="btn_browse_audiobooks_title">Ich möchte ein kostenloses öffentliches Verzeichnis durchsuchen.</string>
-    <string name="direct_link">http direkt</string>
+    <string name="direct_link">Link einfügen</string>
     <string name="load_one_book">1 Buch laden</string>
     <string name="load_multiple_book">mehrere laden</string>
     <string name="reset_track_order">Titelreihenfolge zurücksetzen</string>

@@ -933,6 +933,7 @@
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
     <string name="bOpenFolder_desc">Pick a folder : all audio files (even in subfolders, if any) will be imported in the same book.</string>
     <string name="type_here_">Type here…</string>
+    <string name="direct_link_hint">https://…</string>
 
 
     <string name="most_downloaded">"Most Downloaded"</string>
@@ -1234,9 +1235,9 @@
     <string name="welcome_button_add">Add your first book</string>
     <string name="welcome_hint">Tip: you can customize colors and options in Settings.</string>
     <string name="btn_get_local_book_title">It’s on my device (or SD card, or Drive).</string>
-    <string name="btn_direct_link_title">I have a direct download link.</string>
+    <string name="btn_direct_link_title">I want to paste in a link I already have.</string>
     <string name="btn_browse_audiobooks_title">I want to browse a free public registry.</string>
-    <string name="direct_link">http direct</string>
+    <string name="direct_link">Paste Link</string>
     <string name="load_one_book">Load 1 Book</string>
     <string name="load_multiple_book">Load Multiple Books</string>
     <string name="reset_track_order">reset track order</string>

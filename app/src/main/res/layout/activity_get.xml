@@ -57,46 +57,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp"
-            >
-            <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/btn_direct_link_title"
-                android:layout_marginStart="20dp"
-                />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp"
-                android:padding="24dp">
-
-                <ImageButton
-                    android:id="@+id/bDirectLinkIcon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_cloud_download_24px"
-                    android:scaleType="fitCenter"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:layout_marginEnd="20dp" />
-
-                <Button
-                    android:id="@+id/bDirectLink"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/direct_link"
-                    android:backgroundTint="?attr/colorPrimary"
-                    android:textColor="?attr/colorOnPrimary"
-                    style="@style/Widget.BookPlayer.Button.Primary" />
-            </LinearLayout>
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
             >
             <TextView
                 style="@style/simpleTextWrap"
@@ -159,6 +119,44 @@
                     android:backgroundTint="?attr/colorPrimary"
                     android:textColor="?attr/colorOnPrimary"
                     style="@style/Widget.BookPlayer.Button.Primary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Least common option - a raw URL a power user already has - kept last and
+             de-emphasized (outlined, not filled) so it doesn't compete with the 3 primary
+             choices above. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            >
+            <TextView
+                style="@style/simpleTextWrap"
+                android:text="@string/btn_direct_link_title"
+                android:layout_marginStart="20dp"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="24dp">
+
+                <ImageButton
+                    android:id="@+id/bDirectLinkIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_cloud_download_24px"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="20dp" />
+
+                <Button
+                    android:id="@+id/bDirectLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/direct_link"
+                    style="@style/Widget.BookPlayer.Button.Secondary" />
             </LinearLayout>
         </LinearLayout>
 

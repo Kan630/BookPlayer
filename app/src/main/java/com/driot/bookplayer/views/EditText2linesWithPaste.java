@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
@@ -31,6 +33,7 @@ import java.util.List;
 public class EditText2linesWithPaste extends LinearLayout {
 
     private AppCompatAutoCompleteTextView editText;
+    private TextInputLayout editTextLayout;
 
     // --- Knobs (defaults) ---
     private String historyKey = "default_search_history";
@@ -60,6 +63,7 @@ public class EditText2linesWithPaste extends LinearLayout {
     private void init(Context context, @Nullable AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.view_edittext_with_btn_paste, this, true);
         editText = findViewById(R.id.editText); // now an AutoCompleteTextView in XML
+        editTextLayout = findViewById(R.id.editTextLayout);
         ImageButton btnPaste = findViewById(R.id.btnPaste);
 
         // --- should we scroll down ---
@@ -127,6 +131,16 @@ public class EditText2linesWithPaste extends LinearLayout {
     /** Programmatically show suggestions. */
     public void showSuggestions() {
         editText.showDropDown();
+    }
+
+    /**
+     * Overrides the default shared "Type here…" hint. Must go through the TextInputLayout, not
+     * the inner AutoCompleteTextView directly - the two don't merge into one floating label (that
+     * merge only happens automatically for the TextInputEditText subclass), so setting a hint on
+     * the child on top of the TextInputLayout's own hint produces two competing hints instead.
+     */
+    public void setHint(@Nullable CharSequence hint) {
+        editTextLayout.setHint(hint);
     }
 
     public String getText() {

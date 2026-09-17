@@ -1097,9 +1097,9 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="welcome_button_add">Aggiungi il tuo primo libro</string>
     <string name="welcome_hint">Suggerimento: personalizza colori e opzioni nelle Impostazioni.</string>
     <string name="btn_get_local_book_title">È sul mio dispositivo (o SD o Drive).</string>
-    <string name="btn_direct_link_title">Ho un link di download diretto.</string>
+    <string name="btn_direct_link_title">Voglio incollare un link che ho già.</string>
     <string name="btn_browse_audiobooks_title">Voglio sfogliare un registro pubblico gratuito.</string>
-    <string name="direct_link">http diretto</string>
+    <string name="direct_link">Incolla link</string>
     <string name="load_one_book">carica 1 libro</string>
     <string name="load_multiple_book">carica libri</string>
     <string name="reset_track_order">reimposta ordine tracce</string>
