@@ -12,7 +12,7 @@
             android:id="@+id/tvBefore"
             style="@style/simpleTextWrap"
             android:layout_width="0dp"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="10dp"
             android:textSize="24sp" />
@@ -37,7 +37,7 @@
             android:id="@+id/tvAfter"
             style="@style/simpleTextWrap"
             android:layout_width="0dp"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="5dp"
             android:textSize="24sp" />

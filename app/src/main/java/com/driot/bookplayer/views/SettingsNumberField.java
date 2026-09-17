@@ -94,7 +94,7 @@ public class SettingsNumberField extends LinearLayout {
         tvAfter.setText(text);
         tvAfter.setVisibility(has ? VISIBLE : GONE);
         LayoutParams lp = (LayoutParams) tvBefore.getLayoutParams();
-        lp.weight = has ? 2f : 5f;
+        lp.weight = has ? 3f : 5f;
         tvBefore.setLayoutParams(lp);
     }
 
