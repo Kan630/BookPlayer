@@ -423,7 +423,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 
     <string name="option_timeBeforeSleep">自动暂停</string>
 
-    <string name="option_timeBeforeSleep_text">在此之后：</string>
+    <string name="option_timeBeforeSleep_text">在此之后</string>
     <string name="option_copy_file_title">内部复制文件</string>
     <string name="option_backward_forward_title">快退/快进按钮</string>
     <string name="option_backward_forward_text">时间间隔</string>

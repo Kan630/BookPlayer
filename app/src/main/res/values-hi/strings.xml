@@ -417,7 +417,7 @@
 
     <string name="option_timeBeforeSleep">स्वतः विराम</string>
 
-    <string name="option_timeBeforeSleep_text">के बाद :</string>
+    <string name="option_timeBeforeSleep_text">के बाद</string>
     <string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
     <string name="option_backward_forward_title">बैकवर्ड/फ़ॉरवर्ड बटन</string>
     <string name="option_backward_forward_text">टाइमलैप्स</string>

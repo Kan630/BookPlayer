@@ -423,7 +423,7 @@
 
     <string name="option_timeBeforeSleep">Pausa automatica</string>
 
-    <string name="option_timeBeforeSleep_text">dopo :</string>
+    <string name="option_timeBeforeSleep_text">dopo</string>
     <string name="option_copy_file_title">Copia file internamente</string>
     <string name="option_backward_forward_title">Pulsanti Indietro/Avanti</string>
     <string name="option_backward_forward_text">intervallo</string>
@@ -965,7 +965,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">Ritardo evidenziazione</string>
 
 
-    <string name="option_tts_chunk_size_text">Dimensione del blocco</string>
+    <string name="option_tts_chunk_size_text">Dimensione blocco</string>
     <string name="tts_chunk_size">Dimensione del blocco</string>
     <string name="change_tracks_order">cambiare l\'ordine delle tracce</string>
     <string name="Failed_to_create_the_destionation_file">Impossibile creare il file di destinazione.</string>
@@ -1044,7 +1044,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_tts_snap_to_sentence_explain">Quando si riprende dopo una pausa, torna all\'inizio della frase corrente.</string>
     <string name="option_tts_show_loading_overlay">Mostra overlay di caricamento</string>
     <string name="option_tts_overlay_timeout_title">Timeout overlay</string>
-    <string name="option_tts_overlay_timeout_text">Tempo di caricamento massimo</string>
+    <string name="option_tts_overlay_timeout_text">Tempo di attesa max</string>
     <string name="EndCut">Taglio finale</string>
     <string name="EndCutText"><i>"Interrompe la riproduzione alcuni secondi prima della fine di ogni capitolo."</i></string>
     <string name="BookType">"Tipo di libro"</string>
@@ -1233,7 +1233,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="no_ebooks_found_search">Nessun ebook trovato \nper la ricerca [%1$s] \ncon lingua [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Nessun ebook trovato \nper scaffale [%1$s] \ncon lingua [%2$s]</string>
     <string name="gutenberg_contacting">Connessione a gutenberg.org…</string>
-    <string name="api_paging_size">Dimensione paginazione API</string>
+    <string name="api_paging_size">Dim. pagina API</string>
     <string name="radio_thanks">Grazie a radio-browser.info per il repository gratuito di radio mondiali</string>
     <string name="mass_import_scanning_title">Scansione importazione massiva…</string>
     <string name="mass_import_scan_complete">Scansione importazione massiva completata.</string>

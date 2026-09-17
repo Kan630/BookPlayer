@@ -427,7 +427,7 @@ C\'est encore calme pour le moment, mais n\'hésitez pas à vous inscrire pour p
 
     <string name="option_timeBeforeSleep">Pause automatique</string>
 
-    <string name="option_timeBeforeSleep_text">après :</string>
+    <string name="option_timeBeforeSleep_text">après</string>
     <string name="option_copy_file_title">Copier les fichiers en interne</string>
     <string name="option_backward_forward_title">Boutons Retour/Avance</string>
     <string name="option_backward_forward_text">décalage</string>
@@ -1240,7 +1240,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
 pour la bibliothèque [%1$s]
 avec la langue [%2$s]</string>
     <string name="gutenberg_contacting">Contact de gutenberg.org…</string>
-    <string name="api_paging_size">Taille de pagination API</string>
+    <string name="api_paging_size">Taille page API</string>
     <string name="radio_thanks">Merci à radio-browser.info pour leur répertoire gratuit de radios</string>
     <string name="mass_import_scanning_title">Scan pour l\import de masse…</string>
     <string name="mass_import_scan_complete">Scan pour l\import de masse terminé.</string>

@@ -424,7 +424,7 @@ Verwenden Sie die Option <font color="#90D8E8">"Mail an Entwickler"</font> aus d
 
     <string name="option_timeBeforeSleep">Automatische Pause</string>
 
-    <string name="option_timeBeforeSleep_text">nach :</string>
+    <string name="option_timeBeforeSleep_text">nach</string>
     <string name="option_copy_file_title">Dateien intern kopieren</string>
     <string name="option_backward_forward_title">Zurück-/Vorwärts-Tasten</string>
     <string name="option_backward_forward_text">Zeitsprung</string>
@@ -520,7 +520,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_guess_book_language">Buchsprache erraten</string>
     <string name="option_guess_book_language_explain">Beim Importieren eines E-Books versuchen, dessen Sprache zu erkennen und eine passende Stimme vorauszuwählen, anstatt immer die oben angegebene Standardstimme zu verwenden.</string>
     <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
-    <string name="option_tts_highlight_delay_text">Verzögerung der Engine</string>
+    <string name="option_tts_highlight_delay_text">Engine-Verzögerung</string>
     <string name="option_epub_split_mode_text">Wie EPUB-Dateien in Kapitel unterteilt werden:</string>
     <string name="option_epub_split_mode_auto">Auto (Inhaltsverzeichnis falls verf., sonst Spine)</string>
     <string name="option_epub_split_mode_toc">TOC-basiert (ein Kapitel pro Inhaltsverzeichnis-Eintrag)</string>
@@ -1234,7 +1234,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="no_ebooks_found_search">Keine E-Books gefunden \nfür Suche [%1$s] \nmit Sprache [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Keine E-Books gefunden \nfür Bücherregal [%1$s] \nmit Sprache [%2$s]</string>
     <string name="gutenberg_contacting">Verbinde mit gutenberg.org…</string>
-    <string name="api_paging_size">API-Paginierungsgröße</string>
+    <string name="api_paging_size">API-Seitengröße</string>
     <string name="radio_thanks">Danke an radio-browser.info für das kostenlose Verzeichnis von Weltradios</string>
     <string name="mass_import_scanning_title">Massenimport-Scan…</string>
     <string name="mass_import_scan_complete">Massenimport-Scan abgeschlossen.</string>

@@ -23,6 +23,10 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 public class SettingsNumberField extends LinearLayout {
 
+    /** Labels shrink to fit one line instead of wrapping to a second - never smaller than this. */
+    private static final float LABEL_MIN_TEXT_SIZE_SP = 10f;
+    private static final float LABEL_DEFAULT_MAX_TEXT_SIZE_SP = 24f;
+
     private TextView tvBefore, tvAfter, tvMin, tvMax;
     private TextInputEditText etField;
 
@@ -45,6 +49,8 @@ public class SettingsNumberField extends LinearLayout {
         tvMin = findViewById(R.id.tvMin);
         tvMax = findViewById(R.id.tvMax);
 
+        float fieldTextSizePx = -1;
+
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SettingsNumberField);
 
@@ -53,10 +59,8 @@ public class SettingsNumberField extends LinearLayout {
             setMinText(a.getText(R.styleable.SettingsNumberField_minText));
             setMaxText(a.getText(R.styleable.SettingsNumberField_maxText));
 
-            float fieldTextSizePx = a.getDimension(R.styleable.SettingsNumberField_fieldTextSize, -1);
+            fieldTextSizePx = a.getDimension(R.styleable.SettingsNumberField_fieldTextSize, -1);
             if (fieldTextSizePx > 0) {
-                tvBefore.setTextSize(TypedValue.COMPLEX_UNIT_PX, fieldTextSizePx);
-                tvAfter.setTextSize(TypedValue.COMPLEX_UNIT_PX, fieldTextSizePx);
                 etField.setTextSize(TypedValue.COMPLEX_UNIT_PX, fieldTextSizePx);
             }
 
@@ -70,6 +74,19 @@ public class SettingsNumberField extends LinearLayout {
 
             a.recycle();
         }
+
+        // Explicit setTextSize() calls (above, and Java-side setters elsewhere) would otherwise
+        // silently disable autosizing, so this must run last.
+        applyLabelAutosize(tvBefore, fieldTextSizePx);
+        applyLabelAutosize(tvAfter, fieldTextSizePx);
+    }
+
+    private void applyLabelAutosize(TextView tv, float maxSizePxOverride) {
+        float maxSizeSp = maxSizePxOverride > 0
+                ? maxSizePxOverride / getResources().getDisplayMetrics().scaledDensity
+                : LABEL_DEFAULT_MAX_TEXT_SIZE_SP;
+        tv.setAutoSizeTextTypeUniformWithConfiguration(
+                (int) LABEL_MIN_TEXT_SIZE_SP, (int) maxSizeSp, 1, TypedValue.COMPLEX_UNIT_SP);
     }
 
     public TextInputEditText getEditText() {
