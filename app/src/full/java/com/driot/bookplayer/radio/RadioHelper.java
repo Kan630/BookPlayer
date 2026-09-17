@@ -81,7 +81,7 @@ public class RadioHelper {
 			myLogEE(null, "handle deepLink radio, missing uuid or url");
 			return;
 		}
-		Intent i = new Intent(context, RadioStationActivity.class);
+		Intent i = new Intent(context, RadioHostActivity.class);
 		i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
 		i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(i);
@@ -448,22 +448,23 @@ public class RadioHelper {
 	// ---- Navigation Helpers ----
 
 	public static Intent getSectionRootIntent(Context context) {
-		return new Intent(context, GetRadioActivity.class);
+		return new Intent(context, RadioHostActivity.class);
 	}
 
 	public static Intent getFavoritesSectionIntent(Context context) {
-		return new Intent(context, RadioFavoritesActivity.class);
+		return new Intent(context, RadioHostActivity.class)
+				.putExtra(Intents.EXTRA_START_IN_FAVORITES, true);
 	}
 
 	public static Intent getHistorySectionIntent(Context context) {
-		return new Intent(context, RadioFavoritesActivity.class)
+		return new Intent(context, RadioHostActivity.class)
 				.putExtra(Intents.EXTRA_START_IN_HISTORY, true);
 	}
 
 	public static void openRadioStationActivity(Context context, long trackId) {
 		if (trackId <= 0) {
 			myLogE("openRadioStationActivity => no trackId");
-			context.startActivity(new Intent(context, GetRadioActivity.class));
+			context.startActivity(new Intent(context, RadioHostActivity.class));
 			return;
 		}
 		AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -478,13 +479,28 @@ public class RadioHelper {
 		});
 	}
 
-	public static void openRadioStationActivityFromUuid(Context context, String uuid) {
-		if (uuid == null || uuid.isEmpty()) {
-			context.startActivity(new Intent(context, GetRadioActivity.class));
-			return;
+	/**
+	 * Same-tab "Radio" bottom-nav click: if the given Activity is already the
+	 * single-Activity radio host, reset its internal nav graph to the section root instead
+	 * of going through the legacy Intent-stack path. Returns false if the Activity isn't
+	 * RadioHostActivity, so NavHelper falls back to the legacy per-Activity flow (used by
+	 * every not-yet-migrated section).
+	 */
+	public static boolean handleRadioTabReselected(android.app.Activity activity) {
+		if (activity instanceof RadioHostActivity) {
+			((RadioHostActivity) activity).navigateToRoot();
+			return true;
 		}
-		context.startActivity(
-				new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
+		return false;
+	}
+
+	public static void openRadioStationActivityFromUuid(Context context, String uuid) {
+		Intent i = new Intent(context, RadioHostActivity.class)
+				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		if (uuid != null && !uuid.isEmpty()) {
+			i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
+		}
+		context.startActivity(i);
 	}
 
 	public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
@@ -505,9 +521,7 @@ public class RadioHelper {
 			}
 			TaskStackBuilder tsb = TaskStackBuilder.create(context);
 			tsb.addNextIntent(new Intent(context, MainActivity.class));
-			tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
-					.putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
-			tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
+			tsb.addNextIntent(new Intent(context, RadioHostActivity.class)
 					.putExtra(Intents.EXTRA_STATION_UUID, uuid));
 			return tsb.getPendingIntent(0, flags);
 		}
@@ -527,12 +541,11 @@ public class RadioHelper {
 		if (Option.getRadioLandingScreen() != Option.RADIO_LANDING_SEARCH && hasFavOrHistory) {
 			TaskStackBuilder tsb = TaskStackBuilder.create(context);
 			tsb.addNextIntent(new Intent(context, MainActivity.class));
-			tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-			tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
-					.putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
+			tsb.addNextIntent(new Intent(context, RadioHostActivity.class)
+					.putExtra(Intents.EXTRA_START_IN_FAVORITES, true));
 			return tsb.getPendingIntent(0, flags);
 		} else {
-			return PendingIntent.getActivity(context, 0, new Intent(context, GetRadioActivity.class), flags);
+			return PendingIntent.getActivity(context, 0, new Intent(context, RadioHostActivity.class), flags);
 		}
 	}
 

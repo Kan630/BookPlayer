@@ -74,6 +74,10 @@ public class RadioHelper {
         myLog("stub!");
     }
 
+    public static boolean handleRadioTabReselected(android.app.Activity activity) {
+        return false;
+    }
+
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
         return null;
     }

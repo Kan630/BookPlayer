@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/radio_nav_graph"
+    app:startDestination="@id/getRadioFragment">
+
+    <fragment
+        android:id="@+id/getRadioFragment"
+        android:name="com.driot.bookplayer.radio.GetRadioFragment"
+        android:label="GetRadio"
+        tools:layout="@layout/activity_get_radio" />
+
+    <fragment
+        android:id="@+id/radioResultsFragment"
+        android:name="com.driot.bookplayer.radio.RadioResultsFragment"
+        android:label="RadioResults"
+        tools:layout="@layout/activity_radio_results" />
+
+    <fragment
+        android:id="@+id/radioFavoritesFragment"
+        android:name="com.driot.bookplayer.radio.RadioFavoritesFragment"
+        android:label="RadioFavorites"
+        tools:layout="@layout/activity_radio_results" />
+
+    <fragment
+        android:id="@+id/getRadioCardListFragment"
+        android:name="com.driot.bookplayer.radio.GetRadioCardListFragment"
+        android:label="GetRadioCardList"
+        tools:layout="@layout/activity_get_radio_by_tag" />
+
+    <fragment
+        android:id="@+id/radioStationFragment"
+        android:name="com.driot.bookplayer.radio.RadioStationFragment"
+        android:label="RadioStation"
+        tools:layout="@layout/activity_radio_station" />
+
+</navigation>

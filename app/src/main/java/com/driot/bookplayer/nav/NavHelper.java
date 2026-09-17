@@ -108,6 +108,16 @@ public class NavHelper {
 
         int currentItemId = navState.getCurrentAppNavBarId();
 
+        // Radio is migrated to a single Activity (RadioHostActivity, full flavor only)
+        // hosting a Navigation Component graph - see [[radio_deeplink_applinks_fix]]. While
+        // already inside it, route the click through its own NavController instead of the
+        // legacy Intent-stack path below, which doesn't know about its internal fragment
+        // back stack. RadioHelper.handleRadioTabReselected is a no-op stub on "pure".
+        if (itemId == R.id.nav_radio && RadioHelper.handleRadioTabReselected(activity)) {
+            navState.setCurrentAppNavBarId(itemId);
+            return true;
+        }
+
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
             myLogDD("same tab click");

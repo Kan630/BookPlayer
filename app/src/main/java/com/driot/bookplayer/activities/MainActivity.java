@@ -260,7 +260,15 @@ public class MainActivity extends FullActivity {
             myLog("scrollToTop");
             mainVm.requestScrollToTopNow();
         }
-        ShareHelper.handleDeepLink(this, getIntent());
+        // FROM_TAB_SWITCH means NavHelper is just restoring/reordering this Activity to the
+        // front for the Library tab - the Intent it replays is whatever was originally
+        // pushed for that tab (e.g. a one-time deep link's Intent, verbatim), not a fresh
+        // navigation event. Without this guard, re-selecting Library after a deep link
+        // re-triggers that same deep link (and its side effects, e.g. restarting radio
+        // playback) every time - see [[radio_deeplink_applinks_fix]].
+        if (!intent.getBooleanExtra("FROM_TAB_SWITCH", false)) {
+            ShareHelper.handleDeepLink(this, getIntent());
+        }
         handleMediaSearchIntentIfAny(intent);
     }
 

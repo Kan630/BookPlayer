@@ -129,7 +129,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                     NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
                 } else {
                     myLog("no VM state");
-                    startActivity(new Intent(requireContext(), GetRadioActivity.class));
+                    startActivity(new Intent(requireContext(), RadioHostActivity.class));
                 }
             });
         }
