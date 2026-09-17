@@ -147,8 +147,9 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
                                 .getById(idPodcast);
-                        startActivity(new Intent(requireContext(), PodcastEpisodeActivity.class).putExtra("podcast",
-                                podcast));
+                        startActivity(new Intent(requireContext(), PodcastHostActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra("podcast", podcast));
                     });
                 }
             });

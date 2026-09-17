@@ -118,6 +118,14 @@ public class NavHelper {
             return true;
         }
 
+        // Same for Podcast (PodcastHostActivity, full flavor only) - see
+        // [[radio_deeplink_applinks_fix]]. PodcastHelper.handlePodcastTabReselected is a
+        // no-op stub on "pure".
+        if (itemId == R.id.nav_podcast && PodcastHelper.handlePodcastTabReselected(activity)) {
+            navState.setCurrentAppNavBarId(itemId);
+            return true;
+        }
+
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
             myLogDD("same tab click");

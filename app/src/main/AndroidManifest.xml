@@ -140,6 +140,14 @@
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioStationActivity" />
 
+        <!-- Migrated to a single Activity + Navigation Component graph, see
+             [[radio_deeplink_applinks_fix]] plan. The 5 Activities below are kept
+             declared-but-unreferenced as a safety margin until Phase 2 is confirmed
+             stable on-device, then removed in a follow-up cleanup commit. -->
+        <activity android:name=".podcasts.PodcastHostActivity"
+            android:launchMode="singleTop"
+            />
+
         <activity android:name=".podcasts.GetPodcastActivity"
             android:parentActivityName=".activities.MainActivity"
             />

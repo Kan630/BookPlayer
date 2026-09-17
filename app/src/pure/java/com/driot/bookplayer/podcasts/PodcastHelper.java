@@ -98,4 +98,8 @@ public class PodcastHelper {
         return null;
     }
 
+    public static boolean handlePodcastTabReselected(android.app.Activity activity) {
+        return false;
+    }
+
 }

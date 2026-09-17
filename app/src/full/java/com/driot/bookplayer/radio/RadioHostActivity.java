@@ -3,6 +3,7 @@ package com.driot.bookplayer.radio;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
@@ -10,6 +11,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.FullActivity;
@@ -36,6 +38,27 @@ public class RadioHostActivity extends FullActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
+
+        // Registered after super.onCreate() (which is where BaseActivity registers its own
+        // isSectionRoot()-based callback) so this one - added later, same LifecycleOwner - wins
+        // deterministically on back press. We can't rely on NavHostFragment's own back callback
+        // racing correctly against BaseActivity's (Activity vs nested-Fragment LifecycleOwners,
+        // observed unreliable in testing) - so this Activity owns the whole decision directly via
+        // a plain NavController.popBackStack() call instead.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                NavController navController = getRadioNavController();
+                if (navController != null && navController.popBackStack()) {
+                    return; // popped one level within the radio graph
+                }
+                myLogI("--- user press BACK --- from radio section root -> MainActivity");
+                Intent intent = new Intent(RadioHostActivity.this, MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            }
+        });
 
         if (savedInstanceState == null) {
             handleIntentNavigation(getIntent());
