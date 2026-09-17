@@ -513,7 +513,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="On_Connect">Beim Verbinden</string>
     <string name="On_Disconnect">Beim Trennen</string>
     <string name="option_always_open_track_list">Titelliste auch bei Büchern mit nur einem Titel öffnen</string>
-    <string name="option_always_open_track_list_subtitle"><i>"Aus (Standard): Das Antippen eines Buches mit nur einem Titel startet direkt die Wiedergabe. Ein: Öffnet immer zuerst die Titelliste, wie bei Büchern mit mehreren Titeln."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"Ein: Öffnet immer zuerst die Titelliste, wie bei Büchern mit mehreren Titeln. Aus: Das Antippen eines Buches mit nur einem Titel öffnet direkt die [Wiedergabeansicht] anstelle der Titelliste."</i></string>
     <string name="option_open_play_activity">[Wiedergabeansicht] öffnen, wenn die Wiedergabe startet.</string>
     <string name="tts_settings">TTS-Einstellungen</string>
     <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>

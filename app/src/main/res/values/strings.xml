@@ -581,7 +581,7 @@
     <string name="On_Connect">On Connect</string>
     <string name="On_Disconnect">On Disconnect</string>
     <string name="option_always_open_track_list">Open track list even for single-track books</string>
-    <string name="option_always_open_track_list_subtitle"><i>"On (default): always opens the track list first, like books with several tracks. Off: tapping a book with only one track starts playing it directly."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"On: always opens the track list first, like books with several tracks. Off: tapping a book with only one track directly opens [Player View] instead of the track list."</i></string>
     <string name="option_open_play_activity">Open [Player View] when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>

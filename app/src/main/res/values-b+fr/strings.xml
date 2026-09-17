@@ -529,7 +529,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="On_Connect">À la connexion</string>
     <string name="On_Disconnect">À la déconnexion</string>
     <string name="option_always_open_track_list">Ouvrir la liste des pistes même pour les livres à une seule piste</string>
-    <string name="option_always_open_track_list_subtitle"><i>"Désactivé (par défaut) : appuyer sur un livre avec une seule piste la lance directement. Activé : ouvre toujours d\'abord la liste des pistes, comme pour les livres à plusieurs pistes."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"Activé : ouvre toujours d\'abord la liste des pistes, comme pour les livres à plusieurs pistes. Désactivé : appuyer sur un livre avec une seule piste ouvre directement la [vue de lecture] au lieu de la liste des pistes."</i></string>
     <string name="option_open_play_activity">Ouvrir la [vue de lecture] lorsque la lecture démarre.</string>
     <string name="tts_settings">Paramètres TTS</string>
     <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>

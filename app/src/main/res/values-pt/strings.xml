@@ -511,7 +511,7 @@
     <string name="On_Connect">Ao conectar</string>
     <string name="On_Disconnect">Ao desconectar</string>
     <string name="option_always_open_track_list">Abrir lista de faixas mesmo para livros com uma só faixa</string>
-    <string name="option_always_open_track_list_subtitle"><i>"Desativado (padrão): tocar num livro com apenas uma faixa inicia a reprodução diretamente. Ativado: abre sempre primeiro a lista de faixas, como em livros com várias faixas."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"Ativado: abre sempre primeiro a lista de faixas, como em livros com várias faixas. Desativado: tocar num livro com apenas uma faixa abre diretamente a [tela de reprodução] em vez da lista de faixas."</i></string>
     <string name="option_open_play_activity">Abrir a [tela de reprodução] quando a reprodução começar.</string>
     <string name="tts_settings">Configurações de TTS</string>
     <string name="option_tts_language_text">Idioma padrão de TTS para novos e-books.</string>

@@ -511,7 +511,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="On_Connect">连接时</string>
     <string name="On_Disconnect">断开连接时</string>
     <string name="option_always_open_track_list">即使是单音轨书籍也打开音轨列表</string>
-    <string name="option_always_open_track_list_subtitle"><i>"关闭（默认）：点按只有一个音轨的书籍会直接开始播放。开启：始终先打开音轨列表，就像有多个音轨的书籍一样。"</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"开启：始终先打开音轨列表，就像有多个音轨的书籍一样。关闭：点按只有一个音轨的书籍会直接打开[播放视图]而不是音轨列表。"</i></string>
     <string name="option_open_play_activity">播放开始时打开[播放视图]。</string>
     <string name="tts_settings">TTS 设置</string>
     <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>

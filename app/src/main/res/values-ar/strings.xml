@@ -506,7 +506,7 @@
     <string name="On_Connect">عند الاتصال</string>
     <string name="On_Disconnect">عند قطع الاتصال</string>
     <string name="option_always_open_track_list">فتح قائمة المقاطع حتى للكتب ذات المقطع الواحد</string>
-    <string name="option_always_open_track_list_subtitle"><i>"إيقاف (افتراضي): النقر على كتاب يحتوي على مقطع واحد فقط يبدأ التشغيل مباشرة. تشغيل: يفتح دائماً قائمة المقاطع أولاً، كما هو الحال في الكتب متعددة المقاطع."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"تشغيل: يفتح دائماً قائمة المقاطع أولاً، كما هو الحال في الكتب متعددة المقاطع. إيقاف: النقر على كتاب يحتوي على مقطع واحد فقط يفتح مباشرة [شاشة التشغيل] بدلاً من قائمة المقاطع."</i></string>
     <string name="option_open_play_activity">فتح [شاشة التشغيل] عند بدء التشغيل.</string>
     <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>

@@ -510,7 +510,7 @@
     <string name="On_Connect">При подключении</string>
     <string name="On_Disconnect">При отключении</string>
     <string name="option_always_open_track_list">Открывать список треков даже для книг с одним треком</string>
-    <string name="option_always_open_track_list_subtitle"><i>"Выкл (по умолчанию): нажатие на книгу с одним треком сразу запускает воспроизведение. Вкл: список треков всегда открывается сначала, как для книг с несколькими треками."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"Вкл: список треков всегда открывается сначала, как для книг с несколькими треками. Выкл: нажатие на книгу с одним треком сразу открывает [экран воспроизведения] вместо списка треков."</i></string>
     <string name="option_open_play_activity">Открывать [экран воспроизведения] при запуске воспроизведения.</string>
     <string name="tts_settings">Настройки TTS</string>
     <string name="option_tts_language_text">Язык TTS по умолчанию для новых электронных книг.</string>

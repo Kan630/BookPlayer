@@ -509,7 +509,7 @@
     <string name="On_Connect">कनेक्ट होने पर</string>
     <string name="On_Disconnect">डिस्कनेक्ट होने पर</string>
     <string name="option_always_open_track_list">एकल-ट्रैक पुस्तकों के लिए भी ट्रैक सूची खोलें</string>
-    <string name="option_always_open_track_list_subtitle"><i>"बंद (डिफ़ॉल्ट): केवल एक ट्रैक वाली पुस्तक पर टैप करने से वह सीधे चलने लगती है। चालू: हमेशा पहले ट्रैक सूची खोलता है, जैसे कई ट्रैक वाली पुस्तकों में।"</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"चालू: हमेशा पहले ट्रैक सूची खोलता है, जैसे कई ट्रैक वाली पुस्तकों में। बंद: केवल एक ट्रैक वाली पुस्तक पर टैप करने से ट्रैक सूची की बजाय सीधे [प्ले व्यू] खुलता है।"</i></string>
     <string name="option_open_play_activity">प्लेबैक शुरू होने पर [प्ले व्यू] खोलें।</string>
     <string name="tts_settings">TTS सेटिंग्स</string>
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
