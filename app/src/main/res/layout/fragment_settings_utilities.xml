@@ -109,5 +109,117 @@
                 android:textStyle="italic" />
         </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/app_info" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/btn_app_info"
+                android:text="@string/utilities_open_app_info" />
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/utilities_app_info_explanation"
+                android:textStyle="italic" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/utilities_cache_management_title" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/btn_delete_cache"
+                android:text="@string/delete_cache" />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/delete_cache_explanation"
+                android:textStyle="italic" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/btn_delete_system_cache"
+                android:text="@string/delete_system_cache" />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/delete_system_cache_explanation"
+                android:textStyle="italic" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/utilities_quick_access_title" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/btn_quick_access_stats"
+                android:text="@string/Stats" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/btn_quick_access_cleaning"
+                android:text="@string/Cleaning" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/btn_quick_access_manual"
+                android:text="@string/manual" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/btn_quick_access_website"
+                android:text="@string/Website" />
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/utilities_quick_access_desc"
+                android:textStyle="italic" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

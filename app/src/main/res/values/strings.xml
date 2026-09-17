@@ -265,6 +265,8 @@
     <string name="beta_test">beta test</string>
     <string name="are_you_sure">Are you sure ?</string>
     <string name="app_info">App Info</string>
+    <string name="utilities_open_app_info">Open App Info</string>
+    <string name="utilities_app_info_explanation">Opens the Android system settings page for this app, where you can review permissions, check storage usage, or force-stop the app.</string>
     <string name="delete_logs">Delete Logs</string>
     <string name="Import_failed">Import failed</string>
     <string name="About_to_start_download">About to start download…</string>
@@ -579,7 +581,7 @@
     <string name="On_Connect">On Connect</string>
     <string name="On_Disconnect">On Disconnect</string>
     <string name="option_always_open_track_list">Open track list even for single-track books</string>
-    <string name="option_always_open_track_list_subtitle"><i>"Off (default): tapping a book with only one track starts playing it directly. On: always opens the track list first, like books with several tracks."</i></string>
+    <string name="option_always_open_track_list_subtitle"><i>"On (default): always opens the track list first, like books with several tracks. Off: tapping a book with only one track starts playing it directly."</i></string>
     <string name="option_open_play_activity">Open [Player View] when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
@@ -888,6 +890,7 @@
     <string name="DeleteSystemCache_AskConfirm">"You are about to clear the app\'s system cache.
         This is safe and will save space, temporary files will be recreated as needed.
         Are you sure ?"</string>
+    <string name="utilities_cache_management_title">Cache Management</string>
     <string name="too_low">too low</string>
     <string name="too_high">too high</string>
     <string name="delay_for_auto_deletion">delay for auto deletion</string>
@@ -1009,6 +1012,9 @@
     <string name="utilities_backup_library">Backup</string>
     <string name="utilities_restore_library">Restore</string>
     <string name="utilities_backup_restore_desc">Save and restore some items and preferences to/from a file or via quick share.</string>
+
+    <string name="utilities_quick_access_title">Quick Access</string>
+    <string name="utilities_quick_access_desc">Shortcuts also available from the menu on the main screen.</string>
 
     <string name="backup_share_live_title">Live Share</string>
     <string name="backup_share_connecting">Connecting to nearby devices…</string>

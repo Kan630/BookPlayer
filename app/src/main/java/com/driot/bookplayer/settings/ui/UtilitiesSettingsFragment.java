@@ -1,8 +1,11 @@
 package com.driot.bookplayer.settings.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +14,31 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.CleanMemoryActivity;
+import com.driot.bookplayer.activities.HelpActivity;
+import com.driot.bookplayer.activities.StatsActivity;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.importexport.ImportExportActivity;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+
+import java.io.File;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class UtilitiesSettingsFragment extends LoggingFragment {
+
+    private static final int REQ_DELETE_CACHE = 2002;
+    private static final int REQ_DELETE_SYSTEM_CACHE = 2003;
 
     @Inject NavHelper navHelper;
 
@@ -122,7 +138,82 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             it.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_RESTORE);
             startActivity(it);
         });
+
+        root.findViewById(R.id.btn_app_info).setOnClickListener(v -> openAppInfo());
+        root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());
+        root.findViewById(R.id.btn_delete_system_cache).setOnClickListener(v -> deleteSystemCacheClick());
+
+        root.findViewById(R.id.btn_quick_access_stats).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), StatsActivity.class)));
+        root.findViewById(R.id.btn_quick_access_cleaning).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), CleanMemoryActivity.class)));
+        root.findViewById(R.id.btn_quick_access_manual).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), HelpActivity.class)));
+        root.findViewById(R.id.btn_quick_access_website).setOnClickListener(v ->
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL))));
+
         return root;
     }
 
+    private void openAppInfo() {
+        myLogI("--- user clicks OPEN APP INFO ---");
+        try {
+            Context context = requireContext();
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogEE(e, "openAppInfo()");
+        }
+    }
+
+    private void deleteCacheClick() {
+        myLogI("--- user clicks DELETE CACHE ---");
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteCache_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_CACHE);
+    }
+
+    private void deleteCachedImages() {
+        Context context = requireContext().getApplicationContext();
+        File dir = new File(requireContext().getFilesDir(), "images");
+        FileHelper.RemoveCachedImages(context, dir);
+    }
+
+    private void deleteSystemCacheClick() {
+        myLogI("--- user clicks DELETE SYSTEM CACHE ---");
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteSystemCache_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_SYSTEM_CACHE);
+    }
+
+    private void deleteSystemCache() {
+        // Only raw-delete the subfolder(s) under getCacheDir() that we manage ourselves.
+        // Never touch Glide's own disk cache directory there: it's open in-process with
+        // its own journal, and deleting its files out from under it desyncs the journal,
+        // breaking image loads until the app restarts.
+        Context appCtx = requireContext().getApplicationContext();
+        AppDatabase.databaseReadExecutor.execute(() -> FileHelper.deleteFolderChildren(ImageHelper.getEpisodeCoverOsCacheDir(appCtx)));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQ_DELETE_CACHE) {
+                deleteCachedImages();
+            } else if (requestCode == REQ_DELETE_SYSTEM_CACHE) {
+                deleteSystemCache();
+            }
+        }
+    }
 }

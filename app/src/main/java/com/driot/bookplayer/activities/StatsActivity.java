@@ -5,11 +5,9 @@ import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,31 +15,23 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.widgets.StorageBarView;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
-import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,9 +43,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class StatsActivity extends BaseActivity {
-
-    private static final int REQ_DELETE_CACHE = 2002;
-    private static final int REQ_DELETE_SYSTEM_CACHE = 2003;
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;
@@ -261,26 +248,6 @@ public class StatsActivity extends BaseActivity {
         } else {
             findViewById(R.id.ll_db_stats).setVisibility(View.GONE);
         }
-
-        // ----------------------------------------
-
-        findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
-        findViewById(R.id.bt_DeleteCache).setOnClickListener(v -> deleteCacheClick());
-        findViewById(R.id.bt_DeleteSystemCache).setOnClickListener(v -> deleteSystemCacheClick());
-        findViewById(R.id.bt_04).setOnClickListener(v -> resetApp());
-
-    }
-
-    public void openAppInfo() {
-        myLogI("--- user clicks OPEN APP INFO ---");
-        try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
-        } catch (Exception e) {
-            myLogEE(e, "openAppSettingsOnPhone()");
-        }
     }
 
     private static String getCountryFromTelephonyManager(Context context) {
@@ -296,52 +263,6 @@ public class StatsActivity extends BaseActivity {
         } else {
             return "Light";
         }
-    }
-
-    private void deleteCacheClick() {
-        myLogI("--- user clicks DELETE CACHE ---");
-        MsgBox.ask(this,
-                getString(R.string.AskDelete_popupTitle),
-                getString(R.string.DeleteCache_AskConfirm),
-                null,
-                getString(android.R.string.ok),
-                getString(android.R.string.cancel),
-                REQ_DELETE_CACHE);
-    }
-
-    private void deleteCachedImages() {
-        File dir = new File(this.getFilesDir(), "images");
-        FileHelper.RemoveCachedImages(this, dir);
-        recreate();
-    }
-
-    private void deleteSystemCacheClick() {
-        myLogI("--- user clicks DELETE SYSTEM CACHE ---");
-        MsgBox.ask(this,
-                getString(R.string.AskDelete_popupTitle),
-                getString(R.string.DeleteSystemCache_AskConfirm),
-                null,
-                getString(android.R.string.ok),
-                getString(android.R.string.cancel),
-                REQ_DELETE_SYSTEM_CACHE);
-    }
-
-    private void deleteSystemCache() {
-        // Only raw-delete the subfolder(s) under getCacheDir() that we manage ourselves.
-        // Never touch Glide's own disk cache directory there: it's open in-process with
-        // its own journal, and deleting its files out from under it desyncs the journal,
-        // breaking image loads until the app restarts.
-        Context appCtx = getApplicationContext();
-        AppDatabase.databaseReadExecutor.execute(() -> FileHelper.deleteFolderChildren(ImageHelper.getEpisodeCoverOsCacheDir(appCtx)));
-    }
-
-    private void resetApp() {
-        myLogI("--- user clicks RESET APP ---");
-        ImportHelper.cancelCurrentImport(this);
-        ImportHelper.cancelAll_in_DB(this);
-        navHelper.reInitNavState();
-        PlaybackCommands.stop(getApplicationContext());
-        myToast(getString(R.string.app_reset_done));
     }
 
     /**
@@ -702,17 +623,5 @@ public class StatsActivity extends BaseActivity {
         SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper()
                 .getWritableDatabase();
         return DatabaseBackupHelper.getSQLiteVersion(db);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQ_DELETE_CACHE) {
-                deleteCachedImages();
-            } else if (requestCode == REQ_DELETE_SYSTEM_CACHE) {
-                deleteSystemCache();
-            }
-        }
     }
 }
