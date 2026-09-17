@@ -77,12 +77,9 @@
 
                 </LinearLayout>
 
-                <View style="@style/GetResourceHorizontalBar" />
-
-                <!-- Row: Favorites + Settings -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <!-- Favorites + History -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
@@ -113,110 +110,114 @@
                         app:iconPadding="4dp" />
 
                 </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <View style="@style/GetResourceHorizontalBar" />
+                <!-- Quick lists -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
-                <!-- Description -->
-                <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/quick_lists"
-                    style="@style/GetResourceTextTopOfButton" />
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/quick_lists" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:baselineAligned="false"
-                    android:gravity="top"
-                    >
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:baselineAligned="false"
+                        android:gravity="top"
+                        >
 
-                    <Button
-                        android:id="@+id/bRadioLastClicked"
-                        android:text="@string/last_click"
-                        style="@style/radio_btn"
-                        />
+                        <Button
+                            android:id="@+id/bRadioLastClicked"
+                            android:text="@string/last_click"
+                            style="@style/radio_btn"
+                            />
 
-                    <Button
-                        android:id="@+id/bRadioLastChanged"
-                        android:text="@string/last_change"
-                        style="@style/radio_btn"
-                        />
+                        <Button
+                            android:id="@+id/bRadioLastChanged"
+                            android:text="@string/last_change"
+                            style="@style/radio_btn"
+                            />
 
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:baselineAligned="false"
+                        android:gravity="top"
+                        >
+
+                        <Button
+                            android:id="@+id/bRadioTopClicked"
+                            android:text="@string/top_click"
+                            style="@style/radio_btn"
+                            />
+
+                        <Button
+                            android:id="@+id/bRadioTopVoted"
+                            android:text="@string/top_vote"
+                            style="@style/radio_btn"
+                            />
+
+                    </LinearLayout>
+                    <!-- Filters: Language / Country / Tag -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:baselineAligned="false"
+                        android:gravity="top"
+                        >
+
+                        <Button
+                            android:id="@+id/bRadioByTag"
+                            android:text="@string/by_tag"
+                            style="@style/radio_btn"
+                            />
+
+                        <Button
+                            android:id="@+id/bRadioByCountry"
+                            android:text="@string/by_country"
+                            style="@style/radio_btn"
+                            />
+
+                        <Button
+                            android:id="@+id/bRadioByLang"
+                            android:text="@string/by_language"
+                            style="@style/radio_btn"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:baselineAligned="false"
-                    android:gravity="top"
-                    >
+                </com.google.android.material.card.MaterialCardView>
 
-                    <Button
-                        android:id="@+id/bRadioTopClicked"
-                        android:text="@string/top_click"
-                        style="@style/radio_btn"
-                        />
+                <!-- Search -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
-                    <Button
-                        android:id="@+id/bRadioTopVoted"
-                        android:text="@string/top_vote"
-                        style="@style/radio_btn"
-                        />
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/search_by_station_name" />
 
+                    <!-- scrollOnFocus = custom defined in attrs.xml -->
+                    <com.driot.bookplayer.views.EditText1lineWithSearch
+                        android:id="@+id/etRadio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:scrollOnFocus="true"
+                        android:layout_marginTop="12dp" />
                 </LinearLayout>
-                <!-- Filters: Language / Country / Tag -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:baselineAligned="false"
-                    android:gravity="top"
-                    >
-
-                    <Button
-                        android:id="@+id/bRadioByTag"
-                        android:text="@string/by_tag"
-                        style="@style/radio_btn"
-                        />
-
-                    <Button
-                        android:id="@+id/bRadioByCountry"
-                        android:text="@string/by_country"
-                        style="@style/radio_btn"
-                        />
-
-                    <Button
-                        android:id="@+id/bRadioByLang"
-                        android:text="@string/by_language"
-                        style="@style/radio_btn"
-                        />
-                </LinearLayout>
-
-                <View style="@style/GetResourceHorizontalBar" />
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/search_by_station_name"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <!-- Search box -->
-                <!-- scrollOnFocus = custom defined in attrs.xml -->
-    <com.driot.bookplayer.views.EditText1lineWithSearch
-                    android:id="@+id/etRadio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:scrollOnFocus="true"
-                    android:layout_marginTop="12dp" />
-
-                <TextView
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/radio_thanks"
                     style="@style/OptionExplainText" />
 
