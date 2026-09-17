@@ -187,9 +187,8 @@
         android:text="-"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:textSize="30sp"
-        android:paddingVertical="0dp"
-        android:textAlignment="gravity"
+        android:textSize="24sp"
+        android:padding="0dp"
         android:layout_toStartOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewTempsTotal"
         />
@@ -213,6 +212,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:textSize="24sp"
+        android:padding="0dp"
         android:layout_toEndOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewTempsTotal"
         />
