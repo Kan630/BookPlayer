@@ -293,5 +293,31 @@
         </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- File type shortcut buttons (ZIP/M4B/EPUB) on the Add screen -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/option_show_filtered_file_buttons_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_show_filtered_file_buttons"
+                style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_marginStart="0dp">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_show_filtered_file_buttons"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/txt_show_filtered_file_buttons"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_show_filtered_file_buttons_text" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_show_filtered_file_buttons_subtitle" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 </ScrollView>

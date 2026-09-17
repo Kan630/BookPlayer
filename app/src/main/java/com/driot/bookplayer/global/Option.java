@@ -72,6 +72,7 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
     public static final boolean DEFAULT_USE_METADATA_TITLES = false;
+    public static final boolean DEFAULT_SHOW_FILTERED_FILE_BUTTONS = false;
     private static final boolean DEFAULT_MASS_IMPORT_DISPLAY_STORAGE_BAR = false;
     private static final boolean DEFAULT_MASS_IMPORT_INCLUDE_SUBFOLDERS = true;
     public static final String DEFAULT_LANGUAGE = "system";
@@ -1007,6 +1008,14 @@ public class Option {
 
     public static boolean getCreateCover() {
         return prefs.getBoolean("CREATE_COVER", DEFAULT_CREATE_COVER);
+    }
+
+    public static void setShowFilteredFileButtons(boolean bool) {
+        prefs.edit().putBoolean("SHOW_FILTERED_FILE_BUTTONS", bool).apply();
+    }
+
+    public static boolean getShowFilteredFileButtons() {
+        return prefs.getBoolean("SHOW_FILTERED_FILE_BUTTONS", DEFAULT_SHOW_FILTERED_FILE_BUTTONS);
     }
 
     public static void setUseMetadataTitles(boolean bool) {

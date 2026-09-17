@@ -164,7 +164,7 @@
     <string name="open">abrir</string>
     <string name="others">otros</string>
     <string name="storage_legend_app">app</string>
-    <string name="paste">pegar</string>
+    <string name="paste">Pegar</string>
     <string name="Pause">Pausar</string> //means pause audio playback
     <string name="Play">Reproducir</string>
     <string name="Permission">Permiso</string>

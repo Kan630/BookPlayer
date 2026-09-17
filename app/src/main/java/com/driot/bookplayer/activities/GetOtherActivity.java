@@ -125,6 +125,8 @@ public class GetOtherActivity extends FullActivity {
         Button bOpenZipFile = findViewById(R.id.bOpenZipFile);
         Button bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
         Button bOpenEpubFile = findViewById(R.id.bOpenEpubFile);
+        findViewById(R.id.ll_open_filtered_file).setVisibility(
+                Option.getShowFilteredFileButtons() ? View.VISIBLE : View.GONE);
         Button bOpenFolder = findViewById(R.id.bOpenFolder);
         Button bMassImport = findViewById(R.id.bMassImport);
         Button bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);

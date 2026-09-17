@@ -199,7 +199,7 @@
     <string name="open">open</string>
     <string name="others">others</string>
     <string name="storage_legend_app">app</string>
-    <string name="paste">paste</string>
+    <string name="paste">Paste</string>
     <string name="Pause">Pause</string> //means pause audio playback
     <string name="Play">Play</string> //means start/resume audio playback
     <string name="Permission">Permission</string>
@@ -950,6 +950,9 @@
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
     <string name="option_create_cover_text">If no cover image is found upon book loading, a pastel image with book title initials will be created.</string>
+    <string name="option_show_filtered_file_buttons_title">File Type Shortcuts</string>
+    <string name="option_show_filtered_file_buttons_text">Show ZIP / M4B / EPUB shortcut buttons</string>
+    <string name="option_show_filtered_file_buttons_subtitle">Adds quick buttons on the Add screen to directly pick a file of one specific type, bypassing the general file picker.</string>
     <string name="option_metadata_titles">Metadata Chapter Titles</string>
     <string name="option_metadata_titles_text">Try to use metadata titles (tags) instead of filenames to create chapter names.</string>
 

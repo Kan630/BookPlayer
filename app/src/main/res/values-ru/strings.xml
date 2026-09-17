@@ -164,7 +164,7 @@
     <string name="open">открыть</string>
     <string name="others">прочее</string>
     <string name="storage_legend_app">приложение</string>
-    <string name="paste">вставить</string>
+    <string name="paste">Вставить</string>
     <string name="Pause">Пауза</string> //means pause audio playback
     <string name="Play">Воспроизвести</string>
     <string name="Permission">Разрешение</string>

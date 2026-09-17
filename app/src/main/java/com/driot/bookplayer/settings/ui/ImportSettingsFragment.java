@@ -54,6 +54,9 @@ public class ImportSettingsFragment extends LoggingFragment {
     private LinearLayout llProposeWholeBook;
     private MaterialCheckBox chkProposeWholeBook;
 
+    private LinearLayout llShowFilteredFileButtons;
+    private MaterialCheckBox chkShowFilteredFileButtons;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -162,6 +165,12 @@ public class ImportSettingsFragment extends LoggingFragment {
         chkProposeWholeBook.setChecked(Option.getProposeWholeBookImport());
         llProposeWholeBook.setOnClickListener(v -> chkProposeWholeBook.toggle());
         chkProposeWholeBook.setOnCheckedChangeListener((button, checked) -> Option.setProposeWholeBookImport(checked));
+
+        chkShowFilteredFileButtons = root.findViewById(R.id.chk_show_filtered_file_buttons);
+        llShowFilteredFileButtons = root.findViewById(R.id.ll_show_filtered_file_buttons);
+        chkShowFilteredFileButtons.setChecked(Option.getShowFilteredFileButtons());
+        llShowFilteredFileButtons.setOnClickListener(v -> chkShowFilteredFileButtons.toggle());
+        chkShowFilteredFileButtons.setOnCheckedChangeListener((button, checked) -> Option.setShowFilteredFileButtons(checked));
 
         // Optional: highlight header text red if you still want that behavior
         // TextView txtCopyFileHead = root.findViewById(R.id.txtCopyFileHead);
