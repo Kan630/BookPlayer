@@ -427,7 +427,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_timeBeforeSleep_text">después de :</string>
     <string name="option_copy_file_title">Copiar archivos internamente</string>
     <string name="option_backward_forward_title">Botones de retroceso/avance</string>
-    <string name="option_backward_forward_text">intervalo de tiempo :</string>
+    <string name="option_backward_forward_text">intervalo de tiempo</string>
     <string name="option_autoplay_next_chapter">Reproducir automáticamente el siguiente capítulo</string>
     <string name="option_autoplay_next_chapter_text">Inicia automáticamente el siguiente capítulo cuando termina el actual.</string>
     <string name="option_rewind_after_pause_text">Rebobinar el audio unos segundos antes de reanudar la reproducción (una pausa de 5 minutos rebobina 3 seg, una pausa de 1 h rebobina 5 seg, …)</string>
@@ -516,7 +516,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_guess_book_language">Adivinar el idioma del libro</string>
     <string name="option_guess_book_language_explain">Al importar un libro electrónico, intentar detectar su idioma y preseleccionar una voz correspondiente en lugar de usar siempre la voz predeterminada de arriba.</string>
     <string name="option_tts_highlight_delay_title">Resaltado de palabras.</string>
-    <string name="option_tts_highlight_delay_text">Retraso del motor:</string>
+    <string name="option_tts_highlight_delay_text">Retraso del motor</string>
     <string name="option_epub_split_mode_text">Cómo dividir archivos EPUB en capítulos:</string>
     <string name="option_epub_split_mode_auto">Auto (Índice si está disp., si no secuencia)</string>
     <string name="option_epub_split_mode_toc">Basado en el Índice (un capítulo por entrada de índice)</string>
@@ -963,7 +963,7 @@ BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</fo
     <string name="option_tts_highlight_delay_outOfBounds">Retraso de resaltado</string>
 
 
-    <string name="option_tts_chunk_size_text">Tamaño del fragmento :</string>
+    <string name="option_tts_chunk_size_text">Tamaño del fragmento</string>
     <string name="tts_chunk_size">Tamaño del fragmento</string>
     <string name="change_tracks_order">cambiar el orden de las pistas</string>
     <string name="Failed_to_create_the_destionation_file">Error al crear el archivo de destino.</string>
@@ -1042,7 +1042,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="option_tts_snap_to_sentence_explain">Al reanudar tras una pausa, vuelve al principio de la frase actual.</string>
     <string name="option_tts_show_loading_overlay">Mostrar ventana de carga</string>
     <string name="option_tts_overlay_timeout_title">Tiempo de espera del aviso</string>
-    <string name="option_tts_overlay_timeout_text">Tiempo máx de carga :</string>
+    <string name="option_tts_overlay_timeout_text">Tiempo máx de carga</string>
     <string name="EndCut">Cortar final</string>
     <string name="EndCutText"><i>"Detiene la reproducción unos segundos antes de que termine cada capítulo."</i></string>
     <string name="BookType">"Tipo de libro"</string>

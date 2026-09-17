@@ -427,7 +427,7 @@ Verwenden Sie die Option <font color="#90D8E8">"Mail an Entwickler"</font> aus d
     <string name="option_timeBeforeSleep_text">nach :</string>
     <string name="option_copy_file_title">Dateien intern kopieren</string>
     <string name="option_backward_forward_title">Zurück-/Vorwärts-Tasten</string>
-    <string name="option_backward_forward_text">Zeitsprung :</string>
+    <string name="option_backward_forward_text">Zeitsprung</string>
     <string name="option_autoplay_next_chapter">Nächstes Kapitel automatisch abspielen</string>
     <string name="option_autoplay_next_chapter_text">Startet automatisch das nächste Kapitel, wenn das aktuelle endet.</string>
     <string name="option_rewind_after_pause_text">"Spule beim Fortsetzen einige Sekunden zurück (Pause von 5 Minuten = 3 Sek. zurück, Pause von 1 Std. = 5 Sek. zurück …)"</string>
@@ -520,7 +520,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_guess_book_language">Buchsprache erraten</string>
     <string name="option_guess_book_language_explain">Beim Importieren eines E-Books versuchen, dessen Sprache zu erkennen und eine passende Stimme vorauszuwählen, anstatt immer die oben angegebene Standardstimme zu verwenden.</string>
     <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
-    <string name="option_tts_highlight_delay_text">Verzögerung der Engine:</string>
+    <string name="option_tts_highlight_delay_text">Verzögerung der Engine</string>
     <string name="option_epub_split_mode_text">Wie EPUB-Dateien in Kapitel unterteilt werden:</string>
     <string name="option_epub_split_mode_auto">Auto (Inhaltsverzeichnis falls verf., sonst Spine)</string>
     <string name="option_epub_split_mode_toc">TOC-basiert (ein Kapitel pro Inhaltsverzeichnis-Eintrag)</string>
@@ -966,7 +966,7 @@ BookPlayer verwendet die <font color="#81C784">integrierten Stimmen</font> des G
     <string name="option_tts_highlight_delay_outOfBounds">Hervorhebungsverzögerung</string>
 
 
-    <string name="option_tts_chunk_size_text">Segmentgröße :</string>
+    <string name="option_tts_chunk_size_text">Segmentgröße</string>
     <string name="tts_chunk_size">Segmentgröße</string>
     <string name="change_tracks_order">Titelreihenfolge ändern</string>
     <string name="Failed_to_create_the_destionation_file">Fehler beim Erstellen der Zieldatei.</string>
@@ -1045,7 +1045,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_tts_snap_to_sentence_explain">Kehrt beim Fortsetzen nach einer Pause zum Anfang des aktuellen Satzes zurück.</string>
     <string name="option_tts_show_loading_overlay">Lade-Overlay anzeigen</string>
     <string name="option_tts_overlay_timeout_title">Overlay-Zeitüberschreitung</string>
-    <string name="option_tts_overlay_timeout_text">Max. Ladezeit :</string>
+    <string name="option_tts_overlay_timeout_text">Max. Ladezeit</string>
     <string name="EndCut">Ende schneiden</string>
     <string name="EndCutText"><i>"Stoppt die Wiedergabe einige Sekunden vor dem Ende jedes Kapitels."</i></string>
     <string name="BookType">"Buchtyp"</string>

@@ -425,7 +425,7 @@
     <string name="option_timeBeforeSleep_text">через :</string>
     <string name="option_copy_file_title">Копировать файлы во внутреннюю память</string>
     <string name="option_backward_forward_title">Кнопки Назад/Вперёд</string>
-    <string name="option_backward_forward_text">промежуток :</string>
+    <string name="option_backward_forward_text">промежуток</string>
     <string name="option_autoplay_next_chapter">Автовоспроизведение следующей главы</string>
     <string name="option_autoplay_next_chapter_text">Автоматически начинать воспроизведение следующей главы, когда текущая заканчивается.</string>
     <string name="option_rewind_after_pause_text">"Перемотать звук на несколько секунд назад перед продолжением воспроизведения (пауза 5 минут — 3 сек, пауза 1 час — 5 сек и т. д.)"</string>
@@ -517,7 +517,7 @@
     <string name="option_guess_book_language">Угадывать язык книги</string>
     <string name="option_guess_book_language_explain">При импорте электронной книги пытаться определить её язык и заранее выбирать подходящий голос вместо использования голоса по умолчанию, указанного выше.</string>
     <string name="option_tts_highlight_delay_title">Подсветка слов.</string>
-    <string name="option_tts_highlight_delay_text">Задержка движка:</string>
+    <string name="option_tts_highlight_delay_text">Задержка движка</string>
     <string name="option_epub_split_mode_text">Как разбивать EPUB на главы:</string>
     <string name="option_epub_split_mode_auto">Авто (Оглавление если есть, иначе Spine)</string>
     <string name="option_epub_split_mode_toc">По оглавлению (одна глава на пункт)</string>
@@ -963,7 +963,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="option_tts_highlight_delay_outOfBounds">Задержка подсветки</string>
 
 
-    <string name="option_tts_chunk_size_text">Размер блока :</string>
+    <string name="option_tts_chunk_size_text">Размер блока</string>
     <string name="tts_chunk_size">Размер блока</string>
     <string name="change_tracks_order">изменить порядок треков</string>
     <string name="Failed_to_create_the_destionation_file">Не удалось создать файл назначения.</string>
@@ -1042,7 +1042,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="option_tts_snap_to_sentence_explain">При возобновлении после паузы возвращается в начало текущего предложения.</string>
     <string name="option_tts_show_loading_overlay">Показывать оверлей загрузки</string>
     <string name="option_tts_overlay_timeout_title">Таймаут оверлея</string>
-    <string name="option_tts_overlay_timeout_text">Макс. время загрузки :</string>
+    <string name="option_tts_overlay_timeout_text">Макс. время загрузки</string>
     <string name="EndCut">Обрезать конец</string>
     <string name="EndCutText"><i>"Останавливает воспроизведение за несколько секунд до конца каждой главы."</i></string>
     <string name="BookType">"Тип книги"</string>

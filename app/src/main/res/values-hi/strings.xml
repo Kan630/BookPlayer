@@ -420,7 +420,7 @@
     <string name="option_timeBeforeSleep_text">के बाद :</string>
     <string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
     <string name="option_backward_forward_title">बैकवर्ड/फ़ॉरवर्ड बटन</string>
-    <string name="option_backward_forward_text">टाइमलैप्स :</string>
+    <string name="option_backward_forward_text">टाइमलैप्स</string>
     <string name="option_autoplay_next_chapter">अगला अध्याय अपने आप चलाएं</string>
     <string name="option_autoplay_next_chapter_text">मौजूदा अध्याय समाप्त होने पर अगला अध्याय अपने आप शुरू करें।</string>
     <string name="option_rewind_after_pause_text">"प्ले फिर शुरू करने से कुछ सेकंड पहले ऑडियो रिवाइंड करें, (5 मिनट के विराम पर 3 सेकंड का रिवाइंड, 1 घंटे के विराम पर 5 सेकंड, …)"</string>
@@ -516,7 +516,7 @@
     <string name="option_guess_book_language">पुस्तक की भाषा का अनुमान लगाएं</string>
     <string name="option_guess_book_language_explain">ई-बुक आयात करते समय, उसकी भाषा का पता लगाने और ऊपर दी गई डिफ़ॉल्ट आवाज़ के बजाय एक मिलती-जुलती आवाज़ पहले से चुनने का प्रयास करें।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
-    <string name="option_tts_highlight_delay_text">विलंब :</string>
+    <string name="option_tts_highlight_delay_text">विलंब</string>
     <string name="option_epub_split_mode_text">EPUB फ़ाइलों को अध्यायों में कैसे विभाजित करें:</string>
     <string name="option_epub_split_mode_auto">ऑटो (विषय-सूची यदि उपलब्ध हो, अन्यथा Spine)</string>
     <string name="option_epub_split_mode_toc">विषय-सूची पर आधारित (प्रति सामग्री तालिका प्रविष्टि एक अध्याय)</string>
@@ -961,7 +961,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">हाइलाइट विलंब</string>
 
 
-    <string name="option_tts_chunk_size_text">चंक आकार :</string>
+    <string name="option_tts_chunk_size_text">चंक आकार</string>
     <string name="tts_chunk_size">चंक आकार</string>
     <string name="change_tracks_order">ट्रैक्स का क्रम बदलें</string>
     <string name="Failed_to_create_the_destionation_file">गंतव्य फ़ाइल बनाने में विफल।</string>
@@ -1040,7 +1040,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_tts_snap_to_sentence_explain">रुकने के बाद फिर से शुरू करने पर, वर्तमान वाक्य की शुरुआत पर वापस चला जाता है।</string>
     <string name="option_tts_show_loading_overlay">लोडिंग ओवरले दिखाएं</string>
     <string name="option_tts_overlay_timeout_title">ओवरले टाइमआउट</string>
-    <string name="option_tts_overlay_timeout_text">अधिकतम लोडिंग समय :</string>
+    <string name="option_tts_overlay_timeout_text">अधिकतम लोडिंग समय</string>
     <string name="EndCut">अंत कट</string>
     <string name="EndCutText"><i>"प्रत्येक अध्याय के अंत से कुछ सेकंड पहले प्लेबैक रोक देता है।"</i></string>
     <string name="BookType">"पुस्तक प्रकार"</string>

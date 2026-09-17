@@ -21,6 +21,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.driot.bookplayer.views.SettingsNumberField;
 
 import java.util.concurrent.Executors;
 
@@ -83,8 +84,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkAutoPlayNextChapter.setOnCheckedChangeListener((b, isChecked) -> Option.setAutoPlayNextChapter(isChecked));
 
         // ---- Bind numeric fields
-        etTimeBeforeSleep = root.findViewById(R.id.etTimeBeforeSleep);
-        etForwardSeconds = root.findViewById(R.id.etForwardSeconds);
+        etTimeBeforeSleep = ((SettingsNumberField) root.findViewById(R.id.field_time_before_sleep)).getEditText();
+        etForwardSeconds = ((SettingsNumberField) root.findViewById(R.id.field_backward_forward)).getEditText();
 
         etTimeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         etForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
@@ -179,7 +180,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkScreensaverOn = root.findViewById(R.id.chk_screensaver_enabled);
         tvScreensaverPermission = root.findViewById(R.id.tx_screensaver_permission);
         llScreensaverDelay = root.findViewById(R.id.ll_screensaver_delay);
-        etScreensaverDelay = root.findViewById(R.id.etScreensaverDelay);
+        etScreensaverDelay = ((SettingsNumberField) root.findViewById(R.id.field_screensaver_delay)).getEditText();
         TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
         TextView tvScreensaverDelayMax = root.findViewById(R.id.tvScreensaverDelayMax);
         MaterialButtonToggleGroup ssGroup = root.findViewById(R.id.groupVisualizerScreenSaverMode);

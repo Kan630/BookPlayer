@@ -15,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.driot.bookplayer.views.SettingsNumberField;
 
 import java.util.concurrent.Executors;
 
@@ -45,7 +46,7 @@ public class RadioSettingsFragment extends LoggingFragment {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
 
-        etRadioNbResults = root.findViewById(R.id.et_api_nb_results);
+        etRadioNbResults = ((SettingsNumberField) root.findViewById(R.id.field_api_nb_results)).getEditText();
         etRadioNbResults.setText(String.valueOf(Option.getRadioApiNbResults()));
 
         CheckBox chk_radio_renew_url = root.findViewById(R.id.chk_radio_renew_url);
@@ -126,7 +127,7 @@ public class RadioSettingsFragment extends LoggingFragment {
         });
 
         ll_option_radio_sleep_value = root.findViewById(R.id.ll_option_radio_sleep_value);
-        et_option_radio_sleep_value = root.findViewById(R.id.et_option_radio_sleep_value);
+        et_option_radio_sleep_value = ((SettingsNumberField) ll_option_radio_sleep_value).getEditText();
 
         rebuildOptionDisplay();
         return root;

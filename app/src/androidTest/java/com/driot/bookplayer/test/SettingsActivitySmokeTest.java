@@ -98,7 +98,7 @@ public class SettingsActivitySmokeTest implements LogSupport {
         // TODO: Replace placeholder ids (R.id.any_view_in_xxx) with real, stable ids present in each fragment.
         final Map<Integer, int[]> plan = new LinkedHashMap<>();
         plan.put(R.id.section_play_behaviour, new int[] {
-                R.id.etTimeBeforeSleep    // <-- replace
+                R.id.field_time_before_sleep    // <-- replace
                 //,R.id.option_open_play_activity      // <-- replace if you have it
         });
         plan.put(R.id.section_design, new int[] {
@@ -108,10 +108,10 @@ public class SettingsActivitySmokeTest implements LogSupport {
                 R.id.chk_copy_file             // <-- replace
         });
         plan.put(R.id.section_librivox, new int[] {
-                R.id.et_librivox_api_nb_results           // <-- replace
+                R.id.field_librivox_api_nb_results           // <-- replace
         });
         plan.put(R.id.section_podcast, new int[] {
-                R.id.et_librivox_api_nb_results            // <-- replace
+                R.id.field_librivox_api_nb_results            // <-- replace
         });
         plan.put(R.id.section_tts, new int[] {
                 R.id.field_tts_chunk_size,               // <-- replace

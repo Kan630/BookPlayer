@@ -162,7 +162,7 @@ public abstract class BasicNavTest implements LogSupport {
                  * TestNavUtils.sleep(500);
                  * 
                  * // Verify something inside the expanded fragment
-                 * onView(withId(R.id.etTimeBeforeSleep))
+                 * onView(withId(R.id.field_time_before_sleep))
                  * .perform(scrollTo())
                  * .check(matches(isDisplayed()));
                  * 

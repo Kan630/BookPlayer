@@ -16,6 +16,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.driot.bookplayer.views.SettingsNumberField;
 
 import java.util.concurrent.Executors;
 
@@ -131,22 +132,22 @@ public class PodcastSettingsFragment extends LoggingFragment {
                 Option.setPodcastAddDateToEpisodeName(isChecked));
 
         // ====== EDIT TEXTS ======
-        et_podcast_index_org_api_nb_results = root.findViewById(R.id.et_librivox_api_nb_results);
+        et_podcast_index_org_api_nb_results = ((SettingsNumberField) root.findViewById(R.id.field_librivox_api_nb_results)).getEditText();
         et_podcast_index_org_api_nb_results.setText(String.valueOf(Option.getPodcastIndexOrgApiNbResults()));
 
-        et_podcast_auto_download_last_n_episode = root.findViewById(R.id.et_auto_download_last_n_episode);
+        et_podcast_auto_download_last_n_episode = ((SettingsNumberField) root.findViewById(R.id.field_auto_download_last_n_episode)).getEditText();
         et_podcast_auto_download_last_n_episode.setText(String.valueOf(Option.getPodcastAutoDownloadLastNbEpisode()));
 
-        et_auto_download_max_n_podcast = root.findViewById(R.id.et_auto_download_max_n_podcast);
+        et_auto_download_max_n_podcast = ((SettingsNumberField) root.findViewById(R.id.field_auto_download_max_n_podcast)).getEditText();
         et_auto_download_max_n_podcast.setText(String.valueOf(Option.getPodcastAutoDownloadMaxNbPodcast()));
 
-        et_auto_download_delay_between_checks_in_min = root.findViewById(R.id.et_auto_download_delay_between_checks_in_min);
+        et_auto_download_delay_between_checks_in_min = ((SettingsNumberField) root.findViewById(R.id.field_auto_download_delay_between_checks_in_min)).getEditText();
         et_auto_download_delay_between_checks_in_min.setText(String.valueOf(Option.getPodcastAutoDownloadDelayBetweenChecks()));
 
-        et_podcast_delay_deletion = root.findViewById(R.id.et_delay_deletion);
+        et_podcast_delay_deletion = ((SettingsNumberField) root.findViewById(R.id.field_delay_deletion)).getEditText();
         et_podcast_delay_deletion.setText(String.valueOf(Option.getPodcastAutoDeleteDelay()));
 
-        et_podcast_completion_percentage_deletion = root.findViewById(R.id.et_percentage_deletion);
+        et_podcast_completion_percentage_deletion = ((SettingsNumberField) root.findViewById(R.id.field_percentage_deletion)).getEditText();
         et_podcast_completion_percentage_deletion.setText(String.valueOf(Option.getPodcastAutoDeleteCompletionPercentage()));
 
         // Optional: if you support inline/host title toggling like Librivox,

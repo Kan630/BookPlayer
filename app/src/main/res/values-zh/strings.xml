@@ -426,7 +426,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_timeBeforeSleep_text">在此之后：</string>
     <string name="option_copy_file_title">内部复制文件</string>
     <string name="option_backward_forward_title">快退/快进按钮</string>
-    <string name="option_backward_forward_text">时间间隔：</string>
+    <string name="option_backward_forward_text">时间间隔</string>
     <string name="option_autoplay_next_chapter">自动播放下一章</string>
     <string name="option_autoplay_next_chapter_text">当前章节结束时自动开始播放下一章。</string>
     <string name="option_rewind_after_pause_text">"在恢复播放前回退几秒（暂停5分钟回退3秒，暂停1小时回退5秒……）"</string>
@@ -518,7 +518,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_guess_book_language">猜测书籍语言</string>
     <string name="option_guess_book_language_explain">导入电子书时，尝试检测其语言并预先选择匹配的语音，而不是始终使用上方的默认语音。</string>
     <string name="option_tts_highlight_delay_title">单词高亮。</string>
-    <string name="option_tts_highlight_delay_text">引擎延迟：</string>
+    <string name="option_tts_highlight_delay_text">引擎延迟</string>
     <string name="option_epub_split_mode_text">如何将EPUB分割为章节：</string>
     <string name="option_epub_split_mode_auto">自动 (目录优先，否则Spine)</string>
     <string name="option_epub_split_mode_toc">基于目录 (每个目录条目一章)</string>
@@ -963,7 +963,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_tts_highlight_delay_outOfBounds">高亮延迟</string>
 
 
-    <string name="option_tts_chunk_size_text">块大小：</string>
+    <string name="option_tts_chunk_size_text">块大小</string>
     <string name="tts_chunk_size">块大小</string>
     <string name="change_tracks_order">更改曲目顺序</string>
     <string name="Failed_to_create_the_destionation_file">无法创建目标文件。</string>
@@ -1042,7 +1042,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_tts_snap_to_sentence_explain">暂停后恢复时，返回当前句子的开头。</string>
     <string name="option_tts_show_loading_overlay">显示加载遮罩</string>
     <string name="option_tts_overlay_timeout_title">遮罩超时</string>
-    <string name="option_tts_overlay_timeout_text">最大加载时间：</string>
+    <string name="option_tts_overlay_timeout_text">最大加载时间</string>
     <string name="EndCut">剪辑结尾</string>
     <string name="EndCutText"><i>"在每章结束前几秒停止播放。"</i></string>
     <string name="BookType">"书籍类型"</string>

@@ -421,7 +421,7 @@
     <string name="option_timeBeforeSleep_text">بعد :</string>
     <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
     <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
-    <string name="option_backward_forward_text">الفاصل الزمني :</string>
+    <string name="option_backward_forward_text">الفاصل الزمني</string>
     <string name="option_autoplay_next_chapter">تشغيل الفصل التالي تلقائياً</string>
     <string name="option_autoplay_next_chapter_text">بدء تشغيل الفصل التالي تلقائياً عند انتهاء الفصل الحالي.</string>
     <string name="option_rewind_after_pause_text">"إرجاع الصوت بضع ثوانٍ قبل استئناف التشغيل (توقف لمدة 5 دقائق يعيد 3 ثوانٍ، وتوقف لمدة ساعة يعيد 5 ثوانٍ، …)"</string>
@@ -513,7 +513,7 @@
     <string name="option_guess_book_language">تخمين لغة الكتاب</string>
     <string name="option_guess_book_language_explain">عند استيراد كتاب إلكتروني، حاول اكتشاف لغته واختيار صوت مطابق مسبقاً بدلاً من استخدام الصوت الافتراضي أعلاه دائماً.</string>
     <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
-    <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
+    <string name="option_tts_highlight_delay_text">تأخير المحرك</string>
     <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
     <string name="option_epub_split_mode_auto">تلقائي (جدول المحتويات إذا كان متاحًا، وإلا Spine)</string>
     <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
@@ -959,7 +959,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">تأخير التمييز</string>
 
 
-    <string name="option_tts_chunk_size_text">حجم المقطع:</string>
+    <string name="option_tts_chunk_size_text">حجم المقطع</string>
     <string name="tts_chunk_size">حجم المقطع</string>
     <string name="change_tracks_order">تغيير ترتيب المقاطع</string>
     <string name="Failed_to_create_the_destionation_file">فشل في إنشاء ملف الوجهة.</string>
@@ -1038,7 +1038,7 @@
     <string name="option_tts_snap_to_sentence_explain">عند الاستئناف بعد توقف، يعود إلى بداية الجملة الحالية.</string>
     <string name="option_tts_show_loading_overlay">إظهار واجهة التحميل</string>
     <string name="option_tts_overlay_timeout_title">مهلة الواجهة</string>
-    <string name="option_tts_overlay_timeout_text">أقصى وقت للتحميل :</string>
+    <string name="option_tts_overlay_timeout_text">أقصى وقت للتحميل</string>
     <string name="EndCut">قص النهاية</string>
     <string name="EndCutText"><i>"يوقف التشغيل قبل بضع ثوانٍ من نهاية كل فصل."</i></string>
     <string name="BookType">"نوع الكتاب"</string>

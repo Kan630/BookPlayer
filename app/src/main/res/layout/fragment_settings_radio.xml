@@ -121,41 +121,13 @@
                 android:text="@string/option_timeBeforeSleep" />
 
 
-            <LinearLayout
+            <com.driot.bookplayer.views.SettingsNumberField
                 android:id="@+id/ll_option_radio_sleep_value"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_timeBeforeSleep_text"
-                    android:textSize="24sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_width="140dp"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/et_option_radio_sleep_value"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:text="@string/min."
-                    android:textSize="24sp" />
-            </LinearLayout>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:beforeText="@string/option_timeBeforeSleep_text"
+                app:afterText="@string/min."
+                app:numberBoxWidth="140dp" />
 
             <TextView android:text="Min = 1 min" style="@style/OptionMiniText" />
             <TextView android:text="Max = 1 year (526.000)" style="@style/OptionMiniText" />
@@ -236,25 +208,12 @@
                     android:layout_width="match_parent"
                     android:layout_marginTop="0dp"
                     >
-                    <TextView
-                        style="@style/OptionPodcastTextBeforeEditText"
-                        android:textSize="16sp"
-                        android:text="@string/api_paging_size"
-                        android:layout_marginStart="10dp"
-
-                        />
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.textfield.TextInputEditText
-                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:textSize="16sp"
-                            android:id="@+id/et_api_nb_results"
-                            />
-                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.driot.bookplayer.views.SettingsNumberField
+                        android:id="@+id/field_api_nb_results"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:beforeText="@string/api_paging_size"
+                        app:fieldTextSize="16sp" />
                 </LinearLayout>
                 <TextView
                     android:text="Min = 20"

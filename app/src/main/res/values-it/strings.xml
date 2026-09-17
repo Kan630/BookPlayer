@@ -426,7 +426,7 @@
     <string name="option_timeBeforeSleep_text">dopo :</string>
     <string name="option_copy_file_title">Copia file internamente</string>
     <string name="option_backward_forward_title">Pulsanti Indietro/Avanti</string>
-    <string name="option_backward_forward_text">intervallo :</string>
+    <string name="option_backward_forward_text">intervallo</string>
     <string name="option_autoplay_next_chapter">Riproduzione automatica del capitolo successivo</string>
     <string name="option_autoplay_next_chapter_text">Avvia automaticamente il capitolo successivo quando quello attuale termina.</string>
     <string name="option_rewind_after_pause_text">"Riavvolgi l\'audio di qualche secondo prima di riprendere la riproduzione (pausa di 5 minuti → riavvolgi 3 sec, pausa di 1h → 5 sec, …)"</string>
@@ -519,7 +519,7 @@
     <string name="option_guess_book_language">Indovina la lingua del libro</string>
     <string name="option_guess_book_language_explain">Durante l\'importazione di un e-book, provare a rilevarne la lingua e preselezionare una voce corrispondente invece di usare sempre la voce predefinita sopra indicata.</string>
     <string name="option_tts_highlight_delay_title">Evidenziazione delle parole.</string>
-    <string name="option_tts_highlight_delay_text">Ritardo del motore:</string>
+    <string name="option_tts_highlight_delay_text">Ritardo del motore</string>
     <string name="option_epub_split_mode_text">Come dividere file EPUB in capitoli:</string>
     <string name="option_epub_split_mode_auto">Auto (Indice se disp., altrimenti sequenza)</string>
     <string name="option_epub_split_mode_toc">Basato sull\'Indice (un capitolo per voce indice)</string>
@@ -965,7 +965,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">Ritardo evidenziazione</string>
 
 
-    <string name="option_tts_chunk_size_text">Dimensione del blocco :</string>
+    <string name="option_tts_chunk_size_text">Dimensione del blocco</string>
     <string name="tts_chunk_size">Dimensione del blocco</string>
     <string name="change_tracks_order">cambiare l\'ordine delle tracce</string>
     <string name="Failed_to_create_the_destionation_file">Impossibile creare il file di destinazione.</string>
@@ -1044,7 +1044,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_tts_snap_to_sentence_explain">Quando si riprende dopo una pausa, torna all\'inizio della frase corrente.</string>
     <string name="option_tts_show_loading_overlay">Mostra overlay di caricamento</string>
     <string name="option_tts_overlay_timeout_title">Timeout overlay</string>
-    <string name="option_tts_overlay_timeout_text">Tempo di caricamento massimo :</string>
+    <string name="option_tts_overlay_timeout_text">Tempo di caricamento massimo</string>
     <string name="EndCut">Taglio finale</string>
     <string name="EndCutText"><i>"Interrompe la riproduzione alcuni secondi prima della fine di ogni capitolo."</i></string>
     <string name="BookType">"Tipo di libro"</string>

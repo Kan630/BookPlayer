@@ -425,7 +425,7 @@
     <string name="option_timeBeforeSleep_text">após :</string>
     <string name="option_copy_file_title">Copiar arquivos internamente</string>
     <string name="option_backward_forward_title">Botões Retroceder/Avançar</string>
-    <string name="option_backward_forward_text">intervalo :</string>
+    <string name="option_backward_forward_text">intervalo</string>
     <string name="option_autoplay_next_chapter">Reproduzir automaticamente o próximo capítulo</string>
     <string name="option_autoplay_next_chapter_text">Inicia automaticamente o próximo capítulo quando o atual termina.</string>
     <string name="option_rewind_after_pause_text">"Rebobinar alguns segundos antes de retomar a reprodução (pausa de 5 min → 3 s de retrocesso, pausa de 1 h → 5 s, …)"</string>
@@ -518,7 +518,7 @@
     <string name="option_guess_book_language">Adivinhar o idioma do livro</string>
     <string name="option_guess_book_language_explain">Ao importar um e-book, tentar detectar seu idioma e pré-selecionar uma voz correspondente em vez de sempre usar a voz padrão acima.</string>
     <string name="option_tts_highlight_delay_title">Destaque de palavras.</string>
-    <string name="option_tts_highlight_delay_text">Atraso do mecanismo:</string>
+    <string name="option_tts_highlight_delay_text">Atraso do mecanismo</string>
     <string name="option_epub_split_mode_text">Como dividir arquivos EPUB em capítulos:</string>
     <string name="option_epub_split_mode_auto">Auto (Índice se disp., senão Spine)</string>
     <string name="option_epub_split_mode_toc">Baseado no Índice (um capítulo por entrada do índice)</string>
@@ -964,7 +964,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">Atraso de destaque</string>
 
 
-    <string name="option_tts_chunk_size_text">Tamanho do bloco :</string>
+    <string name="option_tts_chunk_size_text">Tamanho do bloco</string>
     <string name="tts_chunk_size">Tamanho do bloco</string>
     <string name="change_tracks_order">mudar a ordem das faixas</string>
     <string name="Failed_to_create_the_destionation_file">Falha ao criar o arquivo de destino.</string>
@@ -1043,7 +1043,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_tts_snap_to_sentence_explain">Ao retomar após uma pausa, volta ao início da frase atual.</string>
     <string name="option_tts_show_loading_overlay">Mostrar janela de carregamento</string>
     <string name="option_tts_overlay_timeout_title">Tempo limite do aviso</string>
-    <string name="option_tts_overlay_timeout_text">Tempo máx de carga :</string>
+    <string name="option_tts_overlay_timeout_text">Tempo máx de carga</string>
     <string name="EndCut">Cortar final</string>
     <string name="EndCutText"><i>"Interrompe a reprodução alguns segundos antes do fim de cada capítulo."</i></string>
     <string name="BookType">"Tipo de livro"</string>

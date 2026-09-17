@@ -430,7 +430,7 @@ C\'est encore calme pour le moment, mais n\'hésitez pas à vous inscrire pour p
     <string name="option_timeBeforeSleep_text">après :</string>
     <string name="option_copy_file_title">Copier les fichiers en interne</string>
     <string name="option_backward_forward_title">Boutons Retour/Avance</string>
-    <string name="option_backward_forward_text">décalage :</string>
+    <string name="option_backward_forward_text">décalage</string>
     <string name="option_autoplay_next_chapter">Lecture automatique du chapitre suivant</string>
     <string name="option_autoplay_next_chapter_text">Démarre automatiquement le chapitre suivant lorsque le chapitre actuel se termine.</string>
     <string name="option_rewind_after_pause_text">Reculer l\'audio de quelques secondes avant la reprise (pause de 5 min → recul de 3 sec, pause d\'1h → 5 sec, …)</string>
@@ -536,7 +536,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_guess_book_language">Deviner la langue du livre</string>
     <string name="option_guess_book_language_explain">Lors de l\'import d\'un livre électronique, essayer de détecter sa langue et présélectionner une voix correspondante au lieu d\'utiliser toujours la voix par défaut ci-dessus.</string>
     <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
-    <string name="option_tts_highlight_delay_text">Délai du moteur :</string>
+    <string name="option_tts_highlight_delay_text">Délai du moteur</string>
     <string name="option_epub_split_mode_text">Comment découper les fichiers EPUB en chapitres :</string>
     <string name="option_epub_split_mode_auto">Auto (TOC si dispo, sinon séquence)</string>
     <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
@@ -549,7 +549,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_tts_snap_to_sentence_explain">Lors d\'une reprise après une pause, revient au début de la phrase en cours.</string>
     <string name="option_tts_show_loading_overlay">Afficher la fenêtre de chargement</string>
     <string name="option_tts_overlay_timeout_title">Délai d\'affichage</string>
-    <string name="option_tts_overlay_timeout_text">Temps maximum :</string>
+    <string name="option_tts_overlay_timeout_text">Temps maximum</string>
     <string name="option_automotive_on">Se connecter à Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reprendre la lecture</string>
     <string name="option_automotive_stop_on_exit">Arrêter la lecture en sortant</string>
@@ -1006,7 +1006,7 @@ BookPlayer utilisera les <font color="#81C784">voix intégrées de l\'appareil</
     <string name="option_tts_highlight_delay_outOfBounds">Délai de surbrillance</string>
 
 
-    <string name="option_tts_chunk_size_text">Taille des segments :</string>
+    <string name="option_tts_chunk_size_text">Taille des segments</string>
     <string name="tts_chunk_size">Taille des segments</string>
     <string name="change_tracks_order">changer l\'ordre des pistes</string>
     <string name="Failed_to_create_the_destionation_file">Échec de création du fichier de destination.</string>

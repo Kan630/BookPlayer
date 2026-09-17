@@ -42,40 +42,12 @@
                 style="@style/SettingsGroupTitle"
                 android:text="@string/option_timeBeforeSleep" />
 
-            <LinearLayout
-                android:id="@+id/ll_autosleep_horizon"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_timeBeforeSleep_text"
-                    android:textSize="24sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/etTimeBeforeSleep"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:text="@string/min."
-                    android:textSize="24sp" />
-            </LinearLayout>
+            <com.driot.bookplayer.views.SettingsNumberField
+                android:id="@+id/field_time_before_sleep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:beforeText="@string/option_timeBeforeSleep_text"
+                app:afterText="@string/min." />
 
             <TextView android:text="Min = 1" style="@style/OptionMiniText" />
             <TextView android:text="Max = 1440 (24h)" style="@style/OptionMiniText" />
@@ -91,40 +63,12 @@
                 style="@style/SettingsGroupTitle"
                 android:text="@string/option_backward_forward_title" />
 
-            <LinearLayout
-                android:id="@+id/ll_BackwardForward_horizon"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_backward_forward_text"
-                    android:textSize="24sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/etForwardSeconds"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textAlignment="textEnd"
-                        android:textSize="24sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:text="sec."
-                    android:textSize="24sp" />
-            </LinearLayout>
+            <com.driot.bookplayer.views.SettingsNumberField
+                android:id="@+id/field_backward_forward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:beforeText="@string/option_backward_forward_text"
+                app:afterText="sec." />
 
             <TextView android:text="Min = 1" style="@style/OptionMiniText" />
             <TextView android:text="Max = 300 (5min)" style="@style/OptionMiniText" />
@@ -337,53 +281,27 @@
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
-            <LinearLayout style="@style/wideLinearLayout_Vertical"
-                android:layout_marginStart="30dp"
-                >
-                <LinearLayout
-                    android:id="@+id/ll_screensaver_delay"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:layout_width="match_parent">
+            <LinearLayout
+                android:id="@+id/ll_screensaver_delay"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent">
 
-                    <TextView
-                        style="@style/simpleTextWrap"
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:text="@string/option_screensaver_delay_text"
-                        android:textSize="16sp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp">
-                        <com.google.android.material.textfield.TextInputEditText
-                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                            android:id="@+id/etScreensaverDelay"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:textAlignment="textEnd"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        style="@style/simpleTextWrap"
-                        android:layout_width="0dp"
-                        android:layout_weight="3"
-                        android:text="sec."
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvScreensaverDelayMin"
-                    android:text="@string/optionMinEqual"
-                    style="@style/OptionMiniText" />
-                <TextView
-                    android:id="@+id/tvScreensaverDelayMax"
-                    android:text="@string/optionMaxEqual"
-                    style="@style/OptionMiniText" />
+                <com.driot.bookplayer.views.SettingsNumberField
+                    android:id="@+id/field_screensaver_delay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:beforeText="@string/option_screensaver_delay_text"
+                    app:afterText="sec." />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvScreensaverDelayMin"
+                android:text="@string/optionMinEqual"
+                style="@style/OptionMiniText" />
+            <TextView
+                android:id="@+id/tvScreensaverDelayMax"
+                android:text="@string/optionMaxEqual"
+                style="@style/OptionMiniText" />
 
             <LinearLayout
                 android:id="@+id/ll_screensaver_force_orientation"

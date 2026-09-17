@@ -486,7 +486,7 @@
     <string name="option_timeBeforeSleep_text">after</string>
     <string name="option_copy_file_title">Copy files internally</string>
     <string name="option_backward_forward_title">Backward/Forward buttons</string>
-    <string name="option_backward_forward_text">timelapse :</string>
+    <string name="option_backward_forward_text">timelapse</string>
     <string name="option_autoplay_next_chapter">Auto-play next chapter</string>
     <string name="option_autoplay_next_chapter_text">Automatically start the next chapter when the current one ends.</string>
     <string name="option_rewind_after_pause_text">"Rewind audio a few seconds before resuming playback (e.g., a 5-min pause rewinds 3s; a 1-hour pause rewinds 5s…)"</string>
@@ -588,7 +588,7 @@
     <string name="option_guess_book_language">Guess book language</string>
     <string name="option_guess_book_language_explain">When importing an e-book, try to detect its language and preselect a matching voice instead of always using the default voice above.</string>
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
-    <string name="option_tts_highlight_delay_text">delay :</string>
+    <string name="option_tts_highlight_delay_text">delay</string>
     <string name="option_epub_split_mode_text">How to split EPUB files into chapters:</string>
     <string name="option_epub_split_mode_auto">Auto (use TOC if available, otherwise use spine)</string>
     <string name="option_epub_split_mode_toc">TOC-based (one chapter per table of contents entry)</string>
@@ -603,7 +603,7 @@
     <string name="option_tts_show_loading_overlay">Display loading progress popup</string>
     <string name="option_tts_overlay_timeout_explain">On recent devices and/or for often used voices, it may be so fast you won\'t even see that loading message.\nIf it keeps coming back, press back button and retry. (still not perfect)</string>
     <string name="option_tts_overlay_timeout_title">Overlay timeout</string>
-    <string name="option_tts_overlay_timeout_text">Max load time :</string> //keep it short
+    <string name="option_tts_overlay_timeout_text">Max load time</string> //keep it short
     <string name="option_tts_use_theme_color_for_cursor">Use theme color for cursor</string>
     <string name="option_tts_fullscreen_text_size">Text size</string>
     <string name="option_tts_fullscreen_controls">Show playback controls</string>
@@ -1151,7 +1151,7 @@
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
     <string name="option_tts_highlight_delay_outOfBounds">Highlight delay</string>
-    <string name="option_tts_chunk_size_text">Chunk size :</string>
+    <string name="option_tts_chunk_size_text">Chunk size</string>
     <string name="tts_chunk_size">Chunk size</string>
     <string name="change_tracks_order">change tracks order</string>
     <string name="Failed_to_create_the_destionation_file">Failed to create the destination file.</string>
