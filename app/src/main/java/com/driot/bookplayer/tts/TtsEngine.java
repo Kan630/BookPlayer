@@ -68,6 +68,17 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     private boolean registeredWithMgr = false;
 
+    // Baseline average speech rate used to translate "chars of text" into estimated
+    // real-world timing, at speechRate=1.0. ~15 chars/sec is a safe conservative estimate
+    // for average speech (used both for duration estimation and for latency-correcting
+    // TTS callbacks, which fire when text is *buffered*, not when it's actually spoken).
+    private static final double AVG_CHARS_PER_MS = 0.015;
+
+    // Bumped whenever playback is interrupted/restarted (new utterance start, pause, stop,
+    // reset, release). Lets us discard stale delayed highlight dispatches (see
+    // onUtteranceRange) that were scheduled before the interruption.
+    private volatile int highlightEpoch = 0;
+
     public TtsEngine(@NonNull Context appContext,
             @NonNull AppTtsManager appTtsManager,
             @NonNull EngineListener listener,
@@ -169,9 +180,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             long elapsed = System.currentTimeMillis() - currentUtteranceStartTime;
 
             // Estimate chars spoken based on time.
-            // Baseline: ~15-16 chars/sec for average speech.
-            // 0.015 chars/ms seems a safe conservative estimate.
-            double estimatedChars = elapsed * 0.015 * speechRate;
+            double estimatedChars = elapsed * AVG_CHARS_PER_MS * speechRate;
 
             int calculatedPos = currentUtteranceStartOffset + (int) estimatedChars;
 
@@ -196,6 +205,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             tts.stop();
         playing = false;
         pausedAtMs = System.currentTimeMillis();
+        highlightEpoch++; // discard any highlight dispatches still in flight for this utterance
     }
 
     @Override
@@ -204,6 +214,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             tts.stop();
         playing = false;
         pausedAtMs = 0;
+        highlightEpoch++;
     }
 
     @Override
@@ -350,6 +361,26 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private long currentUtteranceStartTime = 0;
     private int currentUtteranceStartOffset = 0;
 
+    // Reference point for highlight pacing, re-anchored to the real dispatch time on every
+    // actual dispatch (not just once per utterance) so that small mismatches between the
+    // assumed chars/ms rate and this voice/language's real speech rate can't accumulate into
+    // a growing lag/lead over the length of a long chunk - see onUtteranceRange.
+    private long lastDispatchRealTimeMs = 0;
+    private int lastDispatchCharPos = -1;
+
+    // Adaptive chars/ms estimate for highlight pacing, seeded from AVG_CHARS_PER_MS and then
+    // continuously refined (EMA) from the real-time gaps between raw onRangeStart arrivals.
+    // AVG_CHARS_PER_MS alone is a global average that can be quite wrong for a given
+    // voice/language (e.g. this app's Japanese TTS narrates at roughly a third of the English
+    // baseline) - without adapting, that mismatch reappears as slow, unbounded-until-capped
+    // drift for the rest of the utterance instead of settling near zero.
+    private double observedCharsPerMs = AVG_CHARS_PER_MS;
+    private long lastRawArrivalTimeMs = 0;
+    private int lastRawCharPos = -1;
+    private static final double MIN_CHARS_PER_MS = 0.001; // ~1 char/sec
+    private static final double MAX_CHARS_PER_MS = 0.05; // ~50 chars/sec
+    private static final double RATE_EMA_ALPHA = 0.15;
+
     @Override
     public void onStart(String utteranceId) {
         if (disposed || isStale(utteranceId))
@@ -364,6 +395,16 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             // Reset if unknown ID format to prevent bad math
             currentUtteranceStartOffset = -1;
         }
+        // Re-anchor the highlight-pacing reference to this utterance's real start.
+        lastDispatchRealTimeMs = currentUtteranceStartTime;
+        lastDispatchCharPos = currentUtteranceStartOffset;
+        // Reset the adaptive rate estimate too - a new utterance may be a different
+        // voice/language/speed, so don't carry over a rate learned from the previous one.
+        observedCharsPerMs = AVG_CHARS_PER_MS * Math.max(0.1, speechRate);
+        lastRawArrivalTimeMs = 0;
+        lastRawCharPos = -1;
+        // New utterance: any highlight dispatches queued for the previous one are stale.
+        highlightEpoch++;
     }
 
     @Override
@@ -490,7 +531,68 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         // myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange
         // + "] lastCharSpoken=" + lastCharSpoken);
 
-        listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
+        // "Time-Based Latency Correction" for the *visible highlight*, same idea as pause():
+        // onRangeStart fires as the engine buffers/synthesizes text, which for a freshly
+        // (re)started utterance can run far ahead of actual audible playback - the whole
+        // chunk gets synthesized (and its ranges reported) in a couple of seconds while the
+        // audio itself takes minutes to play out. Forwarding these raw and immediately makes
+        // the highlight race to the last word of the chunk and freeze there until the real
+        // audio catches up. Instead, schedule each dispatch for the moment a chars/sec model
+        // predicts that word should actually be audible.
+        //
+        // AVG_CHARS_PER_MS is only a rough average (varies by voice/language/punctuation), so
+        // rather than predicting from a single fixed per-utterance baseline - which lets any
+        // small, consistent mismatch between the estimate and this voice's real pace
+        // accumulate into a growing lead or lag over the length of a long chunk - the
+        // reference point (lastDispatchRealTimeMs/lastDispatchCharPos) is re-anchored to the
+        // real time on every actual dispatch. That bounds the model's error to just the gap
+        // since the last dispatched word instead of the whole utterance so far.
+        //
+        // An epoch token lets us drop dispatches left over from before an interruption
+        // (pause/seek/new utterance/stop).
+        final int fStart = start;
+        final int fEnd = Math.min(end, Math.max(0, text.length()));
+        final long g = gen;
+        final int epochAtSchedule = highlightEpoch;
+
+        // Refine the adaptive rate from how far apart raw arrivals actually are in real time -
+        // this is what lets the model converge to each voice/language's real pace (which can be
+        // wildly different from the AVG_CHARS_PER_MS seed) instead of just carrying a fixed bias.
+        long nowForRate = System.currentTimeMillis();
+        if (lastRawArrivalTimeMs > 0 && lastRawCharPos >= 0 && fStart > lastRawCharPos) {
+            long gapMs = nowForRate - lastRawArrivalTimeMs;
+            if (gapMs > 0) {
+                double sample = (fStart - lastRawCharPos) / (double) gapMs;
+                sample = Math.max(MIN_CHARS_PER_MS, Math.min(MAX_CHARS_PER_MS, sample));
+                observedCharsPerMs = observedCharsPerMs * (1 - RATE_EMA_ALPHA) + sample * RATE_EMA_ALPHA;
+            }
+        }
+        lastRawArrivalTimeMs = nowForRate;
+        lastRawCharPos = fStart;
+
+        long predictedTimeMs = lastDispatchRealTimeMs;
+        if (lastDispatchRealTimeMs > 0 && lastDispatchCharPos >= 0) {
+            long predictedElapsed = (long) ((fStart - lastDispatchCharPos) / observedCharsPerMs);
+            predictedTimeMs = lastDispatchRealTimeMs + predictedElapsed;
+        }
+        long delay = predictedTimeMs - System.currentTimeMillis();
+        // Safety valve: never withhold a highlight for more than a couple seconds even if the
+        // estimate is way off (e.g. wildly different real engine speech rate).
+        delay = Math.min(delay, 2000);
+
+        if (delay <= 0) {
+            lastDispatchRealTimeMs = System.currentTimeMillis();
+            lastDispatchCharPos = fStart;
+            listener.onTtsRange(g, fStart, fEnd);
+        } else {
+            main.postDelayed(() -> {
+                if (disposed || !playing || epochAtSchedule != highlightEpoch)
+                    return;
+                lastDispatchRealTimeMs = System.currentTimeMillis();
+                lastDispatchCharPos = fStart;
+                listener.onTtsRange(g, fStart, fEnd);
+            }, delay);
+        }
 
         // Don't trigger completion here - onUtteranceRange fires DURING speaking, not
         // after
@@ -534,6 +636,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     /** Call when replacing engine to stop callbacks. */
     public void release() {
         disposed = true;
+        highlightEpoch++;
         if (registeredWithMgr) {
             mgr.removeListener(this);
             registeredWithMgr = false;
@@ -596,9 +699,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private static int estimateDurationMs(@Nullable String text, float rate) {
         if (text == null)
             return 0;
-        int words = Math.max(1, text.trim().split("\\s+").length);
-        double wpm = 180.0 * Math.max(0.1, rate);
-        return (int) Math.round((words / wpm) * 60_000.0);
+        // Character-based estimate rather than word-count: splitting on whitespace to count
+        // "words" silently breaks for CJK and other scripts that don't delimit words with
+        // spaces (a whole paragraph counts as one "word"), producing a wildly too-short
+        // estimate. Character count works for every script and, at ~15 chars/sec, matches
+        // the same average-speech baseline used for latency correction elsewhere.
+        int chars = Math.max(1, text.trim().length());
+        double charsPerMs = AVG_CHARS_PER_MS * Math.max(0.1, rate);
+        return (int) Math.round(chars / charsPerMs);
     }
 
     @Override
