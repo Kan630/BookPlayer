@@ -70,105 +70,104 @@
 
                 </LinearLayout>
 
-                <View style="@style/GetResourceHorizontalBar" />
+                <!-- Favorites -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardFavorites"
+                    style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent"
+                    android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
                         style="@style/Widget.BookPlayer.Button.Secondary"
-                        android:layout_marginStart="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="0dp"
-
-                        />
-
-                    <ImageButton
-                        android:id="@+id/ibFavorite"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:contentDescription="@string/favorites"
-                        android:src="@drawable/ic_favorite"
-                        android:background="@android:color/transparent"
-                        app:tint="@android:color/holo_red_dark" />
+                        app:icon="@drawable/ic_favorite"
+                        app:iconTint="@android:color/holo_red_dark"
+                        app:iconGravity="textStart"
+                        app:iconPadding="4dp" />
                 </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
+                <!-- Language -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
-                <View style="@style/GetResourceHorizontalBar"/>
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/Language" />
 
+                    <Spinner
+                        android:id="@+id/spinnerLibrivox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        style="@style/GetResourceSpinner" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Quick lists -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
+
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/quick_lists" />
+
+                    <Button
+                        android:id="@+id/bLibrivoxTrending"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/most_downloaded"
+                         />
+                    <Button
+                        android:id="@+id/bLibrivoxLastAdded"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/last_added"
+                        />
+                    <Button
+                        android:id="@+id/bLibrivoxByGenre"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/by_genre_all_languages"
+                        />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Search -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
+
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/librivox_search_edittext_title" />
+
+                    <TextView
+                        style="@style/OptionExplainText"
+                        android:text="@string/search_tip_single_word" />
+
+                    <com.driot.bookplayer.views.EditText1lineWithSearch
+                        android:id="@+id/etLibrivoxSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:scrollOnFocus="true"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/txtLibrivoxSearch_desc"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/LibrivoxSearch_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <Spinner
-                    android:id="@+id/spinnerLibrivox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="20dp"
-                    style="@style/GetResourceSpinner" />
-
-                <View style="@style/GetResourceHorizontalBar"/>
-
-                <TextView
-                    android:text="@string/quick_lists"
-                    style="@style/GetResourceTextTopOfButton" />
-                <Button
-                    android:id="@+id/bLibrivoxTrending"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginHorizontal="6dp"
-                    android:text="@string/most_downloaded"
-                     />
-                <Button
-                    android:id="@+id/bLibrivoxLastAdded"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginHorizontal="6dp"
-                    android:text="@string/last_added"
-                    />
-                <Button
-                    android:id="@+id/bLibrivoxByGenre"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="6dp"
-                    android:layout_marginHorizontal="6dp"
-                    android:text="@string/by_genre_all_languages"
-                    />
-
-                <View style="@style/GetResourceHorizontalBar" />
-
-                <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/librivox_search_edittext_title"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditText1lineWithSearch
-                    android:id="@+id/etLibrivoxSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:scrollOnFocus="true"
-                    android:layout_marginTop="20dp" />
-
-
+                    style="@style/OptionExplainText" />
 
             </LinearLayout>
         </ScrollView>

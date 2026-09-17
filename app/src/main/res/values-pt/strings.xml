@@ -20,7 +20,7 @@
     <string name="back">Voltar</string>
     <string name="bars">barras</string>
     <string name="Bitrate">Taxa de bits</string>
-    <string name="Bookshelves">"Estantes"</string>
+    <string name="Bookshelves">"Estantes (lento)"</string>
     <string name="Bundle">Bundle</string> //means zip, tar, 7z etc..
     <string name="calculating_storage">A calcular…</string>
     <string name="Cancelled">Cancelado</string>
@@ -553,7 +553,7 @@
     <string name="DirectDownload_title">Download direto</string>
     <string name="DirectDownload_desc">Cole um link abaixo e pressione o botão para baixar e integrar um audiolivro de uma vez.</string>
     <string name="DirectDownload_button">Baixar agora</string>
-    <string name="LibrivoxSearch_desc">"Busque diretamente no LibriVox para encontrar seu audiolivro. É um repositório gratuito de domínio público, principalmente em inglês e com alguns títulos em outros idiomas."</string>
+    <string name="LibrivoxSearch_desc">"Obrigado à Archive.org por hospedar o repositório gratuito de domínio público LibriVox, principalmente em inglês e com alguns títulos em outros idiomas."</string>
     <string name="PodcastSearch_desc">Obrigado a podcastindex.org pelo registro open source gratuito de podcasts</string>
     <string name="podcast_image_desc">Imagem do podcast</string>
     <string name="podcast_no_results">Nenhum podcast encontrado</string>
@@ -1031,9 +1031,9 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="Streaming_Podcast">Podcast em streaming</string>
     <string name="preview_badge">Pré-visualização</string>
     <string name="preview_not_in_library">Ainda não está na sua biblioteca</string>
-    <string name="librivox_search_edittext_title">Pesquisar por autor ou título...\nDica: uma única palavra geralmente dá melhores resultados</string>
+    <string name="librivox_search_edittext_title">Pesquisar por autor ou título...</string>
+    <string name="search_tip_single_word">Dica: uma única palavra geralmente dá melhores resultados</string>
     <string name="podcast_search_edittext_title">Pesquisar... (todos os idiomas)</string>
-    <string name="podcast_search_edittext_tip">Dica: uma única palavra geralmente dá melhores resultados</string>
     <string name="import_settings">Configurações de importação</string>
     <string name="option_split_m4b_subtitle">Se desmarcado, os arquivos M4B serão importados como faixas únicas.</string>
     <string name="option_split_m4b_subtitle_note">Observação: o recurso de divisão por capítulos atualmente suporta apenas arquivos M4B muito padrão.</string>

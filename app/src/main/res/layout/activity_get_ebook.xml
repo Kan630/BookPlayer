@@ -70,37 +70,36 @@
 
                 </LinearLayout>
 
-                <View style="@style/GetResourceHorizontalBar" />
+                <!-- Language -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
-                <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/GutendexSearch_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    />
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp">
+                    <TextView
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/Language" />
 
                     <Spinner
                         android:id="@+id/spinnerEbookLang"
                         style="@style/GetResourceSpinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <View style="@style/GetResourceHorizontalBar"/>
+                <!-- Quick lists -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
                     <TextView
-                        android:text="@string/quick_lists"
-                        style="@style/GetResourceTextTopOfButton" />
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/quick_lists" />
+
                     <Button
                         android:id="@+id/bEbookMostDownloaded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
                         android:text="@string/most_downloaded"
                         style="@style/Widget.BookPlayer.Button.Secondary" />
                     <Button
@@ -108,16 +107,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
                         android:text="@string/Bookshelves"
                         style="@style/Widget.BookPlayer.Button.Secondary" />
+                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <View style="@style/GetResourceHorizontalBar"/>
+                <!-- Search -->
+                <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+                <LinearLayout style="@style/SettingsGroupCardContent">
 
                     <TextView
-                        android:layout_marginTop="20dp"
-                        android:text="@string/librivox_search_edittext_title"
-                        style="@style/GetResourceTextTopOfButton" />
+                        style="@style/SettingsGroupTitle"
+                        android:text="@string/librivox_search_edittext_title" />
+
+                    <TextView
+                        style="@style/OptionExplainText"
+                        android:text="@string/search_tip_single_word" />
 
                     <com.driot.bookplayer.views.EditText1lineWithSearch
                         android:id="@+id/etEbook"
@@ -125,10 +130,13 @@
                         android:layout_height="wrap_content"
                         app:scrollOnFocus="true"
                         android:layout_marginTop="12dp" />
-
-
-
                 </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:text="@string/GutendexSearch_desc"
+                    style="@style/OptionExplainText" />
 
             </LinearLayout>
         </ScrollView>

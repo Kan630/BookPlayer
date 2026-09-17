@@ -2,12 +2,13 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
@@ -34,10 +35,11 @@ public class GetLibrivoxActivity extends FullActivity {
     Spinner spinnerLibrivox;
     EditText1lineWithSearch etLibrivoxSearch;
     Button bFavorite;
-    ImageButton ibFavorite;
     Button bLibrivoxTrending, bLibrivoxLastAdded;
     Button bLibrivoxByGenre;
     Button buttonByAuthor;
+    View cardFavorites;
+    LibrivoxResultsViewModel favoritesViewModel;
 
     String query;
     LibrivoxLanguageItem selectedLanguageItem;
@@ -68,11 +70,14 @@ public class GetLibrivoxActivity extends FullActivity {
         spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
         etLibrivoxSearch = findViewById(R.id.etLibrivoxSearch);
         bFavorite = findViewById(R.id.bFavorite);
-        ibFavorite = findViewById(R.id.ibFavorite);
+        cardFavorites = findViewById(R.id.cardFavorites);
 
         bFavorite.setOnClickListener(v -> clickFavorite());
-        ibFavorite.setOnClickListener(v -> clickFavorite());
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
+
+        favoritesViewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
+        favoritesViewModel.getFavoriteBookSourcesLive().observe(this, favorites ->
+                cardFavorites.setVisibility(favorites == null || favorites.isEmpty() ? View.GONE : View.VISIBLE));
 
         etLibrivoxSearch.setHistoryKey("librivox_search"); // keep histories separate
         etLibrivoxSearch.setCompletionThreshold(1); // suggestions after 1 char

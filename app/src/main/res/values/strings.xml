@@ -55,7 +55,7 @@
     <string name="back">Back</string>
     <string name="bars">bars</string>
     <string name="Bitrate">Bitrate</string>
-    <string name="Bookshelves">"Bookshelves"</string>
+    <string name="Bookshelves">"Bookshelves (slow)"</string>
     <string name="Bundle">Bundle</string> //means zip, tar, 7z etc..
     <string name="calculating_storage">Calculating…</string>
     <string name="Cancelled">Cancelled</string>
@@ -624,7 +624,7 @@
     <string name="DirectDownload_title">Direct Download</string>
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
     <string name="DirectDownload_button">Just Get It</string>
-    <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
+    <string name="LibrivoxSearch_desc">"Thanks to Archive for hosting the free LibriVox public‑domain repository, with mostly English works and some available in other languages."</string>
     <string name="PodcastSearch_desc">Thanks to podcastindex.org for providing a free open source podcast registry</string>
     <string name="podcast_image_desc">Podcast image</string>
     <string name="podcast_no_results">No podcast found</string>
@@ -1211,9 +1211,9 @@
     <string name="Streaming_Podcast">Streaming Podcast</string>
     <string name="preview_badge">Preview</string>
     <string name="preview_not_in_library">Not in your library yet</string>
-    <string name="librivox_search_edittext_title">Search by author or title…\nTip: a single word often gives better results</string>
+    <string name="librivox_search_edittext_title">Search by author or title…</string>
     <string name="podcast_search_edittext_title">Search… (all languages)</string>
-    <string name="podcast_search_edittext_tip">Tip: a single word often gives better results</string>
+    <string name="search_tip_single_word">Tip: a single word often gives better results</string>
     <string name="import_settings">Import settings</string>
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
