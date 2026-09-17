@@ -1126,10 +1126,10 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="AskReset_popupText_order">Está a punto de restablecer el orden de las pistas.\n¿Está seguro?</string>
     <string name="zikFiles_not_readable">algunas pistas tienen errores y no se pueden reproducir:</string>
     <string name="All_zikFiles_not_readable">Este libro está dañado. Ninguna pista se puede reproducir.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ Las barras de progreso muestran exactamente qué partes se han escuchado, y el color se vuelve más intenso cuanto más se reproduce una sección.\n❎ Si está desactivado, las barras de progreso solo se rellenan hasta la última posición de escucha. (clásico)</string>
-    <string name="option_use_heatmap_for_tracks_activity">mostrar mapas de calor</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity">Reemplazar barra de progreso clásica por barra de mapa de calor</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicador de progreso visual que muestra cuánto se ha escuchado de cada parte de la pista, con un marcador de reproducción arrastrable.</string>
+    <string name="option_heatmap_progress_title">Barras de progreso mejoradas</string>
+    <string name="option_heatmap_progress_explain">Activado: muestra exactamente qué partes se han escuchado — el color se intensifica cuanto más se reproduce una sección. Desactivado: la barra se rellena hasta tu última posición, como una barra clásica.</string>
+    <string name="option_use_heatmap_for_tracks_activity">En la lista de pistas</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">En la vista de reproducción</string>
     <string name="option_lock_orientation_play_activity">bloquear la orientación de la pantalla</string>
     <string name="in_history">en historial</string>
     <string name="radio_could_not_resolve_url">Este enlace de la emisora parece roto.</string>

@@ -139,27 +139,9 @@
                 android:text="@string/Track_View" />
 
             <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_use_heatmap_for_tracks_activity"
-                android:layout_marginTop="0dp">
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_use_heatmap_for_tracks_activity"
-                    style="@style/OptionCheckBox" />
-
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_use_heatmap_for_tracks_activity" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionExplainText"
-                android:text="@string/option_use_heatmap_for_tracks_activity_subtitle"
-                android:layout_marginBottom="5dp"
-                />
-
-            <LinearLayout
                 android:id="@+id/ll_always_open_track_list"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginTop="0dp">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_always_open_track_list"
                     style="@style/OptionCheckBox" />
@@ -208,21 +190,6 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_lock_orientation_play_activity" />
             </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_use_heatmap_seekbar_in_play_activity"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_use_heatmap_seekbar_in_play_activity"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_use_heatmap_seekbar_in_play_activity" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionExplainText"
-                android:text="@string/option_use_heatmap_seekbar_in_play_activity_explain"
-                android:layout_marginBottom="5dp" />
 
             <LinearLayout
                 android:id="@+id/ll_visualizer_playpause"
@@ -460,6 +427,43 @@
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
         </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Enhanced Progress Bars (shared by Track View + Player View) -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/option_heatmap_progress_title" />
+                <TextView
+                    style="@style/OptionExplainText"
+                    android:text="@string/option_heatmap_progress_explain"
+                    android:layout_marginBottom="5dp" />
+
+                <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:id="@+id/ll_use_heatmap_for_tracks_activity"
+                    >
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_use_heatmap_for_tracks_activity"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_use_heatmap_for_tracks_activity" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_use_heatmap_seekbar_in_play_activity"
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_marginTop="0dp">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_use_heatmap_seekbar_in_play_activity"
+                        style="@style/OptionCheckBox" />
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_use_heatmap_seekbar_in_play_activity" />
+                </LinearLayout>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Beeps -->

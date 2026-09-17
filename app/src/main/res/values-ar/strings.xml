@@ -1122,10 +1122,10 @@
     <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ تُظهر أشرطة التقدّم بالضبط الأجزاء التي تم الاستماع إليها، ويتعمّق اللون كلما تكرّر تشغيل القسم.\n❎ إذا تم التعطيل، تُملأ أشرطة التقدّم فقط حتى آخر موضع استماع. (كلاسيكي)</string>
-    <string name="option_use_heatmap_for_tracks_activity">عرض خرائط الحرارة</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity">استبدال شريط التقدّم العادي بشريط خريطة الحرارة</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity_explain">مؤشر تقدّم مرئي يوضح مقدار الاستماع إلى كل جزء من المقطع، مع مؤشر تشغيل قابل للسحب.</string>
+    <string name="option_heatmap_progress_title">أشرطة تقدم محسّنة</string>
+    <string name="option_heatmap_progress_explain">تشغيل: يُظهر بالضبط الأجزاء التي تم الاستماع إليها — يزداد لون الجزء كلما تكرر تشغيله. إيقاف: يمتلئ الشريط ببساطة حتى آخر موضع، كشريط تقدم تقليدي.</string>
+    <string name="option_use_heatmap_for_tracks_activity">في قائمة المقاطع</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">في عرض التشغيل</string>
     <string name="option_lock_orientation_play_activity">قفل اتجاه الشاشة</string>
     <string name="in_history">في السجل</string>
     <string name="radio_could_not_resolve_url">يبدو أنّ رابط المحطة معطّل.</string>

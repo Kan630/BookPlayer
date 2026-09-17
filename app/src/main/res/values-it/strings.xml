@@ -1128,10 +1128,10 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="AskReset_popupText_order">Stai per reimpostare l\'ordine delle tracce.\nSei sicuro?</string>
     <string name="zikFiles_not_readable">alcune tracce hanno errori e non sono riproducibili:</string>
     <string name="All_zikFiles_not_readable">Questo libro è danneggiato. Nessuna traccia può essere riprodotta.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ Le barre di avanzamento mostrano esattamente quali parti sono state ascoltate, e il colore si intensifica quanto più una sezione viene riprodotta.\n❎ Se disattivato, le barre di avanzamento vengono riempite solo fino all\'ultima posizione di ascolto. (classico)</string>
-    <string name="option_use_heatmap_for_tracks_activity">mostra mappe di calore</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity">Sostituisci la barra di avanzamento classica con la barra a mappa di calore</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicatore di avanzamento visivo che mostra quanto di ogni parte della traccia è stato ascoltato, con un marcatore di riproduzione trascinabile.</string>
+    <string name="option_heatmap_progress_title">Barre di avanzamento migliorate</string>
+    <string name="option_heatmap_progress_explain">Attivato: mostra esattamente quali parti sono state ascoltate — il colore si intensifica quanto più una sezione viene riprodotta. Disattivato: la barra si riempie semplicemente fino all\'ultima posizione, come una barra classica.</string>
+    <string name="option_use_heatmap_for_tracks_activity">Nell\'elenco delle tracce</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Nella vista di riproduzione</string>
     <string name="option_lock_orientation_play_activity">blocca orientamento dello schermo</string>
     <string name="in_history">nella cronologia</string>
     <string name="radio_could_not_resolve_url">Questo link della stazione sembra non funzionare.</string>

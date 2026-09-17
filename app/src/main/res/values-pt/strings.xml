@@ -1127,10 +1127,10 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="AskReset_popupText_order">Você está prestes a redefinir a ordem das faixas.\nTem certeza?</string>
     <string name="zikFiles_not_readable">algumas faixas têm erros e não podem ser reproduzidas:</string>
     <string name="All_zikFiles_not_readable">Este livro está com problema. Nenhuma faixa pode ser reproduzida.</string>
-    <string name="option_use_heatmap_for_tracks_activity_subtitle">✅ As barras de progresso mostram exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.\n❎ Se desativado, as barras de progresso são preenchidas apenas até à última posição de audição. (clássico)</string>
-    <string name="option_use_heatmap_for_tracks_activity">mostrar mapas de calor</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity">Substituir barra de progresso clássica pela barra de mapa de calor</string>
-    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicador de progresso visual que mostra quanto de cada parte da faixa foi ouvida, com um marcador de reprodução arrastável.</string>
+    <string name="option_heatmap_progress_title">Barras de progresso melhoradas</string>
+    <string name="option_heatmap_progress_explain">Ativado: mostra exatamente quais partes já foram ouvidas — a cor fica mais intensa quanto mais uma seção é reproduzida. Desativado: a barra apenas se preenche até a sua última posição, como uma barra clássica.</string>
+    <string name="option_use_heatmap_for_tracks_activity">Na lista de faixas</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Na vista de reprodução</string>
     <string name="option_lock_orientation_play_activity">bloquear orientação da tela</string>
     <string name="in_history">no histórico</string>
     <string name="radio_could_not_resolve_url">Este link da estação parece quebrado.</string>
