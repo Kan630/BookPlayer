@@ -114,11 +114,13 @@
 
         <com.google.android.material.slider.Slider
             android:id="@+id/sbSeek"
+            style="@style/Widget.Material3.Slider.Legacy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:trackHeight="2dp"
             app:trackColor="?attr/colorSecondary"
             app:thumbColor="?attr/colorSecondary"
+            app:thumbRadius="10dp"
              />
 
         <com.driot.bookplayer.player.heatmaps.PlayHeatMapView

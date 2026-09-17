@@ -113,6 +113,7 @@
         >
         <com.google.android.material.slider.Slider
             android:id="@+id/sbMiniSeek"
+            style="@style/Widget.Material3.Slider.Legacy"
             android:layout_width="0dp"
             android:layout_height="10dp"
             android:layout_weight="5"
@@ -120,6 +121,7 @@
             app:trackHeight="2dp"
             app:trackColor="?attr/colorSecondary"
             app:thumbColor="?attr/colorSecondary"
+            app:thumbRadius="10dp"
             />
         <ImageView
             android:id="@+id/ivNoInternet"
