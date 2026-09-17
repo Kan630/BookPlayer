@@ -9,6 +9,7 @@
     <string name="Alphabetically">Alfabeticamente</string>
     <string name="Also">Também</string>
     <string name="Artist">Artista</string>
+    <string name="Author">Autor</string>
     <string name="Audio">Áudio</string>
     <string name="AudioBooks">"Audiolivros"</string>
     <string name="Auto_Delete">Exclusão automática</string>
@@ -16,6 +17,7 @@
     <string name="auto_download">download automático</string>
     <string name="auto_download_short">auto</string>
     <string name="Automotive">Automotivo</string> //Auto section of settings
+    <string name="back">Voltar</string>
     <string name="bars">barras</string>
     <string name="Bitrate">Taxa de bits</string>
     <string name="Bookshelves">"Estantes"</string>
@@ -42,6 +44,8 @@
     <string name="Delete">Excluir</string>
     <string name="Deleting">Excluindo</string>
     <string name="denied">negada</string>
+    <string name="Date">Data</string>
+    <string name="Description">Descrição</string>
     <string name="Design">design</string> //used as the settings title for the section where user can choose color, text font
     <string name="destination">destino</string>
     <string name="device">dispositivo</string>
@@ -84,6 +88,7 @@
     <string name="homepage">página inicial</string>
     <string name="icon">ícone</string>
     <string name="Import">importar</string>
+    <string name="Identifier">Identificador</string>
     <string name="in">em</string>
     <string name="Integration">Integração</string>
     <string name="items">itens</string>
@@ -105,6 +110,7 @@
     <string name="source_type_m4b">Audiolivro M4B</string>
     <string name="source_type_archive">Arquivo compactado</string>
     <string name="source_type_ebook">Ebook</string>
+    <string name="source_type_unknown">Formato não reconhecido</string>
     <string name="source_location_local">do seu dispositivo</string>
     <string name="source_location_sdcard">do cartão SD</string>
     <string name="source_location_cloud">de armazenamento na nuvem</string>
@@ -122,7 +128,29 @@
     <string name="import_options_title">Opções</string>
     <string name="import_source_title">Origem</string>
     <string name="import_destination_title">Destino</string>
+    <string name="import_option_split_title">Capítulos</string>
+    <string name="import_option_split_yes">Dividir</string>
+    <string name="import_option_split_no">Arquivo único</string>
+    <string name="import_option_tts_voice_title">Voz</string>
+    <string name="import_scanning_chapters">Analisando capítulos…</string>
+    <string name="import_option_epub_split_title">Divisão de capítulos</string>
+    <string name="import_option_epub_split_auto">Automático</string>
+    <string name="import_option_epub_split_toc">TOC</string>
+    <string name="import_option_epub_split_spine">Spine</string>
+    <string name="import_option_storage_title">Armazenamento</string>
+    <string name="import_option_copy">Copiar</string>
+    <string name="import_option_link">Vincular</string>
+    <string name="import_option_location_title">Localização</string>
+    <string name="import_option_sdcard">Cartão SD</string>
+    <string name="import_option_device">Dispositivo</string>
+    <string name="import_option_after_import_title">Após a importação</string>
+    <string name="import_option_delete_source">Excluir origem</string>
+    <string name="import_option_keep_source">Manter origem</string>
+    <string name="import_options_settings_hint">Altere as configurações padrão aqui →</string>
+    <string name="import_options_settings_icon_description">Abrir configurações de importação</string>
     <string name="import_tracks_found_existing_and_new">%1$d faixas no total (%2$d novas)</string>
+    <string name="import_chapters_found_existing_and_new">%1$d capítulos no total (%2$d novos)</string>
+    <string name="import_m4b_single_file_note">Este M4B será importado como uma única faixa. Altere Capítulos para Dividir acima para importar cada capítulo separadamente.</string>
     <string name="Logging">Registro</string>
     <string name="manual">manual</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -135,13 +163,16 @@
     <string name="No">Não</string>
     <string name="open">abrir</string>
     <string name="others">outros</string>
+    <string name="storage_legend_app">app</string>
     <string name="paste">colar</string>
     <string name="Pause">Pausar</string> //means pause audio playback
+    <string name="Play">Reproduzir</string>
     <string name="Permission">Permissão</string>
     <string name="Podcasts">Podcasts</string>
     <string name="podcasts">podcasts</string>
     <string name="proceed">prosseguir</string>
     <string name="Processing">"Processando"</string>
+    <string name="Publisher">Editora</string>
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">rádio</string>
     <string name="Radio">Rádio</string>
@@ -161,6 +192,7 @@
     <string name="sort">ordenar</string>
     <string name="Spam">Spam</string>
     <string name="Speaking">Falando</string>
+    <string name="Subject">Assunto</string>
     <string name="Speed">Velocidade</string>
     <string name="import_task_start">iniciando...</string>
     <string name="Stats">Estatísticas</string>
@@ -214,6 +246,10 @@
     <string name="nav_settings">Config.</string>
 
     <string name="Not_enough_memory">Memória insuficiente</string>
+    <string name="storage_low_warning_import">Isso deixaria apenas %1$s livres, abaixo do seu limite em Configurações &gt; Armazenamento.</string>
+    <string name="download_error_low_storage">Espaço de armazenamento insuficiente para baixar este livro (%1$d MB livres, %2$d MB necessários). Libere algum espaço ou reduza esse limite em Configurações > Armazenamento e tente novamente.</string>
+    <string name="podcast_autodownload_skipped_low_storage">Download automático do podcast ignorado: pouco armazenamento</string>
+    <string name="podcast_download_skipped_low_storage">Download ignorado: armazenamento insuficiente (%1$d MB livres, %2$d MB necessários)</string>
 
     <string name="unexpected_error">Erro inesperado</string>
     <string name="an_error_occurred">Ocorreu um erro</string>
@@ -472,11 +508,15 @@
     <string name="option_stop_audio_if_user_closes_app_text">Parar o áudio quando você fechar o app.</string>
     <string name="option_network_preference_subtext">"Uma conexão não limitada significa que você não está usando dados móveis (por exemplo, Wi-Fi, Ethernet ou algumas VPNs).\nRoaming significa estar no exterior - até o Wi-Fi de hotel no exterior conta como roaming."</string>
     <string name="option_automotive_let_car_autoplay">Auto-Play ao conectar</string>
+    <string name="On_Connect">Ao conectar</string>
+    <string name="On_Disconnect">Ao desconectar</string>
     <string name="option_always_open_track_list">Abrir lista de faixas mesmo para livros com uma só faixa</string>
     <string name="option_always_open_track_list_subtitle"><i>"Desativado (padrão): tocar num livro com apenas uma faixa inicia a reprodução diretamente. Ativado: abre sempre primeiro a lista de faixas, como em livros com várias faixas."</i></string>
     <string name="option_open_play_activity">Abrir a [tela de reprodução] quando a reprodução começar.</string>
     <string name="tts_settings">Configurações de TTS</string>
     <string name="option_tts_language_text">Idioma padrão de TTS para novos e-books.</string>
+    <string name="option_guess_book_language">Adivinhar o idioma do livro</string>
+    <string name="option_guess_book_language_explain">Ao importar um e-book, tentar detectar seu idioma e pré-selecionar uma voz correspondente em vez de sempre usar a voz padrão acima.</string>
     <string name="option_tts_highlight_delay_title">Destaque de palavras.</string>
     <string name="option_tts_highlight_delay_text">Atraso do mecanismo:</string>
     <string name="option_epub_split_mode_text">Como dividir arquivos EPUB em capítulos:</string>
@@ -700,8 +740,14 @@
     <string name="librivox_books_loaded">%1$s livros carregados</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s livros</string>
     <string name="network_preferences_title">preferências de rede</string>
+    <string name="storage_settings_title">Armazenamento</string>
     <string name="option_download_auto_title">Download automático</string>
     <string name="option_download_user_title">Download manual</string>
+    <string name="option_min_free_storage_title">Espaço livre mínimo</string>
+    <string name="storage_volume_internal_label">Interno</string>
+    <string name="storage_volume_sdcard_label">Cartão SD</string>
+    <string name="storage_volume_info">%1$s (total %2$s, livre %3$s)</string>
+    <string name="option_min_free_storage_explain">Os downloads não começarão a menos que pelo menos esse espaço livre permaneça no dispositivo. Importações manuais receberão um aviso. Gravações de rádio serão recusadas.</string>
     <string name="download_any">📶 Qualquer conexão</string>
     <string name="download_bis_unmetered">🆓 Apenas sem limite</string>
     <string name="download_not_roaming">🏠 Sem roaming</string>
@@ -766,6 +812,7 @@
     <string name="stats_category_radio_recording">Gravação de rádio</string>
     <string name="stats_note">(Estas estatísticas começaram em 2025 (out-nov)</string>
     <string name="stats_install_date_label">Data de instalação : </string>
+    <string name="stats_recovery_date_label">Restaurado do backup em:</string>
     <string name="bMassImport">📁 Importação em massa</string>
     <string name="bOpenMassImport_desc">Importação em massa: crie tantos audiolivros quanto forem os itens na pasta que você escolher</string>
     <string name="bOpenFolder_desc">Escolha uma pasta: todos os áudios (até os de subpastas, se houver) serão importados no mesmo livro.</string>
@@ -907,6 +954,8 @@
     <string name="error_generic">Ocorreu um erro inesperado</string>
     <string name="share_station_not_ready">Os detalhes da estação ainda estão a carregar - tente partilhar novamente daqui a pouco</string>
     <string name="tts_error_warmup_timeout">Tempo de preparação da voz expirou</string>
+    <string name="tts_error_timeout">Erro de TTS: tempo esgotado</string>
+    <string name="tts_engine_still_warming_up">O mecanismo de TTS ainda está iniciando - isso pode demorar mais logo após trocar de mecanismo. Aguarde um momento e tente novamente.</string>
     <string name="tts_error_voice_set_failed">Falha ao aplicar a voz</string>
     <string name="tts_error_synth_failed">Falha na síntese de preparação</string>
     <string name="source_flag">bandeira de origem</string>
@@ -1015,9 +1064,12 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_radio_recording_as_music_subtitle"><i>"As novas gravações recebem o tipo de livro Música (botões de faixa seguinte/anterior em vez de avançar/recuar). Desative para as guardar com o tipo Rádio."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">A gravação não está disponível para esta estação.</string>
+    <string name="radio_recording_not_available_low_storage">Não é possível iniciar a gravação: espaço livre insuficiente (configurações).</string>
     <string name="radio_recording_no_live_stream">Não foi possível encontrar a estação em direto para esta gravação.</string>
     <string name="radio_recording_saved">Gravação guardada: %1$s (%2$s)</string>
     <string name="radio_recording_failed">Falha na gravação.</string>
+    <string name="radio_recording_low_storage_warning">Pouco armazenamento — a gravação pode parar em breve</string>
+    <string name="radio_recording_stopped_low_storage">Gravação interrompida automaticamente: armazenamento cheio</string>
     <string name="radio_recording_info">%1$s · %2$s</string>
     <string name="radio_buffer_info">Buffer\n%1$s</string>
 
@@ -1232,6 +1284,11 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
         <item quantity="many">%d faixas encontradas</item>
         <item quantity="other">%d faixas encontradas</item>
     </plurals>
+    <plurals name="chapters_found_count">
+        <item quantity="one">%d capítulo encontrado</item>
+        <item quantity="many">%d capítulos encontrados</item>
+        <item quantity="other">%d capítulos encontrados</item>
+    </plurals>
     <string name="option_screensaver_subtitle">Ativa-se durante a reprodução quando está no ecrã de reprodução</string>
     <string name="screensaver_force_orientation">Forçar orientação</string>
     <string name="portrait">Vertical</string>
@@ -1336,6 +1393,11 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="backup_share_send_title">Enviar para dispositivo próximo</string>
     <string name="backup_share_waiting">Aguardando dados de backup…</string>
     <string name="gutenberg_connected">Conectado! Recebendo dados… \n\nGutenberg é um projeto voluntário gratuito.\nPode ser muito lento…\n\n</string>
+    <string name="gutenberg_fetching_next_page_full">%1$s de %2$s livros carregados — buscando os próximos %3$s…</string>
+    <string name="gutenberg_fetching_next_page">Buscando a próxima página de %1$s livros, aguarde…</string>
+    <string name="gutenberg_fetching_next_page_unknown">Buscando mais livros, aguarde…</string>
+    <string name="gutenberg_slow_hint">Gutenberg é um projeto voluntário gratuito.
+Pode ser muito lento…</string>
     <string name="import_export_backup_content_from">Conteúdo do backup de: %s</string>
     <string name="import_export_backup_saved">Backup salvo com sucesso</string>
     <string name="import_export_caution_desc">Esta ação substituirá itens e configurações pelos dados selecionados do arquivo de backup. Todos os dados atuais dos itens selecionados serão EXCLUÍDOS PERMANENTEMENTE.</string>
@@ -1349,11 +1411,29 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="import_export_failed_restore">Falha ao restaurar o backup: %s</string>
     <string name="import_export_failed_share">Falha ao preparar o compartilhamento: %s</string>
     <string name="import_export_include_librivox">Favoritos do Librivox</string>
+    <string name="import_export_include_book_progress">Progresso do livro</string>
+    <string name="import_export_include_podcast_history">Histórico de audição de podcasts</string>
+    <string name="import_export_auto_backup_note">O BookPlayer também mantém uma pequena cópia de segurança automática desses dados (progresso, favoritos, configurações e quais episódios de podcast você já ouviu) por meio do backup integrado do seu telefone, caso ele seja perdido ou danificado. Isso não substitui um backup real - seus audiolivros locais, o histórico completo de episódios de podcast e as imagens de capa nunca são incluídos de qualquer forma, então criar um aqui de vez em quando ainda é a melhor maneira de manter tudo.</string>
     <string name="import_export_include_podcasts">Podcasts</string>
     <string name="import_export_include_prefs">Preferências do aplicativo</string>
     <string name="import_export_include_radios">Estações de rádio</string>
     <string name="import_export_invalid_data">Dados de backup inválidos</string>
     <string name="import_export_restore_complete">Restauração concluída. Por favor, reinicie o aplicativo se as configurações não forem aplicadas imediatamente.</string>
+    <string name="auto_backup_recovery_title">Dados recuperados encontrados</string>
+    <string name="auto_backup_recovery_desc">Encontramos uma pequena cópia de segurança automática do seu progresso, favoritos e configurações a partir do backup integrado do seu telefone. Restaurar agora?</string>
+    <string name="auto_backup_recovery_positive">Restaurar</string>
+    <string name="auto_backup_recovery_negative">Agora não</string>
+    <string name="book_needs_relink">O arquivo deste livro ainda não está neste dispositivo - adicione-o novamente para continuar de onde parou.</string>
+    <string name="full_backup_title">Backup completo</string>
+    <string name="full_backup_desc">Empacota tudo - seus audiolivros, imagens de capa e todos os dados do aplicativo - em um único arquivo zip que você salva onde quiser: cartão SD, unidade USB, um app de armazenamento em nuvem como Google Drive ou Dropbox, se estiver instalado, ou compartilhado diretamente via Quick Share, e-mail ou qualquer outro app.</string>
+    <string name="full_backup_size_needed">Armazenamento necessário: %s</string>
+    <string name="full_backup_audio_duration">Áudio total: %s</string>
+    <string name="full_backup_eta">Tempo restante estimado: %s</string>
+    <string name="full_backup_start">Iniciar backup completo</string>
+    <string name="full_backup_progress">Copiando %1$s — %2$d%% (%3$s / %4$s)</string>
+    <string name="full_backup_success">Backup completo concluído.</string>
+    <string name="full_backup_partial_failure">Backup concluído, mas alguns arquivos não puderam ser copiados. Verifique o destino antes de confiar nele.</string>
+    <string name="full_backup_failed">Falha no backup completo: %s</string>
     <string name="import_export_select_at_least_one_to_backup">Selecione pelo menos um item para fazer backup</string>
     <string name="import_export_select_at_least_one_to_restore">Selecione pelo menos um item para restaurar</string>
     <string name="import_export_select_at_least_one_to_share">Selecione pelo menos um item para compartilhar</string>

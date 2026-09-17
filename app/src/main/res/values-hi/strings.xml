@@ -9,6 +9,7 @@
     <string name="Alphabetically">वर्णमाला अनुसार</string>
     <string name="Also">साथ ही</string>
     <string name="Artist">कलाकार</string>
+    <string name="Author">लेखक</string>
     <string name="Audio">ऑडियो</string>
     <string name="AudioBooks">"ऑडियोबुक्स"</string>
     <string name="Auto_Delete">स्वतः हटाएँ</string>
@@ -16,6 +17,7 @@
     <string name="auto_download">स्वतः डाउनलोड</string>
     <string name="auto_download_short">ऑटो</string>
     <string name="Automotive">ऑटोमोटिव</string> //Auto section of settings
+    <string name="back">वापस</string>
     <string name="bars">बार्स</string>
     <string name="Bitrate">बिटरेट</string>
     <string name="Bookshelves">"किताबों की अलमारी"</string>
@@ -42,6 +44,8 @@
     <string name="Delete">हटाएँ</string>
     <string name="Deleting">हटाया जा रहा है</string>
     <string name="denied">अस्वीकृत</string>
+    <string name="Date">तिथि</string>
+    <string name="Description">विवरण</string>
     <string name="Design">डिज़ाइन</string> //used as the settings title for the section where user can choose color, text font
     <string name="destination">गंतव्य</string>
     <string name="device">डिवाइस</string>
@@ -84,6 +88,7 @@
     <string name="homepage">मुखपृष्ठ</string>
     <string name="icon">आइकन</string>
     <string name="Import">आयात</string>
+    <string name="Identifier">पहचानकर्ता</string>
     <string name="in">में</string>
     <string name="Integration">एकीकरण</string>
     <string name="items">आइटम</string>
@@ -104,6 +109,7 @@
     <string name="source_type_m4b">M4B ऑडियोबुक</string>
     <string name="source_type_archive">आर्काइव</string>
     <string name="source_type_ebook">ई-बुक</string>
+    <string name="source_type_unknown">अपरिचित प्रारूप</string>
     <string name="source_location_local">आपके डिवाइस से</string>
     <string name="source_location_sdcard">SD कार्ड से</string>
     <string name="source_location_cloud">क्लाउड स्टोरेज से</string>
@@ -121,7 +127,29 @@
     <string name="import_options_title">विकल्प</string>
     <string name="import_source_title">स्रोत</string>
     <string name="import_destination_title">गंतव्य</string>
+    <string name="import_option_split_title">अध्याय</string>
+    <string name="import_option_split_yes">विभाजित करें</string>
+    <string name="import_option_split_no">एकल फ़ाइल</string>
+    <string name="import_option_tts_voice_title">आवाज़</string>
+    <string name="import_scanning_chapters">अध्याय स्कैन हो रहे हैं…</string>
+    <string name="import_option_epub_split_title">अध्याय विभाजन</string>
+    <string name="import_option_epub_split_auto">स्वतः</string>
+    <string name="import_option_epub_split_toc">TOC</string>
+    <string name="import_option_epub_split_spine">Spine</string>
+    <string name="import_option_storage_title">स्टोरेज</string>
+    <string name="import_option_copy">कॉपी करें</string>
+    <string name="import_option_link">लिंक करें</string>
+    <string name="import_option_location_title">स्थान</string>
+    <string name="import_option_sdcard">SD कार्ड</string>
+    <string name="import_option_device">डिवाइस</string>
+    <string name="import_option_after_import_title">आयात के बाद</string>
+    <string name="import_option_delete_source">स्रोत हटाएं</string>
+    <string name="import_option_keep_source">स्रोत रखें</string>
+    <string name="import_options_settings_hint">डिफ़ॉल्ट सेटिंग्स यहाँ बदलें →</string>
+    <string name="import_options_settings_icon_description">आयात सेटिंग्स खोलें</string>
     <string name="import_tracks_found_existing_and_new">कुल %1$d ट्रैक (%2$d नए)</string>
+    <string name="import_chapters_found_existing_and_new">कुल %1$d अध्याय (%2$d नए)</string>
+    <string name="import_m4b_single_file_note">यह M4B एकल ट्रैक के रूप में आयात होगी। प्रत्येक अध्याय को अलग से आयात करने के लिए ऊपर अध्याय को विभाजित करें में बदलें।</string>
     <string name="Logging">लॉगिंग</string>
     <string name="manual">मैनुअल</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -134,13 +162,16 @@
     <string name="No">नहीं</string>
     <string name="open">खोलें</string>
     <string name="others">अन्य</string>
+    <string name="storage_legend_app">ऐप</string>
     <string name="paste">पेस्ट</string>
     <string name="Pause">विराम</string> //means pause audio playback
+    <string name="Play">चलाएं</string>
     <string name="Permission">अनुमति</string>
     <string name="Podcasts">पॉडकास्ट</string>
     <string name="podcasts">पॉडकास्ट</string>
     <string name="proceed">आगे बढ़ें</string>
     <string name="Processing">"प्रक्रिया जारी"</string>
+    <string name="Publisher">प्रकाशक</string>
     <string name="radial">रेडियल</string> //for graphic vizualizer
     <string name="radio">रेडियो</string>
     <string name="Radio">रेडियो</string>
@@ -160,6 +191,7 @@
     <string name="sort">क्रमबद्ध करें</string>
     <string name="Spam">स्पैम</string>
     <string name="Speaking">वाचन जारी</string>
+    <string name="Subject">विषय</string>
     <string name="Speed">गति</string>
     <string name="import_task_start">प्रारंभ हो रहा है…</string>
     <string name="Stats">आँकड़े</string>
@@ -213,6 +245,10 @@
     <string name="nav_settings">सेटिंग्स</string>
 
     <string name="Not_enough_memory">पर्याप्त मेमोरी नहीं</string>
+    <string name="storage_low_warning_import">इससे केवल %1$s खाली बचेगा, जो आपकी सेटिंग्स &gt; स्टोरेज सीमा से कम है।</string>
+    <string name="download_error_low_storage">इस पुस्तक को डाउनलोड करने के लिए पर्याप्त खाली संग्रहण नहीं है (%1$d MB खाली, %2$d MB आवश्यक)। कुछ स्थान खाली करें, या सेटिंग्स > स्टोरेज में यह सीमा घटाएं, और फिर से प्रयास करें।</string>
+    <string name="podcast_autodownload_skipped_low_storage">पॉडकास्ट ऑटो-डाउनलोड छोड़ा गया: कम स्टोरेज</string>
+    <string name="podcast_download_skipped_low_storage">डाउनलोड छोड़ा गया: पर्याप्त स्टोरेज नहीं (%1$d MB खाली, %2$d MB आवश्यक)</string>
 
     <string name="unexpected_error">अप्रत्याशित त्रुटि</string>
     <string name="an_error_occurred">एक त्रुटि हुई</string>
@@ -470,11 +506,15 @@
 \nरोमिंग का अर्थ है विदेश में होना — विदेश में होटल Wi-Fi भी रोमिंग माना जाता है।"
 </string>
     <string name="option_automotive_let_car_autoplay">कनेक्ट होने पर ऑटो-प्ले</string>
+    <string name="On_Connect">कनेक्ट होने पर</string>
+    <string name="On_Disconnect">डिस्कनेक्ट होने पर</string>
     <string name="option_always_open_track_list">एकल-ट्रैक पुस्तकों के लिए भी ट्रैक सूची खोलें</string>
     <string name="option_always_open_track_list_subtitle"><i>"बंद (डिफ़ॉल्ट): केवल एक ट्रैक वाली पुस्तक पर टैप करने से वह सीधे चलने लगती है। चालू: हमेशा पहले ट्रैक सूची खोलता है, जैसे कई ट्रैक वाली पुस्तकों में।"</i></string>
     <string name="option_open_play_activity">प्लेबैक शुरू होने पर [प्ले व्यू] खोलें।</string>
     <string name="tts_settings">TTS सेटिंग्स</string>
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
+    <string name="option_guess_book_language">पुस्तक की भाषा का अनुमान लगाएं</string>
+    <string name="option_guess_book_language_explain">ई-बुक आयात करते समय, उसकी भाषा का पता लगाने और ऊपर दी गई डिफ़ॉल्ट आवाज़ के बजाय एक मिलती-जुलती आवाज़ पहले से चुनने का प्रयास करें।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
     <string name="option_tts_highlight_delay_text">विलंब :</string>
     <string name="option_epub_split_mode_text">EPUB फ़ाइलों को अध्यायों में कैसे विभाजित करें:</string>
@@ -698,8 +738,14 @@
     <string name="librivox_books_loaded">%1$s किताबें लोड हुईं</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s किताबें</string>
     <string name="network_preferences_title">नेटवर्क प्राथमिकताएँ</string>
+    <string name="storage_settings_title">स्टोरेज</string>
     <string name="option_download_auto_title">स्वतः डाउनलोड</string>
     <string name="option_download_user_title">मैनुअल डाउनलोड</string>
+    <string name="option_min_free_storage_title">न्यूनतम खाली संग्रहण</string>
+    <string name="storage_volume_internal_label">आंतरिक</string>
+    <string name="storage_volume_sdcard_label">SD कार्ड</string>
+    <string name="storage_volume_info">%1$s (कुल %2$s, खाली %3$s)</string>
+    <string name="option_min_free_storage_explain">जब तक डिवाइस पर कम से कम इतनी खाली जगह न बचे, डाउनलोड शुरू नहीं होंगे। मैनुअल आयात पर चेतावनी मिलेगी। रेडियो रिकॉर्डिंग अस्वीकार कर दी जाएगी।</string>
     <string name="download_any">📶 कोई भी कनेक्शन</string>
     <string name="download_bis_unmetered">🆓 केवल अनमीटर्ड</string>
     <string name="download_not_roaming">🏠 रोमिंग नहीं</string>
@@ -763,6 +809,7 @@
     <string name="stats_category_radio_recording">रेडियो रिकॉर्डिंग</string>
     <string name="stats_note">(ये आंकड़े 2025 में शुरू हुए (अक्टूबर-नवंबर)</string>
     <string name="stats_install_date_label">इंस्टॉल तिथि : </string>
+    <string name="stats_recovery_date_label">बैकअप से पुनर्स्थापित किया गया:</string>
     <string name="bMassImport">📁 मास आयात</string>
     <string name="bOpenMassImport_desc">मास आयात : आप जिस फ़ोल्डर को चुनेंगे, उसमें मौजूद प्रत्येक आइटम के लिए एक ऑडियोबुक बनाएं</string>
     <string name="bOpenFolder_desc">फ़ोल्डर चुनें : सभी ऑडियो (यदि उपफ़ोल्डर हैं तो उनमें भी) एक ही किताब में आयात हो जाएँगे।</string>
@@ -904,6 +951,8 @@
     <string name="error_generic">एक अप्रत्याशित त्रुटि हुई</string>
     <string name="share_station_not_ready">स्टेशन का विवरण अभी भी लोड हो रहा है - कृपया थोड़ी देर में फिर से साझा करने का प्रयास करें</string>
     <string name="tts_error_warmup_timeout">आवाज़ वार्म-अप का समय समाप्त</string>
+    <string name="tts_error_timeout">TTS त्रुटि: समय समाप्त</string>
+    <string name="tts_engine_still_warming_up">TTS इंजन अभी भी शुरू हो रहा है - इंजन बदलने के ठीक बाद इसमें अधिक समय लग सकता है। कृपया थोड़ी देर प्रतीक्षा करें और फिर से प्रयास करें।</string>
     <string name="tts_error_voice_set_failed">आवाज़ लागू करने में विफल</string>
     <string name="tts_error_synth_failed">वार्म-अप सिंथेसिस विफल</string>
     <string name="source_flag">स्रोत फ़्लैग</string>
@@ -1012,9 +1061,12 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_radio_recording_as_music_subtitle"><i>"नई रिकॉर्डिंग को \'संगीत\' पुस्तक प्रकार मिलता है (आगे/पीछे के बजाय अगला/पिछला ट्रैक बटन)। इन्हें \'रेडियो\' प्रकार के रूप में सहेजने के लिए बंद करें।"</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">इस स्टेशन के लिए रिकॉर्डिंग उपलब्ध नहीं है।</string>
+    <string name="radio_recording_not_available_low_storage">रिकॉर्डिंग शुरू नहीं हो सकती: पर्याप्त खाली स्टोरेज नहीं (सेटिंग्स)।</string>
     <string name="radio_recording_no_live_stream">इस रिकॉर्डिंग के लिए लाइव स्टेशन नहीं मिला।</string>
     <string name="radio_recording_saved">रिकॉर्डिंग सहेजी गई: %1$s (%2$s)</string>
     <string name="radio_recording_failed">रिकॉर्डिंग विफल रही।</string>
+    <string name="radio_recording_low_storage_warning">कम स्टोरेज — रिकॉर्डिंग जल्द ही रुक सकती है</string>
+    <string name="radio_recording_stopped_low_storage">रिकॉर्डिंग स्वतः रुक गई: स्टोरेज भर गया</string>
     <string name="radio_recording_info">%1$s · %2$s</string>
     <string name="radio_buffer_info">बफ़र\n%1$s</string>
 
@@ -1224,6 +1276,10 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <item quantity="one">%d ट्रैक मिला</item>
         <item quantity="other">%d ट्रैक मिले</item>
     </plurals>
+    <plurals name="chapters_found_count">
+        <item quantity="one">%d अध्याय मिला</item>
+        <item quantity="other">%d अध्याय मिले</item>
+    </plurals>
     <string name="option_screensaver_subtitle">प्लेबैक के दौरान सक्रिय होता है जब आप प्ले स्क्रीन पर हों</string>
     <string name="screensaver_force_orientation">दिशा बल दें</string>
     <string name="portrait">पोर्ट्रेट</string>
@@ -1330,6 +1386,11 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="backup_share_send_title">आस-पास के डिवाइस पर भेजें</string>
     <string name="backup_share_waiting">बैकअप डेटा की प्रतीक्षा की जा रही है…</string>
     <string name="gutenberg_connected">जुड़ा हुआ है! डेटा प्राप्त हो रहा है… \n\nगटेनबर्ग एक स्वतंत्र स्वयंसेवक परियोजना है।\nयह काफी धीमा हो सकता है…\n\n</string>
+    <string name="gutenberg_fetching_next_page_full">%2$s में से %1$s पुस्तकें लोड हुईं — अगले %3$s लाए जा रहे हैं…</string>
+    <string name="gutenberg_fetching_next_page">%1$s पुस्तकों का अगला पृष्ठ लाया जा रहा है, कृपया प्रतीक्षा करें…</string>
+    <string name="gutenberg_fetching_next_page_unknown">अधिक पुस्तकें लाई जा रही हैं, कृपया प्रतीक्षा करें…</string>
+    <string name="gutenberg_slow_hint">गटेनबर्ग एक स्वतंत्र स्वयंसेवक परियोजना है।
+यह काफी धीमा हो सकता है…</string>
     <string name="import_export_backup_content_from">बैकअप सामग्री: %s</string>
     <string name="import_export_backup_saved">बैकअप सफलतापूर्वक सहेजा गया</string>
     <string name="import_export_caution_desc">यह क्रिया आइटम और सेटिंग्स को बैकअप फ़ाइल से चयनित डेटा के साथ बदल देगी। चयनित वस्तुओं का सारा वर्तमान डेटा स्थायी रूप से मिटा दिया जाएगा।</string>
@@ -1343,11 +1404,29 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="import_export_failed_restore">बैकअप पुनर्स्थापित करने में विफल: %s</string>
     <string name="import_export_failed_share">साझाकरण तैयार करने में विफल: %s</string>
     <string name="import_export_include_librivox">लिब्रीवोक्स पसंदीदा</string>
+    <string name="import_export_include_book_progress">पुस्तक प्रगति</string>
+    <string name="import_export_include_podcast_history">पॉडकास्ट सुनने का इतिहास</string>
+    <string name="import_export_auto_backup_note">BookPlayer आपके फ़ोन के बिल्ट-इन बैकअप के ज़रिए इस डेटा (प्रगति, पसंदीदा, सेटिंग्स, और आपने कौन-से पॉडकास्ट एपिसोड सुने हैं) की एक छोटी स्वचालित सुरक्षा प्रति भी रखता है, ताकि यदि आपका फ़ोन खो जाए या क्षतिग्रस्त हो जाए। यह असली बैकअप की जगह नहीं लेता - आपकी स्थानीय ऑडियोबुक्स, पूरा पॉडकास्ट एपिसोड इतिहास, और कवर छवियां किसी भी स्थिति में शामिल नहीं होतीं, इसलिए यहाँ समय-समय पर एक बैकअप बनाना ही सब कुछ सुरक्षित रखने का सबसे अच्छा तरीका है।</string>
     <string name="import_export_include_podcasts">पॉडकास्ट</string>
     <string name="import_export_include_prefs">ऐप प्राथमिकताएं</string>
     <string name="import_export_include_radios">रेडियो स्टेशन</string>
     <string name="import_export_invalid_data">अमान्य बैकअप डेटा</string>
     <string name="import_export_restore_complete">पुनर्स्थापना पूर्ण हुई। यदि सेटिंग्स तुरंत लागू नहीं होती हैं तो कृपया ऐप को रीस्टार्ट करें।</string>
+    <string name="auto_backup_recovery_title">पुनर्प्राप्त डेटा मिला</string>
+    <string name="auto_backup_recovery_desc">हमें आपके फ़ोन के बिल्ट-इन बैकअप से आपकी प्रगति, पसंदीदा और सेटिंग्स की एक छोटी स्वचालित सुरक्षा प्रति मिली है। क्या अभी पुनर्स्थापित करें?</string>
+    <string name="auto_backup_recovery_positive">पुनर्स्थापित करें</string>
+    <string name="auto_backup_recovery_negative">अभी नहीं</string>
+    <string name="book_needs_relink">इस पुस्तक की फ़ाइल अभी तक इस डिवाइस पर नहीं है - जहाँ आपने छोड़ा था वहाँ से जारी रखने के लिए इसे फिर से जोड़ें।</string>
+    <string name="full_backup_title">पूर्ण बैकअप</string>
+    <string name="full_backup_desc">सब कुछ पैक करता है - आपकी ऑडियोबुक्स, कवर छवियां, और सभी ऐप डेटा - एक ही ज़िप फ़ाइल में जिसे आप जहाँ चाहें सहेज सकते हैं: SD कार्ड, USB ड्राइव, Google Drive या Dropbox जैसा क्लाउड स्टोरेज ऐप (यदि इंस्टॉल है), या Quick Share, ईमेल, या किसी अन्य ऐप के ज़रिए सीधे साझा करें।</string>
+    <string name="full_backup_size_needed">आवश्यक स्टोरेज: %s</string>
+    <string name="full_backup_audio_duration">कुल ऑडियो: %s</string>
+    <string name="full_backup_eta">अनुमानित शेष समय: %s</string>
+    <string name="full_backup_start">पूर्ण बैकअप शुरू करें</string>
+    <string name="full_backup_progress">%1$s कॉपी हो रहा है — %2$d%% (%3$s / %4$s)</string>
+    <string name="full_backup_success">पूर्ण बैकअप पूरा हुआ।</string>
+    <string name="full_backup_partial_failure">बैकअप पूरा हुआ, लेकिन कुछ फ़ाइलें कॉपी नहीं हो सकीं। इस पर भरोसा करने से पहले गंतव्य की जाँच करें।</string>
+    <string name="full_backup_failed">पूर्ण बैकअप विफल: %s</string>
     <string name="import_export_select_at_least_one_to_backup">कृपया बैकअप के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_restore">कृपया पुनर्स्थापित करने के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_share">कृपया साझा करने के लिए कम से कम एक आइटम चुनें</string>

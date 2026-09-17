@@ -9,6 +9,7 @@
     <string name="Alphabetically">أبجديا</string>
     <string name="Also">أيضًا</string>
     <string name="Artist">الفنان</string>
+    <string name="Author">المؤلف</string>
     <string name="Audio">صوت</string>
     <string name="AudioBooks">"كتب صوتية"</string>
     <string name="Auto_Delete">الحذف التلقائي</string>
@@ -16,6 +17,7 @@
     <string name="auto_download">تنزيل تلقائي</string>
     <string name="auto_download_short">تلقائي</string>
     <string name="Automotive">السيارة</string> //Auto section of settings
+    <string name="back">رجوع</string>
     <string name="bars">أعمدة</string>
     <string name="Bitrate">معدل البت</string>
     <string name="Bookshelves">"رفوف الكتب"</string>
@@ -42,6 +44,8 @@
     <string name="Delete">حذف</string>
     <string name="Deleting">جاري الحذف</string>
     <string name="denied">مرفوض</string>
+    <string name="Date">التاريخ</string>
+    <string name="Description">الوصف</string>
     <string name="Design">تصميم</string> //used as the settings title for the section where user can choose color, text font
     <string name="destination">الوجهة</string>
     <string name="device">الجهاز</string>
@@ -84,6 +88,7 @@
     <string name="homepage">الصفحة الرئيسية</string>
     <string name="icon">رمز</string>
     <string name="Import">استيراد</string>
+    <string name="Identifier">المعرّف</string>
     <string name="in">في</string>
     <string name="Integration">دمج</string>
     <string name="items">عناصر</string>
@@ -105,6 +110,7 @@
     <string name="source_type_m4b">كتاب صوتي M4B</string>
     <string name="source_type_archive">أرشيف</string>
     <string name="source_type_ebook">كتاب إلكتروني</string>
+    <string name="source_type_unknown">صيغة غير معروفة</string>
     <string name="source_location_local">من جهازك</string>
     <string name="source_location_sdcard">من بطاقة SD</string>
     <string name="source_location_cloud">من التخزين السحابي</string>
@@ -122,7 +128,29 @@
     <string name="import_options_title">خيارات</string>
     <string name="import_source_title">المصدر</string>
     <string name="import_destination_title">الوجهة</string>
+    <string name="import_option_split_title">الفصول</string>
+    <string name="import_option_split_yes">تقسيم</string>
+    <string name="import_option_split_no">ملف واحد</string>
+    <string name="import_option_tts_voice_title">الصوت</string>
+    <string name="import_scanning_chapters">جارٍ فحص الفصول…</string>
+    <string name="import_option_epub_split_title">تقسيم الفصول</string>
+    <string name="import_option_epub_split_auto">تلقائي</string>
+    <string name="import_option_epub_split_toc">TOC</string>
+    <string name="import_option_epub_split_spine">Spine</string>
+    <string name="import_option_storage_title">التخزين</string>
+    <string name="import_option_copy">نسخ</string>
+    <string name="import_option_link">ربط</string>
+    <string name="import_option_location_title">الموقع</string>
+    <string name="import_option_sdcard">بطاقة SD</string>
+    <string name="import_option_device">الجهاز</string>
+    <string name="import_option_after_import_title">بعد الاستيراد</string>
+    <string name="import_option_delete_source">حذف المصدر</string>
+    <string name="import_option_keep_source">الاحتفاظ بالمصدر</string>
+    <string name="import_options_settings_hint">غيّر الإعدادات الافتراضية هنا ←</string>
+    <string name="import_options_settings_icon_description">فتح إعدادات الاستيراد</string>
     <string name="import_tracks_found_existing_and_new">إجمالي %1$d مسارات (%2$d جديدة)</string>
+    <string name="import_chapters_found_existing_and_new">إجمالي %1$d فصول (%2$d جديدة)</string>
+    <string name="import_m4b_single_file_note">سيتم استيراد ملف M4B هذا كمسار واحد. بدّل "الفصول" إلى "تقسيم" أعلاه لاستيراد كل فصل على حدة.</string>
     <string name="Logging">تسجيل الأخطاء</string>
     <string name="manual">دليل</string>
     <string name="MB">ميغابايت</string> //short for MegaByte
@@ -135,13 +163,16 @@
     <string name="No">لا</string>
     <string name="open">فتح</string>
     <string name="others">أخرى</string>
+    <string name="storage_legend_app">التطبيق</string>
     <string name="paste">لصق</string>
     <string name="Pause">إيقاف مؤقت</string> //means pause audio playback
+    <string name="Play">تشغيل</string>
     <string name="Permission">إذن</string>
     <string name="Podcasts">البودكاست</string>
     <string name="podcasts">البودكاست</string>
     <string name="proceed">متابعة</string>
     <string name="Processing">"جارٍ المعالجة"</string>
+    <string name="Publisher">الناشر</string>
     <string name="radial">دائري</string> //for graphic vizualizer
     <string name="radio">راديو</string>
     <string name="Radio">راديو</string>
@@ -161,6 +192,7 @@
     <string name="sort">فرز</string>
     <string name="Spam">رسائل مزعجة</string>
     <string name="Speaking">جارٍ التحدث</string>
+    <string name="Subject">الموضوع</string>
     <string name="Speed">السرعة</string>
     <string name="import_task_start">جارٍ البدء...</string>
     <string name="Stats">إحصائيات</string>
@@ -214,6 +246,10 @@
     <string name="nav_settings">الإعدادات</string>
 
     <string name="Not_enough_memory">الذاكرة غير كافية</string>
+    <string name="storage_low_warning_import">سيترك هذا %1$s فقط خالية، وهو أقل من الحد الذي حددته في الإعدادات &gt; التخزين.</string>
+    <string name="download_error_low_storage">لا توجد مساحة تخزين كافية لتنزيل هذا الكتاب (%1$d ميجابايت متاحة، %2$d ميجابايت مطلوبة). حرر بعض المساحة، أو قلل هذا الحد في الإعدادات > التخزين، وحاول مرة أخرى.</string>
+    <string name="podcast_autodownload_skipped_low_storage">تم تخطي التنزيل التلقائي للبودكاست: مساحة تخزين منخفضة</string>
+    <string name="podcast_download_skipped_low_storage">تم تخطي التنزيل: مساحة التخزين غير كافية (%1$d ميجابايت متاحة، %2$d ميجابايت مطلوبة)</string>
 
     <string name="unexpected_error">خطأ غير متوقع</string>
     <string name="an_error_occurred">حدث خطأ</string>
@@ -467,11 +503,15 @@
     <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
     <string name="option_network_preference_subtext">"يعني الاتصال غير المقاس أنك لا تستخدم بيانات الجوّال (مثل Wi-Fi أو Ethernet أو بعض شبكات VPN).\nالتجوال يعني أنك في الخارج - حتى Wi-Fi في الفندق أثناء السفر يُعد تجوالاً."</string>
     <string name="option_automotive_let_car_autoplay">تشغيل تلقائي عند الاتصال</string>
+    <string name="On_Connect">عند الاتصال</string>
+    <string name="On_Disconnect">عند قطع الاتصال</string>
     <string name="option_always_open_track_list">فتح قائمة المقاطع حتى للكتب ذات المقطع الواحد</string>
     <string name="option_always_open_track_list_subtitle"><i>"إيقاف (افتراضي): النقر على كتاب يحتوي على مقطع واحد فقط يبدأ التشغيل مباشرة. تشغيل: يفتح دائماً قائمة المقاطع أولاً، كما هو الحال في الكتب متعددة المقاطع."</i></string>
     <string name="option_open_play_activity">فتح [شاشة التشغيل] عند بدء التشغيل.</string>
     <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
+    <string name="option_guess_book_language">تخمين لغة الكتاب</string>
+    <string name="option_guess_book_language_explain">عند استيراد كتاب إلكتروني، حاول اكتشاف لغته واختيار صوت مطابق مسبقاً بدلاً من استخدام الصوت الافتراضي أعلاه دائماً.</string>
     <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
     <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
     <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
@@ -695,8 +735,14 @@
     <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
     <string name="network_preferences_title">تفضيلات الشبكة</string>
+    <string name="storage_settings_title">التخزين</string>
     <string name="option_download_auto_title">تنزيل تلقائي</string>
     <string name="option_download_user_title">تنزيل يدوي</string>
+    <string name="option_min_free_storage_title">الحد الأدنى للمساحة الخالية</string>
+    <string name="storage_volume_internal_label">داخلي</string>
+    <string name="storage_volume_sdcard_label">بطاقة SD</string>
+    <string name="storage_volume_info">%1$s (الإجمالي %2$s، الخالي %3$s)</string>
+    <string name="option_min_free_storage_explain">لن تبدأ التنزيلات ما لم تبقَ هذه المساحة الخالية على الأقل في الجهاز. ستحصل عمليات الاستيراد اليدوي على تحذير. سيتم رفض تسجيلات الراديو.</string>
     <string name="download_any">📶 أي اتصال</string>
     <string name="download_bis_unmetered">🆓 فقط بدون عداد</string>
     <string name="download_not_roaming">🏠 غير تجوال</string>
@@ -761,6 +807,7 @@
     <string name="stats_category_radio_recording">تسجيل راديو</string>
     <string name="stats_note">(بدأت هذه الإحصائيات في 2025 (أكتوبر-نوفمبر)</string>
     <string name="stats_install_date_label">تاريخ التثبيت : </string>
+    <string name="stats_recovery_date_label">تمت الاستعادة من نسخة احتياطية بتاريخ:</string>
     <string name="bMassImport">📁 استيراد جماعي</string>
     <string name="bOpenMassImport_desc">استيراد جماعي: أنشئ عددًا من الكتب الصوتية يساوي عدد العناصر في المجلد الذي ستختاره.</string>
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
@@ -902,6 +949,8 @@
     <string name="error_generic">حدث خطأ غير متوقع</string>
     <string name="share_station_not_ready">لا تزال تفاصيل المحطة قيد التحميل - حاول المشاركة مرة أخرى بعد قليل</string>
     <string name="tts_error_warmup_timeout">انتهت مهلة تحضير الصوت</string>
+    <string name="tts_error_timeout">خطأ في تحويل النص إلى كلام: انتهت المهلة</string>
+    <string name="tts_engine_still_warming_up">لا يزال محرك تحويل النص إلى كلام قيد بدء التشغيل - قد يستغرق هذا وقتاً أطول مباشرة بعد تبديل المحركات. يرجى الانتظار لحظة والمحاولة مرة أخرى.</string>
     <string name="tts_error_voice_set_failed">فشل في تطبيق الصوت</string>
     <string name="tts_error_synth_failed">فشل في توليد الصوت أثناء التحضير</string>
     <string name="source_flag">علم المصدر</string>
@@ -1010,9 +1059,12 @@
     <string name="option_radio_recording_as_music_subtitle"><i>"تحصل التسجيلات الجديدة على نوع كتاب «موسيقى» (زرا المقطع التالي/السابق بدلاً من التقديم/الرجوع). أوقفه لحفظها بنوع «راديو» بدلاً من ذلك."</i></string>
     <string name="radio_recording">REC</string>
     <string name="radio_recording_not_available">التسجيل غير متاح لهذه المحطة.</string>
+    <string name="radio_recording_not_available_low_storage">لا يمكن بدء التسجيل: مساحة التخزين الخالية غير كافية (الإعدادات).</string>
     <string name="radio_recording_no_live_stream">تعذر العثور على البث المباشر لهذا التسجيل.</string>
     <string name="radio_recording_saved">تم حفظ التسجيل: %1$s (%2$s)</string>
     <string name="radio_recording_failed">فشل التسجيل.</string>
+    <string name="radio_recording_low_storage_warning">مساحة التخزين منخفضة — قد يتوقف التسجيل قريباً</string>
+    <string name="radio_recording_stopped_low_storage">توقف التسجيل تلقائياً: التخزين ممتلئ</string>
     <string name="radio_recording_info">%1$s · %2$s</string>
     <string name="radio_buffer_info">المخزن المؤقت\n%1$s</string>
 
@@ -1242,6 +1294,14 @@
         <item quantity="zero">تم العثور على %d مقاطع</item>
         <item quantity="other">تم العثور على %d مقاطع</item>
     </plurals>
+    <plurals name="chapters_found_count">
+        <item quantity="one">تم العثور على فصل واحد (%d)</item>
+        <item quantity="two">تم العثور على فصلين</item>
+        <item quantity="few">تم العثور على %d فصول</item>
+        <item quantity="many">تم العثور على %d فصلاً</item>
+        <item quantity="other">تم العثور على %d فصول</item>
+        <item quantity="zero">تم العثور على %d فصول</item>
+    </plurals>
     <string name="option_screensaver_subtitle">يُفعّل أثناء التشغيل عندما تكون على شاشة التشغيل</string>
     <string name="screensaver_force_orientation">فرض الاتجاه</string>
     <string name="portrait">عمودي</string>
@@ -1346,6 +1406,11 @@
     <string name="backup_share_send_title">إرسال إلى جهاز قريب</string>
     <string name="backup_share_waiting">في انتظار بيانات النسخ الاحتياطية…</string>
     <string name="gutenberg_connected">متصل! جاري استلام البيانات… \n\nغوتنبرغ هو مشروع تطوعي مجاني.\nيمكن أن يكون بطيئاً جداً…\n\n</string>
+    <string name="gutenberg_fetching_next_page_full">تم تحميل %1$s من %2$s كتاب — جارٍ جلب %3$s التالية…</string>
+    <string name="gutenberg_fetching_next_page">جارٍ جلب الصفحة التالية من %1$s كتاب، يرجى الانتظار…</string>
+    <string name="gutenberg_fetching_next_page_unknown">جارٍ جلب المزيد من الكتب، يرجى الانتظار…</string>
+    <string name="gutenberg_slow_hint">غوتنبرغ هو مشروع تطوعي مجاني.
+يمكن أن يكون بطيئاً جداً…</string>
     <string name="import_export_backup_content_from">محتوى النسخ الاحتياطي من: %s</string>
     <string name="import_export_backup_saved">تم حفظ النسخة الاحتياطية بنجاح</string>
     <string name="import_export_caution_desc">سيؤدي هذا الإجراء إلى استبدال العناصر والإعدادات بالبيانات المختارة من ملف النسخ الاحتياطي. سيتم حذف جميع البيانات الحالية للعناصر المختارة نهائياً.</string>
@@ -1359,11 +1424,29 @@
     <string name="import_export_failed_restore">فشلت استعادة النسخة الاحتياطية: %s</string>
     <string name="import_export_failed_share">فشل تحضير المشاركة: %s</string>
     <string name="import_export_include_librivox">مفضلات ليباريفوكس</string>
+    <string name="import_export_include_book_progress">تقدم الكتاب</string>
+    <string name="import_export_include_podcast_history">سجل استماع البودكاست</string>
+    <string name="import_export_auto_backup_note">يحتفظ BookPlayer أيضاً بنسخة احتياطية تلقائية صغيرة من هذه البيانات (التقدم والمفضلات والإعدادات وحلقات البودكاست التي استمعت إليها) عبر النسخ الاحتياطي المدمج في هاتفك، في حال ضياع هاتفك أو تلفه. وهذا لا يغني عن نسخة احتياطية حقيقية - فكتبك الصوتية المحلية وسجل حلقات البودكاست الكامل وصور الأغلفة لا تُدرج أبداً في كلتا الحالتين، لذا فإن إنشاء نسخة احتياطية هنا من وقت لآخر يظل أفضل وسيلة للحفاظ على كل شيء.</string>
     <string name="import_export_include_podcasts">بودكاست</string>
     <string name="import_export_include_prefs">تفضيلات التطبيق</string>
     <string name="import_export_include_radios">محطات الراديو</string>
     <string name="import_export_invalid_data">بيانات نسخ احتياطي غير صالحة</string>
     <string name="import_export_restore_complete">اكتملت الاستعادة. يرجى إعادة تشغيل التطبيق إذا لم يتم تطبيق الإعدادات على الفور.</string>
+    <string name="auto_backup_recovery_title">تم العثور على بيانات مستردة</string>
+    <string name="auto_backup_recovery_desc">وجدنا نسخة احتياطية تلقائية صغيرة لتقدمك ومفضلاتك وإعداداتك من النسخ الاحتياطي المدمج في هاتفك. هل تريد استعادتها الآن؟</string>
+    <string name="auto_backup_recovery_positive">استعادة</string>
+    <string name="auto_backup_recovery_negative">ليس الآن</string>
+    <string name="book_needs_relink">ملف هذا الكتاب غير موجود على هذا الجهاز بعد - أعد إضافته لمتابعة الاستماع من حيث توقفت.</string>
+    <string name="full_backup_title">نسخ احتياطي كامل</string>
+    <string name="full_backup_desc">يجمع كل شيء - كتبك الصوتية وصور الأغلفة وجميع بيانات التطبيق - في ملف zip واحد تحفظه أينما تشاء: بطاقة SD، محرك USB، تطبيق تخزين سحابي مثل Google Drive أو Dropbox إذا كان مثبتاً، أو تتم مشاركته مباشرة عبر Quick Share أو البريد الإلكتروني أو أي تطبيق آخر.</string>
+    <string name="full_backup_size_needed">المساحة المطلوبة: %s</string>
+    <string name="full_backup_audio_duration">إجمالي الصوت: %s</string>
+    <string name="full_backup_eta">الوقت المتبقي المقدر: %s</string>
+    <string name="full_backup_start">بدء النسخ الاحتياطي الكامل</string>
+    <string name="full_backup_progress">جارٍ نسخ %1$s — %2$d%% (%3$s / %4$s)</string>
+    <string name="full_backup_success">اكتمل النسخ الاحتياطي الكامل.</string>
+    <string name="full_backup_partial_failure">اكتمل النسخ الاحتياطي، ولكن تعذر نسخ بعض الملفات. تحقق من الوجهة قبل الاعتماد عليها.</string>
+    <string name="full_backup_failed">فشل النسخ الاحتياطي الكامل: %s</string>
     <string name="import_export_select_at_least_one_to_backup">يرجى اختيار عنصر واحد على الأقل للنسخ الاحتياطي</string>
     <string name="import_export_select_at_least_one_to_restore">يرجى اختيار عنصر واحد على الأقل للاستعادة</string>
     <string name="import_export_select_at_least_one_to_share">يرجى اختيار عنصر واحد على الأقل للمشاركة</string>
