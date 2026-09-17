@@ -10,6 +10,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.fragment.app.FragmentManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
@@ -149,6 +150,18 @@ public class SettingsActivity extends FullActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // Re-tapping the Settings tab on the bottom nav bar while already inside a sub-setting
+        // (e.g. Play Behaviour) sends us here via CLEAR_TOP|SINGLE_TOP (see
+        // NavHelper.handleAppNavBarClick's "same tab click" branch) instead of recreating the
+        // Activity - so without this, the open detail fragment and scroll position were left
+        // untouched and the tap appeared to do nothing.
+        getSupportFragmentManager().popBackStack(DETAIL_BACKSTACK_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (scrollView != null) scrollView.scrollTo(0, 0);
     }
 
     private interface FragmentFactory {
