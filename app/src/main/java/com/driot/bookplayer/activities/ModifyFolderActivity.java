@@ -149,7 +149,7 @@ public class ModifyFolderActivity extends BaseActivity {
         etRename.setText(folder.getName());
 
         findViewById(R.id.bAddNewTracks).setOnClickListener(view -> {
-            Intent i = new Intent(this, GetOtherActivity.class);
+            Intent i = new Intent(this, AddBookHostActivity.class);
             i.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folder);
             startActivity(i);
         });

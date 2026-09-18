@@ -8,8 +8,7 @@ import android.content.Intent;
 import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.activities.GetOtherActivity;
+import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.activities.SettingsHostActivity;
@@ -20,7 +19,6 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
-import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -134,6 +132,13 @@ public class NavHelper {
             return true;
         }
 
+        // Same for Add Book (AddBookHostActivity, all flavors - lives in the main sourceset).
+        if (itemId == R.id.nav_add && activity instanceof AddBookHostActivity) {
+            ((AddBookHostActivity) activity).navigateToRoot();
+            navState.setCurrentAppNavBarId(itemId);
+            return true;
+        }
+
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
             myLogDD("same tab click");
@@ -224,10 +229,10 @@ public class NavHelper {
         } else if (itemId == R.id.nav_library) {
             intent = new Intent(activity, MainActivity.class);
         } else if (itemId == R.id.nav_add) {
-            // pure has no reachable path to LibriVox/Gutenberg/direct-link (content that can't be
-            // kept kid-safe/content-rating-appropriate) - skip the GetActivity hub and its 3
-            // network-source buttons entirely, straight to the local-file-only GetOtherActivity.
-            intent = new Intent(activity, Tonio.isPure(activity) ? GetOtherActivity.class : GetActivity.class);
+            // AddBookHostActivity itself skips its GetActivityFragment hub straight to
+            // GetOtherFragment on "pure" (no reachable path to LibriVox/Gutenberg/direct-link -
+            // content that can't be kept kid-safe/content-rating-appropriate).
+            intent = new Intent(activity, AddBookHostActivity.class);
         }
         return intent;
     }

@@ -369,11 +369,7 @@ public class MainActivity extends FullActivity {
             startActivity(browserIntent);
         } else if (itemId == R.id.menu_open) {
             myLogI("--- USER clicks MENU : OPEN ---");
-            if (Tonio.isPure(this)) {
-                startActivity(new Intent(getApplicationContext(), GetOtherActivity.class));
-            } else {
-                startActivity(new Intent(getApplicationContext(), GetActivity.class));
-            }
+            startActivity(new Intent(getApplicationContext(), AddBookHostActivity.class));
         } else if (itemId == R.id.menu_receive_book) {
             myLogI("--- USER clicks MENU : RECEIVE BOOK ---");
             Intent intent = new Intent(this, NearbyShareActivity.class);
@@ -511,11 +507,7 @@ public class MainActivity extends FullActivity {
         myLog("no folders, setting up welcome message");
         Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
         btnWelcomeAddBook.setOnClickListener(v -> {
-            // Same pure-flavor gating as the "menu_open" handler above: no reachable path to
-            // LibriVox/Gutenberg/direct-link in pure - straight to the local-file-only screen.
-            Intent intent = new Intent(getApplicationContext(),
-                    Tonio.isPure(this) ? GetOtherActivity.class : GetActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(getApplicationContext(), AddBookHostActivity.class));
         });
 
         LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/add_book_nav_graph"
+    app:startDestination="@id/getActivityFragment">
+
+    <fragment
+        android:id="@+id/getActivityFragment"
+        android:name="com.driot.bookplayer.activities.GetActivityFragment"
+        android:label="AddBook" />
+
+    <fragment
+        android:id="@+id/getOtherFragment"
+        android:name="com.driot.bookplayer.activities.GetOtherFragment"
+        android:label="GetOther" />
+
+    <fragment
+        android:id="@+id/getDirectLinkFragment"
+        android:name="com.driot.bookplayer.activities.GetDirectLinkFragment"
+        android:label="GetDirectLink" />
+
+    <fragment
+        android:id="@+id/getLibrivoxFragment"
+        android:name="com.driot.bookplayer.activities.GetLibrivoxFragment"
+        android:label="GetLibrivox" />
+
+    <fragment
+        android:id="@+id/getLibrivoxFacetListFragment"
+        android:name="com.driot.bookplayer.librivox.GetLibrivoxFacetListFragment"
+        android:label="GetLibrivoxFacetList" />
+
+    <fragment
+        android:id="@+id/librivoxResultsFragment"
+        android:name="com.driot.bookplayer.activities.LibrivoxResultsFragment"
+        android:label="LibrivoxResults" />
+
+    <fragment
+        android:id="@+id/librivoxDetailFragment"
+        android:name="com.driot.bookplayer.activities.LibrivoxDetailFragment"
+        android:label="LibrivoxDetail" />
+
+    <fragment
+        android:id="@+id/librivoxFavoritesFragment"
+        android:name="com.driot.bookplayer.activities.LibrivoxFavoritesFragment"
+        android:label="LibrivoxFavorites" />
+
+    <fragment
+        android:id="@+id/getEbookFragment"
+        android:name="com.driot.bookplayer.activities.GetEbookFragment"
+        android:label="GetEbook" />
+
+    <fragment
+        android:id="@+id/ebookResultsFragment"
+        android:name="com.driot.bookplayer.activities.EbookResultsFragment"
+        android:label="EbookResults" />
+
+    <fragment
+        android:id="@+id/ebookDetailFragment"
+        android:name="com.driot.bookplayer.activities.EbookDetailFragment"
+        android:label="EbookDetail" />
+
+    <fragment
+        android:id="@+id/getEbookBookshelfListFragment"
+        android:name="com.driot.bookplayer.ebooks.gutendex.GetEbookBookshelfListFragment"
+        android:label="GetEbookBookshelfList" />
+
+</navigation>

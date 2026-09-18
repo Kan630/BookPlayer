@@ -264,4 +264,22 @@ public class SettingsHostActivity extends FullActivity {
         }
         super.finish();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions,
+            @androidx.annotation.NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // Some settings fragments (e.g. PlayBehaviourSettingsFragment) call
+        // PermissionRequest.with(requireActivity()) rather than Fragment.requestPermissions(),
+        // so the system callback lands here and must be forwarded manually to whichever
+        // Fragment is currently displayed by the NavHostFragment - see AddBookHostActivity for
+        // the same pattern, added at the same time this gap was found.
+        FragmentManager fm = getSupportFragmentManager();
+        NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.settings_nav_host);
+        if (navHostFragment == null) return;
+        java.util.List<Fragment> children = navHostFragment.getChildFragmentManager().getFragments();
+        if (!children.isEmpty()) {
+            children.get(children.size() - 1).onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 }

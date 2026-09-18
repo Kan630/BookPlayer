@@ -78,6 +78,10 @@
             android:exported="false" />
         <activity android:name=".activities.ZikFileActivity"
             android:parentActivityName=".activities.MainActivity"/>
+        <!-- AddBookHostActivity replaces these as real back-stack entries (see
+             [[radio_deeplink_applinks_fix]]) - kept declared-but-unreferenced as a safety margin
+             until confirmed stable on-device, then deleted along with their .java files. -->
+        <activity android:name=".activities.AddBookHostActivity" android:launchMode="singleTop" />
         <activity android:name=".activities.GetActivity" />
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetDirectLinkActivity" />
