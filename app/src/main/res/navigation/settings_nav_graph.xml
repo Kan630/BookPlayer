@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_nav_graph"
+    app:startDestination="@id/settingsCategoryListFragment">
+
+    <fragment
+        android:id="@+id/settingsCategoryListFragment"
+        android:name="com.driot.bookplayer.settings.ui.SettingsCategoryListFragment"
+        android:label="Settings" />
+
+    <fragment
+        android:id="@+id/languageSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.LanguageSettingsFragment"
+        android:label="LanguageSettings" />
+
+    <fragment
+        android:id="@+id/playBehaviourSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment"
+        android:label="PlayBehaviourSettings" />
+
+    <fragment
+        android:id="@+id/designSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.DesignSettingsFragment"
+        android:label="DesignSettings" />
+
+    <fragment
+        android:id="@+id/storageSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.StorageSettingsFragment"
+        android:label="StorageSettings" />
+
+    <fragment
+        android:id="@+id/importSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.ImportSettingsFragment"
+        android:label="ImportSettings" />
+
+    <fragment
+        android:id="@+id/repositoriesSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment"
+        android:label="RepositoriesSettings" />
+
+    <fragment
+        android:id="@+id/radioSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.RadioSettingsFragment"
+        android:label="RadioSettings" />
+
+    <fragment
+        android:id="@+id/podcastSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.PodcastSettingsFragment"
+        android:label="PodcastSettings" />
+
+    <fragment
+        android:id="@+id/ttsSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.TtsSettingsFragment"
+        android:label="TtsSettings" />
+
+    <fragment
+        android:id="@+id/automotiveSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment"
+        android:label="AutomotiveSettings" />
+
+    <fragment
+        android:id="@+id/networkSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.NetworkSettingsFragment"
+        android:label="NetworkSettings" />
+
+    <fragment
+        android:id="@+id/utilitiesSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment"
+        android:label="UtilitiesSettings" />
+
+    <fragment
+        android:id="@+id/massiveImportSettingsFragment"
+        android:name="com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment"
+        android:label="MassiveImportSettings" />
+
+</navigation>

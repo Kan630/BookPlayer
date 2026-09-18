@@ -12,7 +12,7 @@ import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.ZikFile;
@@ -126,6 +126,14 @@ public class NavHelper {
             return true;
         }
 
+        // Same for Settings (SettingsHostActivity, all flavors - lives in the main sourceset,
+        // no flavor-stub indirection needed).
+        if (itemId == R.id.nav_settings && activity instanceof SettingsHostActivity) {
+            ((SettingsHostActivity) activity).navigateToRoot();
+            navState.setCurrentAppNavBarId(itemId);
+            return true;
+        }
+
         // 1. Same-tab click: reset to the true section root
         if (itemId == currentItemId) {
             myLogDD("same tab click");
@@ -212,7 +220,7 @@ public class NavHelper {
         } else if (itemId == R.id.nav_podcast) {
             intent = PodcastHelper.getSectionRootIntent(activity);
         } else if (itemId == R.id.nav_settings) {
-            intent = new Intent(activity, SettingsActivity.class);
+            intent = new Intent(activity, SettingsHostActivity.class);
         } else if (itemId == R.id.nav_library) {
             intent = new Intent(activity, MainActivity.class);
         } else if (itemId == R.id.nav_add) {

@@ -350,7 +350,7 @@ public class MainActivity extends FullActivity {
             showSortOrderDialog();
         } else if (itemId == R.id.menu_settings) {
             myLogI("--- USER clicks MENU : SETTINGS ---");
-            startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_OPTION);
+            startActivityForResult(new Intent(this, SettingsHostActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             myLogI("--- USER clicks MENU : MANUAL ---");
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));

@@ -16,7 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.TestNavUtils;
@@ -43,8 +43,8 @@ public class SettingsActivitySmokeTest implements LogSupport {
 
     // ---- Preset rule & setup (as you requested) ----
     @Rule public LoggingWatcher logs = new LoggingWatcher();
-    @Rule public ActivityScenarioRule<SettingsActivity> scenarioRule =
-            new ActivityScenarioRule<>(SettingsActivity.class);
+    @Rule public ActivityScenarioRule<SettingsHostActivity> scenarioRule =
+            new ActivityScenarioRule<>(SettingsHostActivity.class);
     @Before
     public void setUp() {
         com.driot.bookplayer.utils.log.LoggerStaticHelper.myLog("ooooooooooooooooooooooooooooooooooooooooo");
@@ -90,9 +90,9 @@ public class SettingsActivitySmokeTest implements LogSupport {
 
     @Test
     public void expandsEachSection_scrolls_topAndBottom_andSeesControls() {
-        // Wait for SettingsActivity to be RESUMED
-        TestNavUtils.assertWaitForActivity(SettingsActivity.class, 5_000,
-                "SettingsActivity did not come to foreground");
+        // Wait for SettingsHostActivity to be RESUMED
+        TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000,
+                "SettingsHostActivity did not come to foreground");
 
         // Map each section view id -> an array of expected child control ids to probe
         // TODO: Replace placeholder ids (R.id.any_view_in_xxx) with real, stable ids present in each fragment.

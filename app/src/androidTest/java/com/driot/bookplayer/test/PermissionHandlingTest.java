@@ -38,7 +38,7 @@ import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.ExportActivity;
 import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.activities.MsgBoxActivity;
-import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
@@ -115,8 +115,8 @@ public class PermissionHandlingTest implements LogSupport {
     public void recordAudioPermission_denied_showsRedDeniedTextAndNoCrash() {
         revokePermissions(Manifest.permission.RECORD_AUDIO);
 
-        try (ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class)) {
-            TestNavUtils.assertWaitForActivity(SettingsActivity.class, 5_000, "SettingsActivity not loaded");
+        try (ActivityScenario<SettingsHostActivity> scenario = ActivityScenario.launch(SettingsHostActivity.class)) {
+            TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000, "SettingsHostActivity not loaded");
 
             TestNavUtils.openSettingSection(R.id.section_play_behaviour);
             TestNavUtils.sleep(500, "wait for section to expand/layout");

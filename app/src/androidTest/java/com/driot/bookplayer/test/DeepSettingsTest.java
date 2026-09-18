@@ -3,6 +3,8 @@ package com.driot.bookplayer.test;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -29,7 +31,7 @@ import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -49,8 +51,8 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 
 /**
- * DeepSettingsTest: Stress test for SettingsActivity.
- * Pass 1: Open/close every category's detail screen, scroll while open.
+ * DeepSettingsTest: Stress test for SettingsHostActivity (settings_nav_graph.xml).
+ * Pass 1: Open/close every category's screen, scroll while open.
  * Pass 2: Interact with every CheckBox and EditText with random values.
  */
 @RunWith(AndroidJUnit4.class)
@@ -70,7 +72,7 @@ public class DeepSettingsTest implements LogSupport {
     public LoggingWatcher logs = new LoggingWatcher();
 
     @Rule
-    public ActivityScenarioRule<SettingsActivity> activityRule = new ActivityScenarioRule<>(SettingsActivity.class);
+    public ActivityScenarioRule<SettingsHostActivity> activityRule = new ActivityScenarioRule<>(SettingsHostActivity.class);
 
     private static final List<Integer> SECTION_IDS = Arrays.asList(
             R.id.section_language,
@@ -114,7 +116,7 @@ public class DeepSettingsTest implements LogSupport {
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
 
         TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(SettingsActivity.class, 5_000, "SettingsActivity not loaded");
+        TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000, "SettingsHostActivity not loaded");
     }
 
     @Test
@@ -145,8 +147,8 @@ public class DeepSettingsTest implements LogSupport {
         verifyDetailOpen(true);
 
         // Scroll up/down within the open detail screen (its own ScrollView, id/scrollView -
-        // the category list's ScrollView of the same id is GONE underneath it, so isDisplayed()
-        // disambiguates)
+        // the category list's ScrollView of the same id was replaced (not just hidden) by the
+        // NavController transaction, so isDisplayed() disambiguates)
         myLogD("Scrolling while detail is open...");
         onView(allOf(withId(R.id.scrollView), isDisplayed()))
                 .perform(TestNavUtils.scrollScrollViewToBottom());
@@ -174,9 +176,9 @@ public class DeepSettingsTest implements LogSupport {
 
         final java.util.List<View> targetViews = new java.util.ArrayList<>();
 
-        // Its fragment now lives in the detail pane's container, not inside the
+        // Its fragment now lives inside the NavHostFragment's container, not inside the
         // SettingsSectionView row anymore - walk that subtree instead.
-        onView(withId(R.id.detailFragmentContainer)).perform(new ViewAction() {
+        onView(withId(R.id.settings_nav_host)).perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();
@@ -287,17 +289,18 @@ public class DeepSettingsTest implements LogSupport {
         }
     }
 
+    /**
+     * With the NavController-based graph, "detail open" means the category list's own root
+     * view (settings_layout_root, from fragment_settings_category_list.xml) has been replaced
+     * by the destination fragment - it no longer just gets hidden behind a separate detail
+     * pane, so its presence/absence in the view hierarchy IS the open/closed signal.
+     */
     private void verifyDetailOpen(boolean open) {
-        onView(withId(R.id.detailContainer)).check((view, noViewFoundException) -> {
-            if (view == null) {
-                throw new AssertionError("detailContainer not found");
-            }
-            boolean actuallyOpen = view.getVisibility() == View.VISIBLE;
-            if (actuallyOpen != open) {
-                throw new AssertionError("Detail pane open-state mismatch. Expected: " + open
-                        + ", Actual: " + actuallyOpen);
-            }
-        });
+        if (open) {
+            onView(withId(R.id.settings_layout_root)).check(doesNotExist());
+        } else {
+            onView(withId(R.id.settings_layout_root)).check(matches(isDisplayed()));
+        }
     }
 
     // Custom matcher to find all children of a certain type that are displayed
@@ -369,7 +372,7 @@ public class DeepSettingsTest implements LogSupport {
             // Not every confirmation in this app is a framework AlertDialog living inside the
             // same Activity - e.g. chk_delete_source_file in the Import section pops MsgBoxActivity,
             // a whole separate Activity (activity_msgbox.xml, buttons btnPositive/btnNegative),
-            // which STOPS the SettingsActivity underneath. Its button ids are this app's own, so
+            // which STOPS the SettingsHostActivity underneath. Its button ids are this app's own, so
             // they need the real package name, and matching by id (not text) keeps this working
             // no matter which random language Pass 2's language-section spinner already picked.
             String pkg = appContext.getPackageName();

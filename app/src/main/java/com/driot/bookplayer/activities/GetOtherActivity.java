@@ -407,7 +407,7 @@ public class GetOtherActivity extends FullActivity {
 
     public void openOptionActivity() {
         try {
-            startActivity(new Intent(this, SettingsActivity.class).putExtra("CopyFileSetRed", true));
+            startActivity(new Intent(this, SettingsHostActivity.class));
         } catch (Exception e) {
             myLogEE(e, "openOptionActivity()");
         }
@@ -455,7 +455,7 @@ public class GetOtherActivity extends FullActivity {
     }
 
     private void showPermissionDeniedDialog() {
-        Intent neutralIntent = new Intent(this, SettingsActivity.class).putExtra("CopyFileSetRed", true);
+        Intent neutralIntent = new Intent(this, SettingsHostActivity.class);
         MsgBox.alertWithNeutral(this,
                 getString(R.string.Permission_Required),
                 getString(R.string.permission_read_write_denied),
