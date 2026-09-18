@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.ZikFileActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
@@ -75,8 +75,9 @@ public class StartPlayHelper {
                 } else {
                     if (zikFilesList.size() > 1 || Option.getAlwaysOpenTrackList()) {
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                            context.startActivity(new Intent(context, ZikFileActivity.class)
-                                    .putExtra(Intents.EXTRA_FOLDER, clickedFolder));
+                            context.startActivity(new Intent(context, MainActivity.class)
+                                    .putExtra(Intents.EXTRA_FOLDER, clickedFolder)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                         });
                     } else {
                         myLogD("Single file");

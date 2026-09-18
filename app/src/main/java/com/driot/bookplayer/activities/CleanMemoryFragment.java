@@ -4,15 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,12 +24,11 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.io.File;
 import java.util.List;
@@ -33,7 +36,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class CleanMemoryActivity extends FullActivity
+public class CleanMemoryFragment extends LoggingFragment
         implements CleanMemoryRVAdapter.OnDeleteClickListener, CleanMemoryRVAdapter.OnItemClickListener {
     private static final int REQ_DELETE_AUDIO = 3001;
     private File pendingFileToDelete;
@@ -56,69 +59,60 @@ public class CleanMemoryActivity extends FullActivity
         startRefreshElapsedTimer();
     };
 
+    @Nullable
     @Override
-    protected int getNavSectionId() {
-        return R.id.nav_library;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_clean_memory, container, false);
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_clean_memory;
-    }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    @Override
-    protected boolean enableOngoingTaskOverlay() {
-        return true;
-    }
+        recyclerViewCacheFiles = view.findViewById(R.id.recyclerView_cacheFiles);
+        emptyListMessage = view.findViewById(R.id.empty_list_message);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
+        statsTextView = view.findViewById(R.id.cachefiles_stats_text);
 
-        recyclerViewCacheFiles = findViewById(R.id.recyclerView_cacheFiles);
-        emptyListMessage = findViewById(R.id.empty_list_message);
-
-        statsTextView = findViewById(R.id.cachefiles_stats_text);
-
-        progressContainer = findViewById(R.id.progress_container);
-        progressBar = findViewById(R.id.progress_cache_loading);
-        progressScanMessage = findViewById(R.id.progress_scan_message);
+        progressContainer = view.findViewById(R.id.progress_container);
+        progressBar = view.findViewById(R.id.progress_cache_loading);
+        progressScanMessage = view.findViewById(R.id.progress_scan_message);
         progressContainer.bringToFront();
 
-        ImageButton btnRefresh = findViewById(R.id.btn_clean_memory_refresh);
+        ImageButton btnRefresh = view.findViewById(R.id.btn_clean_memory_refresh);
         btnRefresh.setOnClickListener(v -> {
             myLogI("---- USER TOGGLE REFRESH BUTTON ----");
-            cacheFilesViewModel.refreshStorageCache(this, cacheFilesViewModel.isUsingInternal());
+            cacheFilesViewModel.refreshStorageCache(requireContext(), cacheFilesViewModel.isUsingInternal());
         });
 
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
-        cacheFilesAdapter = new CleanMemoryRVAdapter(this, this, this);
+        cacheFilesAdapter = new CleanMemoryRVAdapter(requireContext(), this, this);
         recyclerViewCacheFiles.setAdapter(cacheFilesAdapter);
-        recyclerViewCacheFiles.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewCacheFiles.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         // Set up observers
-        cacheFilesViewModel.getEnrichedFolders().observe(this, fileWithSummaries -> {
+        cacheFilesViewModel.getEnrichedFolders().observe(getViewLifecycleOwner(), fileWithSummaries -> {
             myLogD("Enriched list updated: " + (fileWithSummaries != null ? fileWithSummaries.size() : 0));
             cacheFilesAdapter.setFilesWithSummary(fileWithSummaries);
             updateEmptyListVisibility(fileWithSummaries);
         });
 
-        cacheFilesViewModel.getTotalAudioSizeMB().observe(this, audioMB -> {
+        cacheFilesViewModel.getTotalAudioSizeMB().observe(getViewLifecycleOwner(), audioMB -> {
             long audioMBToShow = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()) ? -1L
                     : (audioMB != null ? audioMB : -1L);
             FillTextViewMemoryStats(audioMBToShow,
-                    StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
-                    StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                    StorageHelper.getAvailableStorageMB(requireContext(), cacheFilesViewModel.isUsingInternal()),
+                    StorageHelper.getTotalStorageMB(requireContext(), cacheFilesViewModel.isUsingInternal()),
                     null);
         });
 
-        cacheFilesViewModel.getIsLoading().observe(this, isLoading -> {
+        cacheFilesViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             updateProgressVisibility();
         });
 
-        cacheFilesViewModel.getIsRefreshing().observe(this, isRefreshing -> {
+        cacheFilesViewModel.getIsRefreshing().observe(getViewLifecycleOwner(), isRefreshing -> {
             if (Boolean.TRUE.equals(isRefreshing)) {
                 recyclerViewCacheFiles.setVisibility(View.GONE);
                 progressScanMessage.setVisibility(View.GONE); // show only after 1 sec (see startRefreshElapsedTimer)
@@ -128,8 +122,8 @@ public class CleanMemoryActivity extends FullActivity
                 updateEmptyListVisibility(cacheFilesViewModel.getEnrichedFolders().getValue());
                 // Show "..." for audios in app while scanning
                 FillTextViewMemoryStats(-1L,
-                        StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
-                        StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                        StorageHelper.getAvailableStorageMB(requireContext(), cacheFilesViewModel.isUsingInternal()),
+                        StorageHelper.getTotalStorageMB(requireContext(), cacheFilesViewModel.isUsingInternal()),
                         null);
             } else {
                 cancelShowMessageAfterDelay();
@@ -202,11 +196,11 @@ public class CleanMemoryActivity extends FullActivity
     }
 
     private void setupRadioButtons() {
-        storageSelector = findViewById(R.id.storage_selector);
-        radioInternal = findViewById(R.id.radio_internal);
-        radioSdCard = findViewById(R.id.radio_sdcard);
+        storageSelector = requireView().findViewById(R.id.storage_selector);
+        radioInternal = requireView().findViewById(R.id.radio_internal);
+        radioSdCard = requireView().findViewById(R.id.radio_sdcard);
 
-        String sdPath = StorageHelper.getSdCardUnzippedFolder(this);
+        String sdPath = StorageHelper.getSdCardUnzippedFolder(requireContext());
         if (sdPath == null) {
             myLogD("no SD card => hide storageSelector");
             storageSelector.setVisibility(View.GONE);
@@ -218,8 +212,8 @@ public class CleanMemoryActivity extends FullActivity
 
             FillTextViewMemoryStats(
                     -1,
-                    StorageHelper.getAvailableStorageMB(this, useInternal),
-                    StorageHelper.getTotalStorageMB(this, useInternal),
+                    StorageHelper.getAvailableStorageMB(requireContext(), useInternal),
+                    StorageHelper.getTotalStorageMB(requireContext(), useInternal),
                     useInternal ? getString(R.string.device) : getString(R.string.SD_card));
             cacheFilesViewModel.setUseInternal(useInternal);
         });
@@ -248,13 +242,13 @@ public class CleanMemoryActivity extends FullActivity
         String MB_left_on_label = getString(R.string.MB) + ": " + getString(R.string.left_on) + " " + label;
         String MB_label_memory = getString(R.string.MB) + ": " + label + " " + getString(R.string.memory);
 
-        String str_MB_audio = MB_audio >= 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio)
+        String str_MB_audio = MB_audio >= 0 ? Tonio.formatMemPadding(requireContext().getApplicationContext(), MB_audio)
                 : String.format("%9s", "...");
 
         String zeText = str_MB_audio + " " + MB_audio_in_app + "\n\n" +
-                Tonio.formatMemPadding(this.getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n"
+                Tonio.formatMemPadding(requireContext().getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n"
                 +
-                Tonio.formatMemPadding(this.getApplicationContext(), MB_deviceMemory) + " " + MB_label_memory;
+                Tonio.formatMemPadding(requireContext().getApplicationContext(), MB_deviceMemory) + " " + MB_label_memory;
 
         statsTextView.setText(zeText);
     }
@@ -266,8 +260,9 @@ public class CleanMemoryActivity extends FullActivity
             myLogE("onItemClick: no Folder in DB for this path, nothing to open - [" + item.file.getName() + "]");
             return;
         }
-        startActivity(new Intent(this, ZikFileActivity.class)
-                .putExtra(Intents.EXTRA_FOLDER_ID, item.idFolder));
+        Bundle args = new Bundle();
+        args.putLong(Intents.EXTRA_FOLDER_ID, item.idFolder);
+        Navigation.findNavController(requireView()).navigate(R.id.zikFileFragment, args);
     }
 
     @Override
@@ -287,8 +282,8 @@ public class CleanMemoryActivity extends FullActivity
     private boolean hasAnyContent(boolean internal) {
         try {
             String basePath = internal
-                    ? getFilesDir().getPath() + "/" + Var.FOLDER_UNZIPPED
-                    : StorageHelper.getSdCardUnzippedFolder(this);
+                    ? requireContext().getFilesDir().getPath() + "/" + Var.FOLDER_UNZIPPED
+                    : StorageHelper.getSdCardUnzippedFolder(requireContext());
             if (basePath == null)
                 return false;
 
@@ -310,9 +305,9 @@ public class CleanMemoryActivity extends FullActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable android.content.Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQ_DELETE_AUDIO && resultCode == RESULT_OK && pendingFileToDelete != null) {
+        if (requestCode == REQ_DELETE_AUDIO && resultCode == android.app.Activity.RESULT_OK && pendingFileToDelete != null) {
             cacheFilesViewModel.deleteAudio(pendingFileToDelete);
             pendingFileToDelete = null;
         }

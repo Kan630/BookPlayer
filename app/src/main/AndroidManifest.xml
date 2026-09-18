@@ -51,8 +51,6 @@
         >
 
 
-        <activity android:name=".activities.TtsReaderActivity" />
-
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
@@ -71,8 +69,6 @@
             android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
-        <activity android:name=".activities.ZikFileActivity"
-            android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.AddBookHostActivity" android:launchMode="singleTop" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.MoveBookActivity" />
@@ -87,9 +83,7 @@
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.DetailedStatsActivity" />
-        <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
-        <activity android:name=".quickshare.NearbyShareActivity" />
         <activity android:name=".activities.SupportedExtensionsActivity"/>
         <activity android:name=".activities.CoverGenerationActivity" />
         <activity android:name=".activities.DebugDatabaseActivity"

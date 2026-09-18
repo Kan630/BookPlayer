@@ -32,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.ZikFileActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
@@ -593,7 +593,9 @@ public class PodcastEpisodeFragment extends LoggingFragment
                 if (MediaService.isRunning && PlayList.getInstance() != null
                         && PlayList.getInstance().getZikFile() != null
                         && PlayList.getInstance().getZikFile().getIdFolder() == podcast.idFolder) {
-                    startActivity(new Intent(requireContext(), ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
+                    startActivity(new Intent(requireContext(), MainActivity.class)
+                            .putExtra(Intents.EXTRA_FOLDER, folder)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                 } else {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(requireContext().getApplicationContext())
                             .zikFileDao().getZikFiles(podcast.idFolder);
@@ -608,7 +610,9 @@ public class PodcastEpisodeFragment extends LoggingFragment
 
                         if (!zikFilesList.isEmpty()) {
                             startActivity(
-                                    new Intent(requireContext(), ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
+                                    new Intent(requireContext(), MainActivity.class)
+                                            .putExtra(Intents.EXTRA_FOLDER, folder)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                         } else {
                             myLogE("no ZikFiles in that folder !");
                             myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread

@@ -51,7 +51,7 @@ import com.driot.bookplayer.utils.log.BaseActivity;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
-import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.activities.TtsReaderFragment;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 
 import com.google.android.material.button.MaterialButton;
@@ -230,7 +230,7 @@ public class PlayActivity extends BaseActivity {
             ttsReaderController.bind(this, vm);
             ttsOverlayManager = new TtsOverlayManager(this, ttsManager);
             findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
-                TtsReaderActivity.start(PlayActivity.this);
+                TtsReaderFragment.start(PlayActivity.this);
             });
             findViewById(R.id.ib_tts_settings).setOnClickListener((v) -> {
                 myLogI("--- User clicks SETTINGS ---");

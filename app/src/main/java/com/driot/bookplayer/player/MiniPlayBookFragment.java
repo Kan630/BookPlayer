@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -93,10 +93,10 @@ public class MiniPlayBookFragment extends LoggingFragment {
             myLogI("---- user press CLOSE button ----");
             PlaybackCommands.resetLastUserAction(requireContext());
             vm.stop();
-            if (getActivity() instanceof TtsReaderActivity) {
-                myLog("MiniPlayBookFragment: finish TtsReaderActivity and signal PlayActivity to finish too");
+            if (getActivity() instanceof MainActivity && ((MainActivity) getActivity()).isShowingTtsReaderFragment()) {
+                myLog("MiniPlayBookFragment: leave TtsReaderFragment and signal PlayActivity to finish too");
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(new Intent(Intents.ACTION_FINISH_PLAYER_ACTIVITIES));
-                getActivity().finish();
+                ((MainActivity) getActivity()).exitTtsReaderFragment();
             }
         });
     }

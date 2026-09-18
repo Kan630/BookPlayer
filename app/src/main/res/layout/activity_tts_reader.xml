@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/MainContainer"
-    tools:context=".activities.TtsReaderActivity">
+    tools:context=".activities.TtsReaderFragment">
 
     <!--
         FadingEdgeFrameLayout wraps the RecyclerView and applies a DST_IN

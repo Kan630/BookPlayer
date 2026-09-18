@@ -13,7 +13,6 @@ import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
@@ -63,22 +62,24 @@ public class NavHelper {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         TaskStackBuilder tsb = TaskStackBuilder.create(context);
-        // 1) Always start at Main
-        tsb.addNextIntent(new Intent(context, MainActivity.class));
 
-        // 2) If multiple tracks, insert the track list screen before PlayActivity
+        // 1) Always start at Main - if multiple tracks, ask it to navigate its own internal
+        // Library NavController straight to the track list (formerly a separate ZikFileActivity
+        // TaskStackBuilder entry - MainActivity.handleIntentNavigation() does the equivalent
+        // navigation internally now, so pressing back from PlayActivity still lands on the same
+        // track list it always did, just one Activity layer thinner).
         // (radio/podcast/preview are stream playlists with no ZikFile backing - skip the lookup,
         // it would just log a spurious "out of bounds" error and return null anyway)
+        Intent mainIntent = new Intent(context, MainActivity.class);
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl != null && !pl.isStream()) ? pl.getZikFile() : null;
         long folderId = (z != null) ? z.getIdFolder() : -1;
         if (folderId > 0 && pl.getSize() > 1) {
-            Intent trackList = new Intent(context, ZikFileActivity.class)
-                    .putExtra(Intents.EXTRA_FOLDER_ID, folderId);
-            tsb.addNextIntent(trackList);
+            mainIntent.putExtra(Intents.EXTRA_FOLDER_ID, folderId);
         }
+        tsb.addNextIntent(mainIntent);
 
-        // 3) Finally PlayActivity (singleTop/clearTop like you already do)
+        // 2) Finally PlayActivity (singleTop/clearTop like you already do)
         tsb.addNextIntent(new Intent(context, PlayActivity.class)
                 .putExtra(Intents.EXTRA_AUTOPLAY, false));
 

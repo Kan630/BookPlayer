@@ -42,7 +42,6 @@ import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.player.PlayActivity;
-import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.player.PlayList;
@@ -947,8 +946,9 @@ public class LoadManyBookTest implements LogSupport {
         myLog("Clicked targeted item: " + title + " (position " + position + ")");
         TestNavUtils.sleep(300);
 
-        // 4) wait until we land on either PlayActivity or ZikFileActivity
-        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, ZikFileActivity.class);
+        // 4) wait until we land on either PlayActivity or MainActivity (ZikFileActivity is now
+        // ZikFileFragment inside MainActivity's own Library NavController, not a separate Activity)
+        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, MainActivity.class);
 
         if (TestNavUtils.isOn(PlayActivity.class)) {
             myLog("Landed directly on PlayActivity");
@@ -957,21 +957,21 @@ public class LoadManyBookTest implements LogSupport {
         }
 
         // 5) intermediate screen: pick a random track, then confirm playback actually started
-        if (TestNavUtils.isOn(ZikFileActivity.class)) {
-            myLog("On ZikFileActivity → will click a random track");
+        if (TestNavUtils.isOn(MainActivity.class)) {
+            myLog("On MainActivity (ZikFileFragment track list) → will click a random track");
             clickRandomItemInRecycler(ID_TRACKS_RECYCLER);
             // Whether this navigates to PlayActivity depends on the user's own
             // Option.getOpenPlayActivity() preference (see StartPlayHelper.onZikFileClick(),
             // which unconditionally starts MediaService playback but only opens PlayActivity
             // when that option, sameTrack, or TTS applies) - with it off, clicking a track starts
-            // real playback while deliberately staying on ZikFileActivity. So don't assert on
+            // real playback while deliberately staying on the track list. So don't assert on
             // which Activity ends up resumed here; runPlay() below verifies actual playback state
             // instead, which is correct either way.
             runPlay(playTime);
             return;
         }
 
-        throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
+        throw new AssertionError("Unexpected navigation: neither PlayActivity nor MainActivity is RESUMED.");
     }
 
     /**

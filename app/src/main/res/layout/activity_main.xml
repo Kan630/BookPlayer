@@ -16,24 +16,13 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/main_library_nav_host"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_folders"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="2dp"/>
-
-        <!-- Welcome empty view from separate layout -->
-        <include
-            android:id="@+id/emptyView"
-            layout="@layout/view_main_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-    </FrameLayout>
+        android:layout_weight="1"
+        app:navGraph="@navigation/main_library_nav_graph"
+        app:defaultNavHost="true" />
 
 </LinearLayout>

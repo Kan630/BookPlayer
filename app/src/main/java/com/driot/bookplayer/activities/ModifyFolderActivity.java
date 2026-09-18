@@ -60,7 +60,6 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.podcasts.PodcastHelper;
-import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
@@ -159,9 +158,10 @@ public class ModifyFolderActivity extends BaseActivity {
         });
 
         findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
-            startActivity(new Intent(this, ZikFileActivity.class)
+            startActivity(new Intent(this, MainActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER, folder)
-                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
+                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
             String warning = null;
             if (Pref.getShowMsgBox_ChangeTrackOrder() > 0) {
                 if (PlaybackUiBus.get().state().getValue() != null) {
@@ -504,8 +504,10 @@ public class ModifyFolderActivity extends BaseActivity {
 
     private void bShareClick() {
         myLogI("user clicks - QUICK SHARE");
-        Intent intent = new Intent(this, NearbyShareActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_NEARBY_SHARE, true);
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivity(intent);
     }
 

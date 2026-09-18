@@ -5,7 +5,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.driot.bookplayer.activities.ZikFileActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
@@ -101,7 +101,7 @@ public class OpenWithHelper {
                     // UI in this task (launched externally via "Open with"), so without this the
                     // app would otherwise just start playback silently behind whatever app the
                     // user was already in, with only the notification to show for it.
-                    activity.startActivity(new Intent(activity, ZikFileActivity.class)
+                    activity.startActivity(new Intent(activity, MainActivity.class)
                             .putExtra(Intents.EXTRA_FOLDER_ID, finalFound.getIdFolder())
                             .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
                     activity.finish();

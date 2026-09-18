@@ -30,7 +30,6 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
@@ -289,13 +288,13 @@ public class ImportBookTest implements LogSupport {
                 .perform(RecyclerViewActions.actionOnItemAtPosition(recyclerIndex, click()));
         sleep(300);
 
-        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, ZikFileActivity.class);
+        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, MainActivity.class);
 
         if (TestNavUtils.isOn(PlayActivity.class)) {
             runPlayAndAssertProgressSaved();
             return;
         }
-        if (TestNavUtils.isOn(ZikFileActivity.class)) {
+        if (TestNavUtils.isOn(MainActivity.class)) {
             clickFirstTrack();
             TestNavUtils.assertWaitForActivity(PlayActivity.class, 5_000, "Expected PlayActivity after choosing track");
             runPlayAndAssertProgressSaved();

@@ -7,39 +7,41 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
-import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.button.MaterialButton;
 
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Activity for sharing books between devices using Nearby Connections API
+ * Fragment for sharing books between devices using Nearby Connections API
  */
 @AndroidEntryPoint
-public class NearbyShareActivity extends FullActivity {
-
-    private static final int QUICK_SHARE_VERSION = 1;
+public class NearbyShareFragment extends LoggingFragment {
 
     private static final int PERMISSION_REQUEST_CODE = 1001;
 
@@ -59,55 +61,49 @@ public class NearbyShareActivity extends FullActivity {
     private TextView tv_quick_share_explain;
     private TextView tvConnectedEndpoint;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable delayedRunnable;
 
+    @Nullable
     @Override
-    protected int getNavSectionId() { return R.id.nav_library; }
-
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_nearby_share;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_nearby_share, container, false);
     }
 
     @Override
-    protected boolean enableOngoingTaskOverlay() {
-        return true;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(NearbyShareViewModel.class);
 
-        // Get folder from intent (optional for receive mode)
-        folder = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
-        boolean receiveMode = getIntent().getBooleanExtra("RECEIVE_MODE", false);
+        // Get folder from arguments (optional for receive mode)
+        Bundle args = getArguments();
+        folder = args != null ? args.getParcelable(Intents.EXTRA_FOLDER) : null;
+        boolean receiveMode = args != null && args.getBoolean("RECEIVE_MODE", false);
         viewModel.setSendMode(!receiveMode);
 
         if (folder == null && !receiveMode) {
             myLogEE(null, "No folder provided");
             myToastE(getString(R.string.nearby_share_error_no_folder));
-            finish();
+            Navigation.findNavController(view).popBackStack();
             return;
         }
 
         // Initialize views
-        tv_title = findViewById(R.id.title);
-        tv_quick_share_explain = findViewById(R.id.tv_quick_share_explain);
-        tvBookInfo = findViewById(R.id.tvBookInfo);
-        tvStatus = findViewById(R.id.tvNearbyShareStatus);
-        btnStartSharing = findViewById(R.id.btnStartSharing);
-        progressBarTotal = findViewById(R.id.progressBarTotal);
-        progressBarCurrent = findViewById(R.id.progressBarCurrent);
+        tv_title = view.findViewById(R.id.title);
+        tv_quick_share_explain = view.findViewById(R.id.tv_quick_share_explain);
+        tvBookInfo = view.findViewById(R.id.tvBookInfo);
+        tvStatus = view.findViewById(R.id.tvNearbyShareStatus);
+        btnStartSharing = view.findViewById(R.id.btnStartSharing);
+        progressBarTotal = view.findViewById(R.id.progressBarTotal);
+        progressBarCurrent = view.findViewById(R.id.progressBarCurrent);
 
-        ivCoverPreview = findViewById(R.id.ivCoverPreview);
-        tvBookTitlePreview = findViewById(R.id.tvBookTitlePreview);
-        tvConnectedEndpoint = findViewById(R.id.tvConnectedEndpoint);
-        cbTransferProgress = findViewById(R.id.cbTransferProgress);
+        ivCoverPreview = view.findViewById(R.id.ivCoverPreview);
+        tvBookTitlePreview = view.findViewById(R.id.tvBookTitlePreview);
+        tvConnectedEndpoint = view.findViewById(R.id.tvConnectedEndpoint);
+        cbTransferProgress = view.findViewById(R.id.cbTransferProgress);
 
         // Initialize checkbox state
         cbTransferProgress.setChecked(Option.getQuickShareTransferProgress());
@@ -131,14 +127,14 @@ public class NearbyShareActivity extends FullActivity {
         btnStartSharing.setOnClickListener(v -> toggleSharing());
 
         // Log Google Play Services info for diagnostics
-        GoogleServicesHelper.logPlayServicesInfo(this);
+        GoogleServicesHelper.logPlayServicesInfo(requireContext());
     }
 
     private void setupObservers() {
-        viewModel.getStatus().observe(this, this::updateUI);
-        viewModel.getProgressTotal().observe(this, progress -> progressBarTotal.setProgress(progress));
-        viewModel.getProgressCurrent().observe(this, progress -> progressBarCurrent.setProgress(progress));
-        viewModel.getConnectedEndpoint().observe(this, endpoint -> {
+        viewModel.getStatus().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.getProgressTotal().observe(getViewLifecycleOwner(), progress -> progressBarTotal.setProgress(progress));
+        viewModel.getProgressCurrent().observe(getViewLifecycleOwner(), progress -> progressBarCurrent.setProgress(progress));
+        viewModel.getConnectedEndpoint().observe(getViewLifecycleOwner(), endpoint -> {
             if (endpoint != null && !endpoint.isEmpty()) {
                 tvConnectedEndpoint.setVisibility(android.view.View.VISIBLE);
                 tvConnectedEndpoint.setText(getString(R.string.nearby_share_connected_to, endpoint));
@@ -146,18 +142,18 @@ public class NearbyShareActivity extends FullActivity {
                 tvConnectedEndpoint.setVisibility(android.view.View.GONE);
             }
         });
-        viewModel.getIsActive().observe(this, active -> updateUI(viewModel.getStatus().getValue()));
-        viewModel.getIsTransferFinished().observe(this, finished -> updateUI(viewModel.getStatus().getValue()));
-        viewModel.getToastError().observe(this, error -> {
+        viewModel.getIsActive().observe(getViewLifecycleOwner(), active -> updateUI(viewModel.getStatus().getValue()));
+        viewModel.getIsTransferFinished().observe(getViewLifecycleOwner(), finished -> updateUI(viewModel.getStatus().getValue()));
+        viewModel.getToastError().observe(getViewLifecycleOwner(), error -> {
             if (error != null)
                 myToastE(error);
         });
-        viewModel.getIsSendMode().observe(this, isSendMode -> {
+        viewModel.getIsSendMode().observe(getViewLifecycleOwner(), isSendMode -> {
             cbTransferProgress.setVisibility(isSendMode ? android.view.View.VISIBLE : android.view.View.GONE);
             updateUI(viewModel.getStatus().getValue());
         });
 
-        viewModel.getBookName().observe(this, name -> {
+        viewModel.getBookName().observe(getViewLifecycleOwner(), name -> {
             if (name != null && !name.isEmpty()) {
                 tvBookTitlePreview.setText(name);
             } else {
@@ -168,14 +164,14 @@ public class NearbyShareActivity extends FullActivity {
                 }
             }
         });
-        viewModel.getTotalFiles().observe(this, count -> updateBookInfo());
-        viewModel.getTotalSize().observe(this, size -> updateBookInfo());
-        viewModel.getCoverPath().observe(this, path -> {
+        viewModel.getTotalFiles().observe(getViewLifecycleOwner(), count -> updateBookInfo());
+        viewModel.getTotalSize().observe(getViewLifecycleOwner(), size -> updateBookInfo());
+        viewModel.getCoverPath().observe(getViewLifecycleOwner(), path -> {
             if (path != null && !path.isEmpty()) {
-                ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(this, path));
+                ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(requireContext(), path));
             } else {
                 if (folder != null && folder.image != null && !folder.image.isEmpty()) {
-                    ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(this, folder.image));
+                    ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(requireContext(), folder.image));
                 } else {
                     ivCoverPreview.setImageDrawable(null); // Or default icon
                 }
@@ -206,21 +202,14 @@ public class NearbyShareActivity extends FullActivity {
         }
     }
 
-    private void setupSendMode() {
-        // ... (This function is actually mostly empty now or handled by LiveData)
-    }
-
-    private void setupReceiveMode() {
-        // ...
-    }
-
     private void loadBookFiles() {
         new Thread(() -> {
-            List<ZikFile> files = AppDatabase.getDatabase(this)
+            List<ZikFile> files = AppDatabase.getDatabase(requireContext())
                     .zikFileDao()
                     .getZikFilesForFolder(folder.getId());
 
-            runOnUiThread(() -> {
+            requireActivity().runOnUiThread(() -> {
+                if (!isAdded()) return;
                 long totalSize = 0;
                 for (ZikFile zikFile : files) {
                     totalSize += (long) zikFile.getSize();
@@ -232,7 +221,7 @@ public class NearbyShareActivity extends FullActivity {
                 // Set preview
                 tvBookTitlePreview.setText(folder.getName());
                 if (folder.image != null && !folder.image.isEmpty()) {
-                    ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(this, folder.image));
+                    ivCoverPreview.setImageURI(UriHelper.resolveUriFromPath(requireContext(), folder.image));
                 }
             });
         }).start();
@@ -242,12 +231,12 @@ public class NearbyShareActivity extends FullActivity {
         return String.format(
                 getString(R.string.nearby_share_book_info),
                 fileCount,
-                Tonio.formatSizeMB_translate(this, size));
+                Tonio.formatSizeMB_translate(requireContext(), size));
     }
 
     /**
      * Update UI based on active state.
-     * 
+     *
      * @param statusMsg Optional status message to display when stopped. If null and
      *                  stopped, shows "Ready".
      */
@@ -260,13 +249,11 @@ public class NearbyShareActivity extends FullActivity {
         if (isActive) {
             btnStartSharing.setText(
                     isSendMode ? R.string.nearby_share_stop_advertising : R.string.nearby_share_stop_discovering);
-            //TODO set background color RED
             progressBarTotal.setVisibility(android.view.View.VISIBLE);
             progressBarCurrent.setVisibility(android.view.View.VISIBLE);
         } else {
             btnStartSharing.setText(
                     isSendMode ? R.string.nearby_share_start_advertising : R.string.nearby_share_start_discovering);
-            //TODO set background color back to Primary
 
             if (isFinished) {
                 // Keep progress bars visible if finished successfully
@@ -353,7 +340,7 @@ public class NearbyShareActivity extends FullActivity {
     }
 
     private boolean checkPermission(String permission) {
-        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -419,9 +406,9 @@ public class NearbyShareActivity extends FullActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (handler != null && delayedRunnable != null) {
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (delayedRunnable != null) {
             handler.removeCallbacks(delayedRunnable);
         }
     }
@@ -435,7 +422,7 @@ public class NearbyShareActivity extends FullActivity {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter
                     .getDefaultAdapter();
             if (bluetoothAdapter != null) {
-                if (ActivityCompat.checkSelfPermission(this,
+                if (ActivityCompat.checkSelfPermission(requireContext(),
                         Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
                     String name = bluetoothAdapter.getName();
                     if (name != null && !name.isEmpty()) {

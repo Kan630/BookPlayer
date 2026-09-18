@@ -3,6 +3,9 @@ package com.driot.bookplayer.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,13 +30,12 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.RadioRecordingHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -43,7 +46,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ZikFileActivity extends FullActivity {
+public class ZikFileFragment extends LoggingFragment {
 
     private RecyclerView recyclerView;
     private ZikFilesViewModel listVm;
@@ -56,63 +59,53 @@ public class ZikFileActivity extends FullActivity {
     private long folderId;
     private boolean activateChangeTrackOrder;
 
-    private ImageButton ib_settings;
-
     // ensure we auto-scroll only once after the first list is loaded
     private boolean didAutoScrollToLast = false;
 
+    private final ActivityResultLauncher<Intent> modifyLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                myLogD("coming back from ModifyFolderActivity");
+            });
+
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
-        sendBroadcast(new Intent(Intents.ACTION_PING_UI));
+        requireActivity().sendBroadcast(new Intent(Intents.ACTION_PING_UI));
         if (adapter != null) {
             adapter.refreshDisplayHeatMaps(); // useful if user change option in settings
         }
     }
 
+    @Nullable
     @Override
-    protected int getNavSectionId() {
-        return R.id.nav_library;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_zikfile, container, false);
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_zikfile;
-    }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    @Override
-    protected boolean enableOngoingTaskOverlay() {
-        return true;
-    }
-
-    @Override
-    protected Class<? extends FullActivity> getSectionParent() {
-        return MainActivity.class;
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
-
-        recyclerView = findViewById(R.id.recyclerview_zikfiles);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView = view.findViewById(R.id.recyclerview_zikfiles);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         // Read initial folder once; keep only the id and always re-read from DB
-        folderId = getIntent().getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
+        Bundle args = getArguments();
+        folderId = args != null ? args.getLong(Intents.EXTRA_FOLDER_ID, -1) : -1;
         if (!(folderId > 0)) {
-            Folder initial = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
+            Folder initial = args != null ? args.getParcelable(Intents.EXTRA_FOLDER) : null;
             if (initial == null) {
                 myToastEE(null, "onCreate : Intent folder == null");
-                finish();
+                Navigation.findNavController(view).popBackStack();
                 return;
             }
             folderId = initial.getId();
         }
-        activateChangeTrackOrder = getIntent().getBooleanExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, false);
+        activateChangeTrackOrder = args != null && args.getBoolean(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, false);
 
         listVm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
-        playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+        playbackVm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0 /* no swipe */) {
@@ -152,39 +145,39 @@ public class ZikFileActivity extends FullActivity {
         };
 
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        adapter = new ZikFilesRVAdapter(this, playbackVm.getState(), viewHolder -> touchHelper.startDrag(viewHolder),
+        adapter = new ZikFilesRVAdapter(getViewLifecycleOwner(), playbackVm.getState(), viewHolder -> touchHelper.startDrag(viewHolder),
                 activateChangeTrackOrder);
 
         recyclerView.setAdapter(adapter);
         touchHelper.attachToRecyclerView(recyclerView);
 
-        ib_settings = findViewById(R.id.ib_settings);
-        ib_settings.setOnClickListener(view -> {
+        ImageButton ib_settings = view.findViewById(R.id.ib_settings);
+        ib_settings.setOnClickListener(v -> {
             myLogI("--- User clicks SETTINGS ---");
             if (folder != null) {
-                Intent it = new Intent(this, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
+                Intent it = new Intent(requireContext(), ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
                 modifyLauncher.launch(it);
             }
         });
 
-        listVm.getFolderLive(folderId).observe(this, f -> {
+        listVm.getFolderLive(folderId).observe(getViewLifecycleOwner(), f -> {
             if (f == null) {
                 myLogI("Folder " + folderId + " deleted — finishing.");
-                finish();
+                if (isAdded()) Navigation.findNavController(view).popBackStack();
             } else {
                 folder = f;
                 if (lastFolder == null || f.getId() != lastFolder.getId()) {
-                    fillHeader(); // uses the latest folder
+                    fillHeader(view); // uses the latest folder
                     lastFolder = f;
                 } else if (!Objects.equals(f.image, lastFolder.image)
                 || !Objects.equals(f.getName(), lastFolder.getName())) {
-                    fillHeader();
+                    fillHeader(view);
                 }
             }
         });
 
         // ViewModel + LiveData observation
-        listVm.getZikFilesLive(folderId).observe(this, list -> {
+        listVm.getZikFilesLive(folderId).observe(getViewLifecycleOwner(), list -> {
             if (list == null)
                 return;
             adapter.submitList(list);
@@ -209,7 +202,7 @@ public class ZikFileActivity extends FullActivity {
             }
         });
 
-        playbackVm.getState().observe(this, s -> {
+        playbackVm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null)
                 return;
             if (s.folderId != folderId)
@@ -250,10 +243,10 @@ public class ZikFileActivity extends FullActivity {
         }
     }
 
-    private void fillHeader() {
+    private void fillHeader(View root) {
         myLogD("fillHeader()");
-        TextView textViewTitle = findViewById(R.id.textViewTitle);
-        ImageView ivCover = findViewById(R.id.coverImage);
+        TextView textViewTitle = root.findViewById(R.id.textViewTitle);
+        ImageView ivCover = root.findViewById(R.id.coverImage);
 
         textViewTitle.setText(folder.getName());
 
@@ -262,8 +255,6 @@ public class ZikFileActivity extends FullActivity {
 
             ivCover.setImageDrawable(null); // force refresh
             Context gildeContext = ivCover.getContext();
-            // Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext,
-            // folder.image)).into(ivCover);
             Glide.with(gildeContext).load(folder.image).into(ivCover);
             ivCover.invalidate();
         } else {
@@ -281,11 +272,11 @@ public class ZikFileActivity extends FullActivity {
             goUserClickHeader();
         });
 
-        ImageButton ib_sort = findViewById(R.id.ib_sort);
+        ImageButton ib_sort = root.findViewById(R.id.ib_sort);
         if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
             ib_sort.setVisibility(android.view.View.VISIBLE);
             ib_sort.setOnClickListener(v -> {
-                myLogI("--- User clicks SORT in ZikFileActivity ---");
+                myLogI("--- User clicks SORT in ZikFileFragment ---");
                 showSortOrderDialog(v);
             });
         } else {
@@ -305,8 +296,8 @@ public class ZikFileActivity extends FullActivity {
         MaterialButton btnAlpha = dialogView.findViewById(R.id.btn_alpha);
         MaterialButton btnAdded = dialogView.findViewById(R.id.btn_added);
 
-        String suffix = "desc".equals(currentDir) ? " \u25BC" : " \u25B2";
-        String suffixAlpha = "desc".equals(currentDir) ? " \u25B2" : " \u25BC";
+        String suffix = "desc".equals(currentDir) ? " ▼" : " ▲";
+        String suffixAlpha = "desc".equals(currentDir) ? " ▲" : " ▼";
 
         if ("last_played".equals(currentMode)) {
             toggleGroup.check(R.id.btn_last_played);
@@ -319,8 +310,7 @@ public class ZikFileActivity extends FullActivity {
             btnAdded.setText(getString(R.string.sort_last_added) + suffix);
         }
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(
-                this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
@@ -430,17 +420,16 @@ public class ZikFileActivity extends FullActivity {
 
     private void persistAndRefresh(java.util.List<ZikFile> sorted) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+            AppDatabase db = AppDatabase.getDatabase(requireContext().getApplicationContext());
             db.zikFileDao().persistOrder(sorted);
-            // The LiveData observer in ZikFileActivity will automatically refresh the list
-            // because persistOrder updates the DB, and getZikFilesLive(folderId) is
-            // observed.
+            // The LiveData observer in ZikFileFragment will automatically refresh the list
+            // because persistOrder updates the DB, and getZikFilesLive(folderId) is observed.
         });
     }
 
     private void goUserClickHeader() {
         if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
-            PodcastHelper.openPodcastEpisodeActivityFromActivity(folder, this);
+            PodcastHelper.openPodcastEpisodeActivityFromActivity(folder, requireActivity());
         } else if (Var.SOURCE_LOCATION_RADIO_RECORDING.equals(folder.getSourceLocation())) {
             playLiveRadioForThisFolder();
         }
@@ -453,15 +442,10 @@ public class ZikFileActivity extends FullActivity {
             return;
         }
         long stationId = RadioRecordingHelper.getRadioStationId(folder);
-        myLogI("--- User plays live radio from ZikFileActivity header --- station=" + folder.getName());
-        StartPlayHelper.playStream(this, Var.PLAY_MODE_RADIO, streamUrl, stationId, folder.getName(), folder.image,
-                "ZikFileActivity.coverClick");
+        myLogI("--- User plays live radio from ZikFileFragment header --- station=" + folder.getName());
+        StartPlayHelper.playStream(requireContext(), Var.PLAY_MODE_RADIO, streamUrl, stationId, folder.getName(), folder.image,
+                "ZikFileFragment.coverClick");
     }
-
-    private final ActivityResultLauncher<Intent> modifyLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                myLogD("coming back from ModifyFolderActivity");
-            });
 
     private boolean isVisible(int position) {
         RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();

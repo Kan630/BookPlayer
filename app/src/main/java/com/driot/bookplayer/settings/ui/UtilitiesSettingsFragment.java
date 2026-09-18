@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.CleanMemoryActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.HelpActivity;
 import com.driot.bookplayer.activities.StatsActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -145,8 +145,12 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
 
         root.findViewById(R.id.btn_quick_access_stats).setOnClickListener(v ->
                 startActivity(new Intent(getActivity(), StatsActivity.class)));
-        root.findViewById(R.id.btn_quick_access_cleaning).setOnClickListener(v ->
-                startActivity(new Intent(getActivity(), CleanMemoryActivity.class)));
+        root.findViewById(R.id.btn_quick_access_cleaning).setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_CLEAN_MEMORY, true);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
         root.findViewById(R.id.btn_quick_access_manual).setOnClickListener(v ->
                 startActivity(new Intent(getActivity(), HelpActivity.class)));
         root.findViewById(R.id.btn_quick_access_website).setOnClickListener(v ->

@@ -36,8 +36,9 @@ public class DetailedStatsActivity extends BaseActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         DetailedStatsRVAdapter adapter = new DetailedStatsRVAdapter(folder -> {
-            startActivity(new Intent(this, ZikFileActivity.class)
-                    .putExtra(Intents.EXTRA_FOLDER, folder));
+            startActivity(new Intent(this, MainActivity.class)
+                    .putExtra(Intents.EXTRA_FOLDER, folder)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
         });
         recyclerView.setAdapter(adapter);
 

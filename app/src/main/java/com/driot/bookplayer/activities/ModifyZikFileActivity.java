@@ -96,9 +96,10 @@ public class ModifyZikFileActivity extends BaseActivity {
         }
 
         findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
-            startActivity(new Intent(this, ZikFileActivity.class)
+            startActivity(new Intent(this, MainActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
-                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
+                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
             String warning = null;
             if (PlaybackUiBus.get().state().getValue() != null) {
                 warning = getString(R.string.Quit_the_player_to_move_playing_tracks);

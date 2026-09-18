@@ -37,6 +37,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.ExportActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.MsgBoxActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -45,7 +46,6 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.importexport.BackupShareActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
-import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
@@ -283,7 +283,7 @@ public class PermissionHandlingTest implements LogSupport {
     }
 
     // =================================================================================
-    // 5) NearbyShareActivity - Nearby book share (receive mode needs no Folder extra)
+    // 5) NearbyShareFragment (MainActivity) - Nearby book share (receive mode needs no Folder extra)
     // =================================================================================
 
     @Test
@@ -291,12 +291,13 @@ public class PermissionHandlingTest implements LogSupport {
         String[] perms = nearbyPermissionSet();
         revokePermissions(perms);
 
-        Intent intent = new Intent(appContext, NearbyShareActivity.class)
+        Intent intent = new Intent(appContext, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAVIGATE_TO_NEARBY_SHARE, true)
                 .putExtra("RECEIVE_MODE", true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        try (ActivityScenario<NearbyShareActivity> scenario = ActivityScenario.launch(intent)) {
-            TestNavUtils.assertWaitForActivity(NearbyShareActivity.class, 5_000, "NearbyShareActivity did not open");
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(intent)) {
+            TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity did not open");
 
             onView(withId(R.id.btnStartSharing)).perform(click());
             int denied = denyOsPermissionDialogs(perms.length, 4_000);
@@ -306,8 +307,8 @@ public class PermissionHandlingTest implements LogSupport {
                     appContext.getString(R.string.nearby_share_permissions_required), 4_000);
             myLog("nearby_share_permissions_required toast observed: " + sawToast);
 
-            if (!TestNavUtils.isOn(NearbyShareActivity.class)) {
-                throw new AssertionError("NearbyShareActivity crashed or navigated away after permission denial");
+            if (!TestNavUtils.isOn(MainActivity.class)) {
+                throw new AssertionError("MainActivity crashed or navigated away after permission denial");
             }
         }
     }

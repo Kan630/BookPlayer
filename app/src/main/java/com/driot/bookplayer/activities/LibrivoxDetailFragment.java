@@ -326,8 +326,9 @@ public class LibrivoxDetailFragment extends LoggingFragment {
     }
 
     private void openExistingBook(Folder folder) {
-        Intent intent = new Intent(requireContext(), ZikFileActivity.class);
+        Intent intent = new Intent(requireContext(), MainActivity.class);
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         requireActivity().finish();
     }

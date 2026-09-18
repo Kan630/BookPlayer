@@ -260,7 +260,7 @@ public class AddResourceActivity extends FullActivity {
                         // otherwise vanish to the home screen while audio plays in the background.
                         if (trackCount > 1) {
                             // Multi-track book: show the track list, not the single-track player.
-                            startActivity(new Intent(this, ZikFileActivity.class)
+                            startActivity(new Intent(this, MainActivity.class)
                                     .putExtra(Intents.EXTRA_FOLDER_ID, finalTarget.getIdFolder())
                                     .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
                         } else {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_library_nav_graph"
+    app:startDestination="@id/mainLibraryFragment">
+
+    <fragment
+        android:id="@+id/mainLibraryFragment"
+        android:name="com.driot.bookplayer.activities.MainLibraryFragment"
+        android:label="Library" />
+
+    <fragment
+        android:id="@+id/zikFileFragment"
+        android:name="com.driot.bookplayer.activities.ZikFileFragment"
+        android:label="ZikFile" />
+
+    <fragment
+        android:id="@+id/ttsReaderFragment"
+        android:name="com.driot.bookplayer.activities.TtsReaderFragment"
+        android:label="TtsReader" />
+
+    <fragment
+        android:id="@+id/cleanMemoryFragment"
+        android:name="com.driot.bookplayer.activities.CleanMemoryFragment"
+        android:label="CleanMemory" />
+
+    <fragment
+        android:id="@+id/nearbyShareFragment"
+        android:name="com.driot.bookplayer.quickshare.NearbyShareFragment"
+        android:label="NearbyShare" />
+
+</navigation>

@@ -12,34 +12,29 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.driot.bookplayer.MyApp;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.importexport.AutoBackupSnapshotManager;
-import com.driot.bookplayer.importexport.ImportExportActivity;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaService;
@@ -47,7 +42,6 @@ import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.utils.KanMail;
 
@@ -59,19 +53,32 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
+/**
+ * The app's launcher Activity, App Links deep-link target, and voice-search entry point - all
+ * untouched by this conversion (manifest entry, intent-filters, onCreate's deep-link/voice-search
+ * parsing all keep working exactly as before). Internally, it now also hosts the whole Library
+ * section as a Jetpack Navigation Component graph (main_library_nav_graph.xml) via its own
+ * NavHostFragment, exactly like RadioHostActivity/PodcastHostActivity/SettingsHostActivity/
+ * AddBookHostActivity host their sections - see [[radio_deeplink_applinks_fix]] plan. The former
+ * inline folder-list implementation now lives in MainLibraryFragment (the graph's start
+ * destination); ZikFileActivity/TtsReaderActivity/CleanMemoryActivity/NearbyShareActivity are now
+ * ZikFileFragment/TtsReaderFragment/CleanMemoryFragment/NearbyShareFragment in the same graph.
+ *
+ * MainViewModel is Activity-scoped (new ViewModelProvider(this)) so the Sort menu item here and
+ * MainLibraryFragment's own observers share the same instance.
+ */
 @AndroidEntryPoint
 public class MainActivity extends FullActivity {
 
-    private RecyclerView recyclerView;
-    private View emptyView;
-    private FoldersRVAdapter adapter;
     private MainViewModel mainVm;
-    private boolean pendingScrollToTop = false;
 
     Toolbar toolbar;
     private static final int REQUEST_CODE_OPTION = 34343;
 
     public static final String EXTRA_REQUESTED_NAV_ID = "EXTRA_REQUESTED_NAV_ID";
+    public static final String EXTRA_NAVIGATE_TO_TTS_READER = "EXTRA_NAVIGATE_TO_TTS_READER";
+    public static final String EXTRA_NAVIGATE_TO_CLEAN_MEMORY = "EXTRA_NAVIGATE_TO_CLEAN_MEMORY";
+    public static final String EXTRA_NAVIGATE_TO_NEARBY_SHARE = "EXTRA_NAVIGATE_TO_NEARBY_SHARE";
 
     private boolean HasBeenProposedToOpenFile;
     private static boolean infoAlreadyShown = false;
@@ -95,39 +102,6 @@ public class MainActivity extends FullActivity {
             InAppMsgManager.maybeShowBestMessage(MainActivity.this, getString(R.string.app_name));
         }
     };
-
-    private final ActivityResultLauncher<Intent> autoBackupRecoveryLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                int which = result.getData() != null
-                        ? result.getData().getIntExtra(MsgBoxActivity.RESULT_WHICH, MsgBoxActivity.WHICH_NEGATIVE)
-                        : MsgBoxActivity.WHICH_NEGATIVE;
-                Pref.setAutoBackupRecoveryPrompted(true);
-                if (which == MsgBoxActivity.WHICH_POSITIVE) {
-                    String json = AutoBackupSnapshotManager.readSnapshot(this);
-                    if (json != null) {
-                        Intent intent = new Intent(this, ImportExportActivity.class);
-                        intent.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_RESTORE);
-                        intent.putExtra(ImportExportActivity.EXTRA_PRELOADED_JSON, json);
-                        startActivity(intent);
-                    }
-                }
-            });
-
-    private final ActivityResultLauncher<Intent> modifyFolderLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null || mainVm == null)
-                    return;
-                Intent data = result.getData();
-                if (data.getLongExtra("deletedFolderId", -1) != -1
-                        || data.getLongExtra("deleteInProgressFolderId", -1) != -1) {
-                    mainVm.notifyFoldersListChanged();
-                } else {
-                    long folderId = data.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
-                    if (folderId != -1) {
-                        mainVm.notifyFolderChanged(folderId);
-                    }
-                }
-            });
 
     @Override
     protected int getNavSectionId() { return Tonio.isPure(this) ? -1 : R.id.nav_library; }
@@ -168,62 +142,21 @@ public class MainActivity extends FullActivity {
             myLogEE(e, "Action bar - setLogo - error");
         }
 
-
-
-        recyclerView = findViewById(R.id.recyclerview_folders);
-        emptyView = findViewById(R.id.emptyView);
-        if (recyclerView != null) {
-            int span = getResources().getInteger(R.integer.classic_grid_span);
-            GridLayoutManager glm = new GridLayoutManager(this, span);
-            recyclerView.setLayoutManager(glm);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.addItemDecoration(
-                    new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, 0)));
-        }
-
-        adapter = new FoldersRVAdapter(this);
-        recyclerView.setAdapter(adapter);
-        adapter.setModifyFolderLauncher(modifyFolderLauncher);
-
-        PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
-        adapter.connectPlayback(this, playbackVm.getState()); // adapter observe playback (highlight)
-
         mainVm = new ViewModelProvider(this).get(MainViewModel.class);
-        mainVm.getFolders().observe(this, folders -> {
-            if (folders == null)
-                return;
-            boolean isEmpty = folders.isEmpty();
-            emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            if (isEmpty)
-                setUpWelcomeMessageView();
-            adapter.submitList(folders, () -> {
-                if (pendingScrollToTop) {
-                    pendingScrollToTop = false;
-                    recyclerView.scrollToPosition(0);
-                }
-            });
-        });
 
-        mainVm.getScrollToTopEvent().observe(this, evt -> {
-            if (evt == null || evt.getContentIfNotHandled() == null)
-                return;
-            
-            pendingScrollToTop = true;
-            // Trigger an immediate scroll if the list is already there
-            recyclerView.scrollToPosition(0);
-        });
-        boolean wantScroll = getIntent() != null && getIntent().getBooleanExtra("scrollToTop", false);
-        if (wantScroll && mainVm != null) {
-            // either emit now or the list observer will run soon; both are fine
-            mainVm.requestScrollToTopNow();
-        }
-
-        // if we quit app, check option => should let music continue =>if no, kill
-        // service
+        // Registered after super.onCreate() (where BaseActivity registers its own
+        // isSectionRoot()-based callback) so this one - added later, same LifecycleOwner - wins
+        // deterministically on back press, same pattern as Radio/Podcast/Settings/Add Book's Host
+        // Activities: pop the Library graph one level if possible, otherwise fall through to the
+        // pre-existing "exit app" behavior (MainActivity has always been the true final
+        // destination - there is no other section to fall back to).
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                NavController navController = getMainLibraryNavController();
+                if (navController != null && navController.popBackStack()) {
+                    return; // popped one level within the Library graph
+                }
                 myLogI("--- USER CLICK BACK from MAIN --- (system button) -- EXIT APP --");
                 if (Option.getStopAudioIfUserClosesApp()) {
                     startService(
@@ -235,9 +168,29 @@ public class MainActivity extends FullActivity {
             }
         });
 
+        // Hide the bottom nav bar / mini-player while TtsReaderFragment (fullscreen reading
+        // mode) is on top, matching the old standalone TtsReaderActivity's
+        // displayAppNavBar()==false; restore them for every other destination.
+        NavController navController = getMainLibraryNavController();
+        if (navController != null) {
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                invalidateOptionsMenu();
+                boolean isTtsReader = destination.getId() == R.id.ttsReaderFragment;
+                View bottomNav = findViewById(R.id.bottomNav);
+                View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+                if (bottomNav != null) {
+                    bottomNav.setVisibility(isTtsReader || !displayAppNavBar() ? View.GONE : View.VISIBLE);
+                }
+                if (miniNowPlaying != null && isTtsReader) {
+                    miniNowPlaying.setVisibility(View.GONE);
+                }
+            });
+        }
+
         if (savedInstanceState == null) {
             ShareHelper.handleDeepLink(this, getIntent());
             handleMediaSearchIntentIfAny(getIntent());
+            handleIntentNavigation(getIntent());
         }
 
         // InAppMsgManager.deleteInAppMsgCache(this);
@@ -268,8 +221,67 @@ public class MainActivity extends FullActivity {
         // playback) every time - see [[radio_deeplink_applinks_fix]].
         if (!intent.getBooleanExtra("FROM_TAB_SWITCH", false)) {
             ShareHelper.handleDeepLink(this, getIntent());
+            handleIntentNavigation(intent);
         }
         handleMediaSearchIntentIfAny(intent);
+    }
+
+    /**
+     * Routes an incoming Intent to the right Library sub-screen: a folder id/Parcelable navigates
+     * to ZikFileFragment (replaces the old ZikFileActivity as a real back-stack entry - its
+     * external callers now target MainActivity with the exact same extras), and the three
+     * explicit marker extras navigate to TtsReaderFragment/CleanMemoryFragment/
+     * NearbyShareFragment (replacing TtsReaderActivity/CleanMemoryActivity/NearbyShareActivity).
+     * No-op (stays on whatever the graph currently shows, normally MainLibraryFragment) otherwise.
+     */
+    private void handleIntentNavigation(Intent intent) {
+        if (intent == null) return;
+        NavController navController = getMainLibraryNavController();
+        if (navController == null) return;
+
+        NavOptions singleTopOptions = new NavOptions.Builder()
+                .setPopUpTo(navController.getGraph().getStartDestinationId(), false)
+                .build();
+
+        if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_TTS_READER, false)) {
+            navController.navigate(R.id.ttsReaderFragment, null, singleTopOptions);
+        } else if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_CLEAN_MEMORY, false)) {
+            navController.navigate(R.id.cleanMemoryFragment, null, singleTopOptions);
+        } else if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_NEARBY_SHARE, false)) {
+            Bundle args = new Bundle();
+            args.putParcelable(Intents.EXTRA_FOLDER, intent.getParcelableExtra(Intents.EXTRA_FOLDER));
+            args.putBoolean("RECEIVE_MODE", intent.getBooleanExtra("RECEIVE_MODE", false));
+            navController.navigate(R.id.nearbyShareFragment, args, singleTopOptions);
+        } else if (intent.hasExtra(Intents.EXTRA_FOLDER_ID) || intent.hasExtra(Intents.EXTRA_FOLDER)) {
+            Bundle args = new Bundle();
+            args.putLong(Intents.EXTRA_FOLDER_ID, intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1));
+            args.putParcelable(Intents.EXTRA_FOLDER, intent.getParcelableExtra(Intents.EXTRA_FOLDER));
+            args.putBoolean(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER,
+                    intent.getBooleanExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, false));
+            navController.navigate(R.id.zikFileFragment, args, singleTopOptions);
+        }
+    }
+
+    @Nullable
+    private NavController getMainLibraryNavController() {
+        FragmentManager fm = getSupportFragmentManager();
+        NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.main_library_nav_host);
+        return navHostFragment != null ? navHostFragment.getNavController() : null;
+    }
+
+    /** Used by MiniPlayBookFragment's close button to replicate the old
+     * "getActivity() instanceof TtsReaderActivity" check without an Activity of that name. */
+    public boolean isShowingTtsReaderFragment() {
+        NavController navController = getMainLibraryNavController();
+        return navController != null && navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.ttsReaderFragment;
+    }
+
+    /** Used by MiniPlayBookFragment's close button in place of the old
+     * getActivity().finish() (which used to close the standalone TtsReaderActivity). */
+    public void exitTtsReaderFragment() {
+        NavController navController = getMainLibraryNavController();
+        if (navController != null) navController.popBackStack();
     }
 
     // Voice search ("Hey Google, play <query> on BookPlayer") launched as a plain activity
@@ -298,7 +310,7 @@ public class MainActivity extends FullActivity {
         InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         PlaybackUiState s = playbackVm.getState().getValue();
-        if (s != null && s.folderId > 0) {
+        if (s != null && s.folderId > 0 && mainVm != null) {
             mainVm.requestScrollToTopForFolder(s.folderId);
         }
         if (Pref.getNeedsRecreate()) {
@@ -317,6 +329,19 @@ public class MainActivity extends FullActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         myLogD("onCreateOptionsMenu()");
+
+        // The full Library menu only makes sense on the folder list itself - ZikFileFragment/
+        // TtsReaderFragment/CleanMemoryFragment/NearbyShareFragment never had a menu of their own
+        // when they were separate Activities, so keep that exact behavior now that they're
+        // Fragments sharing this Activity's toolbar.
+        NavController navController = getMainLibraryNavController();
+        boolean onLibraryRoot = navController == null || navController.getCurrentDestination() == null
+                || navController.getCurrentDestination().getId() == R.id.mainLibraryFragment;
+        if (!onLibraryRoot) {
+            menu.clear();
+            return true;
+        }
+
         getMenuInflater().inflate(R.menu.action_bar, menu);
 
         // Conditionally show Radio/Podcast items in the overflow menu
@@ -362,7 +387,8 @@ public class MainActivity extends FullActivity {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cleanMemory) {
             myLogI("--- USER clicks MENU : CLEAN ---");
-            startActivity(new Intent(this, CleanMemoryActivity.class));
+            NavController navController = getMainLibraryNavController();
+            if (navController != null) navController.navigate(R.id.cleanMemoryFragment);
         } else if (itemId == R.id.menu_website) {
             myLogI("--- USER clicks MENU : WEBSITE ---");
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
@@ -372,9 +398,12 @@ public class MainActivity extends FullActivity {
             startActivity(new Intent(getApplicationContext(), AddBookHostActivity.class));
         } else if (itemId == R.id.menu_receive_book) {
             myLogI("--- USER clicks MENU : RECEIVE BOOK ---");
-            Intent intent = new Intent(this, NearbyShareActivity.class);
-            intent.putExtra("RECEIVE_MODE", true);
-            startActivity(intent);
+            NavController navController = getMainLibraryNavController();
+            if (navController != null) {
+                Bundle args = new Bundle();
+                args.putBoolean("RECEIVE_MODE", true);
+                navController.navigate(R.id.nearbyShareFragment, args);
+            }
         } else if (itemId == R.id.menu_radio) {
             myLogI("--- USER clicks MENU : RADIO ---");
             navHelper.handleAppNavBarClick(this, R.id.nav_radio);
@@ -433,8 +462,8 @@ public class MainActivity extends FullActivity {
         // Alphabetical: reversed (▲ = Z→A, ▼ = A→Z) so it matches "list order"
         // intuition
         int checkedId0;
-        String suffix0 = "desc".equals(currentDir) ? " \u25BC" : " \u25B2";
-        String suffixAlpha = "desc".equals(currentDir) ? " \u25B2" : " \u25BC";
+        String suffix0 = "desc".equals(currentDir) ? " ▼" : " ▲";
+        String suffixAlpha = "desc".equals(currentDir) ? " ▲" : " ▼";
 
         if ("last_played".equals(currentMode)) {
             checkedId0 = R.id.btn_last_played;
@@ -501,44 +530,6 @@ public class MainActivity extends FullActivity {
         dialog.dismiss();
 
         myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
-    }
-
-    private void setUpWelcomeMessageView() {
-        myLog("no folders, setting up welcome message");
-        Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
-        btnWelcomeAddBook.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), AddBookHostActivity.class));
-        });
-
-        LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
-        LinearLayout ll_welcome_item_browse = findViewById(R.id.ll_welcome_item_browse);
-        if (Tonio.isPure(this)) {
-            ll_welcome_item_podcasts_radio.setVisibility(View.GONE);
-            ll_welcome_item_browse.setVisibility(View.GONE);
-        } else {
-            ll_welcome_item_podcasts_radio.setVisibility(View.VISIBLE);
-            ll_welcome_item_browse.setVisibility(View.VISIBLE);
-        }
-
-        maybeOfferAutoBackupRecovery();
-    }
-
-    // Library looks freshly empty (matches the welcome-screen condition) and a snapshot exists
-    // on disk (see AutoBackupSnapshotManager) - likely a restore from Android's own backup after
-    // a lost/broken phone, since a manual restore via ImportExportActivity would already have
-    // populated the library. Ask at most once (Pref.getAutoBackupRecoveryPrompted()).
-    private void maybeOfferAutoBackupRecovery() {
-        myLog("maybeOfferAutoBackupRecovery: alreadyPrompted=" + Pref.getAutoBackupRecoveryPrompted()
-                + " hasSnapshot=" + AutoBackupSnapshotManager.hasSnapshot(this));
-        if (Pref.getAutoBackupRecoveryPrompted() || !AutoBackupSnapshotManager.hasSnapshot(this)) {
-            return;
-        }
-        Intent intent = MsgBoxActivity.buildQuestion(this,
-                getString(R.string.auto_backup_recovery_title),
-                getString(R.string.auto_backup_recovery_desc),
-                null,
-                getString(R.string.auto_backup_recovery_positive), getString(R.string.auto_backup_recovery_negative));
-        autoBackupRecoveryLauncher.launch(intent);
     }
 
 }
