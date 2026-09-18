@@ -31,9 +31,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
@@ -95,9 +94,9 @@ public abstract class BasicNavTest implements LogSupport {
                 // TODO remove
                 ImportHelper.cancelCurrentImport(appContext);
 
-                // If we landed on GetActivity (empty state), press back to reach MainActivity
-                if (TestNavUtils.getCurrentResumedActivity() instanceof GetActivity) {
-                        myLogW("On GetActivity, pressing back to reach MainActivity…");
+                // If we landed on AddBookHostActivity (empty state), press back to reach MainActivity
+                if (TestNavUtils.getCurrentResumedActivity() instanceof AddBookHostActivity) {
+                        myLogW("On AddBookHostActivity, pressing back to reach MainActivity…");
                         boolean ok = TestNavUtils.pressBackTo(MainActivity.class, /* maxPresses */3,
                                         /* perStepWaitMs */1000);
                         if (!ok)

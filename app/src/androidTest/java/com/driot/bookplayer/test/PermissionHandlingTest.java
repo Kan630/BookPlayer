@@ -34,9 +34,9 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.ExportActivity;
-import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.activities.MsgBoxActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -93,7 +93,7 @@ public class PermissionHandlingTest implements LogSupport {
         appContext = ApplicationProvider.getApplicationContext();
         KanLogger.init(appContext);
         Option.setTechLog(true);
-        // GetOtherActivity/ImportBookSingleActivity only call askForPermission() when copy-mode
+        // GetOtherFragment/ImportBookSingleActivity only call askForPermission() when copy-mode
         // is off (otherwise they proceed to read the picked file straight away).
         Option.setCopyFile(false);
 
@@ -143,7 +143,7 @@ public class PermissionHandlingTest implements LogSupport {
     }
 
     // =================================================================================
-    // 2) GetOtherActivity - "Open Audio" (READ_EXTERNAL_STORAGE / READ_MEDIA_AUDIO)
+    // 2) GetOtherFragment (AddBookHostActivity) - "Open Audio" (READ_EXTERNAL_STORAGE / READ_MEDIA_AUDIO)
     // =================================================================================
 
     @Test
@@ -152,11 +152,16 @@ public class PermissionHandlingTest implements LogSupport {
         String perm = tiramisuPlus ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
         revokePermissions(perm);
 
-        Intent intent = new Intent(appContext, GetOtherActivity.class)
+        Intent intent = new Intent(appContext, AddBookHostActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        try (ActivityScenario<GetOtherActivity> scenario = ActivityScenario.launch(intent)) {
-            TestNavUtils.assertWaitForActivity(GetOtherActivity.class, 5_000, "GetOtherActivity did not open");
+        try (ActivityScenario<AddBookHostActivity> scenario = ActivityScenario.launch(intent)) {
+            TestNavUtils.assertWaitForActivity(AddBookHostActivity.class, 5_000, "AddBookHostActivity did not open");
+
+            // Navigate from the hub (GetActivityFragment) into GetOtherFragment, same as a user
+            // tapping "It's on my device".
+            onView(withId(R.id.bOpenOther)).perform(scrollTo(), click());
+            TestNavUtils.sleep(500, "wait for GetOtherFragment to show");
 
             onView(withId(R.id.bOpenFile)).perform(scrollTo(), click());
             int denied = denyOsPermissionDialogs(1, 4_000);
@@ -168,8 +173,8 @@ public class PermissionHandlingTest implements LogSupport {
                 TestNavUtils.assertWaitForActivity(MsgBoxActivity.class, 4_000,
                         "Expected MsgBoxActivity permission-denied dialog after denying read-audio permission");
                 boolean sawTitle = waitForTextContaining(appContext.getString(R.string.Permission_Required), 2_000);
-                myLog("OK - GetOtherActivity showed permission-denied dialog (title seen: " + sawTitle + ")");
-                TestNavUtils.pressBackTo(GetOtherActivity.class, 3, 1_000);
+                myLog("OK - GetOtherFragment showed permission-denied dialog (title seen: " + sawTitle + ")");
+                TestNavUtils.pressBackTo(AddBookHostActivity.class, 3, 1_000);
             } else {
                 // Pre-33 branch has no Callback wired: PermissionRequest just shows its own denied
                 // Snackbar/Toast (see PermissionRequest.showMessage()) and there's nothing else to
@@ -178,8 +183,8 @@ public class PermissionHandlingTest implements LogSupport {
                 myLog("Pre-33 denied feedback observed: " + sawDeniedMsg);
             }
 
-            if (!TestNavUtils.isOn(GetOtherActivity.class)) {
-                throw new AssertionError("Expected to still be on GetOtherActivity after the permission denial flow");
+            if (!TestNavUtils.isOn(AddBookHostActivity.class)) {
+                throw new AssertionError("Expected to still be on AddBookHostActivity after the permission denial flow");
             }
         }
     }

@@ -51,12 +51,7 @@
         >
 
 
-        <activity android:name=".activities.GetEbookActivity" />
-        <activity android:name=".activities.EbookResultsActivity" />
-        <activity android:name=".activities.EbookDetailActivity" />
         <activity android:name=".activities.TtsReaderActivity" />
-        <activity android:name=".librivox.GetLibrivoxFacetListActivity" />
-        <activity android:name=".ebooks.gutendex.GetEbookBookshelfListActivity" />
 
         <activity
             android:name=".activities.MainActivity"
@@ -78,14 +73,7 @@
             android:exported="false" />
         <activity android:name=".activities.ZikFileActivity"
             android:parentActivityName=".activities.MainActivity"/>
-        <!-- AddBookHostActivity replaces these as real back-stack entries (see
-             [[radio_deeplink_applinks_fix]]) - kept declared-but-unreferenced as a safety margin
-             until confirmed stable on-device, then deleted along with their .java files. -->
         <activity android:name=".activities.AddBookHostActivity" android:launchMode="singleTop" />
-        <activity android:name=".activities.GetActivity" />
-        <activity android:name=".activities.GetOtherActivity" />
-        <activity android:name=".activities.GetDirectLinkActivity" />
-        <activity android:name=".activities.GetLibrivoxActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.MoveBookActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
@@ -95,7 +83,6 @@
         <activity android:name=".imports.ImportBookMultipleActivity"
             android:label="@string/Mass_Import" />
         <activity android:name=".activities.HelpActivity" />
-        <activity android:name=".activities.LibrivoxFavoritesActivity"/>
         <activity android:name=".activities.LogTextActivity" />
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
@@ -103,8 +90,6 @@
         <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
         <activity android:name=".quickshare.NearbyShareActivity" />
-        <activity android:name=".activities.LibrivoxResultsActivity" />
-        <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.SupportedExtensionsActivity"/>
         <activity android:name=".activities.CoverGenerationActivity" />
         <activity android:name=".activities.DebugDatabaseActivity"
@@ -125,45 +110,12 @@
             android:exported="false" />
 
 
-        <!-- Migrated to a single Activity + Navigation Component graph, see
-             [[radio_deeplink_applinks_fix]] plan. The 5 Activities below are kept
-             declared-but-unreferenced as a safety margin until Phase 1 is confirmed
-             stable on-device, then removed in a follow-up cleanup commit. -->
         <activity android:name=".radio.RadioHostActivity"
             android:launchMode="singleTop"
             />
 
-        <activity android:name=".radio.GetRadioActivity"
-            android:launchMode="singleTop"
-            />
-        <activity android:name=".radio.RadioFavoritesActivity"
-            android:parentActivityName=".radio.GetRadioActivity"
-            />
-        <activity android:name=".radio.GetRadioCardListActivity" />
-        <activity android:name=".radio.RadioResultsActivity" />
-        <activity android:name=".radio.RadioStationActivity" />
-
-        <!-- Migrated to a single Activity + Navigation Component graph, see
-             [[radio_deeplink_applinks_fix]] plan. The 5 Activities below are kept
-             declared-but-unreferenced as a safety margin until Phase 2 is confirmed
-             stable on-device, then removed in a follow-up cleanup commit. -->
         <activity android:name=".podcasts.PodcastHostActivity"
             android:launchMode="singleTop"
-            />
-
-        <activity android:name=".podcasts.GetPodcastActivity"
-            android:parentActivityName=".activities.MainActivity"
-            />
-        <activity android:name=".podcasts.PodcastFavoritesActivity"
-            android:parentActivityName=".podcasts.GetPodcastActivity"
-            />
-        <activity android:name=".podcasts.PodcastSearchResultsActivity"
-            />
-        <activity android:name=".podcasts.PodcastEpisodeActivity"
-            android:launchMode="singleTop"
-            />
-        <activity android:name=".podcasts.PodcastDownloadSettingsActivity"
-            android:parentActivityName=".podcasts.PodcastEpisodeActivity"
             />
 
         <activity

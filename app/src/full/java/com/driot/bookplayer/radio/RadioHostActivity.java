@@ -20,11 +20,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * Single Activity hosting the whole Radio section as a Jetpack Navigation Component
- * graph (radio_nav_graph.xml) instead of separate Activities per screen. Replaces
+ * graph (radio_nav_graph.xml) instead of separate Activities per screen. Replaced the old
  * GetRadioActivity/RadioResultsActivity/RadioFavoritesActivity/GetRadioCardListActivity/
- * RadioStationActivity as real back-stack entries: those still exist as classes (now
- * unused) until the rest of the app is migrated, see [[radio_deeplink_applinks_fix]]
- * plan for the phased rollout.
+ * RadioStationActivity Activities (deleted once this migration was confirmed stable
+ * on-device) as real back-stack entries - see [[radio_deeplink_applinks_fix]] plan.
  */
 @AndroidEntryPoint
 public class RadioHostActivity extends FullActivity {
