@@ -5,11 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.text.TextUtils;
-
-import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
@@ -81,10 +80,7 @@ public class RadioHelper {
 			myLogEE(null, "handle deepLink radio, missing uuid or url");
 			return;
 		}
-		Intent i = new Intent(context, RadioHostActivity.class);
-		i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
-		i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		context.startActivity(i);
+		openRadioStationActivityFromUuid(context, uuid);
 		playRadioFromUuidAndUrl(context, uuid, url, "DeepLink");
 	}
 
@@ -446,25 +442,15 @@ public class RadioHelper {
 	}
 
 	// ---- Navigation Helpers ----
-
-	public static Intent getSectionRootIntent(Context context) {
-		return new Intent(context, RadioHostActivity.class);
-	}
-
-	public static Intent getFavoritesSectionIntent(Context context) {
-		return new Intent(context, RadioHostActivity.class)
-				.putExtra(Intents.EXTRA_START_IN_FAVORITES, true);
-	}
-
-	public static Intent getHistorySectionIntent(Context context) {
-		return new Intent(context, RadioHostActivity.class)
-				.putExtra(Intents.EXTRA_START_IN_HISTORY, true);
-	}
+	// All of these target MainActivity (the app's sole Activity) via its generic
+	// EXTRA_NAV_TAB_ID/EXTRA_NAV_DEST_ID/EXTRA_NAV_ARGS/EXTRA_NAV_DIRECT_LINK extras instead of
+	// a dedicated RadioHostActivity - see MainActivity's class doc for why that Activity was
+	// folded in (single-Activity multi-back-stack merge, [[radio_deeplink_applinks_fix]] plan).
 
 	public static void openRadioStationActivity(Context context, long trackId) {
 		if (trackId <= 0) {
 			myLogE("openRadioStationActivity => no trackId");
-			context.startActivity(new Intent(context, RadioHostActivity.class));
+			openRadioStationActivityFromUuid(context, null);
 			return;
 		}
 		AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -479,26 +465,16 @@ public class RadioHelper {
 		});
 	}
 
-	/**
-	 * Same-tab "Radio" bottom-nav click: if the given Activity is already the
-	 * single-Activity radio host, reset its internal nav graph to the section root instead
-	 * of going through the legacy Intent-stack path. Returns false if the Activity isn't
-	 * RadioHostActivity, so NavHelper falls back to the legacy per-Activity flow (used by
-	 * every not-yet-migrated section).
-	 */
-	public static boolean handleRadioTabReselected(android.app.Activity activity) {
-		if (activity instanceof RadioHostActivity) {
-			((RadioHostActivity) activity).navigateToRoot();
-			return true;
-		}
-		return false;
-	}
-
 	public static void openRadioStationActivityFromUuid(Context context, String uuid) {
-		Intent i = new Intent(context, RadioHostActivity.class)
+		Intent i = new Intent(context, MainActivity.class)
+				.putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_radio)
 				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (uuid != null && !uuid.isEmpty()) {
-			i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
+			Bundle args = new Bundle();
+			args.putString(Intents.EXTRA_STATION_UUID, uuid);
+			i.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioStationFragment);
+			i.putExtra(MainActivity.EXTRA_NAV_ARGS, args);
+			i.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true);
 		}
 		context.startActivity(i);
 	}
@@ -519,11 +495,15 @@ public class RadioHelper {
 			} catch (Exception e) {
 				myLogEE(e, "getNavToRadioActivityPendingIntent: UUID lookup failed for trackId=" + trackId);
 			}
-			TaskStackBuilder tsb = TaskStackBuilder.create(context);
-			tsb.addNextIntent(new Intent(context, MainActivity.class));
-			tsb.addNextIntent(new Intent(context, RadioHostActivity.class)
-					.putExtra(Intents.EXTRA_STATION_UUID, uuid));
-			return tsb.getPendingIntent(0, flags);
+			Bundle args = new Bundle();
+			args.putString(Intents.EXTRA_STATION_UUID, uuid);
+			Intent i = new Intent(context, MainActivity.class)
+					.putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_radio)
+					.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioStationFragment)
+					.putExtra(MainActivity.EXTRA_NAV_ARGS, args)
+					.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+					.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			return PendingIntent.getActivity(context, 0, i, flags);
 		}
 
 		boolean hasFavOrHistory = false;
@@ -538,15 +518,17 @@ public class RadioHelper {
 			myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
 		}
 
+		Intent i = new Intent(context, MainActivity.class)
+				.putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_radio)
+				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (Option.getRadioLandingScreen() != Option.RADIO_LANDING_SEARCH && hasFavOrHistory) {
-			TaskStackBuilder tsb = TaskStackBuilder.create(context);
-			tsb.addNextIntent(new Intent(context, MainActivity.class));
-			tsb.addNextIntent(new Intent(context, RadioHostActivity.class)
-					.putExtra(Intents.EXTRA_START_IN_FAVORITES, true));
-			return tsb.getPendingIntent(0, flags);
-		} else {
-			return PendingIntent.getActivity(context, 0, new Intent(context, RadioHostActivity.class), flags);
+			Bundle args = new Bundle();
+			args.putBoolean(Intents.EXTRA_START_IN_FAVORITES, true);
+			i.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioFavoritesFragment);
+			i.putExtra(MainActivity.EXTRA_NAV_ARGS, args);
+			i.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true);
 		}
+		return PendingIntent.getActivity(context, 0, i, flags);
 	}
 
 }

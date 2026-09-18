@@ -69,7 +69,6 @@
             android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
-        <activity android:name=".activities.AddBookHostActivity" android:launchMode="singleTop" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.MoveBookActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
@@ -104,19 +103,6 @@
             android:exported="false" />
 
 
-        <activity android:name=".radio.RadioHostActivity"
-            android:launchMode="singleTop"
-            />
-
-        <activity android:name=".podcasts.PodcastHostActivity"
-            android:launchMode="singleTop"
-            />
-
-        <activity
-            android:name=".activities.SettingsHostActivity"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.BookPlayer" />
         <activity
             android:name=".activities.MsgBoxActivity"
             android:exported="false"

@@ -568,10 +568,15 @@ public class PodcastHelper {
             Podcast podcast = AppDatabase.getDatabase(activity.getApplicationContext()).podcastDao()
                     .getPodcastByFolderId(folder.getId());
             if (podcast != null) {
-                myLogD("opening PodcastHostActivity for podcast : " + podcast.title);
-                activity.startActivity(new Intent(activity, PodcastHostActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        .putExtra("podcast", podcast));
+                myLogD("opening podcast episode via MainActivity for podcast : " + podcast.title);
+                android.os.Bundle args = new android.os.Bundle();
+                args.putParcelable("podcast", podcast);
+                activity.startActivity(new Intent(activity, com.driot.bookplayer.activities.MainActivity.class)
+                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
+                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
+                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
+                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
             } else {
                 myLogI("No podcast linked to folder " + folder.getId());
             }
@@ -632,9 +637,14 @@ public class PodcastHelper {
         Podcast p = AppDatabase.getDatabase(context).podcastDao()
                 .getPodcastByFolderId(folder.getId());
         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-            context.startActivity(new Intent(context, PodcastHostActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra("podcast", p));
+            android.os.Bundle args = new android.os.Bundle();
+            args.putParcelable("podcast", p);
+            context.startActivity(new Intent(context, com.driot.bookplayer.activities.MainActivity.class)
+                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
+                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
+                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
+                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
         });
     }
 
@@ -732,36 +742,6 @@ public class PodcastHelper {
     public static void addSecondToTimeListened(Context context, long trackId) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
         db.episodeDao().addSecondToTimeListened(trackId);
-    }
-
-    // ---- Navigation Helpers ----
-
-    public static android.content.Intent getSectionRootIntent(android.content.Context context) {
-        return new android.content.Intent(context, PodcastHostActivity.class);
-    }
-
-    public static android.content.Intent getFavoritesSectionIntent(android.content.Context context) {
-        return new android.content.Intent(context, PodcastHostActivity.class)
-                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_START_IN_FAVORITES, true);
-    }
-
-    public static android.content.Intent getHistorySectionIntent(android.content.Context context) {
-        return new android.content.Intent(context, PodcastHostActivity.class)
-                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_START_IN_HISTORY, true);
-    }
-
-    /**
-     * Same-tab "Podcast" bottom-nav click: if the given Activity is already the
-     * single-Activity podcast host, reset its internal nav graph to the section root instead
-     * of going through the legacy Intent-stack path. Returns false if the Activity isn't
-     * PodcastHostActivity, so NavHelper falls back to the legacy per-Activity flow.
-     */
-    public static boolean handlePodcastTabReselected(Activity activity) {
-        if (activity instanceof PodcastHostActivity) {
-            ((PodcastHostActivity) activity).navigateToRoot();
-            return true;
-        }
-        return false;
     }
 
 }

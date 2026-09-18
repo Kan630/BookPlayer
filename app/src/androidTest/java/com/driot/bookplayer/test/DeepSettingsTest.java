@@ -30,8 +30,10 @@ import androidx.work.Configuration;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
+import android.content.Intent;
+
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -71,8 +73,13 @@ public class DeepSettingsTest implements LogSupport {
     @Rule
     public LoggingWatcher logs = new LoggingWatcher();
 
+    // MainActivity is now the app's sole Activity - launch it straight onto the Settings tab
+    // instead of the old standalone SettingsHostActivity.
     @Rule
-    public ActivityScenarioRule<SettingsHostActivity> activityRule = new ActivityScenarioRule<>(SettingsHostActivity.class);
+    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(
+            new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_settings)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
     private static final List<Integer> SECTION_IDS = Arrays.asList(
             R.id.section_language,
@@ -116,7 +123,8 @@ public class DeepSettingsTest implements LogSupport {
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
 
         TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000, "SettingsHostActivity not loaded");
+        TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity not loaded");
+        TestNavUtils.waitForViewVisible(R.id.settings_layout_root, 5_000, "Settings category list did not appear");
     }
 
     @Test
@@ -176,9 +184,10 @@ public class DeepSettingsTest implements LogSupport {
 
         final java.util.List<View> targetViews = new java.util.ArrayList<>();
 
-        // Its fragment now lives inside the NavHostFragment's container, not inside the
-        // SettingsSectionView row anymore - walk that subtree instead.
-        onView(withId(R.id.settings_nav_host)).perform(new ViewAction() {
+        // Its fragment now lives inside the shared NavHostFragment container (one per bottom-nav
+        // tab, MainActivity attaches/detaches into R.id.nav_host_container - see MainActivity.
+        // attachTab()), not inside the SettingsSectionView row anymore - walk that subtree instead.
+        onView(withId(R.id.nav_host_container)).perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();

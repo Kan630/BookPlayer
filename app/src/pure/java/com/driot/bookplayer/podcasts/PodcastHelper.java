@@ -1,7 +1,6 @@
 package com.driot.bookplayer.podcasts;
 
 import android.content.Context;
-import android.content.Intent;
 
 import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -84,22 +83,6 @@ public class PodcastHelper {
 
     public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
-    }
-
-    public static Intent getSectionRootIntent(Context context) {
-        return null;
-    }
-
-    public static Intent getFavoritesSectionIntent(Context context) {
-        return null;
-    }
-
-    public static Intent getHistorySectionIntent(Context context) {
-        return null;
-    }
-
-    public static boolean handlePodcastTabReselected(android.app.Activity activity) {
-        return false;
     }
 
 }

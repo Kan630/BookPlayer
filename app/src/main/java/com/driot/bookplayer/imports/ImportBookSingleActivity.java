@@ -229,7 +229,7 @@ public class ImportBookSingleActivity extends FullActivity {
         findViewById(R.id.cvCover).setOnClickListener(this::openCoverPickerMenu);
 
         findViewById(R.id.btnImportOptionsSettings).setOnClickListener(v ->
-                com.driot.bookplayer.activities.SettingsHostActivity.start(this,
+                com.driot.bookplayer.activities.MainActivity.startSettings(this,
                         com.driot.bookplayer.settings.ui.ImportSettingsFragment.class, true, R.string.import_settings));
 
         etBookTitle.addTextChangedListener(new android.text.TextWatcher() {

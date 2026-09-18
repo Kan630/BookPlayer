@@ -178,7 +178,7 @@ public class GetEbookFragment extends LoggingFragment {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), TtsSettingsFragment.class, true, R.string.tts_settings);
+        MainActivity.startSettings(requireContext(), TtsSettingsFragment.class, true, R.string.tts_settings);
     }
 
 }

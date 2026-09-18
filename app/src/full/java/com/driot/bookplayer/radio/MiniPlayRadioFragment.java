@@ -124,13 +124,9 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             v.setOnClickListener(_x -> {
                 myLogI("---- user press mini player ----");
                 PlaybackCommands.resetLastUserAction(requireContext());
-                if (vm.getState() != null && vm.getState().getValue() != null) {
-                    long trackId = vm.getState().getValue().trackId;
-                    NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
-                } else {
-                    myLog("no VM state");
-                    startActivity(new Intent(requireContext(), RadioHostActivity.class));
-                }
+                long trackId = (vm.getState() != null && vm.getState().getValue() != null)
+                        ? vm.getState().getValue().trackId : -1;
+                NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
             });
         }
     }

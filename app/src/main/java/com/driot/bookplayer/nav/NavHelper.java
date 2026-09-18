@@ -1,6 +1,5 @@
 package com.driot.bookplayer.nav;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -8,18 +7,12 @@ import android.content.Intent;
 import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
-
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +21,7 @@ import javax.inject.Singleton;
 public class NavHelper {
 
     private final NavState navState;
+    /** Also read by NavState (its own myLogDD helper) - not just this class. */
     public static final boolean VERBOSE_DEBUG = true;
 
     @Inject
@@ -96,151 +90,6 @@ public class NavHelper {
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
         return RadioHelper.getNavToRadioActivityPendingIntent(context, trackId);
-    }
-
-    /**
-     * Handles clicks on the bottom navigation bar.
-     * Uses NavState to restore the last activity for the tab if available.
-     */
-    public boolean handleAppNavBarClick(Activity activity, int itemId) {
-        myLogDD("NavHelper.handleAppNavBarClick id=" + itemId);
-
-        int currentItemId = navState.getCurrentAppNavBarId();
-
-        // Radio is migrated to a single Activity (RadioHostActivity, full flavor only)
-        // hosting a Navigation Component graph - see [[radio_deeplink_applinks_fix]]. While
-        // already inside it, route the click through its own NavController instead of the
-        // legacy Intent-stack path below, which doesn't know about its internal fragment
-        // back stack. RadioHelper.handleRadioTabReselected is a no-op stub on "pure".
-        if (itemId == R.id.nav_radio && RadioHelper.handleRadioTabReselected(activity)) {
-            navState.setCurrentAppNavBarId(itemId);
-            return true;
-        }
-
-        // Same for Podcast (PodcastHostActivity, full flavor only) - see
-        // [[radio_deeplink_applinks_fix]]. PodcastHelper.handlePodcastTabReselected is a
-        // no-op stub on "pure".
-        if (itemId == R.id.nav_podcast && PodcastHelper.handlePodcastTabReselected(activity)) {
-            navState.setCurrentAppNavBarId(itemId);
-            return true;
-        }
-
-        // Same for Settings (SettingsHostActivity, all flavors - lives in the main sourceset,
-        // no flavor-stub indirection needed).
-        if (itemId == R.id.nav_settings && activity instanceof SettingsHostActivity) {
-            ((SettingsHostActivity) activity).navigateToRoot();
-            navState.setCurrentAppNavBarId(itemId);
-            return true;
-        }
-
-        // Same for Add Book (AddBookHostActivity, all flavors - lives in the main sourceset).
-        if (itemId == R.id.nav_add && activity instanceof AddBookHostActivity) {
-            ((AddBookHostActivity) activity).navigateToRoot();
-            navState.setCurrentAppNavBarId(itemId);
-            return true;
-        }
-
-        // 1. Same-tab click: reset to the true section root
-        if (itemId == currentItemId) {
-            myLogDD("same tab click");
-            Intent rootIntent = buildSectionRootIntent(activity, itemId);
-            navState.clear(itemId);
-            if (rootIntent != null) {
-                rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(rootIntent);
-            }
-            return true;
-        }
-
-        // 2. Switch to different tab — restore saved state or start fresh
-        myLogDD("different tab click");
-        Intent targetIntent = navState.peek(itemId);
-
-        if (targetIntent != null) {
-            myLogDD("restore stack top");
-            //targetIntent.setFlags(0);
-            targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            targetIntent.putExtra("FROM_TAB_SWITCH", true);
-            activity.startActivity(targetIntent);
-        } else {
-            myLogDD("no stack → start fresh root");
-            startFreshSectionRoot(activity, itemId);
-        }
-
-        activity.overridePendingTransition(0, 0);
-        navState.setCurrentAppNavBarId(itemId);
-        return true;
-    }
-
-    /**
-     * Starts the section for the first time (no saved state).
-     * Both Radio and Podcast have a 3-way landing preference (Search/Favorites/History,
-     * Option.getRadioLandingScreen()/getPodcastLandingScreen()). When landing on
-     * favorites/history, uses TaskStackBuilder to place the true root (GetRadioActivity /
-     * GetPodcastActivity) below it, so the system back button navigates correctly:
-     *   RadioFavoritesActivity → GetRadioActivity → MainActivity
-     * When landing on search, starts the root activity directly.
-     */
-    private void startFreshSectionRoot(Activity activity, int itemId) {
-        Intent favIntent = null;
-        if (itemId == R.id.nav_radio) {
-            int landing = Option.getRadioLandingScreen();
-            if (landing == Option.RADIO_LANDING_FAVORITES) {
-                favIntent = RadioHelper.getFavoritesSectionIntent(activity);
-            } else if (landing == Option.RADIO_LANDING_HISTORY) {
-                favIntent = RadioHelper.getHistorySectionIntent(activity);
-            }
-        } else if (itemId == R.id.nav_podcast) {
-            int landing = Option.getPodcastLandingScreen();
-            if (landing == Option.PODCAST_LANDING_FAVORITES) {
-                favIntent = PodcastHelper.getFavoritesSectionIntent(activity);
-            } else if (landing == Option.PODCAST_LANDING_HISTORY) {
-                favIntent = PodcastHelper.getHistorySectionIntent(activity);
-            }
-        }
-
-        if (favIntent != null) {
-            myLogDD("start fresh => favorite/history first");
-            TaskStackBuilder.create(activity)
-                    .addNextIntent(favIntent)
-                    .startActivities();
-        } else {
-            myLogDD("start fresh => search/root screen");
-            Intent rootIntent = buildSectionRootIntent(activity, itemId);
-            if (rootIntent != null) {
-                rootIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(rootIntent);
-            }
-        }
-    }
-
-    /**
-     * Returns the section root intent for a given bottom nav tab.
-     * For radio/podcast this is always the browse/search activity, regardless of the
-     * "open favorites first" option — favorites are layered on top by startFreshSectionRoot.
-     */
-    private Intent buildSectionRootIntent(Activity activity, int itemId) {
-        Intent intent = null;
-        if (itemId == R.id.nav_radio) {
-            intent = RadioHelper.getSectionRootIntent(activity);
-        } else if (itemId == R.id.nav_podcast) {
-            intent = PodcastHelper.getSectionRootIntent(activity);
-        } else if (itemId == R.id.nav_settings) {
-            intent = new Intent(activity, SettingsHostActivity.class);
-        } else if (itemId == R.id.nav_library) {
-            intent = new Intent(activity, MainActivity.class);
-        } else if (itemId == R.id.nav_add) {
-            // AddBookHostActivity itself skips its GetActivityFragment hub straight to
-            // GetOtherFragment on "pure" (no reachable path to LibriVox/Gutenberg/direct-link -
-            // content that can't be kept kid-safe/content-rating-appropriate).
-            intent = new Intent(activity, AddBookHostActivity.class);
-        }
-        return intent;
-    }
-
-    private static void myLogDD(String txt) {
-        if (VERBOSE_DEBUG)
-            myLogD(txt);
     }
 
 }

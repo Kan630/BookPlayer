@@ -53,8 +53,12 @@ public class TtsReaderFragment extends LoggingFragment {
     // Convenience launcher - navigates within MainActivity's own Library graph instead of
     // starting a separate Activity.
     public static void start(android.content.Context ctx) {
-        android.content.Intent intent = new android.content.Intent(ctx, MainActivity.class);
-        intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_TTS_READER, true);
+        android.content.Intent intent = new android.content.Intent(ctx, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)
+                .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.ttsReaderFragment)
+                .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         ctx.startActivity(intent);
     }
 }

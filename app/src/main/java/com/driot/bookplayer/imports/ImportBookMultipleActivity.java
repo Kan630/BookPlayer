@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.FullActivity;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -160,7 +160,7 @@ public class ImportBookMultipleActivity extends FullActivity {
      */
     private void clickSettings() {
         myLogI("--- User clicks MASSIVE IMPORT SETTINGS ---");
-        SettingsHostActivity.start(this, MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
+        MainActivity.startSettings(this, MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
     }
 
     private void initializeViews() {

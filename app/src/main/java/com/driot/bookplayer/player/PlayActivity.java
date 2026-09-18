@@ -23,7 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.AppDatabase;
@@ -234,7 +234,7 @@ public class PlayActivity extends BaseActivity {
             });
             findViewById(R.id.ib_tts_settings).setOnClickListener((v) -> {
                 myLogI("--- User clicks SETTINGS ---");
-                SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
+                MainActivity.startSettings(this, TtsSettingsFragment.class, true, R.string.tts_settings);
             });
         }
 

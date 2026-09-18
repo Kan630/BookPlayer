@@ -37,7 +37,6 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
-import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
@@ -183,13 +182,6 @@ public class LoadManyBookTest implements LogSupport {
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
 
         TestNavUtils.logCurrentActivity();
-        if (TestNavUtils.getCurrentResumedActivity() instanceof AddBookHostActivity) {
-            myLogW("On AddBookHostActivity, pressing back to reach MainActivity…");
-            boolean ok = TestNavUtils.pressBackTo(MainActivity.class, 3, 1000);
-            if (!ok)
-                throw new AssertionError("Could not navigate back to MainActivity");
-            TestNavUtils.logCurrentActivity();
-        }
     }
 
     @Test

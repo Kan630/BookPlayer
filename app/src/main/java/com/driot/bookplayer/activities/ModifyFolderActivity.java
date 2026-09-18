@@ -148,8 +148,14 @@ public class ModifyFolderActivity extends BaseActivity {
         etRename.setText(folder.getName());
 
         findViewById(R.id.bAddNewTracks).setOnClickListener(view -> {
-            Intent i = new Intent(this, AddBookHostActivity.class);
-            i.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folder);
+            Bundle args = new Bundle();
+            args.putParcelable(Intents.EXTRA_ADD_TO_FOLDER, folder);
+            Intent i = new Intent(this, MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_add)
+                    .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.getOtherFragment)
+                    .putExtra(MainActivity.EXTRA_NAV_ARGS, args)
+                    .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
         });
 
@@ -504,10 +510,14 @@ public class ModifyFolderActivity extends BaseActivity {
 
     private void bShareClick() {
         myLogI("user clicks - QUICK SHARE");
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_NEARBY_SHARE, true);
-        intent.putExtra(Intents.EXTRA_FOLDER, folder);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Bundle args = new Bundle();
+        args.putParcelable(Intents.EXTRA_FOLDER, folder);
+        Intent intent = new Intent(this, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)
+                .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.nearbyShareFragment)
+                .putExtra(MainActivity.EXTRA_NAV_ARGS, args)
+                .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivity(intent);
     }
 

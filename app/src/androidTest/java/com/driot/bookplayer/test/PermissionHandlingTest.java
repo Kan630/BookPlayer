@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
 
@@ -34,12 +35,10 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.AddBookHostActivity;
 import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.ExportActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.MsgBoxActivity;
-import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
@@ -115,8 +114,16 @@ public class PermissionHandlingTest implements LogSupport {
     public void recordAudioPermission_denied_showsRedDeniedTextAndNoCrash() {
         revokePermissions(Manifest.permission.RECORD_AUDIO);
 
-        try (ActivityScenario<SettingsHostActivity> scenario = ActivityScenario.launch(SettingsHostActivity.class)) {
-            TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000, "SettingsHostActivity not loaded");
+        // MainActivity is now the app's sole Activity - launch it straight onto the Settings tab
+        // instead of the old standalone SettingsHostActivity.
+        Intent settingsIntent = new Intent(appContext, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_settings)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(settingsIntent)) {
+            TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity did not open");
+            TestNavUtils.waitForViewVisible(R.id.section_play_behaviour, 5_000,
+                    "Settings category list did not appear");
 
             TestNavUtils.openSettingSection(R.id.section_play_behaviour);
             TestNavUtils.sleep(500, "wait for section to expand/layout");
@@ -152,11 +159,15 @@ public class PermissionHandlingTest implements LogSupport {
         String perm = tiramisuPlus ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
         revokePermissions(perm);
 
-        Intent intent = new Intent(appContext, AddBookHostActivity.class)
+        // MainActivity is now the app's sole Activity - launch it straight onto the Add Book tab
+        // (its own add_book_nav_graph start destination, GetActivityFragment/the hub) instead of
+        // the old standalone AddBookHostActivity.
+        Intent intent = new Intent(appContext, MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_add)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        try (ActivityScenario<AddBookHostActivity> scenario = ActivityScenario.launch(intent)) {
-            TestNavUtils.assertWaitForActivity(AddBookHostActivity.class, 5_000, "AddBookHostActivity did not open");
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(intent)) {
+            TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity did not open");
 
             // Navigate from the hub (GetActivityFragment) into GetOtherFragment, same as a user
             // tapping "It's on my device".
@@ -174,7 +185,7 @@ public class PermissionHandlingTest implements LogSupport {
                         "Expected MsgBoxActivity permission-denied dialog after denying read-audio permission");
                 boolean sawTitle = waitForTextContaining(appContext.getString(R.string.Permission_Required), 2_000);
                 myLog("OK - GetOtherFragment showed permission-denied dialog (title seen: " + sawTitle + ")");
-                TestNavUtils.pressBackTo(AddBookHostActivity.class, 3, 1_000);
+                TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
             } else {
                 // Pre-33 branch has no Callback wired: PermissionRequest just shows its own denied
                 // Snackbar/Toast (see PermissionRequest.showMessage()) and there's nothing else to
@@ -183,8 +194,8 @@ public class PermissionHandlingTest implements LogSupport {
                 myLog("Pre-33 denied feedback observed: " + sawDeniedMsg);
             }
 
-            if (!TestNavUtils.isOn(AddBookHostActivity.class)) {
-                throw new AssertionError("Expected to still be on AddBookHostActivity after the permission denial flow");
+            if (!TestNavUtils.isOn(MainActivity.class)) {
+                throw new AssertionError("Expected to still be on MainActivity after the permission denial flow");
             }
         }
     }
@@ -291,9 +302,13 @@ public class PermissionHandlingTest implements LogSupport {
         String[] perms = nearbyPermissionSet();
         revokePermissions(perms);
 
+        Bundle nearbyShareArgs = new Bundle();
+        nearbyShareArgs.putBoolean("RECEIVE_MODE", true);
         Intent intent = new Intent(appContext, MainActivity.class)
-                .putExtra(MainActivity.EXTRA_NAVIGATE_TO_NEARBY_SHARE, true)
-                .putExtra("RECEIVE_MODE", true)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)
+                .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.nearbyShareFragment)
+                .putExtra(MainActivity.EXTRA_NAV_ARGS, nearbyShareArgs)
+                .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(intent)) {

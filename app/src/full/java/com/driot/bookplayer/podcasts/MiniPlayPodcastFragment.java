@@ -146,9 +146,14 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
                                 .getById(idPodcast);
-                        startActivity(new Intent(requireContext(), PodcastHostActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                .putExtra("podcast", podcast));
+                        Bundle args = new Bundle();
+                        args.putParcelable("podcast", podcast);
+                        startActivity(new Intent(requireContext(), com.driot.bookplayer.activities.MainActivity.class)
+                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
+                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
+                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
+                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     });
                 }
             });

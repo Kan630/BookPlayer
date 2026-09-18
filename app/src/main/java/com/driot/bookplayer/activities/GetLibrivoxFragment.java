@@ -154,7 +154,7 @@ public class GetLibrivoxFragment extends LoggingFragment {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), RepositoriesSettingsFragment.class, true, R.string.repositories_settings);
+        MainActivity.startSettings(requireContext(), RepositoriesSettingsFragment.class, true, R.string.repositories_settings);
     }
 
     private void doSearch(View view) {

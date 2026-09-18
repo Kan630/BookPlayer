@@ -148,7 +148,7 @@ public class MainLibraryFragment extends LoggingFragment {
         myLog("no folders, setting up welcome message");
         Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
         btnWelcomeAddBook.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext().getApplicationContext(), AddBookHostActivity.class));
+            ((MainActivity) requireActivity()).selectTab(R.id.nav_add, false);
         });
 
         LinearLayout ll_welcome_item_podcasts_radio = emptyView.findViewById(R.id.ll_welcome_item_podcasts_radio);

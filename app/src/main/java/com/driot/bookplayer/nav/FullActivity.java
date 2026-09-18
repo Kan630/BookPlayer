@@ -23,7 +23,6 @@ import javax.inject.Inject;
 public abstract class FullActivity extends BaseActivity {
 
     @Inject protected NavState navState;
-    @Inject protected NavHelper navHelper;
 
     @LayoutRes
     protected abstract int getLayoutResId();
@@ -34,7 +33,7 @@ public abstract class FullActivity extends BaseActivity {
         return Option.getDisplayAppNavBar();
     }
 
-    private NavigationBarView appNavBarView;
+    protected NavigationBarView appNavBarView;
     private boolean navSelectionFromCode = false;
     private final boolean VERBOSE_DEBUG = false;
 
@@ -123,27 +122,9 @@ public abstract class FullActivity extends BaseActivity {
     private void setupAppNavBar() {
         appNavBarView = findViewById(R.id.bottomNav);
         myLogDD("setupBottomNav() -  navId=" + getNavSectionId());
-
-        appNavBarView.setOnItemSelectedListener(item -> {
-            boolean fromCode = navSelectionFromCode;
-            navSelectionFromCode = false;
-
-            if (fromCode) {
-                myLogDD("BottomNav selection changed programmatically: item="
-                        + item.getItemId() + " - " + item.getTitle());
-                return true;
-            }
-
-            myLogI("--- user click bottom Nav bar ---    item = "
-                    + item.getItemId() + " - " + item.getTitle());
-
-            if (navHelper.handleAppNavBarClick(FullActivity.this, item.getItemId())) {
-                return true;
-            }
-
-            return true;
-        });
-
+        // Click-listener registration is left to the (now sole) subclass, MainActivity, which
+        // owns tab switching directly (see its setupTabClickListener()) - there's nothing left
+        // for this base class to route clicks to.
         selectAppNavItemFromCode(getNavSectionId());
     }
 
@@ -175,11 +156,18 @@ public abstract class FullActivity extends BaseActivity {
         }
     }
 
-    private void selectAppNavItemFromCode(int itemId) {
+    protected void selectAppNavItemFromCode(int itemId) {
         if (appNavBarView == null) return;
         navSelectionFromCode = true;
         appNavBarView.setSelectedItemId(itemId);
         navSelectionFromCode = false; // safety: if item already selected, listener won't fire to reset it
+    }
+
+    /** True while selectAppNavItemFromCode() is synchronously updating the bottom nav's
+     * selection - lets a subclass's own OnItemSelectedListener (which replaces the one this
+     * class registers above) tell a programmatic re-sync apart from a genuine user tap. */
+    protected boolean isNavSelectionFromCode() {
+        return navSelectionFromCode;
     }
 
 }

@@ -2,7 +2,6 @@ package com.driot.bookplayer.radio;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -54,28 +53,12 @@ public class RadioHelper {
         myLogE("should never happen");
     }
 
-    public static Intent getSectionRootIntent(Context context) {
-        return null;
-    }
-
-    public static Intent getFavoritesSectionIntent(Context context) {
-        return null;
-    }
-
-    public static Intent getHistorySectionIntent(Context context) {
-        return null;
-    }
-
     public static void openRadioStationActivity(Context context, long trackId) {
         myLog("stub!");
     }
 
     public static void openRadioStationActivityFromUuid(Context context, String uuid) {
         myLog("stub!");
-    }
-
-    public static boolean handleRadioTabReselected(android.app.Activity activity) {
-        return false;
     }
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {

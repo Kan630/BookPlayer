@@ -16,13 +16,15 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
+    <!-- Plain container: MainActivity programmatically creates/attaches/detaches one
+         NavHostFragment per bottom-nav tab here (see selectTab()), instead of a single
+         declarative app:navGraph host - this is what lets each tab keep its own back stack
+         alive (Fragment attach/detach preserves state) across tab switches, unlike the old
+         separate-Activity-per-section approach Android would recreate on every switch. -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/main_library_nav_host"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/nav_host_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        app:navGraph="@navigation/main_library_nav_graph"
-        app:defaultNavHost="true" />
+        android:layout_weight="1" />
 
 </LinearLayout>

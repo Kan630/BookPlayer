@@ -146,9 +146,11 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         root.findViewById(R.id.btn_quick_access_stats).setOnClickListener(v ->
                 startActivity(new Intent(getActivity(), StatsActivity.class)));
         root.findViewById(R.id.btn_quick_access_cleaning).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            intent.putExtra(MainActivity.EXTRA_NAVIGATE_TO_CLEAN_MEMORY, true);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            Intent intent = new Intent(getActivity(), MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)
+                    .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.cleanMemoryFragment)
+                    .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
         root.findViewById(R.id.btn_quick_access_manual).setOnClickListener(v ->

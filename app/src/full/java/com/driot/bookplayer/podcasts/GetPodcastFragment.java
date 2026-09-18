@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.navigation.Navigation;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -137,7 +137,7 @@ public class GetPodcastFragment extends LoggingFragment {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), PodcastSettingsFragment.class, true, R.string.Podcast_Settings);
+        MainActivity.startSettings(requireContext(), PodcastSettingsFragment.class, true, R.string.Podcast_Settings);
     }
 
     private void doSearch(View view) {

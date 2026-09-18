@@ -404,7 +404,9 @@ public class GetOtherFragment extends LoggingFragment {
 
     public void openOptionActivity() {
         try {
-            startActivity(new Intent(requireContext(), SettingsHostActivity.class));
+            startActivity(new Intent(requireContext(), MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_settings)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
         } catch (Exception e) {
             myLogEE(e, "openOptionActivity()");
         }
@@ -452,7 +454,9 @@ public class GetOtherFragment extends LoggingFragment {
     }
 
     private void showPermissionDeniedDialog() {
-        Intent neutralIntent = new Intent(requireContext(), SettingsHostActivity.class);
+        Intent neutralIntent = new Intent(requireContext(), MainActivity.class)
+                .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_settings)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         MsgBox.alertWithNeutral(requireContext(),
                 getString(R.string.Permission_Required),
                 getString(R.string.permission_read_write_denied),
@@ -504,12 +508,12 @@ public class GetOtherFragment extends LoggingFragment {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), ImportSettingsFragment.class, true, R.string.import_settings);
+        MainActivity.startSettings(requireContext(), ImportSettingsFragment.class, true, R.string.import_settings);
     }
 
     private void clickMassImportSettings() {
         myLogI("--- User clicks MASS IMPORT SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
+        MainActivity.startSettings(requireContext(), MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
     }
 
 }

@@ -14,7 +14,7 @@ import androidx.navigation.Navigation;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.global.Intents;
@@ -179,7 +179,7 @@ public class GetRadioFragment extends LoggingFragment {
 
     private void clickSettings() {
         myLogI("--- User clicks RADIO SETTINGS ---");
-        SettingsHostActivity.start(requireContext(), RadioSettingsFragment.class, true, R.string.Radio_Settings);
+        MainActivity.startSettings(requireContext(), RadioSettingsFragment.class, true, R.string.Radio_Settings);
     }
 
     private void doSearch(View view) {

@@ -8,6 +8,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -16,7 +17,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.TestNavUtils;
@@ -43,8 +44,13 @@ public class SettingsActivitySmokeTest implements LogSupport {
 
     // ---- Preset rule & setup (as you requested) ----
     @Rule public LoggingWatcher logs = new LoggingWatcher();
-    @Rule public ActivityScenarioRule<SettingsHostActivity> scenarioRule =
-            new ActivityScenarioRule<>(SettingsHostActivity.class);
+    // MainActivity is now the app's sole Activity - launch it straight onto the Settings tab
+    // (its own settings_nav_graph start destination, settingsCategoryListFragment) instead of
+    // the old standalone SettingsHostActivity.
+    @Rule public ActivityScenarioRule<MainActivity> scenarioRule =
+            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_settings)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     @Before
     public void setUp() {
         com.driot.bookplayer.utils.log.LoggerStaticHelper.myLog("ooooooooooooooooooooooooooooooooooooooooo");
@@ -90,9 +96,11 @@ public class SettingsActivitySmokeTest implements LogSupport {
 
     @Test
     public void expandsEachSection_scrolls_topAndBottom_andSeesControls() {
-        // Wait for SettingsHostActivity to be RESUMED
-        TestNavUtils.assertWaitForActivity(SettingsHostActivity.class, 5_000,
-                "SettingsHostActivity did not come to foreground");
+        // Wait for MainActivity to be RESUMED, on the Settings tab
+        TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000,
+                "MainActivity did not come to foreground");
+        TestNavUtils.waitForViewVisible(R.id.section_play_behaviour, 5_000,
+                "Settings category list did not appear");
 
         // Map each section view id -> an array of expected child control ids to probe
         // TODO: Replace placeholder ids (R.id.any_view_in_xxx) with real, stable ids present in each fragment.
