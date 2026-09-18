@@ -143,9 +143,14 @@ public class SettingsHostActivity extends FullActivity {
                     return; // popped one level within the settings graph
                 }
                 if (directLinkMode) {
+                    // finish() directly (not a dispatcher passthrough) - BaseActivity's own
+                    // callback further down the chain still has isSectionRoot()==true and would
+                    // force-navigate to MainActivity instead of revealing whatever real Activity
+                    // (Radio, Podcast, ...) actually launched this one, and falling through to it
+                    // would also risk replaying a stale NavState Intent for nav_settings - the
+                    // same bug class fixed in MainActivity.onNewIntent(). Bypass all of that.
                     myLogI("--- user press BACK --- from direct-linked settings screen -> finish (reveal caller)");
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
+                    finish();
                     return;
                 }
                 myLogI("--- user press BACK --- from settings section root -> MainActivity");
@@ -165,7 +170,14 @@ public class SettingsHostActivity extends FullActivity {
             if (titleRes != 0) setTitle(titleRes);
         }
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !getIntent().getBooleanExtra("FROM_TAB_SWITCH", false)) {
+            // A fresh instance created via tab switch can still receive a stale, previously-stored
+            // NavState Intent for this section - e.g. finish()ing a direct-link instance (see the
+            // back-press callback above) doesn't clear NavState's stored per-tab Intent, so a
+            // FLAG_ACTIVITY_REORDER_TO_FRONT replay that fails to find a live target Activity falls
+            // back to creating a brand new one from that same stale Intent (still carrying
+            // EXTRA_FRAGMENT_CLASS). Ignore it here and let the Settings graph start on the
+            // category list instead.
             handleIntentNavigation(getIntent());
         }
     }
@@ -174,6 +186,18 @@ public class SettingsHostActivity extends FullActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        if (intent.getBooleanExtra("FROM_TAB_SWITCH", false)) {
+            if (directLinkMode) {
+                // This instance was last left showing a one-off direct-link category (e.g. the
+                // gear icon from Radio/Podcast settings), not resident Settings-tab state. Tapping
+                // the Settings TAB itself should always land on the tab's own root, not resume
+                // that one-off screen - matching how the old single-fragment SettingsHostActivity
+                // never treated a direct-link visit as "the tab's state" either.
+                directLinkMode = false;
+                navigateToRoot();
+            }
+            return;
+        }
         handleIntentNavigation(intent);
     }
 
@@ -204,7 +228,15 @@ public class SettingsHostActivity extends FullActivity {
         // Standard arg key the fragment can read; every caller of start(...) passes true.
         args.putBoolean(EXTRA_SHOW_LOCAL_TITLE, intent.getBooleanExtra(EXTRA_SHOW_LOCAL_TITLE, true));
 
-        navController.navigate(destinationId, args);
+        directLinkMode = true;
+        // Pop the category list out of the graph entirely instead of leaving it underneath -
+        // a direct link (e.g. Radio's gear icon) should show exactly one screen, matching the
+        // old single-fragment SettingsHostActivity; the back callback's directLinkMode branch
+        // then finish()es directly once this destination itself has nothing left to pop.
+        NavOptions options = new NavOptions.Builder()
+                .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
+                .build();
+        navController.navigate(destinationId, args, options);
     }
 
     @Nullable

@@ -60,7 +60,11 @@ public class RadioHostActivity extends FullActivity {
             }
         });
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !getIntent().getBooleanExtra("FROM_TAB_SWITCH", false)) {
+            // A fresh instance created via tab switch can still receive a stale, previously-stored
+            // NavState Intent for this section (e.g. an old station-uuid extra left over from a
+            // now-finished direct-link instance) - see SettingsHostActivity for the fuller story.
+            // Ignore it and let the Radio graph start on its normal root instead.
             handleIntentNavigation(getIntent());
         }
     }
@@ -69,7 +73,9 @@ public class RadioHostActivity extends FullActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handleIntentNavigation(intent);
+        if (!intent.getBooleanExtra("FROM_TAB_SWITCH", false)) {
+            handleIntentNavigation(intent);
+        }
     }
 
     /**
