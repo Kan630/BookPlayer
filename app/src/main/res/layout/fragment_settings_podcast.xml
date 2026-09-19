@@ -12,9 +12,7 @@
         android:padding="8dp">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <TextView android:text="@string/Podcast_Settings" style="@style/OptionMasterTitle"/>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <!-- Navigation -->

@@ -11,9 +11,7 @@
         android:padding="8dp">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <TextView android:text="@string/option_playing_behaviour_title" style="@style/OptionMasterTitle"/>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <!-- Auto-play next chapter -->

@@ -13,9 +13,7 @@
 
         <!-- Optional local title (hidden when embedded inline) -->
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <TextView android:text="@string/Design" style="@style/OptionMasterTitle"/>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <!-- Bottom navigation bar -->

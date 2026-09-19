@@ -11,9 +11,7 @@
 
         <!-- Optional local title (hidden when embedded inline) -->
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <TextView android:text="@string/network_preferences_title" style="@style/OptionMasterTitle"/>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <!-- Network preferences (first block marginTop=0) -->

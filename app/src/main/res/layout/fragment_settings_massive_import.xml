@@ -10,9 +10,7 @@
         android:padding="8dp">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <TextView android:text="@string/Mass_Import" style="@style/OptionMasterTitle"/>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <TextView style="@style/betatest"/>
