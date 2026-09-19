@@ -7,9 +7,7 @@
 
     <LinearLayout
         android:id="@+id/ll_Podcast"
-        style="@style/LinearLayoutOptionsVertical"
-        android:layout_marginTop="0dp"
-        android:padding="8dp">
+        style="@style/SettingsFragmentRoot">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
             <TextView android:text="@string/Podcast_Settings" style="@style/OptionMasterTitle"/>

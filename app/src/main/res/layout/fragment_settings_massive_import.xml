@@ -6,8 +6,7 @@
 
     <LinearLayout
         android:id="@+id/root_container"
-        style="@style/LinearLayoutOptionsVertical"
-        android:padding="8dp">
+        style="@style/SettingsFragmentRoot">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
             <TextView android:text="@string/Mass_Import" style="@style/OptionMasterTitle"/>

@@ -7,9 +7,7 @@
 
     <LinearLayout
         android:id="@+id/ll_Tts"
-        style="@style/LinearLayoutOptionsVertical"
-        android:padding="8dp"
-        android:layout_marginTop="0dp">
+        style="@style/SettingsFragmentRoot">
 
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
             <TextView android:text="@string/Text_To_Speech" style="@style/OptionMasterTitle"/>

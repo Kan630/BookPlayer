@@ -6,10 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        style="@style/LinearLayoutOptionsVertical"
-        android:padding="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        style="@style/SettingsFragmentRoot">
 
         <!-- Optional local title (hidden when embedded inline) -->
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
