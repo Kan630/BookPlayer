@@ -11,6 +11,7 @@ import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
@@ -19,6 +20,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.ShareHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -43,6 +45,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.text.TextUtils;
 
 public class PodcastHelper {
 
@@ -569,14 +573,7 @@ public class PodcastHelper {
                     .getPodcastByFolderId(folder.getId());
             if (podcast != null) {
                 myLogD("opening podcast episode via MainActivity for podcast : " + podcast.title);
-                android.os.Bundle args = new android.os.Bundle();
-                args.putParcelable("podcast", podcast);
-                activity.startActivity(new Intent(activity, com.driot.bookplayer.activities.MainActivity.class)
-                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
-                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
-                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
-                        .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
-                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                activity.startActivity(buildOpenPodcastIntent(activity, podcast));
             } else {
                 myLogI("No podcast linked to folder " + folder.getId());
             }
@@ -636,16 +633,107 @@ public class PodcastHelper {
     public static void startPlayOpenPodcast(Folder folder, Context context) {
         Podcast p = AppDatabase.getDatabase(context).podcastDao()
                 .getPodcastByFolderId(folder.getId());
-        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-            android.os.Bundle args = new android.os.Bundle();
-            args.putParcelable("podcast", p);
-            context.startActivity(new Intent(context, com.driot.bookplayer.activities.MainActivity.class)
-                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
-                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
-                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
-                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+                context.startActivity(buildOpenPodcastIntent(context, p)));
+    }
+
+    /** Intent that shows the given podcast's episode screen inside MainActivity's Podcast tab. */
+    private static Intent buildOpenPodcastIntent(Context context, Podcast podcast) {
+        android.os.Bundle args = new android.os.Bundle();
+        args.putParcelable("podcast", podcast);
+        return new Intent(context, com.driot.bookplayer.activities.MainActivity.class)
+                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
+                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
+                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    // ---- Sharing an episode (mirror of RadioHelper.shareRadioStation / handleDeepLink) ----
+
+    /** Shares a link (plus the podcast cover when available) that opens this podcast on the
+     * receiver's app and plays the episode. The link carries everything needed to do that without
+     * any lookup: the podcast index feed id (episode list), the audio url, and display titles. */
+    public static void shareEpisode(Context context, Podcast podcast, DisplayableEpisode episode) {
+        if (episode.enclosureUrl == null || episode.enclosureUrl.isEmpty()) {
+            myLogE("shareEpisode: episode has no audio url - nothing to share");
+            return;
+        }
+        Context appCtx = context.getApplicationContext();
+
+        Uri.Builder link = new Uri.Builder()
+                .scheme("https")
+                .authority("bookplayer.driot.com")
+                .appendPath("share")
+                .appendPath("podcast")
+                .appendQueryParameter("feed", String.valueOf(podcast.feedId))
+                .appendQueryParameter("episode", String.valueOf(episode.idEpisode))
+                .appendQueryParameter("url", episode.enclosureUrl)
+                .appendQueryParameter("ptitle", podcast.title);
+        if (episode.title != null) {
+            link.appendQueryParameter("title", episode.title);
+        }
+        // The receiver can only fetch a remote cover; podcast.image is a local path once cached.
+        String remoteImage = podcast.imageOriginalUrl != null && podcast.imageOriginalUrl.startsWith("http")
+                ? podcast.imageOriginalUrl
+                : (podcast.image != null && podcast.image.startsWith("http") ? podcast.image : null);
+        if (remoteImage != null) {
+            link.appendQueryParameter("image", remoteImage);
+        }
+
+        String body = appCtx.getString(R.string.share_podcast_body) + ": \n\n"
+                + (episode.title != null ? episode.title + "\n" : "") + podcast.title + "\n\n" + link.build();
+        String head = appCtx.getString(R.string.share_podcast_head);
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            Uri imageUri = ShareHelper.resolveShareImageUri(appCtx, podcast.image,
+                    "share_podcast_" + podcast.feedId + ".jpg");
+            ShareHelper.shareContent(context, body, head, imageUri);
         });
+    }
+
+    /** Opens a shared episode's podcast and starts playing that episode, exactly as tapping it in
+     * the podcast's episode list would. The podcast is saved locally if it's new to this device
+     * (same as opening one from the search results). */
+    public static void handleDeepLink(Context context, Uri data) {
+        String url = data.getQueryParameter("url");
+        String episodeTitle = data.getQueryParameter("title");
+        String podcastTitle = data.getQueryParameter("ptitle");
+        String image = data.getQueryParameter("image");
+        long feedId = parseLongOrDefault(data.getQueryParameter("feed"), -1);
+        long episodeId = parseLongOrDefault(data.getQueryParameter("episode"), -1);
+        myLog("feed=[" + feedId + "] - episode=[" + episodeId + "] - url=[" + url + "]");
+
+        if (feedId <= 0 || url == null || url.isEmpty()) {
+            myLogEE(null, "handle deepLink podcast, missing feed or url");
+            return;
+        }
+
+        Context appCtx = context.getApplicationContext();
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            PodcastDao dao = AppDatabase.getDatabase(appCtx).podcastDao();
+            Podcast podcast = dao.getPodcastByFeedId(feedId);
+            if (podcast == null) {
+                String title = !TextUtils.isEmpty(podcastTitle) ? podcastTitle
+                        : (!TextUtils.isEmpty(episodeTitle) ? episodeTitle : url);
+                podcast = fromPodcastFeed(new PodcastFeed(feedId, title, image, ""));
+                dao.insert(podcast);
+            }
+            context.startActivity(buildOpenPodcastIntent(context, podcast));
+
+            DisplayableEpisode episode = new DisplayableEpisode();
+            episode.idEpisode = episodeId;
+            episode.title = !TextUtils.isEmpty(episodeTitle) ? episodeTitle : podcast.title;
+            episode.enclosureUrl = url;
+            onPodcastClick(appCtx, episode, podcast, "DeepLink");
+        });
+    }
+
+    private static long parseLongOrDefault(String value, long fallback) {
+        try {
+            return Long.parseLong(value);
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {

@@ -1350,6 +1350,8 @@
     <string name="share_title">Share via</string>
     <string name="share_radio_body">Check out this live web radio on BookPlayer</string>
     <string name="share_radio_head">BookPlayer radio share</string>
+    <string name="share_podcast_body">Check out this podcast episode on BookPlayer</string>
+    <string name="share_podcast_head">BookPlayer podcast share</string>
 
 
     <string name="massimport_all_aready_imported">No items to import (all are already imported)</string>

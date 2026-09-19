@@ -152,7 +152,21 @@ public class MainActivity extends FullActivity {
      * Settings" pushes nav_radio here; backing out of Settings with nothing else to pop switches
      * back to Radio instead of falling through to Library. Cleared on any ordinary (non-direct-
      * link) tab selection, since that supersedes any pending "return to caller" expectation. */
-    private final Deque<Integer> directLinkReturnStack = new ArrayDeque<>();
+    private final Deque<DirectLink> directLinkReturnStack = new ArrayDeque<>();
+
+    /** One pending cross-tab jump: back-press on {@code destId} (while showing {@code targetTab})
+     * dismisses that screen and reveals {@code originTab} again. */
+    private static final class DirectLink {
+        final int originTab;
+        final int targetTab;
+        final int destId;
+
+        DirectLink(int originTab, int targetTab, int destId) {
+            this.originTab = originTab;
+            this.targetTab = targetTab;
+            this.destId = destId;
+        }
+    }
 
     private boolean HasBeenProposedToOpenFile;
     private static boolean infoAlreadyShown = false;
@@ -167,9 +181,13 @@ public class MainActivity extends FullActivity {
         // field's default) after a config change/process recreation, even though the actually
         // re-attached Fragment is whatever tab the user was really on.
         outState.putInt("currentNavSectionId", currentNavSectionId);
-        int[] returnStack = new int[directLinkReturnStack.size()];
+        int[] returnStack = new int[directLinkReturnStack.size() * 3];
         int i = 0;
-        for (int id : directLinkReturnStack) returnStack[i++] = id;
+        for (DirectLink dl : directLinkReturnStack) {
+            returnStack[i++] = dl.originTab;
+            returnStack[i++] = dl.targetTab;
+            returnStack[i++] = dl.destId;
+        }
         outState.putIntArray("directLinkReturnStack", returnStack);
     }
 
@@ -181,9 +199,11 @@ public class MainActivity extends FullActivity {
         int[] returnStack = savedInstanceState.getIntArray("directLinkReturnStack");
         directLinkReturnStack.clear();
         if (returnStack != null) {
-            // Array was filled bottom-to-top from the Deque's iteration order (most-recent
-            // first), so push in reverse to restore the same order.
-            for (int i = returnStack.length - 1; i >= 0; i--) directLinkReturnStack.push(returnStack[i]);
+            // Array holds (origin, target, dest) triplets in the Deque's iteration order
+            // (most-recent first), so push in reverse to restore the same order.
+            for (int i = returnStack.length - 3; i >= 0; i -= 3) {
+                directLinkReturnStack.push(new DirectLink(returnStack[i], returnStack[i + 1], returnStack[i + 2]));
+            }
         }
         updateChromeVisibilityForCurrentTab();
     }
@@ -245,14 +265,18 @@ public class MainActivity extends FullActivity {
             @Override
             public void handleOnBackPressed() {
                 NavController navController = getCurrentTabNavController();
+                DirectLink pending = directLinkReturnStack.peek();
+                if (pending != null && navController != null && currentNavSectionId == pending.targetTab
+                        && navController.getCurrentDestination() != null
+                        && navController.getCurrentDestination().getId() == pending.destId) {
+                    myLogI("--- user press BACK --- from direct-linked screen -> return to tab " + pending.originTab);
+                    directLinkReturnStack.pop();
+                    dismissDirectLinkedScreen(navController, pending);
+                    selectTab(pending.originTab, true);
+                    return;
+                }
                 if (navController != null && navController.popBackStack()) {
                     return; // popped one level within the current tab's graph
-                }
-                if (!directLinkReturnStack.isEmpty()) {
-                    int returnTab = directLinkReturnStack.pop();
-                    myLogI("--- user press BACK --- from direct-linked screen -> return to tab " + returnTab);
-                    selectTab(returnTab, true);
-                    return;
                 }
                 if (currentNavSectionId != R.id.nav_library) {
                     myLogI("--- user press BACK --- from tab " + currentNavSectionId + " -> Library");
@@ -355,12 +379,15 @@ public class MainActivity extends FullActivity {
 
             if (directLink) {
                 navigateDirectLink(tabId, destId, args);
+            } else if (destId != 0) {
+                // e.g. opening a radio station from a deep link, notification or the mini-player:
+                // show it on top of whatever that tab already displays (its root at minimum), so
+                // back/tab-reselect keep working like in any other screen of that tab.
+                directLinkReturnStack.clear();
+                switchToTab(tabId);
+                navigateOnTop(tabId, destId, args);
             } else {
                 selectTab(tabId, false);
-                if (destId != 0) {
-                    NavController nc = getCurrentTabNavController();
-                    if (nc != null) nc.navigate(destId, args);
-                }
             }
             return;
         }
@@ -484,23 +511,52 @@ public class MainActivity extends FullActivity {
         attachTab(tabId, false);
     }
 
-    /** Cross-section "direct link" (e.g. a gear icon jumping straight into a specific Settings
-     * screen from Radio): remembers the origin tab so back-press reveals it again (exactly where
-     * it was left) instead of falling through to Library. */
-    private void navigateDirectLink(int tabId, int destId, @Nullable Bundle args) {
+    /** Makes the given tab the visible one WITHOUT touching its own back stack (unlike
+     * selectTab(), whose same-tab reselect resets the tab to its root). */
+    private void switchToTab(int tabId) {
         if (tabId != currentNavSectionId) {
-            directLinkReturnStack.push(currentNavSectionId);
+            attachTab(tabId, false);
         }
-        selectTab(tabId, true);
-        if (destId != 0) {
-            NavHostFragment host = getTabHost(tabId);
-            if (host != null) {
-                NavController nc = host.getNavController();
-                NavOptions options = new NavOptions.Builder()
-                        .setPopUpTo(nc.getGraph().getStartDestinationId(), true)
-                        .build();
-                nc.navigate(destId, args, options);
-            }
+    }
+
+    /** Shows destId on top of whatever the tab's graph currently displays - its root screen is
+     * never removed, so back and tab-reselect can always reach it. launchSingleTop so re-opening
+     * the destination that's already on top (e.g. another radio station) replaces it rather than
+     * stacking duplicates. */
+    private void navigateOnTop(int tabId, int destId, @Nullable Bundle args) {
+        NavHostFragment host = getTabHost(tabId);
+        if (host == null) return;
+        NavOptions options = new NavOptions.Builder().setLaunchSingleTop(true).build();
+        host.getNavController().navigate(destId, args, options);
+    }
+
+    /** Cross-section "direct link" (e.g. a gear icon jumping straight into a specific Settings
+     * screen from Radio): shows destId on top of the target tab and remembers the origin tab so
+     * back-press dismisses that screen and reveals the origin again (exactly where it was left)
+     * instead of stopping on the target tab's own root first. A jump within the same tab has no
+     * origin to return to, so it's just a normal push. */
+    private void navigateDirectLink(int tabId, int destId, @Nullable Bundle args) {
+        if (destId == 0) {
+            selectTab(tabId, false);
+            return;
+        }
+        if (tabId != currentNavSectionId) {
+            directLinkReturnStack.push(new DirectLink(currentNavSectionId, tabId, destId));
+        }
+        switchToTab(tabId);
+        navigateOnTop(tabId, destId, args);
+    }
+
+    /** Removes a direct-linked screen from its tab once the user backs out of it. Normally that's a
+     * plain pop (revealing the tab's root/previous screen); if it's the tab's only entry (pure's
+     * Add Book tab, whose hub was deliberately popped) it's reset in place instead, so it doesn't
+     * keep showing stale arguments (e.g. an "add to this folder" target) and the tab never ends up
+     * empty. */
+    private void dismissDirectLinkedScreen(NavController nc, DirectLink dl) {
+        if (nc.getPreviousBackStackEntry() != null) {
+            nc.popBackStack();
+        } else {
+            nc.navigate(dl.destId, null, new NavOptions.Builder().setPopUpTo(dl.destId, true).build());
         }
     }
 

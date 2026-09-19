@@ -6,9 +6,13 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.Tonio;
+
+import java.io.File;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -39,6 +43,45 @@ public class ShareHelper {
 
             context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_title)));
         });
+    }
+
+    /**
+     * Turns a station/podcast cover reference (http URL, content:// Uri, or local file path) into a
+     * Uri that a share target can read, downloading a remote one first. Blocking (network + disk) -
+     * call off the main thread. Returns null when there's no usable image, so callers can just
+     * share the text.
+     */
+    @Nullable
+    public static Uri resolveShareImageUri(Context appCtx, @Nullable String image, String cacheFileName) {
+        if (image == null || image.isEmpty()) {
+            return null;
+        }
+        if (image.startsWith("http")) {
+            String localPath = ImageHelper.downloadAndVerifyImage(appCtx, image, cacheFileName, true);
+            if (localPath == null) {
+                return null;
+            }
+            return fileToShareUri(appCtx, new File(localPath));
+        }
+        if (image.startsWith("content://")) {
+            return Uri.parse(image);
+        }
+        File file = new File(image);
+        if (!file.exists()) {
+            myLogW("resolveShareImageUri: local image file not found: " + image);
+            return null;
+        }
+        return fileToShareUri(appCtx, file);
+    }
+
+    @Nullable
+    private static Uri fileToShareUri(Context appCtx, File file) {
+        try {
+            return FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider", file);
+        } catch (Exception e) {
+            myLogEE(e, "resolveShareImageUri: FileProvider failed for " + file);
+            return null;
+        }
     }
 
     public static void handleDeepLink(Context context, Intent intent) {
@@ -75,12 +118,23 @@ public class ShareHelper {
                             }
                             RadioHelper.handleDeepLink(context, data);
                             return;
+                        case "/share/podcast":
+                            if (Tonio.isPure(context)) {
+                                myToastE("Pure version cannot load podcasts");
+                                return;
+                            }
+                            PodcastHelper.handleDeepLink(context, data);
+                            return;
                     }
                 }
 
                 // Handle Custom URI schemes (e.g., bookplayerfull://radio)
                 if (host.equals("radio")) {
                     RadioHelper.handleDeepLink(context, data);
+                    return;
+                }
+                if (host.equals("podcast")) {
+                    PodcastHelper.handleDeepLink(context, data);
                     return;
                 }
             }

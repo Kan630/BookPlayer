@@ -152,7 +152,6 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                                 .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
                                 .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
                                 .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
-                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DIRECT_LINK, true)
                                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     });
                 }

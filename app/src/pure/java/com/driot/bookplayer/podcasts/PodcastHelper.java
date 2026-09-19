@@ -1,6 +1,7 @@
 package com.driot.bookplayer.podcasts;
 
 import android.content.Context;
+import android.net.Uri;
 
 import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -55,6 +56,10 @@ public class PodcastHelper {
 
     public static boolean playStreamIfKnownPodcast(Context context, String url) {
         return false;
+    }
+
+    public static void handleDeepLink(Context context, Uri data) {
+        myLog("stub!");
     }
 
     public static void deletePodcastFolder(long folderId, Context context) {

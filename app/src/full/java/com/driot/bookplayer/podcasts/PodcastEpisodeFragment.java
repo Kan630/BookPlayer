@@ -671,6 +671,12 @@ public class PodcastEpisodeFragment extends LoggingFragment
             tvSearchStat.setText(tvStatsText);
     }
 
+    // ROW LONG-CLICK CALLBACK
+    @Override
+    public void onShareEpisode(DisplayableEpisode ep) {
+        PodcastHelper.shareEpisode(requireContext(), podcast, ep);
+    }
+
     // ROW CLICK CALLBACK
     @Override
     public void onPlayEpisode(DisplayableEpisode ep) {

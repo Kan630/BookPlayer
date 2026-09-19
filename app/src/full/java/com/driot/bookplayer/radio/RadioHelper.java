@@ -15,7 +15,6 @@ import com.driot.bookplayer.global.Option;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
-import androidx.core.content.FileProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -31,7 +30,6 @@ import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.StartPlayHelper;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -313,39 +311,7 @@ public class RadioHelper {
 					+ radioLink;
 			String sharedMessageHead = appCtx.getString(R.string.share_radio_head);
 
-			// Optional image sharing
-			Uri imageUri = null;
-			if (rs.favicon != null && !rs.favicon.isEmpty()) {
-				if (rs.favicon.startsWith("http")) {
-					// Download if it's a URL
-					String fileName = "share_radio_" + rs.stationuuid + ".jpg";
-					String localPath = ImageHelper.downloadAndVerifyImage(appCtx, rs.favicon, fileName, true);
-					if (localPath != null) {
-						try {
-							imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
-									new File(localPath));
-						} catch (Exception e) {
-							myLogEE(e, "shareRadioStation: FileProvider failed for downloaded " + localPath);
-						}
-					}
-				} else if (rs.favicon.startsWith("content://")) {
-					// Already a content URI
-					imageUri = Uri.parse(rs.favicon);
-				} else {
-					// Assume it's a local absolute path
-					File file = new File(rs.favicon);
-					if (file.exists()) {
-						try {
-							imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
-									file);
-						} catch (Exception e) {
-							myLogEE(e, "shareRadioStation: FileProvider failed for local file " + rs.favicon);
-						}
-					} else {
-						myLogW("shareRadioStation: local image file not found: " + rs.favicon);
-					}
-				}
-			}
+			Uri imageUri = ShareHelper.resolveShareImageUri(appCtx, rs.favicon, "share_radio_" + rs.stationuuid + ".jpg");
 
 			ShareHelper.shareContent(context, sharedMessageBody, sharedMessageHead, imageUri);
 		});
@@ -443,7 +409,7 @@ public class RadioHelper {
 
 	// ---- Navigation Helpers ----
 	// All of these target MainActivity (the app's sole Activity) via its generic
-	// EXTRA_NAV_TAB_ID/EXTRA_NAV_DEST_ID/EXTRA_NAV_ARGS/EXTRA_NAV_DIRECT_LINK extras instead of
+	// EXTRA_NAV_TAB_ID/EXTRA_NAV_DEST_ID/EXTRA_NAV_ARGS extras instead of
 	// a dedicated RadioHostActivity - see MainActivity's class doc for why that Activity was
 	// folded in (single-Activity multi-back-stack merge, [[radio_deeplink_applinks_fix]] plan).
 
@@ -474,7 +440,6 @@ public class RadioHelper {
 			args.putString(Intents.EXTRA_STATION_UUID, uuid);
 			i.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioStationFragment);
 			i.putExtra(MainActivity.EXTRA_NAV_ARGS, args);
-			i.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true);
 		}
 		context.startActivity(i);
 	}
@@ -501,7 +466,6 @@ public class RadioHelper {
 					.putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_radio)
 					.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioStationFragment)
 					.putExtra(MainActivity.EXTRA_NAV_ARGS, args)
-					.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
 					.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			return PendingIntent.getActivity(context, 0, i, flags);
 		}
@@ -526,7 +490,6 @@ public class RadioHelper {
 			args.putBoolean(Intents.EXTRA_START_IN_FAVORITES, true);
 			i.putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.radioFavoritesFragment);
 			i.putExtra(MainActivity.EXTRA_NAV_ARGS, args);
-			i.putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true);
 		}
 		return PendingIntent.getActivity(context, 0, i, flags);
 	}
