@@ -140,6 +140,13 @@ public class SettingsActivitySmokeTest implements LogSupport {
             final int sectionId = e.getKey();
             final int[] expectedIds = e.getValue();
 
+            // These categories are hidden (View.GONE) on the pure flavor
+            if (isPureFlavor() && (sectionId == R.id.section_librivox
+                    || sectionId == R.id.section_podcast
+                    || sectionId == R.id.section_network)) {
+                continue;
+            }
+
             // Bring the section into view then click its header (SettingsSectionView itself is clickable)
             onView(withId(sectionId)).perform(scrollTo(), click());
 
@@ -153,6 +160,10 @@ public class SettingsActivitySmokeTest implements LogSupport {
             // Move on to the next section. If you want to collapse, uncomment the next line:
             // onView(withId(sectionId)).perform(click());
         }
+    }
+
+    private static boolean isPureFlavor() {
+        return com.driot.bookplayer.utils.Tonio.isPure(ApplicationProvider.getApplicationContext());
     }
 
     private void assertAnyControlVisibleByIdsOrStrings(int[] viewIds, int[] stringResIds) {

@@ -38,14 +38,13 @@ public final class EbookTextCleaner {
         if (text == null || text.isEmpty())
             return text;
 
-        // 1) Remove footnote/endnote blocks: lines (or multi-line blocks) that start
-        // with "[digits] :" or "[Note digits] "
-        // and run until the next such line or end of string. (?im) = case-insensitive +
-        // multiline.
-        // Pattern: Start of line, Optional whitespace, [, optional "Note / Footnote /
-        // etc", digits, ], optional punctuation/spaces
-        String footnoteBlockPattern = "(?im)^\\s*\\[(?:Note|Footnote|Endnote|Reference)?\\s*\\d+\\]\\s*[:.]?\\s*.*?(?=(?:^\\s*\\[(?:Note|Footnote|Endnote|Reference)?\\s*\\d+\\]\\s*[:.]?\\s*)|\\z)";
-        String step1 = text.replaceAll(footnoteBlockPattern, "");
+        // 1) Remove footnote/endnote lines: every line that starts with "[digits]" or
+        // "[Note digits]" (optionally followed by ":" or "."), through end of line.
+        // Matched line by line on purpose: a lazy multi-line block pattern only ever matched the
+        // LAST footnote of a list (dot does not cross newlines, so it never reached the next
+        // marker), leaving all earlier footnotes in the text to be read aloud by TTS.
+        String footnoteLinePattern = "(?im)^[ \\t]*\\[(?:Note|Footnote|Endnote|Reference)?\\s*\\d+\\][ \\t]*[:.]?[ \\t]*.*$\\n?";
+        String step1 = text.replaceAll(footnoteLinePattern, "");
 
         // 2) Remove in-text reference markers like [1], [Note 8], [Footnote 123]
         String step2 = step1.replaceAll("(?i)\\[(?:Note|Footnote|Endnote|Reference)?\\s*\\d+\\]", "");

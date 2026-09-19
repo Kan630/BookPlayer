@@ -332,6 +332,15 @@ public class MainActivity extends FullActivity {
 
         if (intent.hasExtra(EXTRA_NAV_TAB_ID)) {
             int tabId = intent.getIntExtra(EXTRA_NAV_TAB_ID, R.id.nav_library);
+
+            // The radio/podcast nav graphs live in main, but their fragment classes exist only in
+            // the full flavor - honoring such a request on pure (MainActivity is exported, so a
+            // stale shortcut or foreign intent can carry it) would crash on the missing classes.
+            if (Tonio.isPure(this) && (tabId == R.id.nav_radio || tabId == R.id.nav_podcast)) {
+                myLogI("handleIntentNavigation: ignoring full-only tab request on pure");
+                return;
+            }
+
             int destId = intent.getIntExtra(EXTRA_NAV_DEST_ID, 0);
             Bundle args = intent.getBundleExtra(EXTRA_NAV_ARGS);
             boolean directLink = intent.getBooleanExtra(EXTRA_NAV_DIRECT_LINK, false);

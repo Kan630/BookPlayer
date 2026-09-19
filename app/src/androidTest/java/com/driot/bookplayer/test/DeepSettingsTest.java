@@ -95,6 +95,22 @@ public class DeepSettingsTest implements LogSupport {
             R.id.section_network,
             R.id.section_utilities);
 
+    // Categories SettingsCategoryListFragment hides (View.GONE) on the pure flavor
+    private static final List<Integer> FULL_ONLY_SECTION_IDS = Arrays.asList(
+            R.id.section_librivox,
+            R.id.section_radio,
+            R.id.section_podcast,
+            R.id.section_network);
+
+    /** SECTION_IDS minus the ones that do not exist in the flavor under test. */
+    private static List<Integer> sectionsForCurrentFlavor() {
+        List<Integer> ids = new java.util.ArrayList<>(SECTION_IDS);
+        if (com.driot.bookplayer.utils.Tonio.isPure(ApplicationProvider.getApplicationContext())) {
+            ids.removeAll(FULL_ONLY_SECTION_IDS);
+        }
+        return ids;
+    }
+
     @Before
     public void setUp() {
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
@@ -133,13 +149,13 @@ public class DeepSettingsTest implements LogSupport {
 
         // PASS 1: Stability check (Expand/Collapse/Scroll)
         myLogI("--- Starting PASS 1: Section Stability ---");
-        for (int sectionId : SECTION_IDS) {
+        for (int sectionId : sectionsForCurrentFlavor()) {
             testSectionStability(sectionId);
         }
 
         // PASS 2: Stress check (CheckBoxes, EditTexts)
         myLogI("--- Starting PASS 2: Control Stress Test ---");
-        for (int sectionId : SECTION_IDS) {
+        for (int sectionId : sectionsForCurrentFlavor()) {
             testSectionInteractions(sectionId);
         }
 

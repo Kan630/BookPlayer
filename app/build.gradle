@@ -53,6 +53,15 @@ android {
                 // assets.srcDirs  += 'src/full/assets'
                 // manifest.srcFile 'src/full/AndroidManifest.xml'  ← only if you have a flavor-specific manifest
             }
+            // Tests touching radio/podcast entities only exist in full+legacy; keeping them in the
+            // shared androidTest set made the whole pure androidTest APK fail to compile.
+            androidTestLegacy {
+                java.srcDirs += 'src/androidTestFull/java'
+            }
+            // Exported Room schemas (read-only) - migration tests rebuild old-version databases from them
+            androidTest {
+                assets.srcDirs += 'schemas'
+            }
         }
 
         //  16   = android 4.1 Jelly Bean    2012
@@ -81,8 +90,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 318
-        versionName = "318 - Eternal Capybara"
+        versionCode = 319
+        versionName = "319 - Eternal Capybara"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 

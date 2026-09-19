@@ -37,7 +37,7 @@ public final class MenuHelpers {
 
         // 1) Try click via UiDevice directly (bypasses idleness and visibility constraints)
         try {
-            UiObject item = device.findObject(new UiSelector().resourceId("com.driot.bookplayerfull.debug:id/" + resName(menuItemId)));
+            UiObject item = device.findObject(new UiSelector().resourceId(ctx.getPackageName() + ":id/" + resName(menuItemId)));
             if (item.waitForExists(500)) {
                 item.click();
                 myLogI("Tapped visible action via UiDevice: id=" + resName(menuItemId));
@@ -82,7 +82,7 @@ public final class MenuHelpers {
             }
 
             // Try by resource id
-            threeDots = device.findObject(new UiSelector().resourceId("com.driot.bookplayerfull.debug:id/action_menu_three_dot"));
+            threeDots = device.findObject(new UiSelector().resourceId(ctx.getPackageName() + ":id/action_menu_three_dot"));
             if (threeDots.waitForExists(500)) {
                 threeDots.click();
                 myLogD("Opened overflow via id");

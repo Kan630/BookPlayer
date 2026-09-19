@@ -22,7 +22,9 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.driot.bookplayer.debug", appContext.getPackageName());
+        // legacy = com.driot.bookplayer, full = ...bookplayerfull, pure = ...bookplayerpure; all + ".debug"
+        String pkg = appContext.getPackageName();
+        assertTrue(pkg, pkg.matches("com\\.driot\\.bookplayer(full|pure)?\\.debug"));
     }
 
     /*

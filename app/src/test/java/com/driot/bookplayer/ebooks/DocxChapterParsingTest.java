@@ -3,6 +3,7 @@ package com.driot.bookplayer.ebooks;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import org.junit.Test;
 
@@ -102,15 +103,7 @@ public class DocxChapterParsingTest {
         assertEquals("Title_ Subtitle", FileHelper.sanitizeFilename("Title: Subtitle"));
         assertEquals("Mémoire_de fin d'études", FileHelper.sanitizeFilename("Mémoire/de fin d'études"));
         assertEquals("untitled", FileHelper.sanitizeFilename("   "));
-        assertEquals("a".repeat(60), FileHelper.sanitizeFilename("a".repeat(70)));
-    }
-
-    @Test
-    public void testSafeSlugSanitization() {
-        assertEquals("l-été-à-paris", FileHelper.sanitizeFilename("L'été à Paris"));
-        assertEquals("chapitre-1-introduction", FileHelper.sanitizeFilename("Chapitre 1: Introduction"));
-        assertEquals("mémoire-de-recherche", FileHelper.sanitizeFilename("Mémoire de recherche"));
-        assertEquals("chapter", FileHelper.sanitizeFilename("   "));
-        assertEquals("a".repeat(60), FileHelper.sanitizeFilename("a".repeat(70)));
+        assertEquals("a".repeat(Var.FILE_NAME_MAX_NB_CHARS),
+                FileHelper.sanitizeFilename("a".repeat(Var.FILE_NAME_MAX_NB_CHARS + 10)));
     }
 }

@@ -26,8 +26,8 @@ public class FileHelperSanitizeTest {
         assertEquals("untitled", FileHelper.sanitizeFilename(""));
         assertEquals(null, FileHelper.sanitizeFilename(null));
 
-        // Long filenames (should be truncated to 60)
-        String longTitle = "This is a very very very very very very very very very very very very very long title";
+        // Long filenames (should be truncated to FILE_NAME_MAX_NB_CHARS)
+        String longTitle = "This is a very very very very very very very very very very very very very long title".repeat(3);
         String sanitized = FileHelper.sanitizeFilename(longTitle);
         assertEquals(Var.FILE_NAME_MAX_NB_CHARS, sanitized.length());
         assertEquals(longTitle.substring(0, Var.FILE_NAME_MAX_NB_CHARS), sanitized);
