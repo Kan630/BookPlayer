@@ -185,9 +185,7 @@ public class MainActivity extends FullActivity {
             // first), so push in reverse to restore the same order.
             for (int i = returnStack.length - 1; i >= 0; i--) directLinkReturnStack.push(returnStack[i]);
         }
-        if (toolbar != null) {
-            toolbar.setVisibility(currentNavSectionId == R.id.nav_library ? View.VISIBLE : View.GONE);
-        }
+        updateChromeVisibilityForCurrentTab();
     }
 
     private final BroadcastReceiver inAppMsgRx = new BroadcastReceiver() {
@@ -419,9 +417,6 @@ public class MainActivity extends FullActivity {
 
         currentNavSectionId = tabId;
         selectAppNavItemFromCode(tabId);
-        if (toolbar != null) {
-            toolbar.setVisibility(tabId == R.id.nav_library ? View.VISIBLE : View.GONE);
-        }
         updateChromeVisibilityForCurrentTab();
         invalidateOptionsMenu();
 
@@ -512,10 +507,23 @@ public class MainActivity extends FullActivity {
         if (host != null) host.getNavController().popBackStack();
     }
 
+    /** True exactly when the Library tab is both the active tab and showing its own root screen
+     * (mainLibraryFragment, the book list) - the only place the shared toolbar/menu make sense.
+     * Every other Library-tab destination (ZikFileFragment/TtsReaderFragment/CleanMemoryFragment/
+     * NearbyShareFragment) draws its own inline header instead, same as they did as standalone
+     * Activities before this merge - and every other tab draws its own header too. */
+    private boolean isOnLibraryRoot() {
+        if (currentNavSectionId != R.id.nav_library) return false;
+        NavController nc = getCurrentTabNavController();
+        return nc == null || nc.getCurrentDestination() == null
+                || nc.getCurrentDestination().getId() == R.id.mainLibraryFragment;
+    }
+
     /** Hides the bottom nav bar / mini-player while TtsReaderFragment (fullscreen reading mode)
-     * is on top of the CURRENTLY VISIBLE tab - called after every tab switch (attachTab()) and
-     * every in-Library navigation event (see the Library NavController listener in onCreate()),
-     * since either can change whether that's true. */
+     * is on top of the CURRENTLY VISIBLE tab, and the shared toolbar everywhere except the Library
+     * tab's own root screen (see isOnLibraryRoot()) - called after every tab switch (attachTab())
+     * and every in-Library navigation event (see the Library NavController listener in onCreate()
+     * and onRestoreInstanceState()), since any of these can change either of those. */
     private void updateChromeVisibilityForCurrentTab() {
         boolean isTtsReader = isShowingTtsReaderFragment();
         if (appNavBarView != null) {
@@ -524,6 +532,9 @@ public class MainActivity extends FullActivity {
         if (isTtsReader) {
             View miniNowPlaying = findViewById(R.id.miniNowPlaying);
             if (miniNowPlaying != null) miniNowPlaying.setVisibility(View.GONE);
+        }
+        if (toolbar != null) {
+            toolbar.setVisibility(isOnLibraryRoot() ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -640,11 +651,7 @@ public class MainActivity extends FullActivity {
         // TtsReaderFragment/CleanMemoryFragment/NearbyShareFragment never had a menu of their own
         // when they were separate Activities (or, for the other 4 tabs, their own inline header/
         // gear icon), so keep that exact behavior now that everything's a Fragment.
-        NavController libraryNc = currentNavSectionId == R.id.nav_library ? getCurrentTabNavController() : null;
-        boolean onLibraryRoot = currentNavSectionId == R.id.nav_library
-                && (libraryNc == null || libraryNc.getCurrentDestination() == null
-                        || libraryNc.getCurrentDestination().getId() == R.id.mainLibraryFragment);
-        if (!onLibraryRoot) {
+        if (!isOnLibraryRoot()) {
             menu.clear();
             return true;
         }
