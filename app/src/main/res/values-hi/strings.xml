@@ -1525,4 +1525,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <item quantity="one">%d दिन पहले</item>
         <item quantity="other">%d दिन पहले</item>
     </plurals>
+    <string name="modify_group_tracks">ट्रैक</string>
+    <string name="modify_group_actions">कार्रवाइयाँ</string>
 </resources>

@@ -1528,4 +1528,6 @@ Es kann ziemlich langsam sein…</string>
         <item quantity="one">vor %d Tag</item>
         <item quantity="other">vor %d Tagen</item>
     </plurals>
+    <string name="modify_group_tracks">Titel</string>
+    <string name="modify_group_actions">Aktionen</string>
 </resources>

@@ -168,12 +168,11 @@ public class AddResourceActivity extends FullActivity {
         // is user-configurable (Settings > Import > "When an import finishes:") - do nothing (just
         // return to the library), open the resulting book's track list, or jump straight into
         // playing it (optionally using the single-file "Open with"/sibling-book target hint - see
-        // ImportJob.getTargetPlaybackFileName - to pick which track).
-        int completionAction = Option.getImportCompletionAction();
-        if (ui.futureFolderPath != null && completionAction != Option.IMPORT_COMPLETION_DO_NOTHING) {
-            boolean startPlayback = completionAction == Option.IMPORT_COMPLETION_PLAY_BOOK;
-            schedulePostImportNavigation(DELAY_END_WAIT_NO_ERROR, ui.futureFolderPath, ui.targetPlaybackFileName,
-                    startPlayback);
+        // ImportJob.getTargetPlaybackFileName - to pick which track). Independently of that
+        // setting, schedulePostImportNavigation() always hands off a live preview (Open With,
+        // played before the import finished) to the newly-created ZikFile if there is one.
+        if (ui.futureFolderPath != null) {
+            schedulePostImportNavigation(DELAY_END_WAIT_NO_ERROR, ui.futureFolderPath, ui.targetPlaybackFileName);
         } else {
             scheduleFinish(DELAY_END_WAIT_NO_ERROR);
         }
@@ -194,23 +193,29 @@ public class AddResourceActivity extends FullActivity {
     }
 
     /**
-     * @param startPlayback true for Option.IMPORT_COMPLETION_PLAY_BOOK, false for
-     *                      IMPORT_COMPLETION_OPEN_BOOK - either way the resulting book's track
-     *                      list is shown (there's no other app UI left in this task, since it was
-     *                      launched externally via "Open with" or the Add Book flow, so without
-     *                      navigating somewhere the app would otherwise vanish to the home screen).
+     * Regardless of Option.getImportCompletionAction(): if this exact file was still
+     * live-previewing (see MiniPlayUnregisteredFragment / Var.PLAY_MODE_PREVIEW) when the import
+     * finished, hands playback off to the newly-created ZikFile, carrying over the current
+     * position instead of restarting at 0 - MiniPlayHostFragment follows the playMode change and
+     * swaps itself from MiniPlayUnregisteredFragment to MiniPlayBookFragment automatically, no
+     * extra wiring needed here. Not doing this only when the setting says "do nothing" would
+     * silently orphan whatever was already playing, still tagged as an unregistered preview even
+     * though a real book now exists for it.
+     * <p>
+     * On top of that (unconditionally), the setting decides what to additionally do: nothing
+     * (stay wherever the handoff above landed, if it happened at all), show the resulting book's
+     * track list ("open"), or - if nothing was already playing - start playing it now ("play").
      */
     private void schedulePostImportNavigation(int delayMs, String futureFolderPath,
-            @androidx.annotation.Nullable String targetPlaybackFileName, boolean startPlayback) {
+            @androidx.annotation.Nullable String targetPlaybackFileName) {
         delayedFinishHandler = new Handler();
         delayedFinishRunnable = () -> {
             ImportHelper.setShowToUser(this, false);
 
-            // If this exact file was still live-previewing (see MiniPlayUnregisteredFragment /
-            // Var.PLAY_MODE_PREVIEW) when the import finished, grab its current position now -
-            // before the DB read below - so book playback can resume from there instead of
-            // restarting at 0. Only relevant when we're about to actually start playback.
-            PlaybackUiState previewState = startPlayback ? PlaybackUiBus.get().state().getValue() : null;
+            int completionAction = Option.getImportCompletionAction();
+
+            // Grab the live-preview position now, before the DB read below.
+            PlaybackUiState previewState = PlaybackUiBus.get().state().getValue();
             boolean wasPreviewing = previewState != null && Var.PLAY_MODE_PREVIEW.equals(previewState.playMode);
             long previewPositionMs = wasPreviewing ? previewState.positionMs : -1;
 
@@ -236,7 +241,7 @@ public class AddResourceActivity extends FullActivity {
                     }
                 }
 
-                if (startPlayback && target != null && wasPreviewing && previewPositionMs > 0) {
+                if (target != null && wasPreviewing && previewPositionMs > 0) {
                     myLog("Carrying over live-preview position (" + previewPositionMs
                             + "ms) to the just-imported track, instead of restarting from 0.");
                     target.setPosition(previewPositionMs);
@@ -257,17 +262,29 @@ public class AddResourceActivity extends FullActivity {
                 com.driot.bookplayer.db.ZikFile finalTarget = target;
                 long folderId = (folder != null) ? folder.getId() : -1;
                 int trackCount = (files != null) ? files.size() : 0;
+                boolean handedOffPreview = finalTarget != null && wasPreviewing;
                 runOnUiThread(() -> {
                     if (finalTarget != null) {
-                        if (startPlayback) {
+                        if (handedOffPreview) {
+                            myLog("Handing off live preview to the just-imported track: " + finalTarget.getName());
+                            com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
+                                    "AddResourceActivity-openWithImportSuccess-previewHandoff");
+                        }
+
+                        if (completionAction == Option.IMPORT_COMPLETION_DO_NOTHING) {
+                            startActivity(new Intent(this, MainActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    .putExtra("scrollToTop", true));
+                            finish();
+                            return;
+                        }
+
+                        boolean startPlayback = completionAction == Option.IMPORT_COMPLETION_PLAY_BOOK;
+                        if (startPlayback && !handedOffPreview) {
+                            // Nothing was already playing - actively start it now. If it WAS
+                            // already playing (handedOffPreview above), it's already underway.
                             myLog("Jumping straight into playback for the just-imported track: "
                                     + finalTarget.getName());
-                            // onZikFileClick() swaps cleanly from the preview stream engine to the book
-                            // engine (MediaService.setEngine() stops/releases the old one first) and,
-                            // now that we've persisted previewPositionMs above, resumes from there
-                            // rather than 0 - MiniPlayHostFragment follows the playMode change and
-                            // swaps itself from MiniPlayUnregisteredFragment to MiniPlayBookFragment
-                            // automatically, no extra wiring needed here.
                             com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
                                     "AddResourceActivity-openWithImportSuccess");
                         }
@@ -293,7 +310,7 @@ public class AddResourceActivity extends FullActivity {
                 });
             });
         };
-        myLog("Let's wait " + delayMs + " ms before navigating (startPlayback=" + startPlayback + ")...");
+        myLog("Let's wait " + delayMs + " ms before navigating...");
         delayedFinishHandler.postDelayed(delayedFinishRunnable, delayMs);
     }
 

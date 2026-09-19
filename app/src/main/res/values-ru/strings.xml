@@ -1543,4 +1543,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <item quantity="many">%d дней назад</item>
         <item quantity="other">%d дней назад</item>
     </plurals>
+    <string name="modify_group_tracks">Треки</string>
+    <string name="modify_group_actions">Действия</string>
 </resources>

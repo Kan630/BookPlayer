@@ -163,426 +163,347 @@
 
             </LinearLayout>
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    android:id="@+id/tvRenameBook"
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/Rename_book" />
 
-            <TextView
-                android:id="@+id/tvRenameBook"
-                style="@style/OptionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/Rename_book"
-                android:textSize="20sp"
-                android:textStyle="normal" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.BookPlayer.TextInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="30dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    style="@style/Widget.BookPlayer.TextInputEditText"
-                    android:id="@+id/etRename"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:textSize="20sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText"
+                        android:id="@+id/etRename"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:textSize="20sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <TextView
-                style="@style/OptionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="15dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/Change_cover_image"
-                android:textSize="20sp"
-                android:textStyle="normal" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="10dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/ivCoverPreview"
-                    android:layout_width="150dp"
-                    android:layout_height="180dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/placeholder_cover"
-                    />
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/Change_cover_image" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="10dp"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:gravity="center_vertical">
-                    <Button
-                        android:id="@+id/bChangeCover"
-                        style="@style/Widget.BookPlayer.Button.Secondary"
+
+                    <ImageView
+                        android:id="@+id/ivCoverPreview"
+                        android:layout_width="150dp"
+                        android:layout_height="180dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/placeholder_cover" />
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/action_change" />
-                    <Button
-                        android:id="@+id/bDeleteCover"
-                        style="@style/Widget.BookPlayer.Button.Secondary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/action_delete" />
-                    <Button
-                        android:id="@+id/bGenerateCover"
-                        style="@style/Widget.BookPlayer.Button.Secondary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/action_generate" />
-                    <Button
-                        android:id="@+id/bWebSearch"
-                        style="@style/Widget.BookPlayer.Button.Secondary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/action_web_search" />
-                    <Button
-                        android:id="@+id/bResetToOriginal"
-                        style="@style/Widget.BookPlayer.Button.Secondary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/action_reset_to_original" />
+                        android:layout_marginStart="20dp"
+                        android:orientation="vertical"
+                        android:gravity="center_vertical">
+                        <Button
+                            android:id="@+id/bChangeCover"
+                            style="@style/Widget.BookPlayer.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_change" />
+                        <Button
+                            android:id="@+id/bDeleteCover"
+                            style="@style/Widget.BookPlayer.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_delete" />
+                        <Button
+                            android:id="@+id/bGenerateCover"
+                            style="@style/Widget.BookPlayer.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_generate" />
+                        <Button
+                            android:id="@+id/bWebSearch"
+                            style="@style/Widget.BookPlayer.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_web_search" />
+                        <Button
+                            android:id="@+id/bResetToOriginal"
+                            style="@style/Widget.BookPlayer.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_reset_to_original" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    android:id="@+id/IntroCutText"
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/IntroCut" />
 
-            <TextView
-                android:id="@+id/IntroCutText"
-                style="@style/OptionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/IntroCut"
-                android:textSize="20sp"
-                android:textStyle="normal" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                            android:id="@+id/etIntroCut"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textSize="20sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        style="@style/simpleTextWrap"
+                        android:layout_marginStart="10dp"
+                        android:text="sec."
+                        android:textSize="16sp" />
+                </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:orientation="horizontal"
-                android:gravity="center">
+                <TextView
+                    style="@style/OptionExplainText"
+                    android:text="@string/IntroCutText" />
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/etIntroCut"
-                        android:layout_width="match_parent"
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    android:id="@+id/EndCutText"
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/EndCut" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.BookPlayer.TextInputLayout.Compact"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                            android:id="@+id/etEndCut"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textSize="20sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        style="@style/simpleTextWrap"
+                        android:layout_marginStart="10dp"
+                        android:text="sec."
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/OptionExplainText"
+                    android:text="@string/EndCutText" />
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/BookType" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/ivBookType"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:id="@+id/tvBookType"
+                        style="@style/simpleText"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textSize="20sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginStart="10dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:layout_width="wrap_content"
+                <com.driot.bookplayer.views.SettingSwitchRow
+                    android:id="@+id/rowMusicType"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-2dp"
-                    android:text="sec."
-                    android:textSize="12sp" />
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/rounded_corner_surface_variant"
+                    app:title="@string/MakeMusicType"
+                    app:subtitle="@string/MakeMusicTypeSubtitle" />
             </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                style="@style/OptionSubTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/IntroCutText"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/EndCutText"
-                style="@style/OptionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/EndCut"
-                android:textSize="20sp"
-                android:textStyle="normal" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputEditText
-                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
-                        android:id="@+id/etEndCut"
-                        android:layout_width="match_parent"
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
+                <TextView
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/modify_group_tracks" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_reorder_24px" />
+                    <Button
+                        android:id="@+id/bChangeTracksOrder"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textSize="20sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginStart="24dp"
+                        android:text="@string/change_tracks_order" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_sort_24px" />
+                    <Button
+                        android:id="@+id/bResetTracksOrder"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/reset_track_order" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_add_24px" />
+                    <Button
+                        android:id="@+id/bAddNewTracks"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/add_new_tracks" />
+                </LinearLayout>
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+            <LinearLayout style="@style/SettingsGroupCardContent">
                 <TextView
-                    style="@style/OptionSubTitle"
-                    android:layout_width="wrap_content"
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/modify_group_actions" />
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-2dp"
-                    android:text="sec."
-                    android:textSize="12sp" />
+                    android:layout_marginTop="0dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_replay_24px" />
+                    <Button
+                        android:id="@+id/bReset"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/bReset" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_file_export_24px" />
+                    <Button
+                        android:id="@+id/bExport"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/Export_3pt" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_without_contact_24px" />
+                    <Button
+                        android:id="@+id/bShare"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/Quick_Share_3dots" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_delete_24" />
+                    <Button
+                        android:id="@+id/bDelete"
+                        style="@style/Widget.BookPlayer.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="@string/Delete" />
+                </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                style="@style/OptionSubTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/EndCutText"
-                android:textSize="12sp" />
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <TextView
-                style="@style/OptionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/BookType"
-                android:textSize="20sp"
-                android:textStyle="normal" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="20dp">
-
-                <ImageView
-                    android:id="@+id/ivBookType"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:id="@+id/tvBookType"
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <com.driot.bookplayer.views.SettingSwitchRow
-                android:id="@+id/rowMusicType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginHorizontal="10dp"
-                android:background="@drawable/rounded_corner_surface_variant"
-                app:title="@string/MakeMusicType"
-                app:subtitle="@string/MakeMusicTypeSubtitle" />
-
-            <View style="@style/myStyleViewSimpleHorizontalBar"
-                android:layout_marginTop="20dp" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_reorder_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bChangeTracksOrder"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/change_tracks_order" />
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_sort_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bResetTracksOrder"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/reset_track_order" />
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_add_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bAddNewTracks"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_new_tracks"
-                    />
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_replay_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bReset"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/bReset"
-                    />
-            </LinearLayout>
-
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_file_export_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bExport"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Export_3pt"
-                    />
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_connect_without_contact_24px"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bShare"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Quick_Share_3dots"
-                    />
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
-                android:layout_gravity="start"
-                android:paddingStart="10dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_delete_24"
-                    />
-                <Button
-                    android:layout_marginStart="30dp"
-                    android:id="@+id/bDelete"
-                    style="@style/Widget.BookPlayer.Button.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Delete"
-                    />
-            </LinearLayout>
-
-            <View
-                style="@style/myStyleViewSimpleHorizontalBar"
-                android:layout_marginBottom="20dp" />
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

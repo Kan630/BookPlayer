@@ -1521,4 +1521,6 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <plurals name="days_ago">
         <item quantity="other">%d 天前</item>
     </plurals>
+    <string name="modify_group_tracks">音轨</string>
+    <string name="modify_group_actions">操作</string>
 </resources>

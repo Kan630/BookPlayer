@@ -1557,4 +1557,6 @@
         <item quantity="zero">منذ %d أيام</item>
         <item quantity="other">منذ %d أيام</item>
     </plurals>
+    <string name="modify_group_tracks">المقاطع</string>
+    <string name="modify_group_actions">إجراءات</string>
 </resources>

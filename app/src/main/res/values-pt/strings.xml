@@ -1535,4 +1535,6 @@ Pode ser muito lento…</string>
         <item quantity="many">há %d dias</item>
         <item quantity="other">há %d dias</item>
     </plurals>
+    <string name="modify_group_tracks">Faixas</string>
+    <string name="modify_group_actions">Ações</string>
 </resources>

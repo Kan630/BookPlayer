@@ -1543,4 +1543,6 @@ Cela peut être assez lent…</string>
         <item quantity="many">il y a %d de jours</item>
         <item quantity="other">il y a %d jours</item>
     </plurals>
+    <string name="modify_group_tracks">Pistes</string>
+    <string name="modify_group_actions">Actions</string>
 </resources>

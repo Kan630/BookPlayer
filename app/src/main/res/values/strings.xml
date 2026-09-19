@@ -1544,6 +1544,8 @@
 
 
 
+    <string name="modify_group_tracks">Tracks</string>
+    <string name="modify_group_actions">Actions</string>
 </resources>
 
 
