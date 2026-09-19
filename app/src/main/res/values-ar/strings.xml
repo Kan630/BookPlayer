@@ -419,7 +419,7 @@
     <string name="option_timeBeforeSleep">إيقاف تلقائي</string>
 
     <string name="option_timeBeforeSleep_text">بعد</string>
-    <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
+    <string name="option_copy_file_title">نسخ الملفات</string>
     <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
     <string name="option_backward_forward_text">الفاصل الزمني</string>
     <string name="option_autoplay_next_chapter">تشغيل الفصل التالي تلقائياً</string>
@@ -1559,4 +1559,6 @@
     </plurals>
     <string name="modify_group_tracks">المقاطع</string>
     <string name="modify_group_actions">إجراءات</string>
+    <string name="option_copy_file_or">أو</string>
+    <string name="option_copy_file_just_link">ربط فقط</string>
 </resources>

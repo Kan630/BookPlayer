@@ -424,7 +424,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_timeBeforeSleep">自动暂停</string>
 
     <string name="option_timeBeforeSleep_text">在此之后</string>
-    <string name="option_copy_file_title">内部复制文件</string>
+    <string name="option_copy_file_title">复制文件</string>
     <string name="option_backward_forward_title">快退/快进按钮</string>
     <string name="option_backward_forward_text">时间间隔</string>
     <string name="option_autoplay_next_chapter">自动播放下一章</string>
@@ -1523,4 +1523,6 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     </plurals>
     <string name="modify_group_tracks">音轨</string>
     <string name="modify_group_actions">操作</string>
+    <string name="option_copy_file_or">或</string>
+    <string name="option_copy_file_just_link">仅链接</string>
 </resources>

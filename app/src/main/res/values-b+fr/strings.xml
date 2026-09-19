@@ -428,7 +428,7 @@ C\'est encore calme pour le moment, mais n\'hésitez pas à vous inscrire pour p
     <string name="option_timeBeforeSleep">Pause automatique</string>
 
     <string name="option_timeBeforeSleep_text">après</string>
-    <string name="option_copy_file_title">Copier les fichiers en interne</string>
+    <string name="option_copy_file_title">Copier les fichiers</string>
     <string name="option_backward_forward_title">Boutons Retour/Avance</string>
     <string name="option_backward_forward_text">décalage</string>
     <string name="option_autoplay_next_chapter">Lecture automatique du chapitre suivant</string>
@@ -1545,4 +1545,6 @@ Cela peut être assez lent…</string>
     </plurals>
     <string name="modify_group_tracks">Pistes</string>
     <string name="modify_group_actions">Actions</string>
+    <string name="option_copy_file_or">ou</string>
+    <string name="option_copy_file_just_link">simplement lier</string>
 </resources>

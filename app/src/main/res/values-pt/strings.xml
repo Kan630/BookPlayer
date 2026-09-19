@@ -423,7 +423,7 @@
     <string name="option_timeBeforeSleep">Pausa automática</string>
 
     <string name="option_timeBeforeSleep_text">após</string>
-    <string name="option_copy_file_title">Copiar arquivos internamente</string>
+    <string name="option_copy_file_title">Copiar arquivos</string>
     <string name="option_backward_forward_title">Botões Retroceder/Avançar</string>
     <string name="option_backward_forward_text">intervalo</string>
     <string name="option_autoplay_next_chapter">Reproduzir automaticamente o próximo capítulo</string>
@@ -1537,4 +1537,6 @@ Pode ser muito lento…</string>
     </plurals>
     <string name="modify_group_tracks">Faixas</string>
     <string name="modify_group_actions">Ações</string>
+    <string name="option_copy_file_or">ou</string>
+    <string name="option_copy_file_just_link">apenas vincular</string>
 </resources>

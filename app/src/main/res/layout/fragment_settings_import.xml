@@ -62,7 +62,7 @@
                 android:text="@string/default_for" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:orientation="horizontal"
@@ -71,30 +71,35 @@
                 <ImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="6dp"
                     android:contentDescription="@string/move_group_copy_title"
                     android:src="@drawable/ic_content_copy_24px"
                     app:tint="@color/storage_copy_color" />
 
                 <TextView
+                    android:id="@+id/txtCopyFileHead"
+                    style="@style/SettingsGroupTitle"
+                    android:text="@string/option_copy_file_title"
+                    android:layout_marginBottom="0dp" />
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:text="/"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@string/option_copy_file_or"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <ImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:contentDescription="@string/move_group_link_title"
                     android:src="@drawable/ic_link_2_24px"
                     app:tint="@color/storage_link_color" />
 
                 <TextView
-                    android:id="@+id/txtCopyFileHead"
                     style="@style/SettingsGroupTitle"
-                    android:text="@string/option_copy_file_title"
+                    android:text="@string/option_copy_file_just_link"
                     android:layout_marginBottom="0dp" />
             </LinearLayout>
 
@@ -268,7 +273,7 @@
 
             <TextView
                 style="@style/OptionExplainText"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
                 android:textStyle="bold"
                 android:text="@string/option_open_with_action_title" />
 

@@ -425,7 +425,7 @@ Verwenden Sie die Option <font color="#90D8E8">"Mail an Entwickler"</font> aus d
     <string name="option_timeBeforeSleep">Automatische Pause</string>
 
     <string name="option_timeBeforeSleep_text">nach</string>
-    <string name="option_copy_file_title">Dateien intern kopieren</string>
+    <string name="option_copy_file_title">Dateien kopieren</string>
     <string name="option_backward_forward_title">Zurück-/Vorwärts-Tasten</string>
     <string name="option_backward_forward_text">Zeitsprung</string>
     <string name="option_autoplay_next_chapter">Nächstes Kapitel automatisch abspielen</string>
@@ -1530,4 +1530,6 @@ Es kann ziemlich langsam sein…</string>
     </plurals>
     <string name="modify_group_tracks">Titel</string>
     <string name="modify_group_actions">Aktionen</string>
+    <string name="option_copy_file_or">oder</string>
+    <string name="option_copy_file_just_link">nur verknüpfen</string>
 </resources>

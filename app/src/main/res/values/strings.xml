@@ -484,7 +484,7 @@
     <string name="option_timeBeforeSleep">Automatic Pause</string>
 
     <string name="option_timeBeforeSleep_text">after</string>
-    <string name="option_copy_file_title">Copy files internally</string>
+    <string name="option_copy_file_title">Copy files</string>
     <string name="option_backward_forward_title">Backward/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse</string>
     <string name="option_autoplay_next_chapter">Auto-play next chapter</string>
@@ -493,7 +493,7 @@
     <string name="option_pick_theme_color_title">Pick your app color theme</string>
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
     <string name="option_delete_source_file_subtitle">After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
-        \nNote: This is only possible for ZIP files or if the \'Copy files internally\' option is enabled.
+        \nNote: This is only possible for ZIP files or if the \'Copy files\' option is enabled.
         </string>
     <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! Warning - Auto-Delete !!</string>
@@ -1546,6 +1546,8 @@
 
     <string name="modify_group_tracks">Tracks</string>
     <string name="modify_group_actions">Actions</string>
+    <string name="option_copy_file_or">or</string>
+    <string name="option_copy_file_just_link">just link</string>
 </resources>
 
 

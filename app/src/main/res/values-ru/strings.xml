@@ -423,7 +423,7 @@
     <string name="option_timeBeforeSleep">Автоматическая пауза</string>
 
     <string name="option_timeBeforeSleep_text">через</string>
-    <string name="option_copy_file_title">Копировать файлы во внутреннюю память</string>
+    <string name="option_copy_file_title">Копировать файлы</string>
     <string name="option_backward_forward_title">Кнопки Назад/Вперёд</string>
     <string name="option_backward_forward_text">промежуток</string>
     <string name="option_autoplay_next_chapter">Автовоспроизведение следующей главы</string>
@@ -1545,4 +1545,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
     </plurals>
     <string name="modify_group_tracks">Треки</string>
     <string name="modify_group_actions">Действия</string>
+    <string name="option_copy_file_or">или</string>
+    <string name="option_copy_file_just_link">только ссылка</string>
 </resources>
