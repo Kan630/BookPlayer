@@ -224,7 +224,6 @@
 
         <!-- OTHER (multi-word strings, plurals, etc.) -->
 
-    <string name="title_FolderContent">Список файлов</string>
 
     <string name="beta_test">бета-тест</string>
     <string name="are_you_sure">Вы уверены?</string>

@@ -224,7 +224,6 @@
 
         <!-- OTHER (multi-word strings, plurals, etc.) -->
 
-    <string name="title_FolderContent">قائمة الملفات</string>
 
     <string name="beta_test">اختبار تجريبي</string>
     <string name="are_you_sure">هل أنت متأكد؟</string>

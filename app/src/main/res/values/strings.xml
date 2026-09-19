@@ -260,7 +260,6 @@
 
         <!-- OTHER (multi-word strings, plurals, etc.) -->
 
-    <string name="title_FolderContent">Files List</string>
 
     <string name="beta_test">beta test</string>
     <string name="are_you_sure">Are you sure ?</string>

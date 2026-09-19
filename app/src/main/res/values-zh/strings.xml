@@ -223,7 +223,6 @@
 
         <!-- OTHER (multi-word strings, plurals, etc.) -->
 
-    <string name="title_FolderContent">文件列表</string>
 
     <string name="beta_test">测试版</string>
     <string name="are_you_sure">您确定吗？</string>

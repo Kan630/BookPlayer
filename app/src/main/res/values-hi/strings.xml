@@ -223,7 +223,6 @@
 
         <!-- OTHER (multi-word strings, plurals, etc.) -->
 
-    <string name="title_FolderContent">फ़ाइल सूची</string>
 
     <string name="beta_test">बीटा परीक्षण</string>
     <string name="are_you_sure">क्या आप सुनिश्चित हैं ?</string>
