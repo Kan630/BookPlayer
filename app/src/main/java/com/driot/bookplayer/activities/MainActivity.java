@@ -367,6 +367,10 @@ public class MainActivity extends FullActivity {
             if (nc != null) {
                 NavOptions options = new NavOptions.Builder()
                         .setPopUpTo(nc.getGraph().getStartDestinationId(), false)
+                        .setEnterAnim(R.anim.slide_enter_from_right)
+                        .setExitAnim(R.anim.slide_exit_to_left)
+                        .setPopEnterAnim(R.anim.slide_pop_enter_from_left)
+                        .setPopExitAnim(R.anim.slide_pop_exit_to_right)
                         .build();
                 nc.navigate(R.id.zikFileFragment, args, options);
             }

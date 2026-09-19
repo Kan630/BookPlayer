@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -262,7 +263,13 @@ public class CleanMemoryFragment extends LoggingFragment
         }
         Bundle args = new Bundle();
         args.putLong(Intents.EXTRA_FOLDER_ID, item.idFolder);
-        Navigation.findNavController(requireView()).navigate(R.id.zikFileFragment, args);
+        NavOptions options = new NavOptions.Builder()
+                .setEnterAnim(R.anim.slide_enter_from_right)
+                .setExitAnim(R.anim.slide_exit_to_left)
+                .setPopEnterAnim(R.anim.slide_pop_enter_from_left)
+                .setPopExitAnim(R.anim.slide_pop_exit_to_right)
+                .build();
+        Navigation.findNavController(requireView()).navigate(R.id.zikFileFragment, args, options);
     }
 
     @Override
