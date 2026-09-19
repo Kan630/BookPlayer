@@ -450,8 +450,8 @@
     <string name="option_tech_log_text">تسجيل تقني.</string>
     <string name="option_mail_method">إرسال البريد</string>
     <string name="option_mail_method_default">استخدم تطبيق البريد الافتراضي.\n<i>قم بإلغاء التحديد ليُطلب منك اختيار التطبيق.</i></string>
-    <string name="option_open_with_title">فتح باستخدام / مشاركة</string>
-    <string name="option_open_with_subtitle"><i>يجعل Android يعرض BookPlayer من بين الخيارات عند اختيار [مشاركة] أو [فتح باستخدام] بعد النقر (نقرة طويلة) على ملف من مدير الملفات أو التنزيلات</i></string>
+    <string name="option_open_with_title">فتح الملفات من تطبيقات أخرى</string>
+    <string name="option_open_with_subtitle"><i>يضيف «فتح باستخدام BookPlayer» إلى قائمتي «مشاركة» و«فتح باستخدام» عند اختيارك ملفًا في مدير الملفات.</i></string>
     <string name="option_open_with_text">لملفات zip ومعظم ملفات الصوت.</string>
     <string name="option_open_with_text_all">لأي نوع من الملفات (وضع آمن).</string>
     <string name="option_open_with_action_title">عند فتح ملف لم يُضف إلى مكتبتك بعد:</string>

@@ -455,8 +455,8 @@
     <string name="option_tech_log_text">Logs técnicos.</string>
     <string name="option_mail_method">Envio de e-mail</string>
     <string name="option_mail_method_default">Usar o app de e-mail padrão.\n<i>Desmarque para ser perguntado qual app usar.</i></string>
-    <string name="option_open_with_title">Abrir com / Compartilhar</string>
-    <string name="option_open_with_subtitle"><i>Faz o Android sugerir o BookPlayer entre as opções quando você escolhe [Compartilhar] ou [Abrir com] após tocar (toque longo) em um arquivo no explorador do telefone ou em Downloads</i></string>
+    <string name="option_open_with_title">Abrir arquivos de outros apps</string>
+    <string name="option_open_with_subtitle"><i>Adiciona “Abrir com o BookPlayer” aos menus “Compartilhar” e “Abrir com” ao selecionar um arquivo no gerenciador de arquivos.</i></string>
     <string name="option_open_with_text">Para zip e a maioria dos arquivos de áudio.</string>
     <string name="option_open_with_text_all">Para qualquer tipo de arquivo (modo à prova de falhas).</string>
     <string name="option_open_with_action_title">Ao abrir um ficheiro que ainda não está na sua biblioteca:</string>

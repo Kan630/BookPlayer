@@ -457,8 +457,8 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_tech_log_text">Technische Protokollierung.</string>
     <string name="option_mail_method">E-Mail senden</string>
     <string name="option_mail_method_default">Standard-Mail-App verwenden.\n<i>Deaktivieren, um gefragt zu werden, welche App verwendet werden soll.</i></string>
-    <string name="option_open_with_title">Öffnen mit / Teilen</string>
-    <string name="option_open_with_subtitle"><i>Lässt Android BookPlayer unter den vorgeschlagenen Optionen anzeigen, wenn [Teilen] oder [Öffnen mit] aus dem Datei-Explorer oder den Downloads ausgewählt wird.</i></string>
+    <string name="option_open_with_title">Dateien aus anderen Apps öffnen</string>
+    <string name="option_open_with_subtitle"><i>Fügt „Mit BookPlayer öffnen“ zu den Menüs „Teilen“ und „Öffnen mit“ hinzu, wenn Sie in Ihrem Dateimanager eine Datei auswählen.</i></string>
     <string name="option_open_with_text">Für ZIP- und die meisten Audiodateien.</string>
     <string name="option_open_with_text_all">Für alle Dateitypen (sicherheitsorientiert).</string>
     <string name="option_open_with_action_title">Beim Öffnen einer Datei, die noch nicht in deiner Bibliothek ist:</string>

@@ -460,8 +460,8 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_tech_log_text">Journalisation technique.</string>
     <string name="option_mail_method">Envoi d\'email</string>
     <string name="option_mail_method_default">Utiliser l\'app de mail par défaut.\n<i>Décochez pour choisir l\'app à chaque fois.</i></string>
-    <string name="option_open_with_title">Ouvrir avec / Partager</string>
-    <string name="option_open_with_subtitle"><i>Permet à Android de proposer BookPlayer parmi les options lorsqu\'on clique (ou clic long) sur un fichier depuis l\'explorateur ou les téléchargements</i></string>
+    <string name="option_open_with_title">Ouvrir des fichiers depuis d’autres applications</string>
+    <string name="option_open_with_subtitle"><i>Ajoute « Ouvrir avec BookPlayer » aux menus « Partager » et « Ouvrir avec » lorsque vous sélectionnez un fichier dans votre explorateur de fichiers.</i></string>
     <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
     <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
     <string name="option_open_with_action_title">Lors de l\'ouverture d\'un fichier qui n\'est pas encore dans votre bibliothèque :</string>

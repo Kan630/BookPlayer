@@ -454,8 +454,8 @@
     <string name="option_tech_log_text">Техническое логирование.</string>
     <string name="option_mail_method">Отправка почты</string>
     <string name="option_mail_method_default">Использовать приложение по умолчанию для отправки.\n<i>Снимите флажок, чтобы выбрать другое приложение.</i></string>
-    <string name="option_open_with_title">Открыть с помощью / Поделиться</string>
-    <string name="option_open_with_subtitle"><i>Позволяет Android предлагать BookPlayer в списке при выборе [Поделиться] или [Открыть с помощью] после нажатия (долгого нажатия) на файл в проводнике или загрузках</i></string>
+    <string name="option_open_with_title">Открытие файлов из других приложений</string>
+    <string name="option_open_with_subtitle"><i>Добавляет «Открыть с помощью BookPlayer» в меню «Поделиться» и «Открыть с помощью», когда вы выбираете файл в файловом менеджере.</i></string>
     <string name="option_open_with_text">Для zip и большинства аудиофайлов.</string>
     <string name="option_open_with_text_all">Для любых типов файлов (на всякий случай).</string>
     <string name="option_open_with_action_title">Когда вы открываете файл, которого ещё нет в вашей библиотеке:</string>

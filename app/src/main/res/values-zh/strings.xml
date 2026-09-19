@@ -455,8 +455,8 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_tech_log_text">技术日志记录。</string>
     <string name="option_mail_method">发送邮件</string>
     <string name="option_mail_method_default">使用默认邮件应用。\n<i>取消勾选以选择其他应用。</i></string>
-    <string name="option_open_with_title">打开方式 / 分享</string>
-    <string name="option_open_with_subtitle"><i>长按文件或从下载中点击 [分享] 或 [用其他应用打开] 时，Android 将建议使用 BookPlayer</i></string>
+    <string name="option_open_with_title">从其他应用打开文件</string>
+    <string name="option_open_with_subtitle"><i>在文件管理器中选择文件时，会在“分享”和“打开方式”菜单中添加“使用 BookPlayer 打开”。</i></string>
     <string name="option_open_with_text">适用于 ZIP 及大多数音频文件。</string>
     <string name="option_open_with_text_all">适用于所有文件类型（安全兜底）。</string>
     <string name="option_open_with_action_title">打开尚未在你的媒体库中的文件时：</string>

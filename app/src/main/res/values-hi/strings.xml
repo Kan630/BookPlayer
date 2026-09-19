@@ -450,8 +450,8 @@
     <string name="option_tech_log_text">तकनीकी लॉगिंग।</string>
     <string name="option_mail_method">मेल भेजना</string>
     <string name="option_mail_method_default">डिफ़ॉल्ट मेलिंग ऐप का उपयोग करें.\n<i>अनचेक करने पर कौन-सा ऐप उपयोग करना है, पूछा जाएगा।</i></string>
-    <string name="option_open_with_title">Open With / Share</string>
-    <string name="option_open_with_subtitle"><i>फ़ोन फ़ाइल एक्सप्लोरर या डाउनलोड्स से किसी फ़ाइल पर (लंबा-क्लिक) क्लिक करने के बाद [Share] या [Open With] चुनने पर अन्य विकल्पों के साथ BookPlayer को दिखाता है</i></string>
+    <string name="option_open_with_title">अन्य ऐप्स से फ़ाइलें खोलें</string>
+    <string name="option_open_with_subtitle"><i>फ़ाइल मैनेजर में कोई फ़ाइल चुनने पर “शेयर” और “के साथ खोलें” मेनू में “BookPlayer के साथ खोलें” जोड़ता है।</i></string>
     <string name="option_open_with_text">zip और अधिकतर ऑडियो फ़ाइलों के लिए।</string>
     <string name="option_open_with_text_all">किसी भी प्रकार की फ़ाइल के लिए (फ़ेल-सेफ़)।</string>
     <string name="option_open_with_action_title">जब आप कोई ऐसी फ़ाइल खोलते हैं जो अभी तक आपकी लाइब्रेरी में नहीं है:</string>
