@@ -93,24 +93,14 @@ public class ZikFileFragment extends LoggingFragment {
         // Read initial folder once; keep only the id and always re-read from DB
         Bundle args = getArguments();
         folderId = args != null ? args.getLong(Intents.EXTRA_FOLDER_ID, -1) : -1;
-        Folder initial = args != null ? args.getParcelable(Intents.EXTRA_FOLDER) : null;
         if (!(folderId > 0)) {
+            Folder initial = args != null ? args.getParcelable(Intents.EXTRA_FOLDER) : null;
             if (initial == null) {
                 myToastEE(null, "onCreate : Intent folder == null");
                 Navigation.findNavController(view).popBackStack();
                 return;
             }
             folderId = initial.getId();
-        }
-        if (initial != null) {
-            // Paint the header immediately from the Folder object the caller already had in
-            // memory (StartPlayHelper.onFolderClick and friends pass the full object, not just
-            // an id) - without this, the header briefly shows its static placeholder text (see
-            // activity_zikfile.xml's textViewTitle) until listVm.getFolderLive() below completes
-            // its first (async) DB read.
-            folder = initial;
-            fillHeader(view);
-            lastFolder = initial;
         }
         activateChangeTrackOrder = args != null && args.getBoolean(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, false);
 
