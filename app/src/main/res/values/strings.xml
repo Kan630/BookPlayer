@@ -1215,6 +1215,10 @@
     <string name="podcast_search_edittext_title">Search… (all languages)</string>
     <string name="search_tip_single_word">Tip: a single word often gives better results</string>
     <string name="import_settings">Import settings</string>
+    <string name="option_import_completion_title">When an import finishes:</string>
+    <string name="option_import_completion_do_nothing">Do nothing</string>
+    <string name="option_import_completion_open_book">Open the book</string>
+    <string name="option_import_completion_play_book">Play the book</string>
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
     <string name="Import_Progress_chapter_title">"Track title"</string>

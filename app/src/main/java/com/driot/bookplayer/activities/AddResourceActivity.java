@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -163,12 +164,16 @@ public class AddResourceActivity extends FullActivity {
             return;
         }
 
-        // Other Cases (should only be SUCCESS) Briefly show, then hide banner. If we know which
-        // book/track this job just created (single-file "Open with"/sibling-book imports only -
-        // see ImportJob.getTargetPlaybackFileName), jump straight into playing it instead of just
-        // returning to the library.
-        if (ui.futureFolderPath != null) {
-            schedulePlaybackJump(DELAY_END_WAIT_NO_ERROR, ui.futureFolderPath, ui.targetPlaybackFileName);
+        // Other Cases (should only be SUCCESS) Briefly show, then hide banner. What happens next
+        // is user-configurable (Settings > Import > "When an import finishes:") - do nothing (just
+        // return to the library), open the resulting book's track list, or jump straight into
+        // playing it (optionally using the single-file "Open with"/sibling-book target hint - see
+        // ImportJob.getTargetPlaybackFileName - to pick which track).
+        int completionAction = Option.getImportCompletionAction();
+        if (ui.futureFolderPath != null && completionAction != Option.IMPORT_COMPLETION_DO_NOTHING) {
+            boolean startPlayback = completionAction == Option.IMPORT_COMPLETION_PLAY_BOOK;
+            schedulePostImportNavigation(DELAY_END_WAIT_NO_ERROR, ui.futureFolderPath, ui.targetPlaybackFileName,
+                    startPlayback);
         } else {
             scheduleFinish(DELAY_END_WAIT_NO_ERROR);
         }
@@ -188,8 +193,15 @@ public class AddResourceActivity extends FullActivity {
         delayedFinishHandler.postDelayed(delayedFinishRunnable, delayMs);
     }
 
-    private void schedulePlaybackJump(int delayMs, String futureFolderPath,
-            @androidx.annotation.Nullable String targetPlaybackFileName) {
+    /**
+     * @param startPlayback true for Option.IMPORT_COMPLETION_PLAY_BOOK, false for
+     *                      IMPORT_COMPLETION_OPEN_BOOK - either way the resulting book's track
+     *                      list is shown (there's no other app UI left in this task, since it was
+     *                      launched externally via "Open with" or the Add Book flow, so without
+     *                      navigating somewhere the app would otherwise vanish to the home screen).
+     */
+    private void schedulePostImportNavigation(int delayMs, String futureFolderPath,
+            @androidx.annotation.Nullable String targetPlaybackFileName, boolean startPlayback) {
         delayedFinishHandler = new Handler();
         delayedFinishRunnable = () -> {
             ImportHelper.setShowToUser(this, false);
@@ -197,8 +209,8 @@ public class AddResourceActivity extends FullActivity {
             // If this exact file was still live-previewing (see MiniPlayUnregisteredFragment /
             // Var.PLAY_MODE_PREVIEW) when the import finished, grab its current position now -
             // before the DB read below - so book playback can resume from there instead of
-            // restarting at 0.
-            PlaybackUiState previewState = PlaybackUiBus.get().state().getValue();
+            // restarting at 0. Only relevant when we're about to actually start playback.
+            PlaybackUiState previewState = startPlayback ? PlaybackUiBus.get().state().getValue() : null;
             boolean wasPreviewing = previewState != null && Var.PLAY_MODE_PREVIEW.equals(previewState.playMode);
             long previewPositionMs = wasPreviewing ? previewState.positionMs : -1;
 
@@ -224,7 +236,7 @@ public class AddResourceActivity extends FullActivity {
                     }
                 }
 
-                if (target != null && wasPreviewing && previewPositionMs > 0) {
+                if (startPlayback && target != null && wasPreviewing && previewPositionMs > 0) {
                     myLog("Carrying over live-preview position (" + previewPositionMs
                             + "ms) to the just-imported track, instead of restarting from 0.");
                     target.setPosition(previewPositionMs);
@@ -243,29 +255,30 @@ public class AddResourceActivity extends FullActivity {
                 }
 
                 com.driot.bookplayer.db.ZikFile finalTarget = target;
+                long folderId = (folder != null) ? folder.getId() : -1;
                 int trackCount = (files != null) ? files.size() : 0;
                 runOnUiThread(() -> {
                     if (finalTarget != null) {
-                        myLog("Jumping straight into playback for the just-imported track: " + finalTarget.getName());
-                        // onZikFileClick() swaps cleanly from the preview stream engine to the book
-                        // engine (MediaService.setEngine() stops/releases the old one first) and,
-                        // now that we've persisted previewPositionMs above, resumes from there
-                        // rather than 0 - MiniPlayHostFragment follows the playMode change and
-                        // swaps itself from MiniPlayUnregisteredFragment to MiniPlayBookFragment
-                        // automatically, no extra wiring needed here.
-                        com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
-                                "AddResourceActivity-openWithImportSuccess");
-                        // There is no other app UI left in this task (it was launched externally
-                        // via "Open with"), so without navigating somewhere the app would
-                        // otherwise vanish to the home screen while audio plays in the background.
-                        if (trackCount > 1) {
-                            // Multi-track book: show the track list, not the single-track player.
+                        if (startPlayback) {
+                            myLog("Jumping straight into playback for the just-imported track: "
+                                    + finalTarget.getName());
+                            // onZikFileClick() swaps cleanly from the preview stream engine to the book
+                            // engine (MediaService.setEngine() stops/releases the old one first) and,
+                            // now that we've persisted previewPositionMs above, resumes from there
+                            // rather than 0 - MiniPlayHostFragment follows the playMode change and
+                            // swaps itself from MiniPlayUnregisteredFragment to MiniPlayBookFragment
+                            // automatically, no extra wiring needed here.
+                            com.driot.bookplayer.player.StartPlayHelper.onZikFileClick(this, finalTarget,
+                                    "AddResourceActivity-openWithImportSuccess");
+                        }
+                        if (!startPlayback || trackCount > 1) {
+                            // "Open the book" always shows the track list, regardless of track count
+                            // (so the user can see/reorder it); "Play the book" only needs it for a
+                            // multi-track book - a single-track one already shows the mini-player.
                             startActivity(new Intent(this, MainActivity.class)
-                                    .putExtra(Intents.EXTRA_FOLDER_ID, finalTarget.getIdFolder())
+                                    .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
                                     .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
                         } else {
-                            // Single-file "book": no track list to show - land on the library,
-                            // with the mini-player still visible/playing at the bottom.
                             startActivity(new Intent(this, MainActivity.class)
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
                                     .putExtra("scrollToTop", true));
@@ -280,7 +293,7 @@ public class AddResourceActivity extends FullActivity {
                 });
             });
         };
-        myLog("Let's wait " + delayMs + " ms before jumping to playback...");
+        myLog("Let's wait " + delayMs + " ms before navigating (startPlayback=" + startPlayback + ")...");
         delayedFinishHandler.postDelayed(delayedFinishRunnable, delayMs);
     }
 

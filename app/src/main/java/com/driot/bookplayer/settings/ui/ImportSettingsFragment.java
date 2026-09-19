@@ -28,6 +28,8 @@ public class ImportSettingsFragment extends LoggingFragment {
 
     private static final int REQ_DELETE_SOURCE_FILE = 2001;
 
+    private RadioGroup rgImportCompletion;
+
     private LinearLayout llCopyFile;
     private MaterialCheckBox chkCopyFile;
 
@@ -74,6 +76,26 @@ public class ImportSettingsFragment extends LoggingFragment {
         if (titleContainer != null) {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
+
+        // ====== Upon import completion ======
+        rgImportCompletion = root.findViewById(R.id.rg_import_completion);
+        int currentImportCompletionAction = Option.getImportCompletionAction();
+        if (currentImportCompletionAction == Option.IMPORT_COMPLETION_DO_NOTHING) {
+            rgImportCompletion.check(R.id.radio_import_completion_do_nothing);
+        } else if (currentImportCompletionAction == Option.IMPORT_COMPLETION_OPEN_BOOK) {
+            rgImportCompletion.check(R.id.radio_import_completion_open_book);
+        } else {
+            rgImportCompletion.check(R.id.radio_import_completion_play_book);
+        }
+        rgImportCompletion.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radio_import_completion_do_nothing) {
+                Option.setImportCompletionAction(Option.IMPORT_COMPLETION_DO_NOTHING);
+            } else if (checkedId == R.id.radio_import_completion_open_book) {
+                Option.setImportCompletionAction(Option.IMPORT_COMPLETION_OPEN_BOOK);
+            } else {
+                Option.setImportCompletionAction(Option.IMPORT_COMPLETION_PLAY_BOOK);
+            }
+        });
 
         // ====== Copy file ======
         chkCopyFile = root.findViewById(R.id.chk_copy_file);

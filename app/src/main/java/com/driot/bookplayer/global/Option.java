@@ -736,6 +736,18 @@ public class Option {
         return prefs.getString("APP_ORIENTATION_MODE", DEFAULT_APP_ORIENTATION_MODE);
     }
 
+    public static final int IMPORT_COMPLETION_DO_NOTHING = 0;
+    public static final int IMPORT_COMPLETION_OPEN_BOOK = 1;
+    public static final int IMPORT_COMPLETION_PLAY_BOOK = 2;
+
+    public static int getImportCompletionAction() {
+        return prefs.getInt("IMPORT_COMPLETION_ACTION", IMPORT_COMPLETION_PLAY_BOOK);
+    }
+
+    public static void setImportCompletionAction(int value) {
+        prefs.edit().putInt("IMPORT_COMPLETION_ACTION", value).apply();
+    }
+
     /////////////////// COPY FILES ///////////////////
     public static void setCopyFile(boolean bool) {
         prefs.edit().putBoolean("COPY_FILES", bool).apply();

@@ -17,6 +17,44 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+        <!-- Upon import completion -->
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+            <TextView
+                style="@style/SettingsGroupTitle"
+                android:text="@string/option_import_completion_title" />
+
+            <RadioGroup
+                android:id="@+id/rg_import_completion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_import_completion_do_nothing"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_import_completion_do_nothing" />
+
+                <RadioButton
+                    android:id="@+id/radio_import_completion_open_book"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_import_completion_open_book" />
+
+                <RadioButton
+                    android:id="@+id/radio_import_completion_play_book"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_import_completion_play_book" />
+            </RadioGroup>
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Copy file -->
         <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
         <LinearLayout style="@style/SettingsGroupCardContent">
