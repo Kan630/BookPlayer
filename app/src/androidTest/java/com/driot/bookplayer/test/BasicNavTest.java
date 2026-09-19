@@ -116,8 +116,10 @@ public abstract class BasicNavTest implements LogSupport {
                 // R.layout.activity_get
                 MenuHelpers.tapMenu(R.string.add_book);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(R.id.root)).perform(swipeUp()); //root, because mainScroll is not found...
-                onView(withId(R.id.root)).perform(swipeDown());
+                // pure skips the hub (activity_get, id root) and lands straight on the local-file page
+                int addScreenView = com.driot.bookplayer.utils.Tonio.isPure(context) ? R.id.mainScroll : R.id.root;
+                onView(withId(addScreenView)).perform(swipeUp()); //root, because mainScroll is not found...
+                onView(withId(addScreenView)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 // menu quick share

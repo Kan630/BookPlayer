@@ -583,7 +583,10 @@ public class ImportBookTest implements LogSupport {
         }
 
         return android.provider.DocumentsContract.buildTreeDocumentUri(
-                "com.driot.bookplayer.test.documents", docId);
+                // per-flavor authority (AndroidManifest uses ${applicationId}.documents) so the full
+                // and pure test APKs can be installed side by side
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext()
+                        .getPackageName() + ".documents", docId);
     }
 
     private static void copyAssetDirRecursively(AssetManager am, String assetDir, File destDir) throws IOException {

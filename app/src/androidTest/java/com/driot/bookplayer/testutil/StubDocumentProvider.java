@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 public class StubDocumentProvider extends DocumentsProvider {
     private static final String ROOTS_ID = "stub_roots";
     private static final String ROOT_ID = "stub_root";
-    private static final String AUTHORITY = "com.driot.bookplayer.test.documents";
+    // authority is ${applicationId}.documents (see androidTest/AndroidManifest.xml)
 
     private File mBaseDir;
     private static File sStaticBaseDir;
