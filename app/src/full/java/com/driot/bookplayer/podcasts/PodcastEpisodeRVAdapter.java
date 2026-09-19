@@ -269,6 +269,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         holder.icon_download.setTag(episodeFileName);
         holder.icon_download.setVisibility(View.GONE);
+        disableDownloadZone(holder);
 
         liveZikFile.observe(lifecycleOwner, zikFile -> {
             if (!holder.icon_download.getTag().equals(episodeFileName))
@@ -306,14 +307,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     doneColorRes = R.color.green_300;
                 }
                 holder.icon_download.setColorFilter(ContextCompat.getColor(context, doneColorRes));
-                holder.icon_download.setOnClickListener(null);
+                disableDownloadZone(holder);
             } else if (isDownloaded) {
                 holder.tvEpisodeDBStats.setText("");
                 holder.icon_download.setVisibility(View.VISIBLE);
                 holder.icon_download
                         .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
                 holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
-                holder.icon_download.setOnClickListener(null);
+                disableDownloadZone(holder);
             } else {
                 holder.icon_download
                         .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_action_24));
@@ -337,7 +338,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                             .setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
                     holder.tvEpisodeDBStats.setText("");
                 }
-                holder.icon_download.setOnClickListener(v -> {
+                holder.downloadZone.setOnClickListener(v -> {
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
                     boolean online = NetworkHelper.isConnected(this.context);
                     if (!online) {
@@ -395,6 +396,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats, tvEpisodeDesc;
         ImageView ivEpisodeCover;
         ImageButton icon_download;
+        View downloadZone;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
         ZikFile zikFile;
@@ -410,9 +412,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);
             icon_download = itemView.findViewById(R.id.icon_download);
+            downloadZone = itemView.findViewById(R.id.downloadZone);
             llMain = itemView.findViewById(R.id.llMain);
             pbDownload = itemView.findViewById(R.id.pbDownload);
         }
+    }
+
+    // setOnClickListener(null) alone leaves the view clickable, which would swallow the row's play tap
+    private static void disableDownloadZone(ViewHolder holder) {
+        holder.downloadZone.setOnClickListener(null);
+        holder.downloadZone.setClickable(false);
     }
 
     private AnimatorSet createFlickerAnimation(View view, ViewHolder holder) {
