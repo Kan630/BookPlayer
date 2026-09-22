@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -11,6 +13,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MsgBoxActivity;
@@ -19,7 +23,9 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FullBackupActivity extends BaseActivity {
@@ -36,6 +42,20 @@ public class FullBackupActivity extends BaseActivity {
     private View llRestoreReading, llRestorePreview;
     private TextView tvPreviewDate, tvPreviewSize, tvPreviewDuration, tvPreviewContents;
     private MaterialButton btnConfirmRestorePreview;
+
+    // --- Backup scope (FULL vs PARTIAL) ---
+    private MaterialSwitch switchBackupScope;
+    private TextView tvBackupScopeExplain;
+    private View llPartialOptions;
+    private CheckBox cbPreferences, cbRadios, cbPodcasts, cbLibrivox, cbBookProgress, cbPodcastHistory;
+    private CheckBox cbIncludeBookFiles;
+    private View progressLoadingBooks, tvNoBooksAvailable;
+    private RecyclerView rvBackupBooks;
+    private final FullBackupHelper.BackupSelection selection = new FullBackupHelper.BackupSelection();
+    // Loaded once (lazily, on first "Include book files" check) rather than re-queried on every
+    // toggle - only the selection Set changes after that, which the estimate recompute reads
+    // straight from `selection` itself.
+    private List<FullBackupHelper.BookFileCandidate> bookCandidates;
 
     // Set once a restore zip has been picked, so the confirmation dialog's result (which carries
     // no data of its own) knows what to actually restore.
@@ -100,6 +120,68 @@ public class FullBackupActivity extends BaseActivity {
         btnCancelOperation = findViewById(R.id.btn_cancel_full_backup_operation);
         btnCancelOperation.setOnClickListener(v -> requestCancel());
 
+        switchBackupScope = findViewById(R.id.switch_backup_scope);
+        tvBackupScopeExplain = findViewById(R.id.tv_backup_scope_explain);
+        llPartialOptions = findViewById(R.id.ll_partial_options);
+        cbPreferences = findViewById(R.id.cb_partial_preferences);
+        cbRadios = findViewById(R.id.cb_partial_radios);
+        cbPodcasts = findViewById(R.id.cb_partial_podcasts);
+        cbLibrivox = findViewById(R.id.cb_partial_librivox);
+        cbBookProgress = findViewById(R.id.cb_partial_book_progress);
+        cbPodcastHistory = findViewById(R.id.cb_partial_podcast_history);
+        cbIncludeBookFiles = findViewById(R.id.cb_partial_include_book_files);
+        progressLoadingBooks = findViewById(R.id.progress_loading_books);
+        tvNoBooksAvailable = findViewById(R.id.tv_no_books_available);
+        rvBackupBooks = findViewById(R.id.rv_backup_books);
+        rvBackupBooks.setLayoutManager(new LinearLayoutManager(this));
+
+        // All 6 checked by default (matches the classic screen's own default), independent of
+        // the book-files opt-in below.
+        cbPreferences.setChecked(selection.includePreferences);
+        cbRadios.setChecked(selection.includeRadios);
+        cbPodcasts.setChecked(selection.includePodcasts);
+        cbLibrivox.setChecked(selection.includeLibrivox);
+        cbBookProgress.setChecked(selection.includeBookProgress);
+        cbPodcastHistory.setChecked(selection.includePodcastHistory);
+        if (Tonio.isPure(this)) {
+            cbRadios.setVisibility(View.GONE);
+            cbPodcasts.setVisibility(View.GONE);
+            cbLibrivox.setVisibility(View.GONE);
+            cbPodcastHistory.setVisibility(View.GONE);
+        }
+
+        CompoundButton.OnCheckedChangeListener categoryListener = (buttonView, isChecked) -> {
+            selection.includePreferences = cbPreferences.isChecked();
+            selection.includeRadios = cbRadios.isChecked();
+            selection.includePodcasts = cbPodcasts.isChecked();
+            selection.includeLibrivox = cbLibrivox.isChecked();
+            selection.includeBookProgress = cbBookProgress.isChecked();
+            selection.includePodcastHistory = cbPodcastHistory.isChecked();
+            refreshEstimate();
+        };
+        cbPreferences.setOnCheckedChangeListener(categoryListener);
+        cbRadios.setOnCheckedChangeListener(categoryListener);
+        cbPodcasts.setOnCheckedChangeListener(categoryListener);
+        cbLibrivox.setOnCheckedChangeListener(categoryListener);
+        cbBookProgress.setOnCheckedChangeListener(categoryListener);
+        cbPodcastHistory.setOnCheckedChangeListener(categoryListener);
+
+        cbIncludeBookFiles.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            rvBackupBooks.setVisibility(View.GONE);
+            tvNoBooksAvailable.setVisibility(View.GONE);
+            if (isChecked) {
+                loadBookCandidatesAndShowList();
+            } else {
+                // Starting over next time this is checked again, rather than leaving stale
+                // selections the user can no longer see or change.
+                selection.includedBookFileFolderIds.clear();
+                refreshEstimate();
+            }
+        });
+
+        switchBackupScope.setOnCheckedChangeListener((buttonView, isChecked) -> applyScopeMode());
+        applyScopeMode(); // sets initial FULL-mode UI state and triggers the first estimate
+
         llRestoreReading = findViewById(R.id.ll_restore_reading);
         llRestorePreview = findViewById(R.id.ll_restore_preview);
         tvPreviewDate = findViewById(R.id.tv_restore_preview_date);
@@ -147,14 +229,92 @@ public class FullBackupActivity extends BaseActivity {
             }
         });
 
+    }
+
+    /** Shows/hides the checkbox block, flips the explain text, and refreshes the estimate for
+     *  whichever mode the switch is now in. */
+    private void applyScopeMode() {
+        boolean isPartial = switchBackupScope.isChecked();
+        llPartialOptions.setVisibility(isPartial ? View.VISIBLE : View.GONE);
+        tvBackupScopeExplain.setText(
+                isPartial ? R.string.backup_scope_partial_explain : R.string.backup_scope_full_explain);
+        refreshEstimate();
+    }
+
+    private void loadBookCandidatesAndShowList() {
+        if (bookCandidates != null) {
+            showBookList();
+            return;
+        }
+        progressLoadingBooks.setVisibility(View.VISIBLE);
         AppDatabase.databaseReadExecutor.execute(() -> {
-            FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
+            List<FullBackupHelper.BookFileCandidate> candidates = FullBackupHelper
+                    .listBookFileCandidates(getApplicationContext());
             runOnUiThread(() -> {
-                estimate = e;
-                tvSizeNeeded.setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
-                tvDuration
-                        .setText(getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                bookCandidates = candidates;
+                progressLoadingBooks.setVisibility(View.GONE);
+                // The checkbox may have been unchecked again while this was loading.
+                if (cbIncludeBookFiles.isChecked()) {
+                    showBookList();
+                }
             });
+        });
+    }
+
+    private void showBookList() {
+        if (bookCandidates.isEmpty()) {
+            tvNoBooksAvailable.setVisibility(View.VISIBLE);
+            rvBackupBooks.setVisibility(View.GONE);
+            return;
+        }
+        rvBackupBooks.setAdapter(new BackupBookListAdapter(bookCandidates, selection.includedBookFileFolderIds,
+                this::refreshEstimate));
+        rvBackupBooks.setVisibility(View.VISIBLE);
+        tvNoBooksAvailable.setVisibility(View.GONE);
+    }
+
+    /** Recomputes and displays the size/duration estimate for whatever mode + selection is
+     *  currently active. Cheap enough (a real exportToJson() call for partial, a folder-size scan
+     *  for full) to just rerun on every relevant toggle rather than debounce. */
+    private void refreshEstimate() {
+        boolean isPartial = switchBackupScope.isChecked();
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            if (isPartial) {
+                // Snapshot the selection state read on the background thread, in case a checkbox
+                // changes again mid-computation.
+                FullBackupHelper.BackupSelection snapshot = new FullBackupHelper.BackupSelection();
+                snapshot.includePreferences = selection.includePreferences;
+                snapshot.includeRadios = selection.includeRadios;
+                snapshot.includePodcasts = selection.includePodcasts;
+                snapshot.includeLibrivox = selection.includeLibrivox;
+                snapshot.includeBookProgress = selection.includeBookProgress;
+                snapshot.includePodcastHistory = selection.includePodcastHistory;
+                snapshot.includedBookFileFolderIds.addAll(selection.includedBookFileFolderIds);
+
+                FullBackupHelper.PartialEstimate e = FullBackupHelper.computePartialEstimate(getApplicationContext(),
+                        snapshot);
+                runOnUiThread(() -> {
+                    if (!switchBackupScope.isChecked()) {
+                        return; // mode changed again before this finished
+                    }
+                    tvSizeNeeded
+                            .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
+                    tvDuration.setText(
+                            getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                });
+            } else {
+                FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
+                runOnUiThread(() -> {
+                    if (switchBackupScope.isChecked()) {
+                        return; // mode changed again before this finished
+                    }
+                    estimate = e;
+                    tvSizeNeeded
+                            .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
+                    tvDuration.setText(
+                            getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                });
+            }
         });
     }
 
@@ -178,30 +338,37 @@ public class FullBackupActivity extends BaseActivity {
         progressBar.setProgress(0);
         backupStartNanos = System.nanoTime();
 
+        boolean isPartial = switchBackupScope.isChecked();
+        FullBackupHelper.ProgressListener progressListener = (copiedBytes, totalBytes, fileName) -> {
+            int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
+            runOnUiThread(() -> {
+                progressBar.setProgress(percent);
+                tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
+                        Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
+
+                // Live-measured, not guessed: the actual observed rate of this transfer so far is
+                // a better estimate than a small pre-flight probe would have been, and it
+                // naturally reflects whatever this destination's real throughput is (fast local
+                // write vs. a slower network-backed one).
+                double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
+                if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
+                    double bytesPerSec = copiedBytes / elapsedSec;
+                    long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
+                    tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
+                }
+            });
+        };
+
         AppDatabase.databaseWriteExecutor.execute(() -> {
             FullBackupHelper.Result result;
             try {
-                result = FullBackupHelper.runFullBackup(getApplicationContext(), destFileUri, cancelled,
-                        (copiedBytes, totalBytes, fileName) -> {
-                            int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
-                            runOnUiThread(() -> {
-                                progressBar.setProgress(percent);
-                                tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
-                                        Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
-
-                                // Live-measured, not guessed: the actual observed rate of this
-                                // transfer so far is a better estimate than a small pre-flight
-                                // probe would have been, and it naturally reflects whatever this
-                                // destination's real throughput is (fast local write vs. a
-                                // slower network-backed one).
-                                double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
-                                if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
-                                    double bytesPerSec = copiedBytes / elapsedSec;
-                                    long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
-                                    tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
-                                }
-                            });
-                        });
+                if (isPartial) {
+                    result = FullBackupHelper.runPartialBackup(getApplicationContext(), destFileUri, selection,
+                            cancelled, progressListener);
+                } else {
+                    result = FullBackupHelper.runFullBackup(getApplicationContext(), destFileUri, cancelled,
+                            progressListener);
+                }
             } catch (Exception e) {
                 myLogEE(e, "runFullBackup failed");
                 runOnUiThread(() -> {

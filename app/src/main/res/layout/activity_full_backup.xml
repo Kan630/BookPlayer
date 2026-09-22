@@ -1,5 +1,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -23,8 +24,128 @@
             android:id="@+id/tv_full_backup_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/full_backup_desc" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tv_backup_scope_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/backup_scope_partial_title"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_backup_scope"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:trackTint="?attr/colorSecondary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_backup_scope_explain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+        <LinearLayout
+            android:id="@+id/ll_partial_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <CheckBox
+                android:id="@+id/cb_partial_preferences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_prefs" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_radios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_radios" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_podcasts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_podcasts" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_librivox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_librivox" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_book_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_book_progress" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_podcast_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/import_export_include_podcast_history" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="?android:attr/listDivider" />
+
+            <CheckBox
+                android:id="@+id/cb_partial_include_book_files"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_include_book_files_title" />
+
+            <TextView
+                android:id="@+id/tv_include_book_files_explain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/backup_include_book_files_explain"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+            <ProgressBar
+                android:id="@+id/progress_loading_books"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="start"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_backup_books"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                tools:listitem="@layout/item_backup_book" />
+
+            <TextView
+                android:id="@+id/tv_no_books_available"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_no_books_available"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_full_backup_size_needed"

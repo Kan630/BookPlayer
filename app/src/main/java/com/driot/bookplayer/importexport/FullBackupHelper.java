@@ -62,6 +62,10 @@ public class FullBackupHelper {
     // actual restore later - this manifest only ever feeds the preview screen).
     private static final String MANIFEST_ENTRY_NAME = "backup_manifest.json";
     private static final String BACKUP_JSON_ENTRY_NAME = "backup.json";
+    // Partial backup, individually-selected books' actual audio - namespaced by folder id so
+    // two books with identically-named tracks can't collide, and so restore knows which Folder
+    // record (from backup.json, parsed first) each entry belongs to.
+    private static final String BOOK_FILES_ENTRY_PREFIX = "book_files/";
 
     /** SUCCESS/PARTIAL_FAILURE/FAILED mirror the old boolean return (true only for SUCCESS);
      *  CANCELLED is new - the user hit Cancel/back mid-operation. Checked cooperatively via an
@@ -191,6 +195,203 @@ public class FullBackupHelper {
         }
     }
 
+    // -----------------------------------------------------------------------------------------
+    // Partial backup: pick which of the 6 metadata categories to include, plus - independently -
+    // opt specific books' actual audio files in one by one. Unlike runFullBackup (which zips the
+    // whole BACKUP_SUBFOLDERS wholesale), this only ever touches the files for books explicitly
+    // selected, so it needs to resolve each candidate book to its own on-disk directory rather
+    // than a folder-kind-level bucket.
+    // -----------------------------------------------------------------------------------------
+
+    public static class BackupSelection {
+        public boolean includePreferences = true;
+        public boolean includeRadios = true;
+        public boolean includePodcasts = true;
+        public boolean includeLibrivox = true;
+        public boolean includeBookProgress = true;
+        public boolean includePodcastHistory = true;
+        // Empty by default - "include book files" starts unchecked, and even once checked the
+        // per-book list itself starts with nothing ticked (see BackupActivity).
+        public final java.util.Set<Long> includedBookFileFolderIds = new java.util.HashSet<>();
+    }
+
+    /** One book eligible to have its actual audio bundled into a partial backup. Only books
+     *  whose files live inside this app's own storage are eligible - a linked book's audio lives
+     *  outside the app already (safe from uninstall on its own), and restoring it would mean
+     *  writing back through a SAF grant that may not even still be valid after a reinstall (see
+     *  runFullBackup's own doc comment on this same caveat for FULL mode's linked books). */
+    public static class BookFileCandidate {
+        public long folderId;
+        public String name;
+        public long sizeBytes;
+        File dir; // resolved on-disk directory; not exposed outside this file
+    }
+
+    public static List<BookFileCandidate> listBookFileCandidates(Context context) {
+        List<BookFileCandidate> out = new java.util.ArrayList<>();
+        List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
+        for (Folder f : folders) {
+            if (f.getPath() == null) {
+                continue;
+            }
+            File dir = resolveInternalFolderDir(Uri.parse(f.getPath()));
+            if (dir == null) {
+                continue; // linked/SAF book - not eligible, see class doc above
+            }
+            BookFileCandidate c = new BookFileCandidate();
+            c.folderId = f.getId();
+            c.name = f.getName();
+            c.dir = dir;
+            c.sizeBytes = dir.exists() ? StorageHelper.getFolderSize(dir) : 0;
+            out.add(c);
+        }
+        return out;
+    }
+
+    /** Only a file:// URI or a raw absolute path resolves to something this app can read/write
+     *  directly with java.io.File - anything else (content:// SAF) is a linked book, out of
+     *  scope for per-book file inclusion. Mirrors the scheme handling in
+     *  UriHelper.getDocumentFileFromAnyUri, kept independent here since that one also handles
+     *  SAF trees/documents this method deliberately never needs to. */
+    private static File resolveInternalFolderDir(Uri uri) {
+        String scheme = uri.getScheme();
+        if ("file".equalsIgnoreCase(scheme)) {
+            String path = uri.getPath();
+            return path != null ? new File(path) : null;
+        }
+        if (scheme == null) {
+            String s = uri.toString();
+            if (!s.isEmpty() && s.startsWith("/")) {
+                return new File(s);
+            }
+        }
+        return null;
+    }
+
+    public static class PartialEstimate {
+        public long totalBytes;
+        public long totalAudioDurationMs;
+    }
+
+    /** Real (not guessed) JSON size for the current selection, so toggling a checkbox shows an
+     *  honest number - metadata export is fast even for a large library, so recomputing it per
+     *  toggle is fine. Duration reflects every book's recorded progress when Book Progress is
+     *  included, independent of which (if any) individual books also have their files ticked -
+     *  it answers "how much listening progress will I get back", which is unaffected by whether
+     *  the audio itself rides along. */
+    public static PartialEstimate computePartialEstimate(Context context, BackupSelection selection) {
+        PartialEstimate e = new PartialEstimate();
+
+        if (selection.includeBookProgress) {
+            List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
+            for (Folder f : folders) {
+                e.totalAudioDurationMs += (long) f.getDuration();
+            }
+        }
+
+        try {
+            BackupManager backupManager = new BackupManager(context);
+            String json = backupManager.exportToJson(selection.includePreferences, selection.includeRadios,
+                    selection.includePodcasts, selection.includeLibrivox, selection.includeBookProgress,
+                    selection.includePodcastHistory);
+            e.totalBytes += json.getBytes(StandardCharsets.UTF_8).length;
+        } catch (Exception ex) {
+            KanLogger.myLogEE(ex, TAG, "computePartialEstimate: exportToJson failed");
+        }
+
+        if (!selection.includedBookFileFolderIds.isEmpty()) {
+            for (BookFileCandidate c : listBookFileCandidates(context)) {
+                if (selection.includedBookFileFolderIds.contains(c.folderId)) {
+                    e.totalBytes += c.sizeBytes;
+                }
+            }
+        }
+
+        return e;
+    }
+
+    /** Writes a metadata-selective backup, with the actual audio bundled in only for the
+     *  individually-opted-in books - everything else about the zip (manifest first, then
+     *  backup.json, same cancellation/progress handling) matches runFullBackup so the same
+     *  restore path (see runFullRestore) reads either kind transparently. */
+    public static Result runPartialBackup(Context context, Uri destFileUri, BackupSelection selection,
+            AtomicBoolean cancelled, ProgressListener listener) {
+        PartialEstimate estimate = computePartialEstimate(context, selection);
+        long[] copiedSoFar = { 0 };
+        boolean allOk = true;
+
+        try (OutputStream rawOut = context.getContentResolver().openOutputStream(destFileUri);
+                ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(rawOut))) {
+            if (rawOut == null) {
+                return Result.FAILED;
+            }
+            zos.setLevel(Deflater.NO_COMPRESSION);
+
+            try {
+                checkCancelled(cancelled);
+                BackupManager backupManager = new BackupManager(context);
+                String json = backupManager.exportToJson(selection.includePreferences, selection.includeRadios,
+                        selection.includePodcasts, selection.includeLibrivox, selection.includeBookProgress,
+                        selection.includePodcastHistory);
+                BackupManager.BackupData data = backupManager.inspectJson(json);
+
+                RestorePreview manifest = new RestorePreview();
+                if (data != null) {
+                    populatePreviewFromBackupData(manifest, data);
+                }
+                manifest.bookFilesIncludedCount = selection.includedBookFileFolderIds.size();
+
+                byte[] manifestBytes = new Gson().toJson(manifest).getBytes(StandardCharsets.UTF_8);
+                zos.putNextEntry(new ZipEntry(MANIFEST_ENTRY_NAME));
+                zos.write(manifestBytes);
+                zos.closeEntry();
+                copiedSoFar[0] += manifestBytes.length;
+                if (listener != null) {
+                    listener.onProgress(copiedSoFar[0], estimate.totalBytes, MANIFEST_ENTRY_NAME);
+                }
+
+                byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+                zos.putNextEntry(new ZipEntry(BACKUP_JSON_ENTRY_NAME));
+                zos.write(jsonBytes);
+                zos.closeEntry();
+                copiedSoFar[0] += jsonBytes.length;
+                if (listener != null) {
+                    listener.onProgress(copiedSoFar[0], estimate.totalBytes, BACKUP_JSON_ENTRY_NAME);
+                }
+            } catch (CancellationException e) {
+                throw e;
+            } catch (Exception e) {
+                KanLogger.myLogEE(e, TAG, "writing manifest/backup.json into partial zip failed");
+                allOk = false;
+            }
+
+            if (!selection.includedBookFileFolderIds.isEmpty()) {
+                for (BookFileCandidate c : listBookFileCandidates(context)) {
+                    if (!selection.includedBookFileFolderIds.contains(c.folderId)) {
+                        continue;
+                    }
+                    checkCancelled(cancelled);
+                    if (c.dir == null || !c.dir.exists()) {
+                        continue; // book was deleted/moved since the list was built - skip, not fatal
+                    }
+                    String prefix = BOOK_FILES_ENTRY_PREFIX + c.folderId + "/";
+                    if (!zipDirRecursive(c.dir, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
+                        allOk = false;
+                    }
+                }
+            }
+        } catch (CancellationException e) {
+            KanLogger.myLogI(TAG, "runPartialBackup cancelled by user - deleting partial destination file");
+            deleteQuietly(context, destFileUri);
+            return Result.CANCELLED;
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "runPartialBackup (zip) failed");
+            return Result.FAILED;
+        }
+
+        return allOk ? Result.SUCCESS : Result.PARTIAL_FAILURE;
+    }
+
     /** What's actually inside a Full Backup zip, for the "review before you restore" screen -
      *  mirrors computeEstimate()'s shape (size + audio duration) plus the same category counts
      *  the classic restore screen shows as checkboxes, so the user sees what they're about to
@@ -208,6 +409,11 @@ public class FullBackupHelper {
         public int podcastCount;
         public int podcastHistoryCount;
         public boolean hasPreferences;
+        // How many books' actual audio was individually opted into this backup (partial mode
+        // only - 0 for a metadata-only partial backup, and for FULL this is left at 0 too since
+        // FULL zips every book's files wholesale rather than enumerating them one by one - see
+        // runFullBackup vs runPartialBackup).
+        public int bookFilesIncludedCount;
     }
 
     private static void populatePreviewFromBackupData(RestorePreview preview, BackupManager.BackupData data) {
@@ -335,6 +541,10 @@ public class FullBackupHelper {
         long[] copiedSoFar = { 0 };
         boolean allOk = true;
         String backupJson = null;
+        // Populated as soon as backup.json is seen (always written before any book_files/*
+        // entry, see runPartialBackup) so a partial backup's individually-selected books can be
+        // extracted straight to the exact path their restored Folder record will point at.
+        java.util.Map<Long, File> folderIdToDir = new java.util.HashMap<>();
 
         try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
@@ -353,8 +563,14 @@ public class FullBackupHelper {
                         if (listener != null) {
                             listener.onProgress(copiedSoFar[0], totalBytes, BACKUP_JSON_ENTRY_NAME);
                         }
+                        folderIdToDir.putAll(buildFolderIdToDirMap(context, backupJson));
                     } else if (isUnderBackupSubfolder(name)) {
                         if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, cancelled, listener)) {
+                            allOk = false;
+                        }
+                    } else if (name.startsWith(BOOK_FILES_ENTRY_PREFIX)) {
+                        if (!extractBookFileEntry(zis, name, folderIdToDir, totalBytes, copiedSoFar, cancelled,
+                                listener)) {
                             allOk = false;
                         }
                     }
@@ -432,6 +648,83 @@ public class FullBackupHelper {
             throw e;
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "extracting zip entry failed: " + entryName);
+            return false;
+        }
+    }
+
+    /** Parses backup.json far enough to know, for every Folder it contains, exactly which
+     *  on-disk directory a restored book_files/&lt;folderId&gt;/... entry belongs in - the same
+     *  directory the restored Folder record's own path will point at, so the files and the DB
+     *  row agree once both are back. Swallows its own errors (returns an empty map) rather than
+     *  failing the whole restore - a partial backup with no book_files entries at all (or a FULL
+     *  backup, which never has any) never needed this map in the first place. */
+    private static java.util.Map<Long, File> buildFolderIdToDirMap(Context context, String backupJson) {
+        java.util.Map<Long, File> map = new java.util.HashMap<>();
+        try {
+            BackupManager backupManager = new BackupManager(context);
+            BackupManager.BackupData data = backupManager.inspectJson(backupJson);
+            if (data != null && data.folders != null) {
+                for (Folder f : data.folders) {
+                    if (f.getPath() == null) {
+                        continue;
+                    }
+                    File dir = resolveInternalFolderDir(Uri.parse(f.getPath()));
+                    if (dir != null) {
+                        map.put(f.getId(), dir);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "buildFolderIdToDirMap failed - book_files entries (if any) will be skipped");
+        }
+        return map;
+    }
+
+    private static boolean extractBookFileEntry(ZipInputStream zis, String entryName,
+            java.util.Map<Long, File> folderIdToDir, long totalBytes, long[] copiedSoFar, AtomicBoolean cancelled,
+            ProgressListener listener) {
+        try {
+            String rest = entryName.substring(BOOK_FILES_ENTRY_PREFIX.length()); // "<folderId>/<relPath...>"
+            int slash = rest.indexOf('/');
+            if (slash < 0) {
+                return false;
+            }
+            long folderId;
+            try {
+                folderId = Long.parseLong(rest.substring(0, slash));
+            } catch (NumberFormatException nfe) {
+                return false;
+            }
+            File baseDir = folderIdToDir.get(folderId);
+            if (baseDir == null) {
+                // backup.json didn't carry a Folder for this id (or its path wasn't an internal
+                // one) - not fatal, just nothing to restore this entry against.
+                KanLogger.myLogW(TAG, "runFullRestore: no destination for " + entryName + " - skipping");
+                return true;
+            }
+
+            File dest = PathSafe.safeResolve(baseDir, rest.substring(slash + 1));
+            File parent = dest.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new java.io.IOException("mkdirs failed for " + parent);
+            }
+            try (OutputStream out = new FileOutputStream(dest)) {
+                byte[] buf = new byte[64 * 1024];
+                int len;
+                while ((len = zis.read(buf)) > 0) {
+                    checkCancelled(cancelled);
+                    out.write(buf, 0, len);
+                    copiedSoFar[0] += len;
+                    if (listener != null) {
+                        listener.onProgress(copiedSoFar[0], totalBytes, dest.getName());
+                    }
+                }
+            }
+            return true;
+        } catch (CancellationException e) {
+            throw e;
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "extracting book_files entry failed: " + entryName);
             return false;
         }
     }

@@ -1000,6 +1000,12 @@
     <!-- Full Backup (everything: audio files, covers, and metadata) -->
     <string name="full_backup_title">Full Backup and Restore</string>
     <string name="full_backup_desc">Packs everything - your audiobooks, cover images, and all app data - into a single zip file you save wherever you like: SD card, USB drive, a cloud storage app like Google Drive or Dropbox if it\'s installed, or shared directly via Quick Share, email, or any other app.</string>
+    <string name="backup_scope_partial_title">Partial backup</string>
+    <string name="backup_scope_full_explain">Includes everything: every audiobook file, cover image, and all app data.</string>
+    <string name="backup_scope_partial_explain">Choose exactly what to include below.</string>
+    <string name="backup_include_book_files_title">Include actual book files</string>
+    <string name="backup_include_book_files_explain">Off by default - the boxes below only back up progress and settings for your books, not the audio itself. Turn this on to also pick specific books to include in full, file and all. Only books stored inside the app are eligible - a linked book\'s files already live outside the app and are unaffected by uninstalling it.</string>
+    <string name="backup_no_books_available">No eligible books found - either your library is empty, or every book is linked rather than stored inside the app.</string>
     <string name="full_backup_size_needed">Storage needed: %s</string>
     <string name="full_backup_audio_duration">Total audio: %s</string>
     <string name="full_backup_eta">Estimated time remaining: %s</string>
