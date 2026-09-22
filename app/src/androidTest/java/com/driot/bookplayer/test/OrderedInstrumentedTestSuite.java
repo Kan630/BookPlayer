@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
         LoadManyBookTest.class,
         ClearAndLoadManyBookTest.class,
         DeepSettingsTest.class,
+        InputScreensCrashSurfaceTest.class,
         PermissionHandlingTest.class,
         PureUiTest.class,
 })

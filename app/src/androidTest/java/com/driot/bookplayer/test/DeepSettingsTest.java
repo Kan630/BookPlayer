@@ -62,6 +62,10 @@ import java.util.concurrent.Executors;
 public class DeepSettingsTest implements LogSupport {
 
     private final int WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS = 50;
+    // Long enough for a focus-triggered postDelayed callback (like the one that actually shipped
+    // a ClassCastException crash in prod - see InputScreensCrashSurfaceTest's javadoc) to fire
+    // before we move on and possibly mask it.
+    private final int WAIT_DELAY_AFTER_EDITTEXT_FOCUS_MS = 500;
     private final int WAIT_DELAY_DIALOG_MS = 100;
     private final int WAIT_DELAY_SECTION_INTERACTION_START = 500;
     private final int WAIT_DELAY_SECTION_INTERACTION_END = 500;
@@ -265,8 +269,18 @@ public class DeepSettingsTest implements LogSupport {
                 String val = randomValues[random.nextInt(randomValues.length)];
                 myLogD("Setting text in " + getResourceName(target.getId()) + " to: " + val);
                 try {
+                    // click() (not replaceText() alone) so the field is actually given real
+                    // focus first - replaceText() sets the text programmatically and does not
+                    // reliably fire OnFocusChangeListener, which is exactly the gap that let a
+                    // focus-driven ClassCastException reach production (see
+                    // InputScreensCrashSurfaceTest's javadoc).
                     onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.scrollTo(),
-                            androidx.test.espresso.action.ViewActions.replaceText(val));
+                            androidx.test.espresso.action.ViewActions.click());
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.clearText(),
+                            androidx.test.espresso.action.ViewActions.typeText(val),
+                            androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                    onView(instanceMatcher).perform(clearFocusAction());
+                    TestNavUtils.sleep(WAIT_DELAY_AFTER_EDITTEXT_FOCUS_MS, "settle after EditText focus/unfocus");
                 } catch (Exception e) {
                     myLog("Error setting text in " + getResourceName(target.getId()) + ": " + e.getMessage());
                 }
@@ -336,6 +350,33 @@ public class DeepSettingsTest implements LogSupport {
     // or just rely on the fact that some fragments might only have one or two.
     // Better: use a helper to find all views of type in the hierarchy and act on
     // them.
+
+    /**
+     * Defocuses whatever EditText currently has focus by calling View.clearFocus() directly on
+     * it, which fires OnFocusChangeListener(false) the same way a real focus loss would. Settings
+     * sections don't share a common "tap outside" target the way the Add-book/Radio/Podcast
+     * screens do (see InputScreensCrashSurfaceTest's focusGuard usage), so this targets the field
+     * itself instead of hunting for a per-section dismiss target.
+     */
+    private ViewAction clearFocusAction() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "clearFocus() to defocus the field";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                view.clearFocus();
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
 
     private ViewAction clickHeader() {
         return new ViewAction() {
