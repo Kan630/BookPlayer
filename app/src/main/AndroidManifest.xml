@@ -99,7 +99,11 @@
             android:exported="false" />
 
         <activity android:name=".importexport.FullBackupActivity"
-            android:label="@string/full_backup_title"
+            android:label="@string/backup_restore_activity_label"
+            android:exported="false" />
+
+        <activity android:name=".importexport.BackupQuickShareActivity"
+            android:label="@string/backup_restore_activity_label"
             android:exported="false" />
 
 

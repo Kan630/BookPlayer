@@ -25,7 +25,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.PlaybackCommands;
-import com.driot.bookplayer.importexport.ImportExportActivity;
+import com.driot.bookplayer.importexport.FullBackupActivity;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -128,19 +128,16 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         });
 
         root.findViewById(R.id.btn_backup_library).setOnClickListener(v -> {
-            Intent it = new Intent(getActivity(), ImportExportActivity.class);
-            it.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_BACKUP);
+            Intent it = new Intent(getActivity(), FullBackupActivity.class);
+            it.putExtra(FullBackupActivity.EXTRA_MODE, FullBackupActivity.MODE_BACKUP);
             startActivity(it);
         });
 
         root.findViewById(R.id.btn_restore_library).setOnClickListener(v -> {
-            Intent it = new Intent(getActivity(), ImportExportActivity.class);
-            it.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_RESTORE);
+            Intent it = new Intent(getActivity(), FullBackupActivity.class);
+            it.putExtra(FullBackupActivity.EXTRA_MODE, FullBackupActivity.MODE_RESTORE);
             startActivity(it);
         });
-
-        root.findViewById(R.id.btn_full_backup).setOnClickListener(v ->
-                startActivity(new Intent(getActivity(), com.driot.bookplayer.importexport.FullBackupActivity.class)));
 
         root.findViewById(R.id.btn_app_info).setOnClickListener(v -> openAppInfo());
         root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());

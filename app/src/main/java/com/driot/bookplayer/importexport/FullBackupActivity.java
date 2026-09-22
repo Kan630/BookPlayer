@@ -1,6 +1,7 @@
 package com.driot.bookplayer.importexport;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,12 +25,17 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FullBackupActivity extends BaseActivity {
+
+    public static final String EXTRA_MODE = "extra_mode";
+    public static final int MODE_BACKUP = 0;
+    public static final int MODE_RESTORE = 1;
 
     private FullBackupHelper.Estimate estimate;
     private long backupStartNanos;
@@ -44,7 +51,21 @@ public class FullBackupActivity extends BaseActivity {
     private MaterialButton btnConfirmRestorePreview;
 
     // --- Backup scope (FULL vs PARTIAL) ---
-    private MaterialSwitch switchBackupScope;
+    private MaterialButtonToggleGroup groupBackupScope;
+    private MaterialButtonToggleGroup groupBackupDestination;
+    private MaterialButtonToggleGroup groupRestoreSource;
+    private MaterialButton btnDestQuickShare;
+    private View tvBackupDestinationWarning;
+    // Set right before starting a backup write, when the destination is Quick Share: the write
+    // itself reuses startFullBackup()/startFullRestore() unchanged (a local cache file is just
+    // another Uri to them), and on success this tells the completion callback to launch the send
+    // screen with that file instead of just reporting "done".
+    private boolean pendingQuickShareSend = false;
+    private File pendingQuickShareFile;
+    // Captured once at init from the button itself, so "un-warning" it means restoring these
+    // exact values rather than guessing at whatever color the OutlinedButton style resolves to.
+    private ColorStateList quickShareDefaultStroke, quickShareDefaultIconTint, quickShareDefaultTextColor;
+    private long lastEstimatedBytes = 0;
     private TextView tvBackupScopeExplain;
     private View llPartialOptions;
     private CheckBox cbPreferences, cbRadios, cbPodcasts, cbLibrivox, cbBookProgress, cbPodcastHistory;
@@ -102,11 +123,41 @@ public class FullBackupActivity extends BaseActivity {
                 }
             });
 
+    private final ActivityResultLauncher<Intent> quickShareSendLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                // Best-effort cleanup of the local temp copy regardless of how the send screen
+                // was left (sent, cancelled, backed out of).
+                if (pendingQuickShareFile != null) {
+                    pendingQuickShareFile.delete();
+                    pendingQuickShareFile = null;
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> quickShareReceiveLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String path = result.getData().getStringExtra(BackupQuickShareActivity.EXTRA_RECEIVED_FILE_PATH);
+                    if (path != null) {
+                        pickedRestoreZipUri = Uri.fromFile(new File(path));
+                        startPeekPreview(pickedRestoreZipUri);
+                    }
+                }
+            });
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_backup);
         InsetHelper.apply(this);
+
+        // One screen, two entry points (Settings' Backup/Restore buttons): showing only the
+        // relevant section keeps each feeling like its own focused screen without duplicating
+        // the cancellation/progress/result plumbing shared by both operations.
+        int mode = getIntent().getIntExtra(EXTRA_MODE, MODE_BACKUP);
+        findViewById(R.id.ll_backup_section).setVisibility(mode == MODE_BACKUP ? View.VISIBLE : View.GONE);
+        findViewById(R.id.ll_restore_section).setVisibility(mode == MODE_RESTORE ? View.VISIBLE : View.GONE);
 
         tvSizeNeeded = findViewById(R.id.tv_full_backup_size_needed);
         tvDuration = findViewById(R.id.tv_full_backup_duration);
@@ -120,7 +171,19 @@ public class FullBackupActivity extends BaseActivity {
         btnCancelOperation = findViewById(R.id.btn_cancel_full_backup_operation);
         btnCancelOperation.setOnClickListener(v -> requestCancel());
 
-        switchBackupScope = findViewById(R.id.switch_backup_scope);
+        groupBackupScope = findViewById(R.id.group_backup_scope);
+        groupBackupDestination = findViewById(R.id.group_backup_destination);
+        btnDestQuickShare = findViewById(R.id.btn_dest_quick_share);
+        tvBackupDestinationWarning = findViewById(R.id.tv_backup_destination_warning);
+        quickShareDefaultStroke = btnDestQuickShare.getStrokeColor();
+        quickShareDefaultIconTint = btnDestQuickShare.getIconTint();
+        quickShareDefaultTextColor = btnDestQuickShare.getTextColors();
+        groupBackupDestination.check(R.id.btn_dest_file);
+        groupBackupDestination.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                applyDestinationWarning(lastEstimatedBytes);
+            }
+        });
         tvBackupScopeExplain = findViewById(R.id.tv_backup_scope_explain);
         llPartialOptions = findViewById(R.id.ll_partial_options);
         cbPreferences = findViewById(R.id.cb_partial_preferences);
@@ -179,8 +242,16 @@ public class FullBackupActivity extends BaseActivity {
             }
         });
 
-        switchBackupScope.setOnCheckedChangeListener((buttonView, isChecked) -> applyScopeMode());
+        groupBackupScope.check(R.id.btn_scope_full);
+        groupBackupScope.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                applyScopeMode();
+            }
+        });
         applyScopeMode(); // sets initial FULL-mode UI state and triggers the first estimate
+
+        groupRestoreSource = findViewById(R.id.group_restore_source);
+        groupRestoreSource.check(R.id.btn_restore_src_file);
 
         llRestoreReading = findViewById(R.id.ll_restore_reading);
         llRestorePreview = findViewById(R.id.ll_restore_preview);
@@ -197,14 +268,33 @@ public class FullBackupActivity extends BaseActivity {
         });
 
         btnStart.setOnClickListener(v -> {
+            String fileName = "BookPlayerFullBackup_" + Tonio.getCurrentDateTimeString() + ".zip";
+            if (groupBackupDestination.getCheckedButtonId() == R.id.btn_dest_quick_share) {
+                // Same write path either way (startFullBackup() doesn't care whether the Uri is
+                // SAF-picked or a local cache file) - only the destination differs, and only
+                // after a successful write does this one also launch the send screen.
+                File cacheDir = new File(getCacheDir(), "quick_share_out");
+                cacheDir.mkdirs();
+                pendingQuickShareFile = new File(cacheDir, fileName);
+                pendingQuickShareSend = true;
+                startFullBackup(Uri.fromFile(pendingQuickShareFile));
+                return;
+            }
+            pendingQuickShareSend = false;
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/zip");
-            intent.putExtra(Intent.EXTRA_TITLE, "BookPlayerFullBackup_" + Tonio.getCurrentDateTimeString() + ".zip");
+            intent.putExtra(Intent.EXTRA_TITLE, fileName);
             createDocumentLauncher.launch(intent);
         });
 
         btnStartRestore.setOnClickListener(v -> {
+            if (groupRestoreSource.getCheckedButtonId() == R.id.btn_restore_src_quick_share) {
+                Intent intent = new Intent(this, BackupQuickShareActivity.class);
+                intent.putExtra(BackupQuickShareActivity.EXTRA_MODE, BackupQuickShareActivity.MODE_RECEIVE);
+                quickShareReceiveLauncher.launch(intent);
+                return;
+            }
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/zip");
@@ -231,10 +321,14 @@ public class FullBackupActivity extends BaseActivity {
 
     }
 
+    private boolean isPartialScope() {
+        return groupBackupScope.getCheckedButtonId() == R.id.btn_scope_partial;
+    }
+
     /** Shows/hides the checkbox block, flips the explain text, and refreshes the estimate for
      *  whichever mode the switch is now in. */
     private void applyScopeMode() {
-        boolean isPartial = switchBackupScope.isChecked();
+        boolean isPartial = isPartialScope();
         llPartialOptions.setVisibility(isPartial ? View.VISIBLE : View.GONE);
         tvBackupScopeExplain.setText(
                 isPartial ? R.string.backup_scope_partial_explain : R.string.backup_scope_full_explain);
@@ -277,7 +371,7 @@ public class FullBackupActivity extends BaseActivity {
      *  currently active. Cheap enough (a real exportToJson() call for partial, a folder-size scan
      *  for full) to just rerun on every relevant toggle rather than debounce. */
     private void refreshEstimate() {
-        boolean isPartial = switchBackupScope.isChecked();
+        boolean isPartial = isPartialScope();
         AppDatabase.databaseReadExecutor.execute(() -> {
             if (isPartial) {
                 // Snapshot the selection state read on the background thread, in case a checkbox
@@ -294,18 +388,19 @@ public class FullBackupActivity extends BaseActivity {
                 FullBackupHelper.PartialEstimate e = FullBackupHelper.computePartialEstimate(getApplicationContext(),
                         snapshot);
                 runOnUiThread(() -> {
-                    if (!switchBackupScope.isChecked()) {
+                    if (!isPartialScope()) {
                         return; // mode changed again before this finished
                     }
                     tvSizeNeeded
                             .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
                     tvDuration.setText(
                             getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                    applyDestinationWarning(e.totalBytes);
                 });
             } else {
                 FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
                 runOnUiThread(() -> {
-                    if (switchBackupScope.isChecked()) {
+                    if (isPartialScope()) {
                         return; // mode changed again before this finished
                     }
                     estimate = e;
@@ -313,9 +408,39 @@ public class FullBackupActivity extends BaseActivity {
                             .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
                     tvDuration.setText(
                             getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                    applyDestinationWarning(e.totalBytes);
                 });
             }
         });
+    }
+
+    // Above this, a P2P transfer (once Quick Share for backups is wired up) risks being slow or
+    // dropping mid-transfer - not a hard limit, just a heads-up. Tune freely; nothing else reads
+    // this constant.
+    private static final long QUICK_SHARE_SIZE_WARNING_THRESHOLD_BYTES = 50L * 1024 * 1024;
+
+    /** Colors the Quick Share option (and shows an explanatory line) once the current estimate
+     *  crosses the threshold above - but only while Quick Share is actually the selected
+     *  destination. Save to Zip File has no such risk (local/SAF write doesn't care about size
+     *  the way a P2P transfer does), so flagging it too would just look alarming for no reason.
+     *  "Un-warning" restores the exact stroke/icon/text colors captured from the button in
+     *  onCreate, rather than guessing at what the OutlinedButton style would otherwise resolve
+     *  to. */
+    private void applyDestinationWarning(long totalBytes) {
+        lastEstimatedBytes = totalBytes;
+        boolean quickShareSelected = groupBackupDestination.getCheckedButtonId() == R.id.btn_dest_quick_share;
+        boolean warn = quickShareSelected && totalBytes > QUICK_SHARE_SIZE_WARNING_THRESHOLD_BYTES;
+        if (warn) {
+            ColorStateList orange = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.orange_700));
+            btnDestQuickShare.setStrokeColor(orange);
+            btnDestQuickShare.setIconTint(orange);
+            btnDestQuickShare.setTextColor(orange);
+        } else {
+            btnDestQuickShare.setStrokeColor(quickShareDefaultStroke);
+            btnDestQuickShare.setIconTint(quickShareDefaultIconTint);
+            btnDestQuickShare.setTextColor(quickShareDefaultTextColor);
+        }
+        tvBackupDestinationWarning.setVisibility(warn ? View.VISIBLE : View.GONE);
     }
 
     private void requestCancel() {
@@ -338,7 +463,7 @@ public class FullBackupActivity extends BaseActivity {
         progressBar.setProgress(0);
         backupStartNanos = System.nanoTime();
 
-        boolean isPartial = switchBackupScope.isChecked();
+        boolean isPartial = isPartialScope();
         FullBackupHelper.ProgressListener progressListener = (copiedBytes, totalBytes, fileName) -> {
             int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
             runOnUiThread(() -> {
@@ -385,9 +510,32 @@ public class FullBackupActivity extends BaseActivity {
             runOnUiThread(() -> {
                 operationInProgress = false;
                 llProgress.setVisibility(View.GONE);
+                btnStart.setEnabled(true);
+
+                if (pendingQuickShareSend) {
+                    pendingQuickShareSend = false;
+                    if (finalResult == FullBackupHelper.Result.SUCCESS && pendingQuickShareFile != null) {
+                        // Skip the plain "backup complete" text here - the send screen itself
+                        // reports what happens next, and quickShareSendLauncher's callback cleans
+                        // up the temp file once that screen is done with it either way.
+                        Intent intent = new Intent(this, BackupQuickShareActivity.class);
+                        intent.putExtra(BackupQuickShareActivity.EXTRA_MODE, BackupQuickShareActivity.MODE_SEND);
+                        intent.putExtra(BackupQuickShareActivity.EXTRA_FILE_PATH,
+                                pendingQuickShareFile.getAbsolutePath());
+                        intent.putExtra(BackupQuickShareActivity.EXTRA_DISPLAY_NAME, pendingQuickShareFile.getName());
+                        quickShareSendLauncher.launch(intent);
+                        return;
+                    }
+                    // Writing the local copy itself failed/was cancelled - nothing to send, clean
+                    // up and fall through to the normal result text below.
+                    if (pendingQuickShareFile != null) {
+                        pendingQuickShareFile.delete();
+                        pendingQuickShareFile = null;
+                    }
+                }
+
                 tvResult.setVisibility(View.VISIBLE);
                 tvResult.setText(backupResultTextResId(finalResult));
-                btnStart.setEnabled(true);
             });
         });
     }

@@ -11,12 +11,18 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <LinearLayout
+            android:id="@+id/ll_backup_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <TextView
             android:id="@+id/tv_full_backup_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="@string/full_backup_title"
+            android:text="@string/backup_screen_title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textStyle="bold" />
 
@@ -27,27 +33,33 @@
             android:layout_marginBottom="16dp"
             android:text="@string/full_backup_desc" />
 
-        <LinearLayout
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/group_backup_scope"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_backup_scope_label"
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_scope_full"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/backup_scope_partial_title"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+                android:layout_marginHorizontal="4dp"
+                android:text="@string/backup_scope_full_title" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_backup_scope"
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_scope_partial"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:trackTint="?attr/colorSecondary" />
-        </LinearLayout>
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:text="@string/backup_scope_partial_title" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <TextView
             android:id="@+id/tv_backup_scope_explain"
@@ -157,8 +169,55 @@
             android:id="@+id/tv_full_backup_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/group_backup_destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_dest_file"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                app:icon="@drawable/ic_file_save"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                android:text="@string/backup_destination_file" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_dest_quick_share"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                app:icon="@drawable/ic_connect_without_contact_24px"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                android:text="@string/backup_destination_quick_share" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <TextView
+            android:id="@+id/tv_backup_destination_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:text="@string/backup_destination_size_warning"
+            android:textColor="@color/orange_700"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_warning_24" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start_full_backup"
@@ -167,21 +226,22 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:text="@string/full_backup_start"
-            app:icon="@drawable/ic_share_24px" />
+            app:icon="@drawable/ic_file_save" />
 
-        <View
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_restore_section"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
-            android:background="?android:attr/listDivider" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_full_restore_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="@string/full_restore_title"
+            android:text="@string/restore_screen_title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textStyle="bold" />
 
@@ -189,8 +249,43 @@
             android:id="@+id/tv_full_restore_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/full_restore_desc" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/group_restore_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_restore_src_file"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                app:icon="@drawable/ic_check_24px"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                android:text="@string/restore_source_pick_file" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonForToggleGroup"
+                android:id="@+id/btn_restore_src_quick_share"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                app:icon="@drawable/ic_connect_without_contact_24px"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                android:text="@string/backup_destination_quick_share" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start_full_restore"
@@ -285,6 +380,8 @@
                 android:layout_marginTop="8dp"
                 android:padding="12dp"
                 android:text="@android:string/cancel" />
+
+        </LinearLayout>
 
         </LinearLayout>
 

@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -429,6 +430,64 @@ public class NearbyConnectionsHelper {
                 }
             } catch (Exception e) {
                 myLogEE(e, "Error sending book data");
+                if (payloadCallback != null) {
+                    payloadCallback.onTransferFailed(
+                            context.getString(R.string.nearby_share_error_send_data_failed, e.getMessage()));
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Sends a single arbitrary file to a connected endpoint - the generic counterpart to
+     * sendBookData(), for anything that isn't a Folder/ZikFile (e.g. a Full Backup zip). Reuses
+     * the same connection/payload plumbing as book sharing (this is still the one Hilt-singleton
+     * ConnectionsClient/SERVICE_ID for the whole app), just with a minimal metadata payload
+     * (name + size, no chapters/progress) ahead of the one file payload. The receiver side needs
+     * no new method - PayloadCallback.onPayloadReceived() for this metadata and
+     * onFilePayloadReceived() for the file itself are already generic.
+     */
+    public void sendSingleFile(String endpointId, File file, String displayName) {
+        new Thread(() -> {
+            payloadNames.clear();
+            payloadSizes.clear();
+            payloadIndices.clear();
+            payloadLastLoggedStep.clear();
+            totalBytesSentOverall = 0;
+            payloadsTotalSize = 0;
+            totalFilesToSend = 1;
+
+            try {
+                android.os.ParcelFileDescriptor pfd = android.os.ParcelFileDescriptor.open(file,
+                        android.os.ParcelFileDescriptor.MODE_READ_ONLY);
+                Payload filePayload = Payload.fromFile(pfd);
+                long size = file.length();
+
+                payloadNames.put(filePayload.getId(), displayName);
+                payloadSizes.put(filePayload.getId(), size);
+                payloadIndices.put(filePayload.getId(), 1);
+                payloadsTotalSize = size;
+
+                JSONObject metadata = new JSONObject();
+                metadata.put("type", "SINGLE_FILE");
+                metadata.put("name", displayName);
+                metadata.put("size", size);
+                metadata.put("payloadId", filePayload.getId());
+                Payload metadataPayload = Payload.fromBytes(metadata.toString().getBytes());
+                payloadNames.put(metadataPayload.getId(), "Metadata");
+                payloadSizes.put(metadataPayload.getId(), (long) metadataPayload.asBytes().length);
+
+                myLogD("sendSingleFile: sending metadata for " + displayName);
+                connectionsClient.sendPayload(endpointId, metadataPayload);
+
+                if (connectedEndpointId == null) {
+                    myLogW("sendSingleFile aborted: disconnected before file payload could be sent");
+                    return;
+                }
+                myLogD("sendSingleFile: sending file payload for " + displayName);
+                connectionsClient.sendPayload(endpointId, filePayload);
+            } catch (Exception e) {
+                myLogEE(e, "sendSingleFile failed for " + displayName);
                 if (payloadCallback != null) {
                     payloadCallback.onTransferFailed(
                             context.getString(R.string.nearby_share_error_send_data_failed, e.getMessage()));
