@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -61,6 +63,19 @@ public class FullBackupHelper {
     private static final String MANIFEST_ENTRY_NAME = "backup_manifest.json";
     private static final String BACKUP_JSON_ENTRY_NAME = "backup.json";
 
+    /** SUCCESS/PARTIAL_FAILURE/FAILED mirror the old boolean return (true only for SUCCESS);
+     *  CANCELLED is new - the user hit Cancel/back mid-operation. Checked cooperatively via an
+     *  AtomicBoolean passed in by the caller (pass null to make an operation uncancellable). */
+    public enum Result {
+        SUCCESS, PARTIAL_FAILURE, FAILED, CANCELLED
+    }
+
+    private static void checkCancelled(AtomicBoolean cancelled) {
+        if (cancelled != null && cancelled.get()) {
+            throw new CancellationException("Full backup/restore cancelled by user");
+        }
+    }
+
     public static class Estimate {
         public long totalBytes;
         public long totalAudioDurationMs;
@@ -92,10 +107,14 @@ public class FullBackupHelper {
 
     /** Streams every backup-relevant local folder plus a full metadata export into a single zip
      * at destFileUri. Keeps going on individual file failures rather than aborting the whole
-     * backup - returns false if at least one file failed (or the zip itself couldn't be
-     * finalized). Audio/images are already compressed, so the zip uses no further compression -
-     * it's purely a container here, not a size-reduction step. */
-    public static boolean runFullBackup(Context context, Uri destFileUri, ProgressListener listener) {
+     * backup. Audio/images are already compressed, so the zip uses no further compression - it's
+     * purely a container here, not a size-reduction step.
+     * <p>
+     * {@code cancelled} is polled between files (and periodically within a large file) - pass
+     * null for an uncancellable run. On cancellation the partially-written destFileUri is
+     * deleted rather than left behind as a broken/incomplete zip. */
+    public static Result runFullBackup(Context context, Uri destFileUri, AtomicBoolean cancelled,
+            ProgressListener listener) {
         Estimate estimate = computeEstimate(context);
         long[] copiedSoFar = { 0 };
         boolean allOk = true;
@@ -103,7 +122,7 @@ public class FullBackupHelper {
         try (OutputStream rawOut = context.getContentResolver().openOutputStream(destFileUri);
                 ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(rawOut))) {
             if (rawOut == null) {
-                return false;
+                return Result.FAILED;
             }
             zos.setLevel(Deflater.NO_COMPRESSION);
 
@@ -111,6 +130,7 @@ public class FullBackupHelper {
             // below, and writing them first means a restore preview never has to scan past any
             // audio to find them.
             try {
+                checkCancelled(cancelled);
                 BackupManager backupManager = new BackupManager(context);
                 String json = backupManager.exportToJson(true, true, true, true, true, true);
                 BackupManager.BackupData data = backupManager.inspectJson(json);
@@ -136,6 +156,8 @@ public class FullBackupHelper {
                 if (listener != null) {
                     listener.onProgress(copiedSoFar[0], estimate.totalBytes, BACKUP_JSON_ENTRY_NAME);
                 }
+            } catch (CancellationException e) {
+                throw e;
             } catch (Exception e) {
                 KanLogger.myLogEE(e, TAG, "writing manifest/backup.json into zip failed");
                 allOk = false;
@@ -145,16 +167,28 @@ public class FullBackupHelper {
                 File srcDir = new File(context.getFilesDir(), sub);
                 if (!srcDir.exists())
                     continue;
-                if (!zipDirRecursive(srcDir, sub + "/", zos, estimate.totalBytes, copiedSoFar, listener)) {
+                if (!zipDirRecursive(srcDir, sub + "/", zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
                     allOk = false;
                 }
             }
+        } catch (CancellationException e) {
+            KanLogger.myLogI(TAG, "runFullBackup cancelled by user - deleting partial destination file");
+            deleteQuietly(context, destFileUri);
+            return Result.CANCELLED;
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "runFullBackup (zip) failed");
-            return false;
+            return Result.FAILED;
         }
 
-        return allOk;
+        return allOk ? Result.SUCCESS : Result.PARTIAL_FAILURE;
+    }
+
+    private static void deleteQuietly(Context context, Uri uri) {
+        try {
+            context.getContentResolver().delete(uri, null, null);
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "could not delete cancelled backup's partial file: " + uri);
+        }
     }
 
     /** What's actually inside a Full Backup zip, for the "review before you restore" screen -
@@ -286,8 +320,17 @@ public class FullBackupHelper {
      * Streamed single-pass (no separate "peek the date first" step): the file entries can be
      * many GB, so reading the zip twice just to preview it before confirming isn't worth doubling
      * the I/O for what a static confirmation message already covers.
-     */
-    public static boolean runFullRestore(Context context, Uri srcZipUri, ProgressListener listener) {
+     * <p>
+     * {@code cancelled} is polled between entries (and periodically within a large file) - pass
+     * null for an uncancellable run. Cancellation is only honored during the file-extraction
+     * phase; once that's done and importFromJson (a single DB write, not chunked/interruptible)
+     * starts, it always runs to completion rather than risk leaving a half-imported database.
+     * That means a cancel mid-restore leaves the DB/prefs completely untouched - safe - but some
+     * audio/cover files may already have been overwritten by the time cancellation is noticed;
+     * there's no transactional rollback for those, so a cancelled restore's files should be
+     * treated as a partial mix of old and new, not simply "nothing happened". */
+    public static Result runFullRestore(Context context, Uri srcZipUri, AtomicBoolean cancelled,
+            ProgressListener listener) {
         long totalBytes = estimateZipSize(context, srcZipUri);
         long[] copiedSoFar = { 0 };
         boolean allOk = true;
@@ -296,11 +339,12 @@ public class FullBackupHelper {
         try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
             if (rawIn == null) {
-                return false;
+                return Result.FAILED;
             }
 
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
+                checkCancelled(cancelled); // between entries
                 String name = entry.getName();
                 if (!entry.isDirectory()) {
                     if (BACKUP_JSON_ENTRY_NAME.equals(name)) {
@@ -310,7 +354,7 @@ public class FullBackupHelper {
                             listener.onProgress(copiedSoFar[0], totalBytes, BACKUP_JSON_ENTRY_NAME);
                         }
                     } else if (isUnderBackupSubfolder(name)) {
-                        if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, listener)) {
+                        if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, cancelled, listener)) {
                             allOk = false;
                         }
                     }
@@ -319,16 +363,20 @@ public class FullBackupHelper {
                 }
                 zis.closeEntry();
             }
+        } catch (CancellationException e) {
+            KanLogger.myLogI(TAG, "runFullRestore cancelled by user during file extraction - DB/prefs untouched");
+            return Result.CANCELLED;
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "runFullRestore (unzip) failed");
-            return false;
+            return Result.FAILED;
         }
 
         if (backupJson == null) {
             KanLogger.myLogE(TAG, "runFullRestore: no backup.json entry found - not a Full Backup zip");
-            return false;
+            return Result.FAILED;
         }
 
+        // Past this point cancellation is no longer honored - see javadoc above.
         try {
             BackupManager backupManager = new BackupManager(context);
             backupManager.importFromJson(backupJson, true, true, true, true, true, true);
@@ -337,7 +385,7 @@ public class FullBackupHelper {
             allOk = false;
         }
 
-        return allOk;
+        return allOk ? Result.SUCCESS : Result.PARTIAL_FAILURE;
     }
 
     private static boolean isUnderBackupSubfolder(String zipEntryName) {
@@ -360,7 +408,7 @@ public class FullBackupHelper {
     }
 
     private static boolean extractEntry(Context context, ZipInputStream zis, String entryName, long totalBytes,
-            long[] copiedSoFar, ProgressListener listener) {
+            long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener) {
         try {
             File dest = PathSafe.safeResolve(context.getFilesDir(), entryName);
             File parent = dest.getParentFile();
@@ -371,6 +419,7 @@ public class FullBackupHelper {
                 byte[] buf = new byte[64 * 1024];
                 int len;
                 while ((len = zis.read(buf)) > 0) {
+                    checkCancelled(cancelled); // within a large file too, not just between entries
                     out.write(buf, 0, len);
                     copiedSoFar[0] += len;
                     if (listener != null) {
@@ -379,6 +428,8 @@ public class FullBackupHelper {
                 }
             }
             return true;
+        } catch (CancellationException e) {
+            throw e;
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "extracting zip entry failed: " + entryName);
             return false;
@@ -397,15 +448,16 @@ public class FullBackupHelper {
     }
 
     private static boolean zipDirRecursive(File dir, String entryPrefix, ZipOutputStream zos, long totalBytes,
-            long[] copiedSoFar, ProgressListener listener) {
+            long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener) {
         File[] children = dir.listFiles();
         if (children == null)
             return true;
         boolean ok = true;
         for (File child : children) {
+            checkCancelled(cancelled); // between files - propagates out of this method on purpose
             String entryName = entryPrefix + child.getName();
             if (child.isDirectory()) {
-                if (!zipDirRecursive(child, entryName + "/", zos, totalBytes, copiedSoFar, listener)) {
+                if (!zipDirRecursive(child, entryName + "/", zos, totalBytes, copiedSoFar, cancelled, listener)) {
                     ok = false;
                 }
             } else {
@@ -414,6 +466,7 @@ public class FullBackupHelper {
                     byte[] buf = new byte[64 * 1024];
                     int len;
                     while ((len = in.read(buf)) > 0) {
+                        checkCancelled(cancelled); // within a large file too, not just between files
                         zos.write(buf, 0, len);
                         copiedSoFar[0] += len;
                         if (listener != null) {
@@ -421,6 +474,8 @@ public class FullBackupHelper {
                         }
                     }
                     zos.closeEntry();
+                } catch (CancellationException e) {
+                    throw e;
                 } catch (Exception e) {
                     KanLogger.myLogEE(e, TAG, "zip entry failed for " + child.getName());
                     ok = false;

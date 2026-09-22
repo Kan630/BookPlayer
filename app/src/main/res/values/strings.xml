@@ -1007,12 +1007,17 @@
     <string name="full_backup_progress">Copying %1$s — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">Full backup complete.</string>
     <string name="full_backup_partial_failure">Backup finished, but some files could not be copied. Check the destination before relying on it.</string>
+    <string name="full_backup_cancelled">Backup cancelled.</string>
+    <string name="full_backup_could_not_start">Could not write the backup file.</string>
+    <string name="full_backup_cancelling">Cancelling…</string>
     <string name="full_backup_failed">Full backup failed: %s</string>
     <string name="full_restore_title">Restore from Full Backup</string>
     <string name="full_restore_desc">Restores everything from a Full Backup zip - audiobooks, cover images, and all app data - back onto this device, overwriting your current library and settings.</string>
     <string name="full_restore_pick_file">Choose Full Backup File</string>
     <string name="full_restore_success">Full restore complete. Please restart the app.</string>
     <string name="full_restore_partial_failure">Restore finished, but some files could not be restored. Check your library before relying on it.</string>
+    <string name="full_restore_cancelled">Restore cancelled. Your settings and progress were not changed, but some files may already have been overwritten - check your library before relying on it.</string>
+    <string name="full_restore_could_not_start">Could not read the backup file.</string>
     <string name="full_restore_failed">Full restore failed: %s</string>
     <string name="full_restore_reading">Reading backup contents…</string>
     <string name="full_restore_preview_title">Backup Contents</string>

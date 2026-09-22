@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -19,6 +20,8 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class FullBackupActivity extends BaseActivity {
 
     private FullBackupHelper.Estimate estimate;
@@ -28,6 +31,7 @@ public class FullBackupActivity extends BaseActivity {
     private View llProgress;
     private MaterialButton btnStart, btnStartRestore;
     private ProgressBar progressBar;
+    private MaterialButton btnCancelOperation;
 
     private View llRestoreReading, llRestorePreview;
     private TextView tvPreviewDate, tvPreviewSize, tvPreviewDuration, tvPreviewContents;
@@ -36,6 +40,14 @@ public class FullBackupActivity extends BaseActivity {
     // Set once a restore zip has been picked, so the confirmation dialog's result (which carries
     // no data of its own) knows what to actually restore.
     private Uri pickedRestoreZipUri;
+
+    // Whether a backup or restore is currently running on the background executor - drives the
+    // back-press behavior below (cancel instead of leaving the screen) independently of which of
+    // the two operations it is.
+    private boolean operationInProgress = false;
+    // Polled cooperatively by FullBackupHelper between/within files - see its javadoc for exactly
+    // where cancellation is (and isn't) honored, especially during a restore.
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
     private final ActivityResultLauncher<Intent> createDocumentLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -85,6 +97,8 @@ public class FullBackupActivity extends BaseActivity {
         btnStart = findViewById(R.id.btn_start_full_backup);
         btnStartRestore = findViewById(R.id.btn_start_full_restore);
         progressBar = findViewById(R.id.progress_full_backup);
+        btnCancelOperation = findViewById(R.id.btn_cancel_full_backup_operation);
+        btnCancelOperation.setOnClickListener(v -> requestCancel());
 
         llRestoreReading = findViewById(R.id.ll_restore_reading);
         llRestorePreview = findViewById(R.id.ll_restore_preview);
@@ -117,8 +131,24 @@ public class FullBackupActivity extends BaseActivity {
             pickRestoreZipLauncher.launch(intent);
         });
 
+        // A plain zip write/read has no partial-progress guarantee if we just finish() mid-way
+        // (the executor isn't tied to this Activity, so it would silently keep running in the
+        // background - fine for correctness since runOnUiThread() no-ops safely on a dead
+        // Activity, but the user would have no way to know it's still going, or to actually stop
+        // it). While an operation is running, back press cancels it instead of leaving.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (operationInProgress) {
+                    requestCancel();
+                } else {
+                    finish();
+                }
+            }
+        });
+
         AppDatabase.databaseReadExecutor.execute(() -> {
-            FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(this);
+            FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
             runOnUiThread(() -> {
                 estimate = e;
                 tvSizeNeeded.setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
@@ -128,8 +158,20 @@ public class FullBackupActivity extends BaseActivity {
         });
     }
 
+    private void requestCancel() {
+        if (!operationInProgress || cancelled.get()) {
+            return;
+        }
+        cancelled.set(true);
+        btnCancelOperation.setEnabled(false);
+        myToast(getString(R.string.full_backup_cancelling));
+    }
+
     private void startFullBackup(Uri destFileUri) {
+        operationInProgress = true;
+        cancelled.set(false);
         btnStart.setEnabled(false);
+        btnCancelOperation.setEnabled(true);
         llProgress.setVisibility(View.VISIBLE);
         tvResult.setVisibility(View.GONE);
         tvEta.setText("");
@@ -137,30 +179,34 @@ public class FullBackupActivity extends BaseActivity {
         backupStartNanos = System.nanoTime();
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            boolean success;
+            FullBackupHelper.Result result;
             try {
-                success = FullBackupHelper.runFullBackup(this, destFileUri, (copiedBytes, totalBytes, fileName) -> {
-                    int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
-                    runOnUiThread(() -> {
-                        progressBar.setProgress(percent);
-                        tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
-                                Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
+                result = FullBackupHelper.runFullBackup(getApplicationContext(), destFileUri, cancelled,
+                        (copiedBytes, totalBytes, fileName) -> {
+                            int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
+                            runOnUiThread(() -> {
+                                progressBar.setProgress(percent);
+                                tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
+                                        Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
 
-                        // Live-measured, not guessed: the actual observed rate of this transfer
-                        // so far is a better estimate than a small pre-flight probe would have
-                        // been, and it naturally reflects whatever this destination's real
-                        // throughput is (fast local write vs. a slower network-backed one).
-                        double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
-                        if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
-                            double bytesPerSec = copiedBytes / elapsedSec;
-                            long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
-                            tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
-                        }
-                    });
-                });
+                                // Live-measured, not guessed: the actual observed rate of this
+                                // transfer so far is a better estimate than a small pre-flight
+                                // probe would have been, and it naturally reflects whatever this
+                                // destination's real throughput is (fast local write vs. a
+                                // slower network-backed one).
+                                double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
+                                if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
+                                    double bytesPerSec = copiedBytes / elapsedSec;
+                                    long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
+                                    tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
+                                }
+                            });
+                        });
             } catch (Exception e) {
                 myLogEE(e, "runFullBackup failed");
                 runOnUiThread(() -> {
+                    operationInProgress = false;
+                    llProgress.setVisibility(View.GONE);
                     tvResult.setVisibility(View.VISIBLE);
                     tvResult.setText(getString(R.string.full_backup_failed, e.getMessage()));
                     btnStart.setEnabled(true);
@@ -168,13 +214,29 @@ public class FullBackupActivity extends BaseActivity {
                 return;
             }
 
-            boolean finalSuccess = success;
+            FullBackupHelper.Result finalResult = result;
             runOnUiThread(() -> {
+                operationInProgress = false;
+                llProgress.setVisibility(View.GONE);
                 tvResult.setVisibility(View.VISIBLE);
-                tvResult.setText(finalSuccess ? R.string.full_backup_success : R.string.full_backup_partial_failure);
+                tvResult.setText(backupResultTextResId(finalResult));
                 btnStart.setEnabled(true);
             });
         });
+    }
+
+    private static int backupResultTextResId(FullBackupHelper.Result result) {
+        switch (result) {
+            case SUCCESS:
+                return R.string.full_backup_success;
+            case CANCELLED:
+                return R.string.full_backup_cancelled;
+            case PARTIAL_FAILURE:
+                return R.string.full_backup_partial_failure;
+            case FAILED:
+            default:
+                return R.string.full_backup_could_not_start;
+        }
     }
 
     /** Reads the picked zip's own contents (size, audio duration, date, category counts) and
@@ -188,7 +250,8 @@ public class FullBackupActivity extends BaseActivity {
         btnStartRestore.setEnabled(false);
 
         AppDatabase.databaseReadExecutor.execute(() -> {
-            FullBackupHelper.RestorePreview preview = FullBackupHelper.peekRestorePreview(this, srcZipUri);
+            FullBackupHelper.RestorePreview preview = FullBackupHelper.peekRestorePreview(getApplicationContext(),
+                    srcZipUri);
             runOnUiThread(() -> {
                 llRestoreReading.setVisibility(View.GONE);
                 btnStart.setEnabled(true);
@@ -246,8 +309,11 @@ public class FullBackupActivity extends BaseActivity {
     }
 
     private void startFullRestore(Uri srcZipUri) {
+        operationInProgress = true;
+        cancelled.set(false);
         btnStart.setEnabled(false);
         btnStartRestore.setEnabled(false);
+        btnCancelOperation.setEnabled(true);
         llRestorePreview.setVisibility(View.GONE);
         llProgress.setVisibility(View.VISIBLE);
         tvResult.setVisibility(View.GONE);
@@ -256,26 +322,29 @@ public class FullBackupActivity extends BaseActivity {
         backupStartNanos = System.nanoTime();
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            boolean success;
+            FullBackupHelper.Result result;
             try {
-                success = FullBackupHelper.runFullRestore(this, srcZipUri, (copiedBytes, totalBytes, fileName) -> {
-                    int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
-                    runOnUiThread(() -> {
-                        progressBar.setProgress(percent);
-                        tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
-                                Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
+                result = FullBackupHelper.runFullRestore(getApplicationContext(), srcZipUri, cancelled,
+                        (copiedBytes, totalBytes, fileName) -> {
+                            int percent = totalBytes > 0 ? (int) ((copiedBytes * 100) / totalBytes) : 0;
+                            runOnUiThread(() -> {
+                                progressBar.setProgress(percent);
+                                tvProgressText.setText(getString(R.string.full_backup_progress, fileName, percent,
+                                        Tonio.getReadableSize(copiedBytes), Tonio.getReadableSize(totalBytes)));
 
-                        double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
-                        if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
-                            double bytesPerSec = copiedBytes / elapsedSec;
-                            long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
-                            tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
-                        }
-                    });
-                });
+                                double elapsedSec = (System.nanoTime() - backupStartNanos) / 1_000_000_000.0;
+                                if (elapsedSec > 1.0 && copiedBytes > 0 && totalBytes > copiedBytes) {
+                                    double bytesPerSec = copiedBytes / elapsedSec;
+                                    long remainingMs = (long) ((totalBytes - copiedBytes) / bytesPerSec * 1000.0);
+                                    tvEta.setText(getString(R.string.full_backup_eta, Tonio.formatTime(remainingMs)));
+                                }
+                            });
+                        });
             } catch (Exception e) {
                 myLogEE(e, "runFullRestore failed");
                 runOnUiThread(() -> {
+                    operationInProgress = false;
+                    llProgress.setVisibility(View.GONE);
                     tvResult.setVisibility(View.VISIBLE);
                     tvResult.setText(getString(R.string.full_restore_failed, e.getMessage()));
                     btnStart.setEnabled(true);
@@ -284,14 +353,29 @@ public class FullBackupActivity extends BaseActivity {
                 return;
             }
 
-            boolean finalSuccess = success;
+            FullBackupHelper.Result finalResult = result;
             runOnUiThread(() -> {
+                operationInProgress = false;
+                llProgress.setVisibility(View.GONE);
                 tvResult.setVisibility(View.VISIBLE);
-                tvResult.setText(
-                        finalSuccess ? R.string.full_restore_success : R.string.full_restore_partial_failure);
+                tvResult.setText(restoreResultTextResId(finalResult));
                 btnStart.setEnabled(true);
                 btnStartRestore.setEnabled(true);
             });
         });
+    }
+
+    private static int restoreResultTextResId(FullBackupHelper.Result result) {
+        switch (result) {
+            case SUCCESS:
+                return R.string.full_restore_success;
+            case CANCELLED:
+                return R.string.full_restore_cancelled;
+            case PARTIAL_FAILURE:
+                return R.string.full_restore_partial_failure;
+            case FAILED:
+            default:
+                return R.string.full_restore_could_not_start;
+        }
     }
 }

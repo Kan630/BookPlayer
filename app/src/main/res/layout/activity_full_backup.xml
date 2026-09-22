@@ -195,6 +195,15 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
 
+            <Button
+                android:id="@+id/btn_cancel_full_backup_operation"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:padding="12dp"
+                android:text="@android:string/cancel" />
+
         </LinearLayout>
 
         <TextView
