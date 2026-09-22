@@ -14,6 +14,7 @@ import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.services.archives.PathSafe;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -53,6 +54,12 @@ public class FullBackupHelper {
             Var.FOLDER_UNZIPPED, Var.FOLDER_DOWNLOAD, Var.FOLDER_LINKED_DEFAULT,
             Var.FOLDER_IMAGE, Var.FOLDER_CACHED_IMAGE
     };
+    // Written first, before the (potentially many-GB) audio/cover entries, specifically so a
+    // restore preview only has to read this one small entry instead of streaming past
+    // everything else to reach backup.json (which is still written, right after this, for the
+    // actual restore later - this manifest only ever feeds the preview screen).
+    private static final String MANIFEST_ENTRY_NAME = "backup_manifest.json";
+    private static final String BACKUP_JSON_ENTRY_NAME = "backup.json";
 
     public static class Estimate {
         public long totalBytes;
@@ -100,6 +107,40 @@ public class FullBackupHelper {
             }
             zos.setLevel(Deflater.NO_COMPRESSION);
 
+            // Metadata first (manifest + full JSON): both are tiny next to the audio folders
+            // below, and writing them first means a restore preview never has to scan past any
+            // audio to find them.
+            try {
+                BackupManager backupManager = new BackupManager(context);
+                String json = backupManager.exportToJson(true, true, true, true, true, true);
+                BackupManager.BackupData data = backupManager.inspectJson(json);
+
+                RestorePreview manifest = new RestorePreview();
+                if (data != null) {
+                    populatePreviewFromBackupData(manifest, data);
+                }
+                byte[] manifestBytes = new Gson().toJson(manifest).getBytes(StandardCharsets.UTF_8);
+                zos.putNextEntry(new ZipEntry(MANIFEST_ENTRY_NAME));
+                zos.write(manifestBytes);
+                zos.closeEntry();
+                copiedSoFar[0] += manifestBytes.length;
+                if (listener != null) {
+                    listener.onProgress(copiedSoFar[0], estimate.totalBytes, MANIFEST_ENTRY_NAME);
+                }
+
+                byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+                zos.putNextEntry(new ZipEntry(BACKUP_JSON_ENTRY_NAME));
+                zos.write(jsonBytes);
+                zos.closeEntry();
+                copiedSoFar[0] += jsonBytes.length;
+                if (listener != null) {
+                    listener.onProgress(copiedSoFar[0], estimate.totalBytes, BACKUP_JSON_ENTRY_NAME);
+                }
+            } catch (Exception e) {
+                KanLogger.myLogEE(e, TAG, "writing manifest/backup.json into zip failed");
+                allOk = false;
+            }
+
             for (String sub : BACKUP_SUBFOLDERS) {
                 File srcDir = new File(context.getFilesDir(), sub);
                 if (!srcDir.exists())
@@ -107,22 +148,6 @@ public class FullBackupHelper {
                 if (!zipDirRecursive(srcDir, sub + "/", zos, estimate.totalBytes, copiedSoFar, listener)) {
                     allOk = false;
                 }
-            }
-
-            try {
-                BackupManager backupManager = new BackupManager(context);
-                String json = backupManager.exportToJson(true, true, true, true, true, true);
-                byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
-                zos.putNextEntry(new ZipEntry("backup.json"));
-                zos.write(jsonBytes);
-                zos.closeEntry();
-                copiedSoFar[0] += jsonBytes.length;
-                if (listener != null) {
-                    listener.onProgress(copiedSoFar[0], estimate.totalBytes, "backup.json");
-                }
-            } catch (Exception e) {
-                KanLogger.myLogEE(e, TAG, "writing backup.json into zip failed");
-                allOk = false;
             }
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "runFullBackup (zip) failed");
@@ -151,15 +176,62 @@ public class FullBackupHelper {
         public boolean hasPreferences;
     }
 
-    /** Streams through the zip once, discarding the (potentially huge) audio/cover entries
-     *  without writing them anywhere, until it reaches backup.json - cheaper than a full
-     *  runFullRestore() pass since nothing is written to disk, but still a real read through
-     *  the whole file (backup.json is appended last, see runFullBackup), so this can take a
-     *  moment on a large backup. Call off the main thread. */
+    private static void populatePreviewFromBackupData(RestorePreview preview, BackupManager.BackupData data) {
+        preview.valid = true;
+        preview.timestamp = data.timestamp;
+        preview.bookCount = data.folders != null ? data.folders.size() : 0;
+        preview.zikFileCount = data.zikFiles != null ? data.zikFiles.size() : 0;
+        preview.librivoxSourceCount = data.bookSources != null ? data.bookSources.size() : 0;
+        preview.hasPreferences = data.preferences != null && !data.preferences.isEmpty();
+        if (data.folders != null) {
+            for (Folder f : data.folders) {
+                preview.totalAudioDurationMs += (long) f.getDuration();
+            }
+        }
+        // Radio/podcast fields only exist on the full flavor's BackupData subclass - these
+        // helpers are the same per-flavor pattern already used for the classic restore screen's
+        // hasRadios/hasPodcasts checks (real counts on full, always 0 on pure).
+        preview.radioCount = RadioHelper.backupDataRadioCount(data);
+        preview.podcastCount = PodcastHelper.backupDataPodcastCount(data);
+        preview.podcastHistoryCount = PodcastHelper.backupDataEpisodeHistoryCount(data);
+    }
+
+    /** Fast path: the manifest is written first (see runFullBackup), so it's normally the very
+     *  first zip entry - read just that one entry and we're done, regardless of how many GB of
+     *  audio follow it. Falls back to the old slow full-scan-to-backup.json behavior for a zip
+     *  made before the manifest existed, or if the first entry isn't the manifest for any other
+     *  reason. Call off the main thread either way - the fallback path still reads the whole
+     *  file. */
     public static RestorePreview peekRestorePreview(Context context, Uri srcZipUri) {
         RestorePreview preview = new RestorePreview();
         preview.zipTotalBytes = estimateZipSize(context, srcZipUri);
 
+        try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
+                ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
+            if (rawIn == null) {
+                return preview;
+            }
+            ZipEntry first = zis.getNextEntry();
+            if (first != null && !first.isDirectory() && MANIFEST_ENTRY_NAME.equals(first.getName())) {
+                String manifestJson = readEntryAsString(zis);
+                RestorePreview fromManifest = new Gson().fromJson(manifestJson, RestorePreview.class);
+                if (fromManifest != null) {
+                    fromManifest.valid = true;
+                    fromManifest.zipTotalBytes = preview.zipTotalBytes;
+                    return fromManifest;
+                }
+            }
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "peekRestorePreview (fast path) failed - falling back to full scan");
+        }
+
+        return peekRestorePreviewSlow(context, srcZipUri, preview);
+    }
+
+    /** Old behavior, kept only as a fallback: streams through the whole zip discarding the
+     *  (potentially huge) audio/cover entries without writing them anywhere, until it reaches
+     *  backup.json. */
+    private static RestorePreview peekRestorePreviewSlow(Context context, Uri srcZipUri, RestorePreview preview) {
         String json = null;
         try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
@@ -168,7 +240,7 @@ public class FullBackupHelper {
             }
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                if (!entry.isDirectory() && "backup.json".equals(entry.getName())) {
+                if (!entry.isDirectory() && BACKUP_JSON_ENTRY_NAME.equals(entry.getName())) {
                     json = readEntryAsString(zis);
                     zis.closeEntry();
                     break;
@@ -176,40 +248,22 @@ public class FullBackupHelper {
                 zis.closeEntry();
             }
         } catch (Exception e) {
-            KanLogger.myLogEE(e, TAG, "peekRestorePreview (zip scan) failed");
+            KanLogger.myLogEE(e, TAG, "peekRestorePreviewSlow (zip scan) failed");
             return preview;
         }
 
         if (json == null) {
-            return preview; // no backup.json entry - not a Full Backup zip
+            return preview; // no backup.json entry either - not a Full Backup zip
         }
 
         try {
             BackupManager backupManager = new BackupManager(context);
             BackupManager.BackupData data = backupManager.inspectJson(json);
-            if (data == null) {
-                return preview;
+            if (data != null) {
+                populatePreviewFromBackupData(preview, data);
             }
-
-            preview.valid = true;
-            preview.timestamp = data.timestamp;
-            preview.bookCount = data.folders != null ? data.folders.size() : 0;
-            preview.zikFileCount = data.zikFiles != null ? data.zikFiles.size() : 0;
-            preview.librivoxSourceCount = data.bookSources != null ? data.bookSources.size() : 0;
-            preview.hasPreferences = data.preferences != null && !data.preferences.isEmpty();
-            if (data.folders != null) {
-                for (Folder f : data.folders) {
-                    preview.totalAudioDurationMs += (long) f.getDuration();
-                }
-            }
-            // Radio/podcast fields only exist on the full flavor's BackupData subclass - these
-            // helpers are the same per-flavor pattern already used for the classic restore
-            // screen's hasRadios/hasPodcasts checks (real counts on full, always 0 on pure).
-            preview.radioCount = RadioHelper.backupDataRadioCount(data);
-            preview.podcastCount = PodcastHelper.backupDataPodcastCount(data);
-            preview.podcastHistoryCount = PodcastHelper.backupDataEpisodeHistoryCount(data);
         } catch (Exception e) {
-            KanLogger.myLogEE(e, TAG, "peekRestorePreview (parse) failed");
+            KanLogger.myLogEE(e, TAG, "peekRestorePreviewSlow (parse) failed");
         }
 
         return preview;
@@ -249,19 +303,19 @@ public class FullBackupHelper {
             while ((entry = zis.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (!entry.isDirectory()) {
-                    if ("backup.json".equals(name)) {
+                    if (BACKUP_JSON_ENTRY_NAME.equals(name)) {
                         backupJson = readEntryAsString(zis);
                         copiedSoFar[0] += backupJson.length();
                         if (listener != null) {
-                            listener.onProgress(copiedSoFar[0], totalBytes, "backup.json");
+                            listener.onProgress(copiedSoFar[0], totalBytes, BACKUP_JSON_ENTRY_NAME);
                         }
                     } else if (isUnderBackupSubfolder(name)) {
                         if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, listener)) {
                             allOk = false;
                         }
                     }
-                    // Anything else (unrecognized entry, e.g. from a foreign/future zip) is
-                    // skipped rather than failing the whole restore over it.
+                    // Anything else (the manifest, or an unrecognized entry from a foreign/future
+                    // zip) is skipped rather than failing the whole restore over it.
                 }
                 zis.closeEntry();
             }

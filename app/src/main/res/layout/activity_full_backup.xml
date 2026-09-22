@@ -77,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="@string/full_restore_start"
+            android:text="@string/full_restore_pick_file"
             app:icon="@drawable/ic_check_24px" />
 
         <LinearLayout
@@ -154,7 +154,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
-                android:text="@string/full_restore_start" />
+                android:text="@string/import_export_btn_restore" />
 
             <Button
                 android:id="@+id/btn_cancel_restore_preview"
