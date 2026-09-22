@@ -370,7 +370,16 @@ public class FullBackupActivity extends BaseActivity {
     /** Recomputes and displays the size/duration estimate for whatever mode + selection is
      *  currently active. Cheap enough (a real exportToJson() call for partial, a folder-size scan
      *  for full) to just rerun on every relevant toggle rather than debounce. */
+    // Each call gets its own id, and only the latest one is allowed to actually update the UI -
+    // without this, two computations in flight at once (e.g. two checkbox taps in quick
+    // succession) could finish out of order on AppDatabase.databaseReadExecutor (it's a pool,
+    // not a single thread) and silently leave a STALE result on screen even though it was for an
+    // earlier, now-superseded selection. The old guards here only checked "is the mode still the
+    // same", which didn't catch two same-mode requests racing each other.
+    private final java.util.concurrent.atomic.AtomicLong estimateRequestId = new java.util.concurrent.atomic.AtomicLong();
+
     private void refreshEstimate() {
+        long requestId = estimateRequestId.incrementAndGet();
         boolean isPartial = isPartialScope();
         AppDatabase.databaseReadExecutor.execute(() -> {
             if (isPartial) {
@@ -388,8 +397,8 @@ public class FullBackupActivity extends BaseActivity {
                 FullBackupHelper.PartialEstimate e = FullBackupHelper.computePartialEstimate(getApplicationContext(),
                         snapshot);
                 runOnUiThread(() -> {
-                    if (!isPartialScope()) {
-                        return; // mode changed again before this finished
+                    if (requestId != estimateRequestId.get()) {
+                        return; // superseded by a newer request - don't overwrite its result
                     }
                     tvSizeNeeded
                             .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
@@ -400,8 +409,8 @@ public class FullBackupActivity extends BaseActivity {
             } else {
                 FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
                 runOnUiThread(() -> {
-                    if (isPartialScope()) {
-                        return; // mode changed again before this finished
+                    if (requestId != estimateRequestId.get()) {
+                        return; // superseded by a newer request - don't overwrite its result
                     }
                     estimate = e;
                     tvSizeNeeded

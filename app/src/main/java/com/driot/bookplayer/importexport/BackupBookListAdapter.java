@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,6 +51,12 @@ public class BackupBookListAdapter extends RecyclerView.Adapter<BackupBookListAd
         FullBackupHelper.BookFileCandidate book = books.get(position);
         holder.name.setText(book.name);
         holder.size.setText(Tonio.getReadableSize(book.sizeBytes));
+        if (book.copyOrLinkIconRes != 0) {
+            holder.copyOrLinkIcon.setVisibility(View.VISIBLE);
+            holder.copyOrLinkIcon.setImageResource(book.copyOrLinkIconRes);
+        } else {
+            holder.copyOrLinkIcon.setVisibility(View.INVISIBLE);
+        }
 
         // Avoid the listener firing from setChecked() itself re-triggering during bind/recycle.
         holder.checkbox.setOnCheckedChangeListener(null);
@@ -73,12 +80,14 @@ public class BackupBookListAdapter extends RecyclerView.Adapter<BackupBookListAd
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         final CheckBox checkbox;
+        final ImageView copyOrLinkIcon;
         final TextView name;
         final TextView size;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             checkbox = itemView.findViewById(R.id.cb_backup_book);
+            copyOrLinkIcon = itemView.findViewById(R.id.iv_backup_book_copy_or_link);
             name = itemView.findViewById(R.id.tv_backup_book_name);
             size = itemView.findViewById(R.id.tv_backup_book_size);
         }

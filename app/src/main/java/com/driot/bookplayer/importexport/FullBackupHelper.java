@@ -10,6 +10,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.services.archives.PathSafe;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
@@ -56,6 +58,13 @@ public class FullBackupHelper {
             Var.FOLDER_UNZIPPED, Var.FOLDER_DOWNLOAD, Var.FOLDER_LINKED_DEFAULT,
             Var.FOLDER_IMAGE, Var.FOLDER_CACHED_IMAGE
     };
+    // BACKUP_SUBFOLDERS minus FOLDER_UNZIPPED - used where the size of the actual audiobooks is
+    // read from StorageInfoCacheHelper's cache instead (see computeEstimate), since these
+    // remaining kinds have no equivalent cache but are typically much smaller/faster to scan
+    // live anyway.
+    private static final String[] OTHER_BACKUP_SUBFOLDERS = {
+            Var.FOLDER_DOWNLOAD, Var.FOLDER_LINKED_DEFAULT, Var.FOLDER_IMAGE, Var.FOLDER_CACHED_IMAGE
+    };
     // Written first, before the (potentially many-GB) audio/cover entries, specifically so a
     // restore preview only has to read this one small entry instead of streaming past
     // everything else to reach backup.json (which is still written, right after this, for the
@@ -66,6 +75,13 @@ public class FullBackupHelper {
     // two books with identically-named tracks can't collide, and so restore knows which Folder
     // record (from backup.json, parsed first) each entry belongs to.
     private static final String BOOK_FILES_ENTRY_PREFIX = "book_files/";
+    // Each BACKUP_SUBFOLDERS kind can physically exist in two places - internal storage or a
+    // removable SD card's app-reserved area, chosen per book at import time via the "use SD
+    // card" setting (see StorageHelper.getPreferredBaseDir) - so FULL backup has to check both
+    // rather than assume everything lives under getFilesDir(). Recorded in the entry name so
+    // restore can put each one back in the same kind of place (see resolveBackupSubfolderDest).
+    private static final String INTERNAL_PREFIX = "internal/";
+    private static final String SDCARD_PREFIX = "sdcard/";
 
     /** SUCCESS/PARTIAL_FAILURE/FAILED mirror the old boolean return (true only for SUCCESS);
      *  CANCELLED is new - the user hit Cancel/back mid-operation. Checked cooperatively via an
@@ -87,10 +103,39 @@ public class FullBackupHelper {
 
     public static Estimate computeEstimate(Context context) {
         Estimate e = new Estimate();
-        for (String sub : BACKUP_SUBFOLDERS) {
-            File dir = new File(context.getFilesDir(), sub);
-            if (dir.exists()) {
-                e.totalBytes += StorageHelper.getFolderSize(dir);
+
+        // "unzipped" (the actual audiobooks) dominates this total and is the slow part to
+        // measure fresh - reuse StorageInfoCacheHelper's pre-computed per-book cache (same one
+        // CleanMemoryFragment's ViewModel reads, refreshed in the background) instead of a live
+        // recursive scan here.
+        for (long size : StorageInfoCacheHelper.getCachedFolderSizes(true).values()) {
+            e.totalBytes += size;
+        }
+        if (StorageHelper.isExternalSDCardAvailable(context)) {
+            for (long size : StorageInfoCacheHelper.getCachedFolderSizes(false).values()) {
+                e.totalBytes += size;
+            }
+        }
+
+        // The rest (download/linked/images/cached_images) are typically far smaller, so a live
+        // scan here is fine - no equivalent cache exists for them.
+        // BUG FIXED: this used to only check new File(context.getFilesDir(), sub) for every
+        // BACKUP_SUBFOLDERS kind including "unzipped" - books imported with "use SD card" on
+        // live under a completely different physical directory (see
+        // StorageHelper.getPreferredBaseDir) and were silently invisible to this estimate (and,
+        // before this fix, to runFullBackup() itself - see there for the matching fix).
+        for (String sub : OTHER_BACKUP_SUBFOLDERS) {
+            File internalDir = StorageHelper.getFolder(context, sub, false);
+            if (internalDir.exists()) {
+                e.totalBytes += StorageHelper.getFolderSize(internalDir);
+            }
+        }
+        if (StorageHelper.isExternalSDCardAvailable(context)) {
+            for (String sub : OTHER_BACKUP_SUBFOLDERS) {
+                File sdDir = StorageHelper.getFolder(context, sub, true);
+                if (sdDir.exists()) {
+                    e.totalBytes += StorageHelper.getFolderSize(sdDir);
+                }
             }
         }
         File dbFile = context.getDatabasePath(DatabaseClient.DATABASE_NAME);
@@ -167,12 +212,28 @@ public class FullBackupHelper {
                 allOk = false;
             }
 
+            // BUG FIXED: this used to only zip new File(context.getFilesDir(), sub), silently
+            // dropping every book that lived on a removable SD card instead (see computeEstimate
+            // for the same fix and its explanation). Internal/SD each get their own entry prefix
+            // so runFullRestore() can put each file back in the same kind of place.
             for (String sub : BACKUP_SUBFOLDERS) {
-                File srcDir = new File(context.getFilesDir(), sub);
-                if (!srcDir.exists())
+                File internalDir = StorageHelper.getFolder(context, sub, false);
+                if (!internalDir.exists())
                     continue;
-                if (!zipDirRecursive(srcDir, sub + "/", zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
+                if (!zipDirRecursive(internalDir, INTERNAL_PREFIX + sub + "/", zos, estimate.totalBytes, copiedSoFar,
+                        cancelled, listener)) {
                     allOk = false;
+                }
+            }
+            if (StorageHelper.isExternalSDCardAvailable(context)) {
+                for (String sub : BACKUP_SUBFOLDERS) {
+                    File sdDir = StorageHelper.getFolder(context, sub, true);
+                    if (!sdDir.exists())
+                        continue;
+                    if (!zipDirRecursive(sdDir, SDCARD_PREFIX + sub + "/", zos, estimate.totalBytes, copiedSoFar,
+                            cancelled, listener)) {
+                        allOk = false;
+                    }
                 }
             }
         } catch (CancellationException e) {
@@ -224,11 +285,27 @@ public class FullBackupHelper {
         public long folderId;
         public String name;
         public long sizeBytes;
+        public long durationMs;
+        // Same copy/link distinction and icon as MoveBookActivity/StatsActivity/Folder's own
+        // getCopyOrLinkIconRes() - "copy" (app-reserved storage, internal or SD) vs "link"
+        // (shared storage, still File-API-accessible or we wouldn't be listing it at all - a
+        // true external SAF grant is excluded entirely, see resolveInternalFolderDir). 0 if
+        // undeterminable.
+        public int copyOrLinkIconRes;
         File dir; // resolved on-disk directory; not exposed outside this file
     }
 
+    /** Sizing reuses the same pre-computed cache CleanMemoryFragment's ViewModel reads
+     *  (StorageInfoCacheHelper.getCachedFolderSizes(), keyed by each book's own top-level
+     *  unzipped-folder path, refreshed in the background at app startup / on demand) instead of
+     *  a fresh recursive filesystem walk per book - that walk is what made this list slow to
+     *  populate and, worse, slow to redo on every single checkbox toggle (see
+     *  computePartialEstimate). Same fallback as CleanMemoryViewModel for a book the cache
+     *  doesn't have yet (newly imported since the last cache calculation). */
     public static List<BookFileCandidate> listBookFileCandidates(Context context) {
         List<BookFileCandidate> out = new java.util.ArrayList<>();
+        Map<String, Long> internalCache = StorageInfoCacheHelper.getCachedFolderSizes(true);
+        Map<String, Long> sdCardCache = StorageInfoCacheHelper.getCachedFolderSizes(false);
         List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
         for (Folder f : folders) {
             if (f.getPath() == null) {
@@ -242,7 +319,14 @@ public class FullBackupHelper {
             c.folderId = f.getId();
             c.name = f.getName();
             c.dir = dir;
-            c.sizeBytes = dir.exists() ? StorageHelper.getFolderSize(dir) : 0;
+            String absPath = dir.getAbsolutePath();
+            Long cached = internalCache.get(absPath);
+            if (cached == null) {
+                cached = sdCardCache.get(absPath);
+            }
+            c.sizeBytes = cached != null ? cached : (dir.exists() ? StorageHelper.getFolderSize(dir) : 0);
+            c.durationMs = (long) f.getDuration();
+            c.copyOrLinkIconRes = f.getCopyOrLinkIconRes(context);
             out.add(c);
         }
         return out;
@@ -282,13 +366,6 @@ public class FullBackupHelper {
     public static PartialEstimate computePartialEstimate(Context context, BackupSelection selection) {
         PartialEstimate e = new PartialEstimate();
 
-        if (selection.includeBookProgress) {
-            List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
-            for (Folder f : folders) {
-                e.totalAudioDurationMs += (long) f.getDuration();
-            }
-        }
-
         try {
             BackupManager backupManager = new BackupManager(context);
             String json = backupManager.exportToJson(selection.includePreferences, selection.includeRadios,
@@ -299,10 +376,15 @@ public class FullBackupHelper {
             KanLogger.myLogEE(ex, TAG, "computePartialEstimate: exportToJson failed");
         }
 
+        // Both size AND duration only ever reflect the individually-selected books - showing a
+        // duration for books whose audio isn't actually included would be misleading (there's
+        // nothing dynamic about it otherwise: with no book selected, it'd always show the same
+        // "total library duration" number regardless of what's actually going into the backup).
         if (!selection.includedBookFileFolderIds.isEmpty()) {
             for (BookFileCandidate c : listBookFileCandidates(context)) {
                 if (selection.includedBookFileFolderIds.contains(c.folderId)) {
                     e.totalBytes += c.sizeBytes;
+                    e.totalAudioDurationMs += c.durationMs;
                 }
             }
         }
@@ -564,18 +646,22 @@ public class FullBackupHelper {
                             listener.onProgress(copiedSoFar[0], totalBytes, BACKUP_JSON_ENTRY_NAME);
                         }
                         folderIdToDir.putAll(buildFolderIdToDirMap(context, backupJson));
-                    } else if (isUnderBackupSubfolder(name)) {
-                        if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, cancelled, listener)) {
-                            allOk = false;
-                        }
                     } else if (name.startsWith(BOOK_FILES_ENTRY_PREFIX)) {
                         if (!extractBookFileEntry(zis, name, folderIdToDir, totalBytes, copiedSoFar, cancelled,
                                 listener)) {
                             allOk = false;
                         }
+                    } else {
+                        ResolvedSubfolderDest dest = resolveBackupSubfolderDest(context, name);
+                        if (dest != null) {
+                            if (!extractEntry(dest.baseDir, zis, dest.relativePath, totalBytes, copiedSoFar, cancelled,
+                                    listener)) {
+                                allOk = false;
+                            }
+                        }
+                        // Anything else (the manifest, or an unrecognized entry from a foreign/
+                        // future zip) is skipped rather than failing the whole restore over it.
                     }
-                    // Anything else (the manifest, or an unrecognized entry from a foreign/future
-                    // zip) is skipped rather than failing the whole restore over it.
                 }
                 zis.closeEntry();
             }
@@ -604,13 +690,42 @@ public class FullBackupHelper {
         return allOk ? Result.SUCCESS : Result.PARTIAL_FAILURE;
     }
 
-    private static boolean isUnderBackupSubfolder(String zipEntryName) {
+    private static class ResolvedSubfolderDest {
+        final File baseDir;
+        final String relativePath;
+
+        ResolvedSubfolderDest(File baseDir, String relativePath) {
+            this.baseDir = baseDir;
+            this.relativePath = relativePath;
+        }
+    }
+
+    /** Recognizes an "internal/..." or "sdcard/..." BACKUP_SUBFOLDERS entry (see runFullBackup)
+     *  and resolves where it should land: the same KIND of location it came from, via
+     *  StorageHelper.getPreferredBaseDir() - which already falls back to internal storage on its
+     *  own if the entry says "sdcard" but this device has no SD card (or none available) right
+     *  now, so a restore onto a different device never gets stuck on a missing card. Returns
+     *  null for anything that isn't one of these entries (e.g. the manifest, or a foreign zip's
+     *  entry) - not book_files/... entries, which are resolved separately via backup.json's own
+     *  Folder paths instead of this generic kind-based mapping. */
+    private static ResolvedSubfolderDest resolveBackupSubfolderDest(Context context, String zipEntryName) {
+        boolean sdcard;
+        String rest;
+        if (zipEntryName.startsWith(INTERNAL_PREFIX)) {
+            sdcard = false;
+            rest = zipEntryName.substring(INTERNAL_PREFIX.length());
+        } else if (zipEntryName.startsWith(SDCARD_PREFIX)) {
+            sdcard = true;
+            rest = zipEntryName.substring(SDCARD_PREFIX.length());
+        } else {
+            return null;
+        }
         for (String sub : BACKUP_SUBFOLDERS) {
-            if (zipEntryName.equals(sub) || zipEntryName.startsWith(sub + "/")) {
-                return true;
+            if (rest.equals(sub) || rest.startsWith(sub + "/")) {
+                return new ResolvedSubfolderDest(StorageHelper.getPreferredBaseDir(context, sdcard), rest);
             }
         }
-        return false;
+        return null;
     }
 
     private static String readEntryAsString(ZipInputStream zis) throws java.io.IOException {
@@ -623,10 +738,10 @@ public class FullBackupHelper {
         return baos.toString(StandardCharsets.UTF_8.name());
     }
 
-    private static boolean extractEntry(Context context, ZipInputStream zis, String entryName, long totalBytes,
+    private static boolean extractEntry(File baseDir, ZipInputStream zis, String entryName, long totalBytes,
             long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener) {
         try {
-            File dest = PathSafe.safeResolve(context.getFilesDir(), entryName);
+            File dest = PathSafe.safeResolve(baseDir, entryName);
             File parent = dest.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdirs()) {
                 throw new java.io.IOException("mkdirs failed for " + parent);
