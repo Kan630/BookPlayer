@@ -822,6 +822,14 @@ public class PodcastHelper {
         return data.episodeHistory != null && !data.episodeHistory.isEmpty();
     }
 
+    public static int backupDataPodcastCount(BackupManager.BackupData data) {
+        return data.podcasts != null ? data.podcasts.size() : 0;
+    }
+
+    public static int backupDataEpisodeHistoryCount(BackupManager.BackupData data) {
+        return data.episodeHistory != null ? data.episodeHistory.size() : 0;
+    }
+
     public static void updateImage(long folderId, String imagePath, Context context) {
         AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId,
                 imagePath);

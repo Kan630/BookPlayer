@@ -2,6 +2,7 @@ package com.driot.bookplayer.importexport;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BackupManager;
@@ -9,17 +10,24 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.services.archives.PathSafe;
 import com.driot.bookplayer.utils.log.KanLogger;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -122,6 +130,216 @@ public class FullBackupHelper {
         }
 
         return allOk;
+    }
+
+    /** What's actually inside a Full Backup zip, for the "review before you restore" screen -
+     *  mirrors computeEstimate()'s shape (size + audio duration) plus the same category counts
+     *  the classic restore screen shows as checkboxes, so the user sees what they're about to
+     *  overwrite their library with before confirming. {@code valid} is false when the picked
+     *  file has no backup.json entry (not a Full Backup zip at all). */
+    public static class RestorePreview {
+        public boolean valid;
+        public long timestamp;
+        public long zipTotalBytes;
+        public long totalAudioDurationMs;
+        public int bookCount;
+        public int zikFileCount;
+        public int librivoxSourceCount;
+        public int radioCount;
+        public int podcastCount;
+        public int podcastHistoryCount;
+        public boolean hasPreferences;
+    }
+
+    /** Streams through the zip once, discarding the (potentially huge) audio/cover entries
+     *  without writing them anywhere, until it reaches backup.json - cheaper than a full
+     *  runFullRestore() pass since nothing is written to disk, but still a real read through
+     *  the whole file (backup.json is appended last, see runFullBackup), so this can take a
+     *  moment on a large backup. Call off the main thread. */
+    public static RestorePreview peekRestorePreview(Context context, Uri srcZipUri) {
+        RestorePreview preview = new RestorePreview();
+        preview.zipTotalBytes = estimateZipSize(context, srcZipUri);
+
+        String json = null;
+        try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
+                ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
+            if (rawIn == null) {
+                return preview;
+            }
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (!entry.isDirectory() && "backup.json".equals(entry.getName())) {
+                    json = readEntryAsString(zis);
+                    zis.closeEntry();
+                    break;
+                }
+                zis.closeEntry();
+            }
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "peekRestorePreview (zip scan) failed");
+            return preview;
+        }
+
+        if (json == null) {
+            return preview; // no backup.json entry - not a Full Backup zip
+        }
+
+        try {
+            BackupManager backupManager = new BackupManager(context);
+            BackupManager.BackupData data = backupManager.inspectJson(json);
+            if (data == null) {
+                return preview;
+            }
+
+            preview.valid = true;
+            preview.timestamp = data.timestamp;
+            preview.bookCount = data.folders != null ? data.folders.size() : 0;
+            preview.zikFileCount = data.zikFiles != null ? data.zikFiles.size() : 0;
+            preview.librivoxSourceCount = data.bookSources != null ? data.bookSources.size() : 0;
+            preview.hasPreferences = data.preferences != null && !data.preferences.isEmpty();
+            if (data.folders != null) {
+                for (Folder f : data.folders) {
+                    preview.totalAudioDurationMs += (long) f.getDuration();
+                }
+            }
+            // Radio/podcast fields only exist on the full flavor's BackupData subclass - these
+            // helpers are the same per-flavor pattern already used for the classic restore
+            // screen's hasRadios/hasPodcasts checks (real counts on full, always 0 on pure).
+            preview.radioCount = RadioHelper.backupDataRadioCount(data);
+            preview.podcastCount = PodcastHelper.backupDataPodcastCount(data);
+            preview.podcastHistoryCount = PodcastHelper.backupDataEpisodeHistoryCount(data);
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "peekRestorePreview (parse) failed");
+        }
+
+        return preview;
+    }
+
+    /**
+     * The other half of runFullBackup(): reads a Full Backup zip back in - extracting the
+     * audio/cover/cache folders into place under getFilesDir() and importing the embedded
+     * backup.json - so this actually restores a library, not just archives it. Handles a mixed
+     * copy/link library uniformly: copied books get their bytes back from the zip's file
+     * entries; linked books just need their DB records back, which backup.json covers the same
+     * way the classic JSON restore does (their actual audio lives outside app storage and was
+     * never touched by the uninstall in the first place - though Android does revoke this app's
+     * persisted SAF folder-access grant on uninstall, so a linked source may need re-granting
+     * through its picker afterward; this method has no way to do that for you).
+     * <p>
+     * Deliberately restores every backup.json section (prefs/radios/podcasts/librivox/
+     * bookProgress/podcastHistory) rather than offering the classic restore's per-section
+     * checkboxes - a Full Backup is meant to be a single "get everything back" unit.
+     * Streamed single-pass (no separate "peek the date first" step): the file entries can be
+     * many GB, so reading the zip twice just to preview it before confirming isn't worth doubling
+     * the I/O for what a static confirmation message already covers.
+     */
+    public static boolean runFullRestore(Context context, Uri srcZipUri, ProgressListener listener) {
+        long totalBytes = estimateZipSize(context, srcZipUri);
+        long[] copiedSoFar = { 0 };
+        boolean allOk = true;
+        String backupJson = null;
+
+        try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
+                ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
+            if (rawIn == null) {
+                return false;
+            }
+
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName();
+                if (!entry.isDirectory()) {
+                    if ("backup.json".equals(name)) {
+                        backupJson = readEntryAsString(zis);
+                        copiedSoFar[0] += backupJson.length();
+                        if (listener != null) {
+                            listener.onProgress(copiedSoFar[0], totalBytes, "backup.json");
+                        }
+                    } else if (isUnderBackupSubfolder(name)) {
+                        if (!extractEntry(context, zis, name, totalBytes, copiedSoFar, listener)) {
+                            allOk = false;
+                        }
+                    }
+                    // Anything else (unrecognized entry, e.g. from a foreign/future zip) is
+                    // skipped rather than failing the whole restore over it.
+                }
+                zis.closeEntry();
+            }
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "runFullRestore (unzip) failed");
+            return false;
+        }
+
+        if (backupJson == null) {
+            KanLogger.myLogE(TAG, "runFullRestore: no backup.json entry found - not a Full Backup zip");
+            return false;
+        }
+
+        try {
+            BackupManager backupManager = new BackupManager(context);
+            backupManager.importFromJson(backupJson, true, true, true, true, true, true);
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "runFullRestore: importFromJson failed");
+            allOk = false;
+        }
+
+        return allOk;
+    }
+
+    private static boolean isUnderBackupSubfolder(String zipEntryName) {
+        for (String sub : BACKUP_SUBFOLDERS) {
+            if (zipEntryName.equals(sub) || zipEntryName.startsWith(sub + "/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String readEntryAsString(ZipInputStream zis) throws java.io.IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[64 * 1024];
+        int len;
+        while ((len = zis.read(buf)) > 0) {
+            baos.write(buf, 0, len);
+        }
+        return baos.toString(StandardCharsets.UTF_8.name());
+    }
+
+    private static boolean extractEntry(Context context, ZipInputStream zis, String entryName, long totalBytes,
+            long[] copiedSoFar, ProgressListener listener) {
+        try {
+            File dest = PathSafe.safeResolve(context.getFilesDir(), entryName);
+            File parent = dest.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new java.io.IOException("mkdirs failed for " + parent);
+            }
+            try (OutputStream out = new FileOutputStream(dest)) {
+                byte[] buf = new byte[64 * 1024];
+                int len;
+                while ((len = zis.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                    copiedSoFar[0] += len;
+                    if (listener != null) {
+                        listener.onProgress(copiedSoFar[0], totalBytes, dest.getName());
+                    }
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            KanLogger.myLogEE(e, TAG, "extracting zip entry failed: " + entryName);
+            return false;
+        }
+    }
+
+    /** The zip was written with NO_COMPRESSION, so its own size is a good stand-in for the total
+     *  bytes we're about to write back out - close enough for a progress bar/ETA without a
+     *  separate full pass just to sum entry sizes. */
+    private static long estimateZipSize(Context context, Uri zipUri) {
+        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(zipUri, "r")) {
+            return pfd != null ? pfd.getStatSize() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private static boolean zipDirRecursive(File dir, String entryPrefix, ZipOutputStream zos, long totalBytes,

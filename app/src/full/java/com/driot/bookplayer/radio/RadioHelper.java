@@ -284,6 +284,10 @@ public class RadioHelper {
 		return data.radioStations != null && !data.radioStations.isEmpty();
 	}
 
+	public static int backupDataRadioCount(BackupManager.BackupData data) {
+		return data.radioStations != null ? data.radioStations.size() : 0;
+	}
+
 	public static void addSecondToTimeListened(Context context, long trackId) {
 		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 		db.radioStationDao().addSecondToTimeListened(trackId);

@@ -139,6 +139,9 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             startActivity(it);
         });
 
+        root.findViewById(R.id.btn_full_backup).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), com.driot.bookplayer.importexport.FullBackupActivity.class)));
+
         root.findViewById(R.id.btn_app_info).setOnClickListener(v -> openAppInfo());
         root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());
         root.findViewById(R.id.btn_delete_system_cache).setOnClickListener(v -> deleteSystemCacheClick());

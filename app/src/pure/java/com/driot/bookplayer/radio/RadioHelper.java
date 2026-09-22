@@ -35,6 +35,10 @@ public class RadioHelper {
         return false;
     }
 
+    public static int backupDataRadioCount(BackupManager.BackupData data) {
+        return 0;
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId) {
         myLogE("should never happen");
     }

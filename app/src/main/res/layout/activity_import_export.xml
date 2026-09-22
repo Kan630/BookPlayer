@@ -26,16 +26,6 @@
             android:layout_marginBottom="16dp"
             android:text="@string/import_export_desc" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_full_backup"
-            style="@style/Widget.BookPlayer.Button.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:padding="12dp"
-            android:text="@string/full_backup_title"
-            android:visibility="gone" />
-
         <!-- Restore Step 1 -->
         <LinearLayout
             android:id="@+id/ll_restore_step1"

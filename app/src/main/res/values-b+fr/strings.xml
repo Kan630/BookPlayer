@@ -1438,6 +1438,12 @@ Cela peut être assez lent…</string>
     <string name="full_backup_success">Sauvegarde complète terminée.</string>
     <string name="full_backup_partial_failure">Sauvegarde terminée, mais certains fichiers n\'ont pas pu être copiés. Vérifiez la destination avant de vous y fier.</string>
     <string name="full_backup_failed">Échec de la sauvegarde complète : %s</string>
+    <string name="full_restore_title">Restaurer depuis une sauvegarde complète</string>
+    <string name="full_restore_desc">Restaure tout à partir d\'un fichier zip de sauvegarde complète - livres audio, images de couverture et toutes les données de l\'application - sur cet appareil, en remplaçant votre bibliothèque et vos paramètres actuels.</string>
+    <string name="full_restore_start">Choisir le fichier de sauvegarde complète et restaurer</string>
+    <string name="full_restore_success">Restauration complète terminée. Veuillez redémarrer l\'application.</string>
+    <string name="full_restore_partial_failure">Restauration terminée, mais certains fichiers n\'ont pas pu être restaurés. Vérifiez votre bibliothèque avant de vous y fier.</string>
+    <string name="full_restore_failed">Échec de la restauration complète : %s</string>
     <string name="import_export_select_at_least_one_to_backup">Veuillez sélectionner au moins un élément à sauvegarder</string>
     <string name="import_export_select_at_least_one_to_restore">Veuillez sélectionner au moins un élément à restaurer</string>
     <string name="import_export_select_at_least_one_to_share">Veuillez sélectionner au moins un élément à partager</string>
@@ -1451,6 +1457,7 @@ Cela peut être assez lent…</string>
     <string name="stats_database_title">Statistiques de la base de données</string>
     <string name="utilities_backup_library">Sauvegarde</string>
     <string name="utilities_backup_restore_desc">Sauvegardez et restaurez certains éléments et préférences vers/depuis un fichier ou via le partage rapide.</string>
+    <string name="utilities_full_backup_desc">Ou regroupez tout - y compris vos fichiers audio réels et les images de couverture, pas seulement les paramètres - dans un seul fichier zip à partir duquel vous pourrez restaurer plus tard.</string>
     <string name="utilities_backup_restore_title">Sauvegarde / Restauration</string>
     <string name="utilities_restore_library">Restauration</string>
 

@@ -82,6 +82,14 @@ public class PodcastHelper {
         return false;
     }
 
+    public static int backupDataPodcastCount(BackupManager.BackupData data) {
+        return 0;
+    }
+
+    public static int backupDataEpisodeHistoryCount(BackupManager.BackupData data) {
+        return 0;
+    }
+
     public static void updateImage(long folderId, String imagePath, Context context) {
         myLog("stub!");
     }

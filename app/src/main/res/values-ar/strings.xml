@@ -1447,6 +1447,12 @@
     <string name="full_backup_success">اكتمل النسخ الاحتياطي الكامل.</string>
     <string name="full_backup_partial_failure">اكتمل النسخ الاحتياطي، ولكن تعذر نسخ بعض الملفات. تحقق من الوجهة قبل الاعتماد عليها.</string>
     <string name="full_backup_failed">فشل النسخ الاحتياطي الكامل: %s</string>
+    <string name="full_restore_title">استعادة من نسخة احتياطية كاملة</string>
+    <string name="full_restore_desc">يستعيد كل شيء من ملف zip لنسخة احتياطية كاملة - الكتب الصوتية وصور الأغلفة وجميع بيانات التطبيق - إلى هذا الجهاز، مع الكتابة فوق مكتبتك وإعداداتك الحالية.</string>
+    <string name="full_restore_start">اختر ملف النسخة الاحتياطية الكاملة واستعد</string>
+    <string name="full_restore_success">اكتملت الاستعادة الكاملة. يرجى إعادة تشغيل التطبيق.</string>
+    <string name="full_restore_partial_failure">انتهت الاستعادة، ولكن تعذر استعادة بعض الملفات. تحقق من مكتبتك قبل الاعتماد عليها.</string>
+    <string name="full_restore_failed">فشلت الاستعادة الكاملة: %s</string>
     <string name="import_export_select_at_least_one_to_backup">يرجى اختيار عنصر واحد على الأقل للنسخ الاحتياطي</string>
     <string name="import_export_select_at_least_one_to_restore">يرجى اختيار عنصر واحد على الأقل للاستعادة</string>
     <string name="import_export_select_at_least_one_to_share">يرجى اختيار عنصر واحد على الأقل للمشاركة</string>
@@ -1455,6 +1461,7 @@
     <string name="stats_database_title">إحصائيات قاعدة البيانات</string>
     <string name="utilities_backup_library">نسخ احتياطي</string>
     <string name="utilities_backup_restore_desc">حفظ واستعادة بعض العناصر والتفضيلات من/إلى ملف أو عبر المشاركة السريعة.</string>
+    <string name="utilities_full_backup_desc">أو قم بتجميع كل شيء - بما في ذلك ملفات الكتب الصوتية الفعلية وصور الأغلفة، وليس الإعدادات فقط - في ملف zip واحد يمكنك الاستعادة منه لاحقًا.</string>
     <string name="utilities_backup_restore_title">نسخ احتياطي / استعادة</string>
     <string name="utilities_restore_library">استعادة</string>
 

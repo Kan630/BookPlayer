@@ -151,12 +151,6 @@ public class ImportExportActivity extends BaseActivity {
                 myLogI("--- user clicks SHARE BACKUP FILE (External) ---");
                 startFileShare();
             });
-            View btnFullBackup = findViewById(R.id.btn_full_backup);
-            btnFullBackup.setVisibility(View.VISIBLE);
-            btnFullBackup.setOnClickListener(v -> {
-                myLogI("--- user clicks FULL BACKUP (audio + covers + everything) ---");
-                startActivity(new Intent(this, FullBackupActivity.class));
-            });
             tvFooter.setVisibility(View.GONE);
 
             if (Tonio.isPure(this)) {

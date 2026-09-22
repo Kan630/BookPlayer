@@ -1430,6 +1430,12 @@ Es kann ziemlich langsam sein…</string>
     <string name="full_backup_success">Vollständige Sicherung abgeschlossen.</string>
     <string name="full_backup_partial_failure">Sicherung abgeschlossen, aber einige Dateien konnten nicht kopiert werden. Überprüfen Sie das Ziel, bevor Sie sich darauf verlassen.</string>
     <string name="full_backup_failed">Vollständige Sicherung fehlgeschlagen: %s</string>
+    <string name="full_restore_title">Aus vollständiger Sicherung wiederherstellen</string>
+    <string name="full_restore_desc">Stellt alles aus einer vollständigen Sicherungs-Zip-Datei wieder her - Hörbücher, Cover-Bilder und alle App-Daten - auf diesem Gerät, wobei Ihre aktuelle Bibliothek und Einstellungen überschrieben werden.</string>
+    <string name="full_restore_start">Vollständige Sicherungsdatei auswählen und wiederherstellen</string>
+    <string name="full_restore_success">Vollständige Wiederherstellung abgeschlossen. Bitte starten Sie die App neu.</string>
+    <string name="full_restore_partial_failure">Wiederherstellung abgeschlossen, aber einige Dateien konnten nicht wiederhergestellt werden. Überprüfen Sie Ihre Bibliothek, bevor Sie sich darauf verlassen.</string>
+    <string name="full_restore_failed">Vollständige Wiederherstellung fehlgeschlagen: %s</string>
     <string name="import_export_select_at_least_one_to_backup">Bitte wählen Sie mindestens ein Element für das Backup aus</string>
     <string name="import_export_select_at_least_one_to_restore">Bitte wählen Sie mindestens ein Element für die Wiederherstellung aus</string>
     <string name="import_export_select_at_least_one_to_share">Bitte wählen Sie mindestens ein Element zum Teilen aus</string>
@@ -1438,6 +1444,7 @@ Es kann ziemlich langsam sein…</string>
     <string name="stats_database_title">Datenbank-Statistik</string>
     <string name="utilities_backup_library">Backup</string>
     <string name="utilities_backup_restore_desc">Sichern und Wiederherstellen einiger Elemente und Einstellungen in/aus einer Datei oder über Quick Share.</string>
+    <string name="utilities_full_backup_desc">Oder packen Sie alles - einschließlich Ihrer tatsächlichen Hörbuchdateien und Cover-Bilder, nicht nur Einstellungen - in eine einzige Zip-Datei, aus der Sie später wiederherstellen können.</string>
     <string name="utilities_backup_restore_title">Backup / Wiederherstellung</string>
     <string name="utilities_restore_library">Wiederherstellung</string>
 

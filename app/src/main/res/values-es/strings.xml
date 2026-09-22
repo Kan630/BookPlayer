@@ -1433,6 +1433,12 @@ Puede ser bastante lento…</string>
     <string name="full_backup_success">Copia de seguridad completa finalizada.</string>
     <string name="full_backup_partial_failure">Copia de seguridad finalizada, pero algunos archivos no se pudieron copiar. Revisa el destino antes de confiar en él.</string>
     <string name="full_backup_failed">Error en la copia de seguridad completa: %s</string>
+    <string name="full_restore_title">Restaurar desde copia de seguridad completa</string>
+    <string name="full_restore_desc">Restaura todo desde un archivo zip de copia de seguridad completa - audiolibros, imágenes de portada y todos los datos de la aplicación - en este dispositivo, sobrescribiendo tu biblioteca y configuración actuales.</string>
+    <string name="full_restore_start">Elegir archivo de copia de seguridad completa y restaurar</string>
+    <string name="full_restore_success">Restauración completa finalizada. Reinicia la aplicación.</string>
+    <string name="full_restore_partial_failure">La restauración terminó, pero algunos archivos no se pudieron restaurar. Revisa tu biblioteca antes de confiar en ella.</string>
+    <string name="full_restore_failed">Error en la restauración completa: %s</string>
     <string name="import_export_select_at_least_one_to_backup">Seleccione al menos un elemento para realizar la copia de seguridad</string>
     <string name="import_export_select_at_least_one_to_restore">Seleccione al menos un elemento para restaurar</string>
     <string name="import_export_select_at_least_one_to_share">Seleccione al menos un elemento para compartir</string>
@@ -1441,6 +1447,7 @@ Puede ser bastante lento…</string>
     <string name="stats_database_title">Estadísticas de la base de datos</string>
     <string name="utilities_backup_library">Copia de seguridad</string>
     <string name="utilities_backup_restore_desc">Guarde y restaure algunos elementos y preferencias desde/hacia un archivo o mediante el uso compartido rápido.</string>
+    <string name="utilities_full_backup_desc">O empaqueta todo - incluidos tus archivos de audiolibros reales e imágenes de portada, no solo la configuración - en un solo archivo zip desde el que podrás restaurar más adelante.</string>
     <string name="utilities_backup_restore_title">Copia de seguridad / Restauración</string>
     <string name="utilities_restore_library">Restaurar</string>
 

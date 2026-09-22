@@ -1427,6 +1427,12 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="full_backup_success">पूर्ण बैकअप पूरा हुआ।</string>
     <string name="full_backup_partial_failure">बैकअप पूरा हुआ, लेकिन कुछ फ़ाइलें कॉपी नहीं हो सकीं। इस पर भरोसा करने से पहले गंतव्य की जाँच करें।</string>
     <string name="full_backup_failed">पूर्ण बैकअप विफल: %s</string>
+    <string name="full_restore_title">पूर्ण बैकअप से पुनर्स्थापित करें</string>
+    <string name="full_restore_desc">एक पूर्ण बैकअप zip फ़ाइल से सब कुछ वापस पुनर्स्थापित करता है - ऑडियोबुक, कवर छवियां, और सभी ऐप डेटा - इस डिवाइस पर, आपकी वर्तमान लाइब्रेरी और सेटिंग्स को अधिलेखित करते हुए।</string>
+    <string name="full_restore_start">पूर्ण बैकअप फ़ाइल चुनें और पुनर्स्थापित करें</string>
+    <string name="full_restore_success">पूर्ण पुनर्स्थापन पूरा हुआ। कृपया ऐप को पुनरारंभ करें।</string>
+    <string name="full_restore_partial_failure">पुनर्स्थापन पूरा हुआ, लेकिन कुछ फ़ाइलें पुनर्स्थापित नहीं की जा सकीं। भरोसा करने से पहले अपनी लाइब्रेरी जांचें।</string>
+    <string name="full_restore_failed">पूर्ण पुनर्स्थापन विफल: %s</string>
     <string name="import_export_select_at_least_one_to_backup">कृपया बैकअप के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_restore">कृपया पुनर्स्थापित करने के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_share">कृपया साझा करने के लिए कम से कम एक आइटम चुनें</string>
@@ -1435,6 +1441,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="stats_database_title">डेटाबेस सांख्यिकी</string>
     <string name="utilities_backup_library">बैकअप</string>
     <string name="utilities_backup_restore_desc">फ़ाइल के माध्यम से या त्वरित साझाकरण के माध्यम से कुछ आइटम और प्राथमिकताओं को सहेजें और पुनर्स्थापित करें।</string>
+    <string name="utilities_full_backup_desc">या सब कुछ एक साथ पैक करें - केवल सेटिंग्स ही नहीं, बल्कि आपकी वास्तविक ऑडियोबुक फ़ाइलें और कवर छवियां भी - एक ही zip में, जिससे आप बाद में पुनर्स्थापित कर सकें।</string>
     <string name="utilities_backup_restore_title">बैकअप / पुनर्स्थापना</string>
     <string name="utilities_restore_library">पुनर्स्थापना</string>
 

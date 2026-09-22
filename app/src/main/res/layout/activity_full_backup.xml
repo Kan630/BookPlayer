@@ -48,6 +48,125 @@
             android:text="@string/full_backup_start"
             app:icon="@drawable/ic_share_24px" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/tv_full_restore_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/full_restore_title"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_full_restore_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="@string/full_restore_desc" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_full_restore"
+            style="@style/Widget.BookPlayer.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/full_restore_start"
+            app:icon="@drawable/ic_check_24px" />
+
+        <LinearLayout
+            android:id="@+id/ll_restore_reading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="start"
+                android:indeterminate="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/full_restore_reading"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+        </LinearLayout>
+
+        <!-- Populated from the picked zip's own contents before the caution popup, so the user
+             knows what they're about to overwrite their library with - not the live estimate
+             above, which reflects THIS device's current library, not the backup file's. -->
+        <LinearLayout
+            android:id="@+id/ll_restore_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_restore_preview_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/full_restore_preview_title"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_restore_preview_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <TextView
+                android:id="@+id/tv_restore_preview_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <TextView
+                android:id="@+id/tv_restore_preview_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <TextView
+                android:id="@+id/tv_restore_preview_contents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_confirm_restore_preview"
+                style="@style/Widget.BookPlayer.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/full_restore_start" />
+
+            <Button
+                android:id="@+id/btn_cancel_restore_preview"
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="12dp"
+                android:text="@android:string/cancel" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/ll_full_backup_progress"
             android:layout_width="match_parent"

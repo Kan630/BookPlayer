@@ -4,8 +4,10 @@ package com.driot.bookplayer.services.archives;
 import java.io.File;
 import java.io.IOException;
 
-final class PathSafe {
-    static File safeResolve(File destDir, String entryName) throws IOException {
+// Deliberately public: shared with FullBackupHelper (com.driot.bookplayer.importexport), which
+// needs the exact same zip-slip guard when extracting a Full Backup zip back onto disk.
+public final class PathSafe {
+    public static File safeResolve(File destDir, String entryName) throws IOException {
         // Normalize separators
         String clean = entryName.replace('\\','/');
 

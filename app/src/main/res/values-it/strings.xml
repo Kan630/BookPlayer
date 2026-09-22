@@ -1435,6 +1435,12 @@ Può essere piuttosto lento…</string>
     <string name="full_backup_success">Backup completo terminato.</string>
     <string name="full_backup_partial_failure">Backup completato, ma alcuni file non sono stati copiati. Controlla la destinazione prima di farci affidamento.</string>
     <string name="full_backup_failed">Backup completo non riuscito: %s</string>
+    <string name="full_restore_title">Ripristina da backup completo</string>
+    <string name="full_restore_desc">Ripristina tutto da un file zip di backup completo - audiolibri, immagini di copertina e tutti i dati dell\'app - su questo dispositivo, sovrascrivendo la tua libreria e le impostazioni attuali.</string>
+    <string name="full_restore_start">Scegli il file di backup completo e ripristina</string>
+    <string name="full_restore_success">Ripristino completo terminato. Riavvia l\'app.</string>
+    <string name="full_restore_partial_failure">Ripristino terminato, ma alcuni file non è stato possibile ripristinare. Controlla la tua libreria prima di farci affidamento.</string>
+    <string name="full_restore_failed">Ripristino completo non riuscito: %s</string>
     <string name="import_export_select_at_least_one_to_backup">Seleziona almeno un oggetto per il backup</string>
     <string name="import_export_select_at_least_one_to_restore">Seleziona almeno un oggetto per il ripristino</string>
     <string name="import_export_select_at_least_one_to_share">Seleziona almeno un oggetto da condividere</string>
@@ -1443,6 +1449,7 @@ Può essere piuttosto lento…</string>
     <string name="stats_database_title">Statistiche del database</string>
     <string name="utilities_backup_library">Backup</string>
     <string name="utilities_backup_restore_desc">Salva e ripristina alcuni oggetti e preferenze da/verso un file o tramite la condivisione rapida.</string>
+    <string name="utilities_full_backup_desc">Oppure racchiudi tutto - inclusi i tuoi file audio reali e le immagini di copertina, non solo le impostazioni - in un unico file zip da cui ripristinare in seguito.</string>
     <string name="utilities_backup_restore_title">Backup / Ripristino</string>
     <string name="utilities_restore_library">Ripristina</string>
 

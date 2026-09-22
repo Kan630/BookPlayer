@@ -1434,6 +1434,12 @@ Pode ser muito lento…</string>
     <string name="full_backup_success">Backup completo concluído.</string>
     <string name="full_backup_partial_failure">Backup concluído, mas alguns arquivos não puderam ser copiados. Verifique o destino antes de confiar nele.</string>
     <string name="full_backup_failed">Falha no backup completo: %s</string>
+    <string name="full_restore_title">Restaurar do backup completo</string>
+    <string name="full_restore_desc">Restaura tudo a partir de um arquivo zip de backup completo - audiolivros, imagens de capa e todos os dados do aplicativo - neste dispositivo, substituindo sua biblioteca e configurações atuais.</string>
+    <string name="full_restore_start">Escolher arquivo de backup completo e restaurar</string>
+    <string name="full_restore_success">Restauração completa concluída. Reinicie o aplicativo.</string>
+    <string name="full_restore_partial_failure">Restauração concluída, mas alguns arquivos não puderam ser restaurados. Verifique sua biblioteca antes de confiar nela.</string>
+    <string name="full_restore_failed">Falha na restauração completa: %s</string>
     <string name="import_export_select_at_least_one_to_backup">Selecione pelo menos um item para fazer backup</string>
     <string name="import_export_select_at_least_one_to_restore">Selecione pelo menos um item para restaurar</string>
     <string name="import_export_select_at_least_one_to_share">Selecione pelo menos um item para compartilhar</string>
@@ -1442,6 +1448,7 @@ Pode ser muito lento…</string>
     <string name="stats_database_title">Estatísticas do banco de dados</string>
     <string name="utilities_backup_library">Backup</string>
     <string name="utilities_backup_restore_desc">Salve e restaure alguns itens e preferências de/para um arquivo ou via compartilhamento rápido.</string>
+    <string name="utilities_full_backup_desc">Ou compacte tudo - incluindo seus arquivos de audiolivros reais e imagens de capa, não apenas as configurações - em um único arquivo zip do qual você poderá restaurar depois.</string>
     <string name="utilities_backup_restore_title">Backup / Restauração</string>
     <string name="utilities_restore_library">Restaurar</string>
 
