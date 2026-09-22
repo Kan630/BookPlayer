@@ -1,6 +1,5 @@
 package com.driot.bookplayer.views;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -90,10 +89,10 @@ public class EditText2linesWithPaste extends LinearLayout {
 
             if (hasFocus && scrollOnFocus) {
                 v.postDelayed(() -> {
-                    ScrollView scroll = ((Activity) getContext()).findViewById(R.id.mainScroll);
+                    ScrollView scroll = ViewHelper.findAncestor(this, ScrollView.class);
                     if (scroll == null)
-                        KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
-                    if (scroll != null)
+                        KanLogger.myLogE("no ScrollView ancestor to scroll for scrollOnFocus");
+                    else
                         scroll.fullScroll(View.FOCUS_DOWN);
                 }, 300);
             }

@@ -1,6 +1,5 @@
 package com.driot.bookplayer.views;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
@@ -17,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingLinearLayout;
@@ -80,10 +80,10 @@ public class EditText1lineWithSearch extends LoggingLinearLayout {
 
             if (hasFocus && scrollOnFocus) {
                 v.postDelayed(() -> {
-                    ScrollView scroll = ((Activity) getContext()).findViewById(R.id.mainScroll);
+                    ScrollView scroll = ViewHelper.findAncestor(this, ScrollView.class);
                     if (scroll == null)
-                        KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
-                    if (scroll != null)
+                        KanLogger.myLogE("no ScrollView ancestor to scroll for scrollOnFocus");
+                    else
                         scroll.fullScroll(View.FOCUS_DOWN);
                 }, 300);
             }

@@ -46,6 +46,26 @@ public class ViewHelper {
         return Math.round(c.getResources().getDisplayMetrics().density * v);
     }
 
+    /**
+     * Walks up the View hierarchy from {@code view} (exclusive) and returns the nearest ancestor
+     * of type {@code type}, or null if the view isn't nested inside one. Use this instead of
+     * reaching for the hosting Activity to find a sibling/ancestor view by id - it works
+     * regardless of whether the view ends up Activity- or Fragment-hosted, and doesn't depend on
+     * getContext() actually being an Activity (e.g. Hilt wraps fragment contexts in
+     * ViewComponentManager$FragmentContextWrapper for DI, which isn't one).
+     */
+    @androidx.annotation.Nullable
+    public static <T extends View> T findAncestor(View view, Class<T> type) {
+        android.view.ViewParent parent = view.getParent();
+        while (parent instanceof View) {
+            if (type.isInstance(parent)) {
+                return type.cast(parent);
+            }
+            parent = parent.getParent();
+        }
+        return null;
+    }
+
     public static void pasteClipboard(Context context, AppCompatAutoCompleteTextView editText) {
         try {
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
