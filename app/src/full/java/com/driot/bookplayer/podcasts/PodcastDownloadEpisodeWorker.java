@@ -100,7 +100,8 @@ public class PodcastDownloadEpisodeWorker extends Worker {
 
         } catch (Exception e) {
             myLogEE(e, "Download failed - retrying");
-            return Result.retry();
+            // A place that cannot be written to never fixes itself: stop after a few tries.
+            return getRunAttemptCount() >= 5 ? Result.failure() : Result.retry();
 
         } finally {
             if (conn != null)
