@@ -1,5 +1,6 @@
 package com.driot.bookplayer.importexport;
 
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
@@ -18,9 +20,10 @@ import java.util.Set;
 
 /**
  * One row per book eligible for per-book file inclusion in a partial backup (see
- * FullBackupHelper.listBookFileCandidates - already excludes linked/SAF books). Selection state
- * lives directly in the BackupSelection's own Set&lt;Long&gt; passed in, so toggling a row here
- * needs no separate bookkeeping to stay in sync with what the actual backup call will read.
+ * FullBackupHelper.listBookFileCandidates - every book with at least one track is eligible,
+ * copy or link). Selection state lives directly in the BackupSelection's own Set&lt;Long&gt;
+ * passed in, so toggling a row here needs no separate bookkeeping to stay in sync with what the
+ * actual backup call will read.
  */
 public class BackupBookListAdapter extends RecyclerView.Adapter<BackupBookListAdapter.ViewHolder> {
 
@@ -54,6 +57,12 @@ public class BackupBookListAdapter extends RecyclerView.Adapter<BackupBookListAd
         if (book.copyOrLinkIconRes != 0) {
             holder.copyOrLinkIcon.setVisibility(View.VISIBLE);
             holder.copyOrLinkIcon.setImageResource(book.copyOrLinkIconRes);
+            // Same icon AND same tint color as ModifyFolderActivity's own copy/link indicator
+            // (Folder.getCopyOrLinkIconRes() + isReservedLocation()) - not just the same
+            // drawable with a generic color.
+            int tintColor = ContextCompat.getColor(holder.itemView.getContext(),
+                    book.reservedLocation ? R.color.storage_copy_color : R.color.storage_link_color);
+            holder.copyOrLinkIcon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
         } else {
             holder.copyOrLinkIcon.setVisibility(View.INVISIBLE);
         }

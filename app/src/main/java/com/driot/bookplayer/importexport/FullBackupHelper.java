@@ -276,57 +276,58 @@ public class FullBackupHelper {
         public final java.util.Set<Long> includedBookFileFolderIds = new java.util.HashSet<>();
     }
 
-    /** One book eligible to have its actual audio bundled into a partial backup. Only books
-     *  whose files live inside this app's own storage are eligible - a linked book's audio lives
-     *  outside the app already (safe from uninstall on its own), and restoring it would mean
-     *  writing back through a SAF grant that may not even still be valid after a reinstall (see
-     *  runFullBackup's own doc comment on this same caveat for FULL mode's linked books). */
+    /** One book eligible to have its actual audio bundled into a partial backup - see
+     *  listBookFileCandidates() below for what makes a book eligible. */
     public static class BookFileCandidate {
         public long folderId;
         public String name;
         public long sizeBytes;
         public long durationMs;
-        // Same copy/link distinction and icon as MoveBookActivity/StatsActivity/Folder's own
-        // getCopyOrLinkIconRes() - "copy" (app-reserved storage, internal or SD) vs "link"
-        // (shared storage, still File-API-accessible or we wouldn't be listing it at all - a
-        // true external SAF grant is excluded entirely, see resolveInternalFolderDir). 0 if
-        // undeterminable.
+        // Same copy/link icon (and colors) ModifyFolderActivity shows next to a book's own
+        // storage-location line - Folder.getCopyOrLinkIconRes()/isReservedLocation().
         public int copyOrLinkIconRes;
-        File dir; // resolved on-disk directory; not exposed outside this file
+        public boolean reservedLocation;
+        // File-resolvable (copy, internal or SD reserved) books get this set, and the zip writer
+        // uses the fast whole-directory path (zipDirRecursive). Null for a link/SAF book - those
+        // are zipped one track at a time instead, via zikFiles below (see runPartialBackup).
+        File dir;
+        List<com.driot.bookplayer.db.ZikFile> zikFiles;
     }
 
-    /** Sizing reuses the same pre-computed cache CleanMemoryFragment's ViewModel reads
-     *  (StorageInfoCacheHelper.getCachedFolderSizes(), keyed by each book's own top-level
-     *  unzipped-folder path, refreshed in the background at app startup / on demand) instead of
-     *  a fresh recursive filesystem walk per book - that walk is what made this list slow to
-     *  populate and, worse, slow to redo on every single checkbox toggle (see
-     *  computePartialEstimate). Same fallback as CleanMemoryViewModel for a book the cache
-     *  doesn't have yet (newly imported since the last cache calculation). */
+    /** Every book with at least one track is eligible now, regardless of where its files live -
+     *  copy (internal/SD reserved) or link (shared storage or an external SAF grant): "we backup
+     *  everything" per how this was actually meant, not just what happens to be a plain
+     *  java.io.File. Sizing is a straight sum of each ZikFile's own cached size field (already
+     *  populated by StorageInfoCacheHelper at app startup) - a pure DB read, no filesystem access
+     *  at all, so it's both correct for every location type and the fastest option rather than
+     *  scanning or even looking up a folder-size cache that only ever covered "copy" books
+     *  anyway. */
     public static List<BookFileCandidate> listBookFileCandidates(Context context) {
         List<BookFileCandidate> out = new java.util.ArrayList<>();
-        Map<String, Long> internalCache = StorageInfoCacheHelper.getCachedFolderSizes(true);
-        Map<String, Long> sdCardCache = StorageInfoCacheHelper.getCachedFolderSizes(false);
-        List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
+        AppDatabase db = AppDatabase.getDatabase(context);
+        List<Folder> folders = db.folderDao().getAll();
         for (Folder f : folders) {
             if (f.getPath() == null) {
                 continue;
             }
-            File dir = resolveInternalFolderDir(Uri.parse(f.getPath()));
-            if (dir == null) {
-                continue; // linked/SAF book - not eligible, see class doc above
+            List<com.driot.bookplayer.db.ZikFile> zikFiles = db.zikFileDao().getZikFiles(f.getId());
+            if (zikFiles.isEmpty()) {
+                continue; // nothing to back up for this book
             }
+            long sizeBytes = 0;
+            for (com.driot.bookplayer.db.ZikFile zf : zikFiles) {
+                sizeBytes += (long) zf.getSize();
+            }
+
             BookFileCandidate c = new BookFileCandidate();
             c.folderId = f.getId();
             c.name = f.getName();
-            c.dir = dir;
-            String absPath = dir.getAbsolutePath();
-            Long cached = internalCache.get(absPath);
-            if (cached == null) {
-                cached = sdCardCache.get(absPath);
-            }
-            c.sizeBytes = cached != null ? cached : (dir.exists() ? StorageHelper.getFolderSize(dir) : 0);
+            c.dir = resolveInternalFolderDir(Uri.parse(f.getPath())); // null for link/SAF books
+            c.zikFiles = zikFiles;
+            c.sizeBytes = sizeBytes;
             c.durationMs = (long) f.getDuration();
             c.copyOrLinkIconRes = f.getCopyOrLinkIconRes(context);
+            c.reservedLocation = f.isReservedLocation(context);
             out.add(c);
         }
         return out;
@@ -453,13 +454,24 @@ public class FullBackupHelper {
                         continue;
                     }
                     checkCancelled(cancelled);
-                    if (c.dir == null || !c.dir.exists()) {
-                        continue; // book was deleted/moved since the list was built - skip, not fatal
-                    }
                     String prefix = BOOK_FILES_ENTRY_PREFIX + c.folderId + "/";
-                    if (!zipDirRecursive(c.dir, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
-                        allOk = false;
+                    if (c.dir != null && c.dir.exists()) {
+                        // Copy book: a real directory, zip it whole (fast path).
+                        if (!zipDirRecursive(c.dir, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled,
+                                listener)) {
+                            allOk = false;
+                        }
+                    } else if (c.zikFiles != null) {
+                        // Link/SAF book: no single directory to hand to zipDirRecursive - stream
+                        // each track through its own resolved content:// (or file://) Uri
+                        // instead. "We back up everything" regardless of where a book's files
+                        // actually live - see listBookFileCandidates.
+                        if (!zipBookTracksByUri(context, c, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled,
+                                listener)) {
+                            allOk = false;
+                        }
                     }
+                    // else: book was deleted/moved since the list was built - skip, not fatal.
                 }
             }
         } catch (CancellationException e) {
@@ -627,6 +639,10 @@ public class FullBackupHelper {
         // entry, see runPartialBackup) so a partial backup's individually-selected books can be
         // extracted straight to the exact path their restored Folder record will point at.
         java.util.Map<Long, File> folderIdToDir = new java.util.HashMap<>();
+        // Folders extracted to a NEW reserved-link location because their original (SAF/shared)
+        // path wasn't writable - these need their DB path (and their ZikFiles') rewritten once
+        // importFromJson has (re)inserted them, see the fixup after it below.
+        java.util.Set<Long> relocatedFolderIds = new java.util.HashSet<>();
 
         try (InputStream rawIn = context.getContentResolver().openInputStream(srcZipUri);
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(rawIn))) {
@@ -645,7 +661,9 @@ public class FullBackupHelper {
                         if (listener != null) {
                             listener.onProgress(copiedSoFar[0], totalBytes, BACKUP_JSON_ENTRY_NAME);
                         }
-                        folderIdToDir.putAll(buildFolderIdToDirMap(context, backupJson));
+                        FolderIdToDirResult resolved = buildFolderIdToDirMap(context, backupJson);
+                        folderIdToDir.putAll(resolved.dirs);
+                        relocatedFolderIds.addAll(resolved.relocatedFolderIds);
                     } else if (name.startsWith(BOOK_FILES_ENTRY_PREFIX)) {
                         if (!extractBookFileEntry(zis, name, folderIdToDir, totalBytes, copiedSoFar, cancelled,
                                 listener)) {
@@ -687,7 +705,52 @@ public class FullBackupHelper {
             allOk = false;
         }
 
+        // Folder/ZikFile rows are reinserted with their ORIGINAL ids intact (see
+        // BaseBackupManager.importBaseData's own comment on this), which is exactly what makes
+        // this safe: relocatedFolderIds was built before import from the same ids the zip's
+        // book_files/ entries and this restore both use throughout.
+        if (!relocatedFolderIds.isEmpty()) {
+            fixUpRelocatedFolderPaths(context, folderIdToDir, relocatedFolderIds);
+        }
+
         return allOk ? Result.SUCCESS : Result.PARTIAL_FAILURE;
+    }
+
+    /** For every link/SAF book whose files got relocated into this app's own reserved storage
+     *  during extraction (see buildFolderIdToDirMap), points its now-restored Folder row - and
+     *  each of its ZikFile rows - at the new location instead of the stale original one, so the
+     *  book is immediately playable again rather than needing a manual re-add. Best-effort per
+     *  folder: one folder's DB update failing doesn't stop the others. */
+    private static void fixUpRelocatedFolderPaths(Context context, java.util.Map<Long, File> folderIdToDir,
+            java.util.Set<Long> relocatedFolderIds) {
+        AppDatabase db = AppDatabase.getDatabase(context);
+        for (Long folderId : relocatedFolderIds) {
+            try {
+                File newDir = folderIdToDir.get(folderId);
+                if (newDir == null || !newDir.exists()) {
+                    continue; // nothing actually landed here (e.g. every track failed to resolve)
+                }
+                Folder folder = db.folderDao().getById(folderId);
+                if (folder == null) {
+                    continue; // this section wasn't included in the restore
+                }
+                folder.setPath(Uri.fromFile(newDir).toString());
+                db.folderDao().update(folder);
+
+                for (com.driot.bookplayer.db.ZikFile zf : db.zikFileDao().getZikFiles(folderId)) {
+                    File restoredTrack = new File(newDir, zf.getName());
+                    if (restoredTrack.exists()) {
+                        zf.setPath(Uri.fromFile(restoredTrack).toString());
+                        db.zikFileDao().update(zf);
+                    }
+                    // else: this particular track wasn't part of the backup (or failed to
+                    // extract) - left pointing at its old, now-unreachable path, same as the
+                    // classic JSON-only restore already leaves every link/SAF book today.
+                }
+            } catch (Exception e) {
+                KanLogger.myLogEE(e, TAG, "fixUpRelocatedFolderPaths failed for folder " + folderId);
+            }
+        }
     }
 
     private static class ResolvedSubfolderDest {
@@ -768,13 +831,27 @@ public class FullBackupHelper {
     }
 
     /** Parses backup.json far enough to know, for every Folder it contains, exactly which
-     *  on-disk directory a restored book_files/&lt;folderId&gt;/... entry belongs in - the same
-     *  directory the restored Folder record's own path will point at, so the files and the DB
-     *  row agree once both are back. Swallows its own errors (returns an empty map) rather than
-     *  failing the whole restore - a partial backup with no book_files entries at all (or a FULL
-     *  backup, which never has any) never needed this map in the first place. */
-    private static java.util.Map<Long, File> buildFolderIdToDirMap(Context context, String backupJson) {
-        java.util.Map<Long, File> map = new java.util.HashMap<>();
+     *  on-disk directory a restored book_files/&lt;folderId&gt;/... entry belongs in. Two cases:
+     *  <ul>
+     *  <li>The Folder's own saved path already resolves to a real writable directory (a "copy"
+     *  book, internal or SD reserved) - files land right back where they were, matching what the
+     *  restored Folder record's own path will still say, no further bookkeeping needed.</li>
+     *  <li>It doesn't (a "link"/SAF book - the original external location's permission grant
+     *  doesn't survive an uninstall/reinstall regardless, so writing back there isn't even
+     *  possible) - files instead land in a fresh per-folder directory under this app's own
+     *  reserved "link" storage, tracked in relocatedFolderIds so the caller can rewrite that
+     *  Folder's (and its ZikFiles') path afterward - see runFullRestore's post-import fixup.</li>
+     *  </ul>
+     *  Swallows its own errors (returns an empty result) rather than failing the whole restore -
+     *  a partial backup with no book_files entries at all (or a FULL backup, which never has
+     *  any) never needed this in the first place. */
+    private static class FolderIdToDirResult {
+        final java.util.Map<Long, File> dirs = new java.util.HashMap<>();
+        final java.util.Set<Long> relocatedFolderIds = new java.util.HashSet<>();
+    }
+
+    private static FolderIdToDirResult buildFolderIdToDirMap(Context context, String backupJson) {
+        FolderIdToDirResult result = new FolderIdToDirResult();
         try {
             BackupManager backupManager = new BackupManager(context);
             BackupManager.BackupData data = backupManager.inspectJson(backupJson);
@@ -785,14 +862,23 @@ public class FullBackupHelper {
                     }
                     File dir = resolveInternalFolderDir(Uri.parse(f.getPath()));
                     if (dir != null) {
-                        map.put(f.getId(), dir);
+                        result.dirs.put(f.getId(), dir);
+                        continue;
                     }
+                    File linkedBase = StorageHelper.getDefaultLinkedFolder(context, false);
+                    if (linkedBase != null) {
+                        result.dirs.put(f.getId(), new File(linkedBase, String.valueOf(f.getId())));
+                        result.relocatedFolderIds.add(f.getId());
+                    }
+                    // else: no writable fallback available either (shouldn't normally happen,
+                    // external-files-dir is always present) - this folder's book_files entries,
+                    // if any, will be skipped by extractBookFileEntry same as before this fix.
                 }
             }
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "buildFolderIdToDirMap failed - book_files entries (if any) will be skipped");
         }
-        return map;
+        return result;
     }
 
     private static boolean extractBookFileEntry(ZipInputStream zis, String entryName,
@@ -888,6 +974,52 @@ public class FullBackupHelper {
                     KanLogger.myLogEE(e, TAG, "zip entry failed for " + child.getName());
                     ok = false;
                 }
+            }
+        }
+        return ok;
+    }
+
+    /** The link/SAF counterpart to zipDirRecursive() - there's no single directory to hand it
+     *  for these books, so each track is resolved to its own playable Uri (same helper the
+     *  player itself uses, handles both content:// and file://) and streamed individually. Entry
+     *  names use each ZikFile's own filename, matching what the book-sharing feature already
+     *  sends peers under the same assumption that it's a safe, real filename (see
+     *  NearbyConnectionsHelper.performPreparation). */
+    private static boolean zipBookTracksByUri(Context context, BookFileCandidate candidate, String entryPrefix,
+            ZipOutputStream zos, long totalBytes, long[] copiedSoFar, AtomicBoolean cancelled,
+            ProgressListener listener) {
+        boolean ok = true;
+        for (com.driot.bookplayer.db.ZikFile zf : candidate.zikFiles) {
+            checkCancelled(cancelled);
+            Uri uri = com.driot.bookplayer.helpers.UriHelper.resolvePlayableUri(context, zf);
+            if (uri == null) {
+                KanLogger.myLogW(TAG, "zipBookTracksByUri: could not resolve " + zf.getName() + " for folder "
+                        + candidate.folderId + " - skipping this track");
+                ok = false;
+                continue;
+            }
+            String entryName = entryPrefix + zf.getName();
+            try (InputStream in = context.getContentResolver().openInputStream(uri)) {
+                if (in == null) {
+                    throw new java.io.IOException("openInputStream returned null for " + uri);
+                }
+                zos.putNextEntry(new ZipEntry(entryName));
+                byte[] buf = new byte[64 * 1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    checkCancelled(cancelled);
+                    zos.write(buf, 0, len);
+                    copiedSoFar[0] += len;
+                    if (listener != null) {
+                        listener.onProgress(copiedSoFar[0], totalBytes, zf.getName());
+                    }
+                }
+                zos.closeEntry();
+            } catch (CancellationException e) {
+                throw e;
+            } catch (Exception e) {
+                KanLogger.myLogEE(e, TAG, "zip entry failed for " + zf.getName());
+                ok = false;
             }
         }
         return ok;

@@ -361,9 +361,9 @@ public class FullBackupActivity extends BaseActivity {
             rvBackupBooks.setVisibility(View.GONE);
             return;
         }
+        rvBackupBooks.setVisibility(View.VISIBLE);
         rvBackupBooks.setAdapter(new BackupBookListAdapter(bookCandidates, selection.includedBookFileFolderIds,
                 this::refreshEstimate));
-        rvBackupBooks.setVisibility(View.VISIBLE);
         tvNoBooksAvailable.setVisibility(View.GONE);
     }
 
