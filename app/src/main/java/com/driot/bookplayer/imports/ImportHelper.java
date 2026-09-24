@@ -7,6 +7,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.services.DownloadWorker;
 import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -85,6 +86,9 @@ public class ImportHelper {
                 // Fallback: cancel by tag you added on each step
                 wm.cancelAllWorkByTag("import:" + job.importId);
             }
+
+            // The download itself runs in the system DownloadManager, outside WorkManager
+            DownloadWorker.removeSystemDownload(app, job.downloadWorkId);
 
             // Reflect cancellation in Room (so UI updates immediately)
             new ImportJobRepository(app).cancel(job.importId);

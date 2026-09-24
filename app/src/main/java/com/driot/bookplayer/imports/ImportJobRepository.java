@@ -60,6 +60,11 @@ public class ImportJobRepository extends LoggerHelper {
         dao.downloadComplete(id, taskName, downloadedFileFullPath, progressText, System.currentTimeMillis());
     }
 
+    public void setDownloadManagerId(String id, long downloadManagerId) {
+        dao.setDownloadManagerId(id, downloadManagerId > 0 ? String.valueOf(downloadManagerId) : null,
+                System.currentTimeMillis());
+    }
+
     public void updateDownloadedFilePath(String id, String downloadedFileFullPath) {
         dao.updateDownloadedFilePath(id, downloadedFileFullPath, System.currentTimeMillis());
         myLogD("updating download file path : [" + downloadedFileFullPath + "]");

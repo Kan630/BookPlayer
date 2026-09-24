@@ -105,6 +105,9 @@ public interface ImportJobDao {
                         "WHERE importId = :id AND status != '" + Var.IMPORT_STATUS_CANCELLED + "'")
         void success(String id, String progressText, long ts);
 
+        @Query("UPDATE ImportJob SET downloadWorkId = :downloadManagerId, updatedAt = :ts WHERE importId = :id")
+        void setDownloadManagerId(String id, String downloadManagerId, long ts);
+
         @Query("UPDATE ImportJob SET warningText = COALESCE(warningText || '\n', '') || :why" +
                         ", showToUser = 1" +
                         ", isLoadingPaused = 1" +

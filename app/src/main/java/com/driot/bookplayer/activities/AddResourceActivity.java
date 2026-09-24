@@ -22,7 +22,6 @@ import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
-import com.driot.bookplayer.services.DownloadControl;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -38,7 +37,6 @@ public class AddResourceActivity extends FullActivity {
     private TextView tvErrorText, tvWarning;
     NestedScrollView warningScroll;
 
-    private Button bPauseResume;
     private Button bCancel;
 
     private Handler delayedFinishHandler;
@@ -78,9 +76,6 @@ public class AddResourceActivity extends FullActivity {
         bCancel.setText(getString(android.R.string.cancel));
         bCancel.setOnClickListener(v -> performCancel());
 
-        bPauseResume = findViewById(R.id.bPauseResume);
-        bPauseResume.setOnClickListener(v -> performPauseOrResume());
-
         viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
 
         // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
@@ -103,11 +98,6 @@ public class AddResourceActivity extends FullActivity {
             tvWarning.setText(ui.warningText);
             warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
 
-            bPauseResume.setVisibility(!didEnterExitMode && ui.pauseAvailable ? View.VISIBLE : View.GONE);
-            if (ui.pauseAvailable) {
-                bPauseResume.setText(getString(ui.paused ? R.string.Resume : R.string.Pause));
-            }
-
             // When no longer running (FAILED / SUCCEEDED / CANCELLED), close flow once
             if (!didEnterExitMode && ui.isFinished()) {
                 myLog("observing UI state => closing [" + ui.title + "] - showToUser=[" + ui.showToUser + "]");
@@ -117,22 +107,8 @@ public class AddResourceActivity extends FullActivity {
         });
     }
 
-    private void performPauseOrResume() {
-        // Keep your existing service control; the VM/repo only reflects state.
-        boolean isPausedNow = viewModel.getUi().getValue() != null && viewModel.getUi().getValue().paused;
-        if (!isPausedNow) {
-            myLogI("------ USER CLICKS btn PAUSE ----");
-            DownloadControl.sendPause(this);
-            // Button text will be updated by VM when repo sets paused=true
-        } else {
-            myLogI("------ USER CLICKS btn RESUME ----");
-            DownloadControl.sendResume(this);
-        }
-    }
-
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
-        DownloadControl.sendCancel(this);
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
         enterExitMode();
@@ -318,7 +294,6 @@ public class AddResourceActivity extends FullActivity {
         myLog("enterExitMode");
         didEnterExitMode = true;
         navHelper.removeAddBookNavSpecial();
-        bPauseResume.setVisibility(View.GONE);
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {
             myLogI("------ USER CLICKS btn EXIT ----");

@@ -82,6 +82,8 @@ public class ImportJob {
         public boolean doUnzip;
 
         public String playType;
+        // Holds the system DownloadManager id (as a string) of this job's download - see
+        // DownloadWorker. Reuses this formerly-unused column so no Room migration was needed.
         public String downloadWorkId;
         public String uniqueChainName;
 

@@ -1164,6 +1164,7 @@
     <string name="No_chapters_found">No chapters found</string>
     <string name="Unsupported_ebook_type">Unsupported ebook type</string>
     <string name="download_stopped_by_system_will_retry">Download stopped by system — will retry</string>
+    <string name="download_waiting_for_network">Waiting for a suitable network connection…</string>
     <string name="download_resuming">Download resuming</string>
     <string name="importing_book">Importing Book</string>
     <string name="checking_size">checking size</string>

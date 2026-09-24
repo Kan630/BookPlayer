@@ -182,13 +182,14 @@ public class BookLoadingWorkLauncher {
             List<OneTimeWorkRequest> steps = new ArrayList<>();
 
             if (doDownload) {
-                j.isPauseAvailable = true;
                 j.downloadFileUrl = s.dynamicUri.toString();
                 j.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(ctx.getApplicationContext());
                 Constraints constraints = buildDownloadConstraints();
                 steps.add(new OneTimeWorkRequest.Builder(DownloadWorker.class)
                         .setConstraints(constraints)
-                        .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                        // Retries only re-attach to the still-running system download (see DownloadWorker),
+                        // so keep them short rather than exponential
+                        .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                         .setInputData(common) // workers now read importId → get url/dest from Room
                         .addTag(BOOK_LOADING_WORKERS)
                         .addTag("import:" + importId)
