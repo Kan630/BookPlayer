@@ -755,21 +755,8 @@ public class FinalParseFolderWorker extends ImportWorker {
             // importJob.fileExtension, importJob.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(importJob.title));
-                AppDatabase.databaseWriteExecutor.execute(() -> {
-                    AppDatabase db = AppDatabase.getDatabase(context);
-                    db.bookSourceDao().markImported(
-                            Var.REPO_TYPE_AUDIOBOOK, // repoType (lowercase)
-                            Var.REPO_NAME_LIBRIVOX, // repoName (lowercase)
-                            importJob.futureFolderName, // repoId (e.g., "dracula_123")
-                            insertedFolderId, // the new Folder.id
-                            importJob.title, // display title
-                            importJob.originalUri.toString(), // source_url
-                            "todo", // imageLocal if you saved it
-                            "todo", // imageRemote if available
-                            -1 // imageRemote if available
-                    );
-                });
             }
+            recordDownloadSource(insertedFolderId);
         }
 
         myLogD("deleting source ??"
@@ -782,6 +769,55 @@ public class FinalParseFolderWorker extends ImportWorker {
             }
         }
         emitSuccess();
+    }
+
+    private static String sha256Hex(String text) {
+        try {
+            byte[] d = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : d) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
+    /** Keeps the web address a book was downloaded from (Librivox, Gutenberg, or any direct
+     *  http(s) link) in BookSource, so it can be fetched again after a backup restore or a
+     *  delete. Only Librivox imports are auto-favorited - they're the only ones with a favorites
+     *  screen. */
+    private void recordDownloadSource(long folderId) {
+        final String url = importJob.originalUri == null ? "" : importJob.originalUri.toString();
+        final String repoType;
+        final String repoName;
+        final String repoId;
+        boolean favorite = false;
+        if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
+            repoType = Var.REPO_TYPE_AUDIOBOOK;
+            repoName = Var.REPO_NAME_LIBRIVOX;
+            repoId = importJob.futureFolderName;
+            favorite = true;
+        } else if (Var.SOURCE_LOCATION_EBOOK_GUTENDEX.equals(importJob.sourceLocation)) {
+            repoType = Var.REPO_TYPE_EBOOK;
+            repoName = Var.REPO_NAME_GUTENDEX;
+            repoId = importJob.futureFolderName;
+        } else if (url.startsWith("http://") || url.startsWith("https://")) {
+            repoType = Var.REPO_TYPE_DIRECT;
+            repoName = Var.REPO_NAME_WEB;
+            repoId = sha256Hex(url);
+        } else {
+            return;
+        }
+        if (repoId == null || repoId.isEmpty()) {
+            return;
+        }
+        final boolean fav = favorite;
+        AppDatabase.databaseWriteExecutor.execute(() -> AppDatabase.getDatabase(context).bookSourceDao()
+                .markImported(repoType, repoName, repoId, folderId, importJob.title, url,
+                        null, null, 0, fav));
     }
 
     /**

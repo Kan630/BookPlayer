@@ -113,6 +113,10 @@ public class Var {
 
         public static final String REPO_TYPE_AUDIOBOOK = "audiobook";
         public static final String REPO_NAME_LIBRIVOX = "librivox";
+        public static final String REPO_TYPE_EBOOK = "ebook";
+        public static final String REPO_NAME_GUTENDEX = "gutendex";
+        public static final String REPO_TYPE_DIRECT = "direct";
+        public static final String REPO_NAME_WEB = "web";
         public static final int RADIO_LIST_MAX_CARD_ITEM = 500; // WARNING, if you change that, also change the
                                                                 // scheduled worker in cloudfare...
         public static final int LIBRIVOX_LIST_MAX_CARD_ITEM = 400;

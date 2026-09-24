@@ -24,6 +24,9 @@ public interface PlaySessionDao {
     @Insert
     void insertAll(List<PlaySession> sessions);
 
+    @Query("SELECT * FROM PlaySession")
+    List<PlaySession> getAll();
+
     @Query("SELECT * FROM PlaySession WHERE zikFileId = :zikFileId")
     List<PlaySession> getAllForFile(long zikFileId);
 

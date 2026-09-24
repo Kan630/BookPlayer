@@ -64,13 +64,54 @@ public class ErrorUi {
                         context.getString(R.string.settings),
                         appDetails);
             } else {
-                MsgBox.alert(context, context.getString(R.string.error_reading_track), errMessage, pathText);
+                alertOrOfferRedownload(context, errMessage, pathText, zikFilePath);
             }
 
         } catch (Throwable t) {
             myToastEE(t, context.getString(R.string.error_reading_track));
         }
         myLog("displayed error message : [" + errMessage + "]");
+    }
+
+    /** A missing file of a book that can be fetched again gets a "Download again" button instead
+     *  of a dead-end message. The lookup touches the database, so it runs off the main thread. */
+    private static void alertOrOfferRedownload(Context context, String errMessage, String pathText,
+            String zikFilePath) {
+        Context app = context.getApplicationContext();
+        com.driot.bookplayer.db.AppDatabase.databaseReadExecutor.execute(() -> {
+            long folderId = -1;
+            try {
+                // MediaService passes its whole error text ("resolvePlayableUri failed for: <path>")
+                // where a path is expected.
+                String cleanPath = zikFilePath == null ? null
+                        : zikFilePath.replaceFirst("^resolvePlayableUri failed for:\\s*", "");
+                com.driot.bookplayer.db.ZikFile zf = cleanPath == null ? null
+                        : com.driot.bookplayer.db.AppDatabase.getDatabase(app).zikFileDao().getByPath(cleanPath);
+                if (zf == null) {
+                    PlayList pl = PlayList.getInstance();
+                    zf = pl != null ? pl.getZikFile() : null;
+                }
+                if (zf != null && UriHelper.resolvePlayableUri(app, zf) == null
+                        && com.driot.bookplayer.redownload.RedownloadHelper.isRedownloadable(app, zf.getIdFolder())) {
+                    folderId = zf.getIdFolder();
+                }
+            } catch (Exception e) {
+                myLogEE(e, "alertOrOfferRedownload lookup failed");
+            }
+            final long offerFolderId = folderId;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                String title = context.getString(R.string.error_reading_track);
+                if (offerFolderId < 0) {
+                    MsgBox.alert(context, title, errMessage, pathText);
+                    return;
+                }
+                Intent redownload = new Intent(context, com.driot.bookplayer.redownload.RedownloadBookActivity.class)
+                        .putExtra(com.driot.bookplayer.redownload.RedownloadHelper.KEY_FOLDER_ID, offerFolderId);
+                MsgBox.alertWithNeutral(context, title,
+                        errMessage + "\n\n" + context.getString(R.string.redownload_offer_message), pathText,
+                        context.getString(R.string.redownload_offer_button), redownload);
+            });
+        });
     }
 
     public static String getErrorMessageConsideringZikFilePath(Context context, String zikFilePath) {

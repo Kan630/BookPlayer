@@ -108,6 +108,12 @@
 
 
         <activity
+            android:name=".redownload.RedownloadBookActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:taskAffinity=""
+            android:excludeFromRecents="true" />
+        <activity
             android:name=".activities.MsgBoxActivity"
             android:exported="false"
             android:theme="@style/Theme.BookPlayer.DialogActivity"

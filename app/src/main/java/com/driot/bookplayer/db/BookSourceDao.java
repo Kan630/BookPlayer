@@ -117,18 +117,21 @@ public interface BookSourceDao {
             """)
     LiveData<List<BookSource>> getFavoriteLibrivoxBookSourcesLive(String repoType, String repoName);
 
+    @Query("SELECT DISTINCT idFolder FROM BookSource WHERE idFolder IS NOT NULL AND source_url != '' AND repoName != 'gutendex'")
+    List<Long> getRedownloadableFolderIds();
+
     // Default method wrapper (Java 8 interface default)
     @Transaction
     default void markImported(String repoType, String repoName, String repoId,
             long folderId,
             String bookTitle, String sourceUrl,
             @Nullable String imageLocal, @Nullable String imageRemote,
-            long sourceSize) {
+            long sourceSize, boolean favorite) {
         long now = System.currentTimeMillis();
 
         // Try update existing row
         int u = updateOnIntegration(repoType, repoName, repoId,
-                folderId, true, // force favorite on import
+                folderId, favorite,
                 bookTitle != null ? bookTitle : "",
                 sourceUrl != null ? sourceUrl : "",
                 imageLocal, imageRemote, sourceSize, now);
@@ -139,7 +142,7 @@ public interface BookSourceDao {
                     bookTitle != null ? bookTitle : "",
                     sourceUrl != null ? sourceUrl : "",
                     repoType, repoName, repoId, imageLocal, imageRemote, folderId);
-            bs.is_favorite = true; // new imports are favorited by default
+            bs.is_favorite = favorite;
             bs.imageLocal = imageLocal;
             bs.imageRemote = imageRemote;
             bs.source_size = sourceSize;

@@ -165,12 +165,59 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
-        <TextView
-            android:id="@+id/tv_full_backup_duration"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_full_backup_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <TextView
+                android:id="@+id/tv_full_backup_ebooks_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/cb_skip_redownloadable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_skip_redownloadable_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/backup_skip_redownloadable_explain"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+        <LinearLayout
+            android:id="@+id/ll_skip_sdcard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cb_skip_sdcard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_skip_sdcard_title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/backup_skip_sdcard_explain"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/group_backup_destination"
@@ -358,6 +405,14 @@
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
             <TextView
+                android:id="@+id/tv_restore_preview_ebooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/tv_restore_preview_contents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -430,6 +485,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_redownload_missing"
+            style="@style/Widget.BookPlayer.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:visibility="gone" />
 
     </LinearLayout>

@@ -23,6 +23,32 @@ public final class AppUpgrade {
     private AppUpgrade() {
     }
 
+    private static void backfillGutenbergSources(Context context) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                AppDatabase db = AppDatabase.getDatabase(context);
+                java.util.regex.Pattern p = java.util.regex.Pattern.compile("^pg(\\d+)-.*\\.epub$");
+                for (Folder f : db.folderDao().getAll()) {
+                    if (!com.driot.bookplayer.global.Var.SOURCE_LOCATION_EBOOK_GUTENDEX.equals(f.getSourceLocation())
+                            || f.getOriginalFile() == null) {
+                        continue;
+                    }
+                    java.util.regex.Matcher m = p.matcher(f.getOriginalFile());
+                    if (!m.matches()) {
+                        continue;
+                    }
+                    String id = m.group(1);
+                    db.bookSourceDao().markImported(com.driot.bookplayer.global.Var.REPO_TYPE_EBOOK,
+                            com.driot.bookplayer.global.Var.REPO_NAME_GUTENDEX, "gutendex_" + id, f.getId(),
+                            f.getName(), "https://www.gutenberg.org/ebooks/" + id + ".epub3.images",
+                            null, null, 0, false);
+                }
+            } catch (Exception e) {
+                myLogEE(e, "backfillGutenbergSources failed");
+            }
+        });
+    }
+
     public static void runMigrations(Context context) {
         myLogD("runMigrations");
         SharedPreferences prefs = context.getApplicationContext()
@@ -37,6 +63,15 @@ public final class AppUpgrade {
             myLogI("Migrating book prefs to Folder DB");
             migrateBookPrefsToDb(context);
             prefs.edit().putBoolean(KEY_MIGRATED_BOOK_PREFS, true).apply();
+        }
+
+        // Gutenberg books imported before their download address was recorded (see
+        // FinalParseFolderWorker.recordDownloadSource): the file name "pg<id>-images-3.epub"
+        // still carries the Gutenberg id, enough to rebuild a working address.
+        final String KEY_BACKFILLED_GUTENBERG_SOURCES = "backfilled_gutenberg_book_sources";
+        if (!prefs.getBoolean(KEY_BACKFILLED_GUTENBERG_SOURCES, false)) {
+            prefs.edit().putBoolean(KEY_BACKFILLED_GUTENBERG_SOURCES, true).apply();
+            backfillGutenbergSources(context);
         }
 
         // ---- Migration: introduce NOT_ROAMING (only if app was previously < XXX) ----

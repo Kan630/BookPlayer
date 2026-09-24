@@ -99,9 +99,97 @@ public class FullBackupHelper {
     public static class Estimate {
         public long totalBytes;
         public long totalAudioDurationMs;
+        // Ebooks read aloud by text-to-speech: their "duration" is an estimate of the reading
+        // time, kept apart from real audio.
+        public long totalEbookDurationMs;
     }
 
     public static Estimate computeEstimate(Context context) {
+        return computeEstimate(context, false, false);
+    }
+
+    /** Every directory FULL backup zips wholesale (each BACKUP_SUBFOLDERS kind, internal and
+     *  SD-card variants). */
+    private static List<File> managedRoots(Context context) {
+        List<File> roots = new java.util.ArrayList<>();
+        for (String sub : BACKUP_SUBFOLDERS) {
+            roots.add(StorageHelper.getFolder(context, sub, false));
+            if (StorageHelper.isExternalSDCardAvailable(context)) {
+                roots.add(StorageHelper.getFolder(context, sub, true));
+            }
+        }
+        return roots;
+    }
+
+    private static boolean isInsideAny(File dir, List<File> roots) {
+        if (dir == null) {
+            return false;
+        }
+        String path = dir.getAbsolutePath();
+        for (File root : roots) {
+            if (path.startsWith(root.getAbsolutePath() + File.separator)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The real files of a book's tracks that this app can read with java.io.File. A single-file
+     *  import keeps its audio in the download folder, not inside the book's own directory. */
+    private static List<File> trackFiles(BookFileCandidate c) {
+        List<File> out = new java.util.ArrayList<>();
+        if (c.zikFiles == null) {
+            return out;
+        }
+        for (com.driot.bookplayer.db.ZikFile zf : c.zikFiles) {
+            String path = zf.getPath();
+            if (path == null || path.startsWith("content://")) {
+                continue;
+            }
+            out.add(new File(path.startsWith("file://") ? Uri.parse(path).getPath() : path));
+        }
+        return out;
+    }
+
+    private static boolean isManaged(BookFileCandidate c, List<File> roots) {
+        if (isInsideAny(c.dir, roots)) {
+            return true;
+        }
+        for (File f : trackFiles(c)) {
+            if (isInsideAny(f, roots)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isSkipped(BookFileCandidate c, boolean skipRedownloadable, boolean skipSdCard) {
+        return (skipRedownloadable && c.redownloadable) || (skipSdCard && c.sdCardSurvivor);
+    }
+
+    /** True only for a book that sits on the removable SD card OUTSIDE any app-scoped area, i.e.
+     *  its files survive an uninstall / "clear data" of this app. Anything under an Android/
+     *  directory (this app's reserved SD area included: Android/data/&lt;pkg&gt;) is wiped with the
+     *  app, so those books must keep going into the backup - never skipped. */
+    static boolean survivesUninstallOnSdCard(Context context, String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        try {
+            if (!StorageHelper.isOnSdCard(context, Uri.parse(path))) {
+                return false;
+            }
+            String lower = Uri.decode(path).toLowerCase();
+            if (lower.contains("/android/") || lower.contains(":android/")) {
+                return false;
+            }
+            return !lower.startsWith(context.getFilesDir().getAbsolutePath().toLowerCase());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static Estimate computeEstimate(Context context, boolean skipRedownloadable, boolean skipSdCard) {
         Estimate e = new Estimate();
 
         // "unzipped" (the actual audiobooks) dominates this total and is the slow part to
@@ -145,7 +233,39 @@ public class FullBackupHelper {
 
         List<Folder> folders = AppDatabase.getDatabase(context).folderDao().getAll();
         for (Folder f : folders) {
-            e.totalAudioDurationMs += (long) f.getDuration();
+            if (Var.PLAY_TYPE_TEXT.equals(f.playType)) {
+                e.totalEbookDurationMs += (long) f.getDuration();
+            } else {
+                e.totalAudioDurationMs += (long) f.getDuration();
+            }
+        }
+
+        // Books living outside the managed folders (linked from shared storage or an external SAF
+        // grant) are added on top - unless skipped - and skipped copy books come back off.
+        List<File> roots = managedRoots(context);
+        for (BookFileCandidate c : listBookFileCandidates(context)) {
+            boolean skipped = isSkipped(c, skipRedownloadable, skipSdCard);
+            boolean managed = isManaged(c, roots);
+            if (skipped) {
+                if (c.ebook) {
+                    e.totalEbookDurationMs = Math.max(0, e.totalEbookDurationMs - c.durationMs);
+                } else {
+                    e.totalAudioDurationMs = Math.max(0, e.totalAudioDurationMs - c.durationMs);
+                }
+                if (managed) {
+                    // What FULL would actually have zipped - not the sizes recorded in the
+                    // database, which can disagree with what is on disk.
+                    long onDisk = c.dir != null && c.dir.exists() ? StorageHelper.getFolderSize(c.dir) : 0;
+                    for (File f : trackFiles(c)) {
+                        if (f.isFile() && (c.dir == null || !isInsideAny(f, java.util.Collections.singletonList(c.dir)))) {
+                            onDisk += f.length();
+                        }
+                    }
+                    e.totalBytes = Math.max(0, e.totalBytes - onDisk);
+                }
+            } else if (!managed) {
+                e.totalBytes += c.sizeBytes;
+            }
         }
         return e;
     }
@@ -163,8 +283,21 @@ public class FullBackupHelper {
      * null for an uncancellable run. On cancellation the partially-written destFileUri is
      * deleted rather than left behind as a broken/incomplete zip. */
     public static Result runFullBackup(Context context, Uri destFileUri, AtomicBoolean cancelled,
-            ProgressListener listener) {
-        Estimate estimate = computeEstimate(context);
+            ProgressListener listener, boolean skipRedownloadable, boolean skipSdCard) {
+        Estimate estimate = computeEstimate(context, skipRedownloadable, skipSdCard);
+        List<File> roots = managedRoots(context);
+        List<BookFileCandidate> candidates = listBookFileCandidates(context);
+        java.util.Set<String> skipDirs = new java.util.HashSet<>();
+        for (BookFileCandidate c : candidates) {
+            if (isSkipped(c, skipRedownloadable, skipSdCard) && isManaged(c, roots)) {
+                if (c.dir != null) {
+                    skipDirs.add(c.dir.getAbsolutePath());
+                }
+                for (File f : trackFiles(c)) {
+                    skipDirs.add(f.getAbsolutePath());
+                }
+            }
+        }
         long[] copiedSoFar = { 0 };
         boolean allOk = true;
 
@@ -221,7 +354,7 @@ public class FullBackupHelper {
                 if (!internalDir.exists())
                     continue;
                 if (!zipDirRecursive(internalDir, INTERNAL_PREFIX + sub + "/", zos, estimate.totalBytes, copiedSoFar,
-                        cancelled, listener)) {
+                        cancelled, listener, skipDirs)) {
                     allOk = false;
                 }
             }
@@ -231,9 +364,20 @@ public class FullBackupHelper {
                     if (!sdDir.exists())
                         continue;
                     if (!zipDirRecursive(sdDir, SDCARD_PREFIX + sub + "/", zos, estimate.totalBytes, copiedSoFar,
-                            cancelled, listener)) {
+                            cancelled, listener, skipDirs)) {
                         allOk = false;
                     }
+                }
+            }
+
+            // Books that live outside the managed folders (link / SAF) - zipped per book under
+            // the same book_files/<id>/ entries a partial backup uses, so restore reads both.
+            for (BookFileCandidate c : candidates) {
+                if (isSkipped(c, skipRedownloadable, skipSdCard) || isManaged(c, roots)) {
+                    continue;
+                }
+                if (!writeBookFiles(context, c, zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
+                    allOk = false;
                 }
             }
         } catch (CancellationException e) {
@@ -274,6 +418,13 @@ public class FullBackupHelper {
         // Empty by default - "include book files" starts unchecked, and even once checked the
         // per-book list itself starts with nothing ticked (see BackupActivity).
         public final java.util.Set<Long> includedBookFileFolderIds = new java.util.HashSet<>();
+        // Leave out the audio of books whose download address is saved (see BookSource), so a
+        // restore can fetch them again instead of the backup carrying them.
+        public boolean skipRedownloadable = false;
+        // Leave out books linked from the SD card outside any app-scoped folder: their files
+        // stay on the card through an uninstall. Books in the app's own reserved SD area are
+        // never skipped - they are deleted with the app.
+        public boolean skipSdCard = false;
     }
 
     /** One book eligible to have its actual audio bundled into a partial backup - see
@@ -287,6 +438,9 @@ public class FullBackupHelper {
         // storage-location line - Folder.getCopyOrLinkIconRes()/isReservedLocation().
         public int copyOrLinkIconRes;
         public boolean reservedLocation;
+        public boolean redownloadable;
+        public boolean sdCardSurvivor;
+        public boolean ebook;
         // File-resolvable (copy, internal or SD reserved) books get this set, and the zip writer
         // uses the fast whole-directory path (zipDirRecursive). Null for a link/SAF book - those
         // are zipped one track at a time instead, via zikFiles below (see runPartialBackup).
@@ -306,6 +460,8 @@ public class FullBackupHelper {
         List<BookFileCandidate> out = new java.util.ArrayList<>();
         AppDatabase db = AppDatabase.getDatabase(context);
         List<Folder> folders = db.folderDao().getAll();
+        java.util.Set<Long> redownloadable = new java.util.HashSet<>(db.bookSourceDao().getRedownloadableFolderIds());
+        redownloadable.addAll(new BackupManager(context).getRedownloadablePodcastFolderIds());
         for (Folder f : folders) {
             if (f.getPath() == null) {
                 continue;
@@ -328,6 +484,9 @@ public class FullBackupHelper {
             c.durationMs = (long) f.getDuration();
             c.copyOrLinkIconRes = f.getCopyOrLinkIconRes(context);
             c.reservedLocation = f.isReservedLocation(context);
+            c.redownloadable = redownloadable.contains(f.getId());
+            c.sdCardSurvivor = survivesUninstallOnSdCard(context, f.getPath());
+            c.ebook = Var.PLAY_TYPE_TEXT.equals(f.playType);
             out.add(c);
         }
         return out;
@@ -356,6 +515,7 @@ public class FullBackupHelper {
     public static class PartialEstimate {
         public long totalBytes;
         public long totalAudioDurationMs;
+        public long totalEbookDurationMs;
     }
 
     /** Real (not guessed) JSON size for the current selection, so toggling a checkbox shows an
@@ -383,9 +543,14 @@ public class FullBackupHelper {
         // "total library duration" number regardless of what's actually going into the backup).
         if (!selection.includedBookFileFolderIds.isEmpty()) {
             for (BookFileCandidate c : listBookFileCandidates(context)) {
-                if (selection.includedBookFileFolderIds.contains(c.folderId)) {
+                if (selection.includedBookFileFolderIds.contains(c.folderId)
+                        && !isSkipped(c, selection.skipRedownloadable, selection.skipSdCard)) {
                     e.totalBytes += c.sizeBytes;
-                    e.totalAudioDurationMs += c.durationMs;
+                    if (c.ebook) {
+                        e.totalEbookDurationMs += c.durationMs;
+                    } else {
+                        e.totalAudioDurationMs += c.durationMs;
+                    }
                 }
             }
         }
@@ -450,28 +615,13 @@ public class FullBackupHelper {
 
             if (!selection.includedBookFileFolderIds.isEmpty()) {
                 for (BookFileCandidate c : listBookFileCandidates(context)) {
-                    if (!selection.includedBookFileFolderIds.contains(c.folderId)) {
+                    if (!selection.includedBookFileFolderIds.contains(c.folderId)
+                            || isSkipped(c, selection.skipRedownloadable, selection.skipSdCard)) {
                         continue;
                     }
-                    checkCancelled(cancelled);
-                    String prefix = BOOK_FILES_ENTRY_PREFIX + c.folderId + "/";
-                    if (c.dir != null && c.dir.exists()) {
-                        // Copy book: a real directory, zip it whole (fast path).
-                        if (!zipDirRecursive(c.dir, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled,
-                                listener)) {
-                            allOk = false;
-                        }
-                    } else if (c.zikFiles != null) {
-                        // Link/SAF book: no single directory to hand to zipDirRecursive - stream
-                        // each track through its own resolved content:// (or file://) Uri
-                        // instead. "We back up everything" regardless of where a book's files
-                        // actually live - see listBookFileCandidates.
-                        if (!zipBookTracksByUri(context, c, prefix, zos, estimate.totalBytes, copiedSoFar, cancelled,
-                                listener)) {
-                            allOk = false;
-                        }
+                    if (!writeBookFiles(context, c, zos, estimate.totalBytes, copiedSoFar, cancelled, listener)) {
+                        allOk = false;
                     }
-                    // else: book was deleted/moved since the list was built - skip, not fatal.
                 }
             }
         } catch (CancellationException e) {
@@ -496,6 +646,7 @@ public class FullBackupHelper {
         public long timestamp;
         public long zipTotalBytes;
         public long totalAudioDurationMs;
+        public long totalEbookDurationMs;
         public int bookCount;
         public int zikFileCount;
         public int librivoxSourceCount;
@@ -519,7 +670,11 @@ public class FullBackupHelper {
         preview.hasPreferences = data.preferences != null && !data.preferences.isEmpty();
         if (data.folders != null) {
             for (Folder f : data.folders) {
-                preview.totalAudioDurationMs += (long) f.getDuration();
+                if (Var.PLAY_TYPE_TEXT.equals(f.playType)) {
+                    preview.totalEbookDurationMs += (long) f.getDuration();
+                } else {
+                    preview.totalAudioDurationMs += (long) f.getDuration();
+                }
             }
         }
         // Radio/podcast fields only exist on the full flavor's BackupData subclass - these
@@ -943,6 +1098,12 @@ public class FullBackupHelper {
 
     private static boolean zipDirRecursive(File dir, String entryPrefix, ZipOutputStream zos, long totalBytes,
             long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener) {
+        return zipDirRecursive(dir, entryPrefix, zos, totalBytes, copiedSoFar, cancelled, listener, null);
+    }
+
+    private static boolean zipDirRecursive(File dir, String entryPrefix, ZipOutputStream zos, long totalBytes,
+            long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener,
+            java.util.Set<String> skipDirs) {
         File[] children = dir.listFiles();
         if (children == null)
             return true;
@@ -951,10 +1112,17 @@ public class FullBackupHelper {
             checkCancelled(cancelled); // between files - propagates out of this method on purpose
             String entryName = entryPrefix + child.getName();
             if (child.isDirectory()) {
-                if (!zipDirRecursive(child, entryName + "/", zos, totalBytes, copiedSoFar, cancelled, listener)) {
+                if (skipDirs != null && skipDirs.contains(child.getAbsolutePath())) {
+                    continue;
+                }
+                if (!zipDirRecursive(child, entryName + "/", zos, totalBytes, copiedSoFar, cancelled, listener,
+                        skipDirs)) {
                     ok = false;
                 }
             } else {
+                if (skipDirs != null && skipDirs.contains(child.getAbsolutePath())) {
+                    continue;
+                }
                 try (InputStream in = new FileInputStream(child)) {
                     zos.putNextEntry(new ZipEntry(entryName));
                     byte[] buf = new byte[64 * 1024];
@@ -977,6 +1145,23 @@ public class FullBackupHelper {
             }
         }
         return ok;
+    }
+
+    /** One book's audio into book_files/&lt;id&gt;/. A book sitting inside a managed folder is a
+     *  plain directory this app owns, so it's zipped whole; anything else (linked storage, SAF)
+     *  goes track by track through the same Uri resolution the player uses - a raw directory
+     *  walk there can silently come back empty under scoped storage. */
+    private static boolean writeBookFiles(Context context, BookFileCandidate c, ZipOutputStream zos,
+            long totalBytes, long[] copiedSoFar, AtomicBoolean cancelled, ProgressListener listener) {
+        checkCancelled(cancelled);
+        String prefix = BOOK_FILES_ENTRY_PREFIX + c.folderId + "/";
+        if (c.dir != null && c.dir.exists() && isInsideAny(c.dir, managedRoots(context))) {
+            return zipDirRecursive(c.dir, prefix, zos, totalBytes, copiedSoFar, cancelled, listener);
+        }
+        if (c.zikFiles != null) {
+            return zipBookTracksByUri(context, c, prefix, zos, totalBytes, copiedSoFar, cancelled, listener);
+        }
+        return true;
     }
 
     /** The link/SAF counterpart to zipDirRecursive() - there's no single directory to hand it

@@ -1020,6 +1020,16 @@
     <string name="backup_scope_partial_explain">Choose exactly what to include below.</string>
     <string name="backup_include_book_files_title">Include actual book files</string>
     <string name="backup_include_book_files_explain">Off by default - the boxes below only back up progress and settings for your books, not the audio itself. Turn this on to also pick specific books to include in full, file and all.</string>
+    <string name="backup_skip_redownloadable_title">Skip books that can be downloaded again</string>
+    <string name="backup_skip_redownloadable_explain">Leaves out the audio of books (Librivox, podcasts, direct links) whose download address is saved. After a restore they show up with their progress but without files, and have to be downloaded again.</string>
+    <string name="redownload_missing_books_button">Download missing books again (%d)</string>
+    <string name="full_backup_ebooks_duration">Ebooks (read aloud): %s</string>
+    <string name="redownload_started">Downloading the missing files again...</string>
+    <string name="redownload_offer_message">The audio files of this book are missing, but they can be downloaded again. Your progress is kept.</string>
+    <string name="redownload_offer_button">Download again</string>
+    <string name="backup_skip_sdcard_title">Skip books linked from the SD card</string>
+    <string name="backup_skip_sdcard_explain">Leaves out books whose files sit on the SD card outside BookPlayer\'s own folder - they stay on the card. Books in BookPlayer\'s reserved SD folder are always included, since uninstalling the app deletes them.</string>
+    <string name="backup_book_redownloadable_tag">can be re-downloaded</string>
     <string name="backup_no_books_available">No eligible books found - your library is empty.</string>
     <string name="full_backup_size_needed">Storage needed: %s</string>
     <string name="full_backup_audio_duration">Total audio: %s</string>

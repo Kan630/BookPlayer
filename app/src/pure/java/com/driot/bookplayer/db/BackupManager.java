@@ -8,6 +8,11 @@ public class BackupManager extends BaseBackupManager {
         super(context);
     }
 
+    @Override
+    public java.util.List<Long> getRedownloadablePodcastFolderIds() {
+        return java.util.Collections.emptyList();
+    }
+
     public static class BackupData extends BaseBackupData {
         // No extra fields for Pure flavor
     }

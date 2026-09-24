@@ -53,7 +53,11 @@ public class BackupBookListAdapter extends RecyclerView.Adapter<BackupBookListAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FullBackupHelper.BookFileCandidate book = books.get(position);
         holder.name.setText(book.name);
-        holder.size.setText(Tonio.getReadableSize(book.sizeBytes));
+        String sizeText = Tonio.getReadableSize(book.sizeBytes);
+        if (book.redownloadable) {
+            sizeText += " - " + holder.itemView.getContext().getString(R.string.backup_book_redownloadable_tag);
+        }
+        holder.size.setText(sizeText);
         if (book.copyOrLinkIconRes != 0) {
             holder.copyOrLinkIcon.setVisibility(View.VISIBLE);
             holder.copyOrLinkIcon.setImageResource(book.copyOrLinkIconRes);

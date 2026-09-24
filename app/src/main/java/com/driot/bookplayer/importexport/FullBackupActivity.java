@@ -22,6 +22,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MsgBoxActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
@@ -40,7 +41,7 @@ public class FullBackupActivity extends BaseActivity {
     private FullBackupHelper.Estimate estimate;
     private long backupStartNanos;
 
-    private TextView tvSizeNeeded, tvDuration, tvProgressText, tvEta, tvResult;
+    private TextView tvSizeNeeded, tvDuration, tvEbooksDuration, tvProgressText, tvEta, tvResult;
     private View llProgress;
     private MaterialButton btnStart, btnStartRestore;
     private ProgressBar progressBar;
@@ -161,6 +162,7 @@ public class FullBackupActivity extends BaseActivity {
 
         tvSizeNeeded = findViewById(R.id.tv_full_backup_size_needed);
         tvDuration = findViewById(R.id.tv_full_backup_duration);
+        tvEbooksDuration = findViewById(R.id.tv_full_backup_ebooks_duration);
         tvProgressText = findViewById(R.id.tv_full_backup_progress_text);
         tvEta = findViewById(R.id.tv_full_backup_eta);
         tvResult = findViewById(R.id.tv_full_backup_result);
@@ -193,6 +195,19 @@ public class FullBackupActivity extends BaseActivity {
         cbBookProgress = findViewById(R.id.cb_partial_book_progress);
         cbPodcastHistory = findViewById(R.id.cb_partial_podcast_history);
         cbIncludeBookFiles = findViewById(R.id.cb_partial_include_book_files);
+        CheckBox cbSkipRedownloadable = findViewById(R.id.cb_skip_redownloadable);
+        cbSkipRedownloadable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            selection.skipRedownloadable = isChecked;
+            refreshEstimate();
+        });
+        // Nothing to skip without a removable SD card in the device.
+        findViewById(R.id.ll_skip_sdcard).setVisibility(
+                StorageHelper.isExternalSDCardAvailable(this) ? View.VISIBLE : View.GONE);
+        CheckBox cbSkipSdCard = findViewById(R.id.cb_skip_sdcard);
+        cbSkipSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            selection.skipSdCard = isChecked;
+            refreshEstimate();
+        });
         progressLoadingBooks = findViewById(R.id.progress_loading_books);
         tvNoBooksAvailable = findViewById(R.id.tv_no_books_available);
         rvBackupBooks = findViewById(R.id.rv_backup_books);
@@ -380,6 +395,12 @@ public class FullBackupActivity extends BaseActivity {
 
     private void refreshEstimate() {
         long requestId = estimateRequestId.incrementAndGet();
+        // Old numbers would be misleading while the new ones are being computed.
+        tvSizeNeeded.setText(getString(R.string.full_backup_size_needed, "..."));
+        tvDuration.setText(getString(R.string.full_backup_audio_duration, "..."));
+        if (tvEbooksDuration.getVisibility() == View.VISIBLE) {
+            tvEbooksDuration.setText(getString(R.string.full_backup_ebooks_duration, "..."));
+        }
         boolean isPartial = isPartialScope();
         AppDatabase.databaseReadExecutor.execute(() -> {
             if (isPartial) {
@@ -393,6 +414,8 @@ public class FullBackupActivity extends BaseActivity {
                 snapshot.includeBookProgress = selection.includeBookProgress;
                 snapshot.includePodcastHistory = selection.includePodcastHistory;
                 snapshot.includedBookFileFolderIds.addAll(selection.includedBookFileFolderIds);
+                snapshot.skipRedownloadable = selection.skipRedownloadable;
+                snapshot.skipSdCard = selection.skipSdCard;
 
                 FullBackupHelper.PartialEstimate e = FullBackupHelper.computePartialEstimate(getApplicationContext(),
                         snapshot);
@@ -402,12 +425,12 @@ public class FullBackupActivity extends BaseActivity {
                     }
                     tvSizeNeeded
                             .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
-                    tvDuration.setText(
-                            getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                    showDurations(e.totalAudioDurationMs, e.totalEbookDurationMs);
                     applyDestinationWarning(e.totalBytes);
                 });
             } else {
-                FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext());
+                FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext(),
+                        selection.skipRedownloadable, selection.skipSdCard);
                 runOnUiThread(() -> {
                     if (requestId != estimateRequestId.get()) {
                         return; // superseded by a newer request - don't overwrite its result
@@ -415,12 +438,22 @@ public class FullBackupActivity extends BaseActivity {
                     estimate = e;
                     tvSizeNeeded
                             .setText(getString(R.string.full_backup_size_needed, Tonio.getReadableSize(e.totalBytes)));
-                    tvDuration.setText(
-                            getString(R.string.full_backup_audio_duration, Tonio.formatTime(e.totalAudioDurationMs)));
+                    showDurations(e.totalAudioDurationMs, e.totalEbookDurationMs);
                     applyDestinationWarning(e.totalBytes);
                 });
             }
         });
+    }
+
+    /** The ebooks line only exists when there are ebooks read aloud by text-to-speech. */
+    private void showDurations(long audioMs, long ebookMs) {
+        tvDuration.setText(getString(R.string.full_backup_audio_duration, Tonio.formatTime(audioMs)));
+        if (ebookMs > 0) {
+            tvEbooksDuration.setText(getString(R.string.full_backup_ebooks_duration, Tonio.formatTime(ebookMs)));
+            tvEbooksDuration.setVisibility(View.VISIBLE);
+        } else {
+            tvEbooksDuration.setVisibility(View.GONE);
+        }
     }
 
     // Above this, a P2P transfer (once Quick Share for backups is wired up) risks being slow or
@@ -501,7 +534,7 @@ public class FullBackupActivity extends BaseActivity {
                             cancelled, progressListener);
                 } else {
                     result = FullBackupHelper.runFullBackup(getApplicationContext(), destFileUri, cancelled,
-                            progressListener);
+                            progressListener, selection.skipRedownloadable, selection.skipSdCard);
                 }
             } catch (Exception e) {
                 myLogEE(e, "runFullBackup failed");
@@ -597,6 +630,14 @@ public class FullBackupActivity extends BaseActivity {
                         Tonio.getReadableSize(preview.zipTotalBytes)));
                 tvPreviewDuration.setText(
                         getString(R.string.full_backup_audio_duration, Tonio.formatTime(preview.totalAudioDurationMs)));
+                TextView tvPreviewEbooks = findViewById(R.id.tv_restore_preview_ebooks);
+                if (preview.totalEbookDurationMs > 0) {
+                    tvPreviewEbooks.setText(getString(R.string.full_backup_ebooks_duration,
+                            Tonio.formatTime(preview.totalEbookDurationMs)));
+                    tvPreviewEbooks.setVisibility(View.VISIBLE);
+                } else {
+                    tvPreviewEbooks.setVisibility(View.GONE);
+                }
 
                 java.util.List<String> parts = new java.util.ArrayList<>();
                 if (preview.bookCount > 0)
@@ -678,6 +719,18 @@ public class FullBackupActivity extends BaseActivity {
             }
 
             FullBackupHelper.Result finalResult = result;
+            // Books the backup left out because they can be downloaded again: offer to fetch them.
+            List<Long> missingFolderIds = new java.util.ArrayList<>();
+            if (finalResult == FullBackupHelper.Result.SUCCESS
+                    || finalResult == FullBackupHelper.Result.PARTIAL_FAILURE) {
+                try {
+                    missingFolderIds = com.driot.bookplayer.redownload.RedownloadHelper
+                            .findFoldersToRedownload(getApplicationContext());
+                } catch (Exception e) {
+                    myLogEE(e, "findFoldersToRedownload failed");
+                }
+            }
+            final List<Long> toDownload = missingFolderIds;
             runOnUiThread(() -> {
                 operationInProgress = false;
                 llProgress.setVisibility(View.GONE);
@@ -685,6 +738,20 @@ public class FullBackupActivity extends BaseActivity {
                 tvResult.setText(restoreResultTextResId(finalResult));
                 btnStart.setEnabled(true);
                 btnStartRestore.setEnabled(true);
+                MaterialButton btnRedownload = findViewById(R.id.btn_redownload_missing);
+                if (!toDownload.isEmpty()) {
+                    btnRedownload.setText(getString(R.string.redownload_missing_books_button, toDownload.size()));
+                    btnRedownload.setVisibility(View.VISIBLE);
+                    btnRedownload.setOnClickListener(v -> {
+                        for (long id : toDownload) {
+                            com.driot.bookplayer.redownload.RedownloadHelper.start(getApplicationContext(), id);
+                        }
+                        btnRedownload.setEnabled(false);
+                        myToast(getString(R.string.redownload_started));
+                    });
+                } else {
+                    btnRedownload.setVisibility(View.GONE);
+                }
             });
         });
     }

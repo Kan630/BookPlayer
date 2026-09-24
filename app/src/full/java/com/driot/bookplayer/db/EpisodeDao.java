@@ -49,6 +49,17 @@ public interface EpisodeDao {
     @Query("SELECT * FROM Episode ORDER BY date_add DESC")
     List<Episode> getAll();
 
+    // Folders where EVERY track is a podcast episode with a saved download address - a folder
+    // holding even one file that isn't re-downloadable must keep going into the backup.
+    @Query("SELECT DISTINCT z.idFolder FROM ZikFile z WHERE z.idFolder NOT IN ("
+            + "SELECT z2.idFolder FROM ZikFile z2 WHERE z2.id NOT IN ("
+            + "SELECT e.idZikFile FROM Episode e WHERE e.idZikFile IS NOT NULL "
+            + "AND e.enclosureUrl IS NOT NULL AND e.enclosureUrl != ''))")
+    List<Long> getFoldersWhollyRedownloadable();
+
+    @Query("SELECT * FROM Episode WHERE idZikFile IS NOT NULL")
+    List<Episode> getDownloadedEpisodes();
+
     @Query("UPDATE Episode SET date_delete = :now WHERE idZikFile = :zikFileId")
     int updateDateDeleteForZikFileId(long zikFileId, long now);
 

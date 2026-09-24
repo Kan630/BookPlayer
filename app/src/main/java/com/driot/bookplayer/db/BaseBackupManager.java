@@ -69,6 +69,10 @@ public abstract class BaseBackupManager {
         return typed;
     }
 
+    /** Ids of folders made only of downloaded podcast episodes whose feed address is still known,
+     *  so their audio can be fetched again. Podcasts only exist in the full flavor. */
+    public abstract java.util.List<Long> getRedownloadablePodcastFolderIds();
+
     public abstract String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
             boolean includeLibrivox, boolean includeBookProgress, boolean includePodcastHistory);
 
@@ -148,38 +152,69 @@ public abstract class BaseBackupManager {
             Option.init(context);
         }
 
-        if (includeLibrivox && data.bookSources != null) {
-            AppDatabase.databaseWriteExecutor.execute(() -> {
+        boolean restoreFolders = includeBookProgress && (data.folders != null || data.zikFiles != null);
+        boolean restoreSources = includeLibrivox && data.bookSources != null;
+        if (restoreFolders || restoreSources) {
+            Runnable dbWork = () -> {
                 AppDatabase db = AppDatabase.getDatabase(context);
                 db.runInTransaction(() -> {
-                    for (BookSource bs : data.bookSources) {
-                        bs.idFolder = null;
+                    // Folder first - ZikFile.idFolder and BookSource.idFolder reference it, and
+                    // rows are reinserted with their original ids intact so the relationships
+                    // survive. Note: the stored path/uri is tied to the old device/install and
+                    // its SAF permission grant does not transfer - the entry reappears with its
+                    // saved progress, but needs the file re-added (or downloaded again, when it
+                    // has a saved download address) before it can actually play again.
+                    java.util.Set<Long> restoredFolderIds = new java.util.HashSet<>();
+                    // Deleting the tracks cascades into PlaySession (listening history, stats): set
+                    // it aside and put back what still belongs to a restored track.
+                    java.util.List<com.driot.bookplayer.player.heatmaps.PlaySession> keptSessions =
+                            restoreFolders ? db.playSessionDao().getAll() : new java.util.ArrayList<>();
+                    if (restoreFolders) {
+                        db.zikFileDao().deleteAll();
+                        db.folderDao().deleteAll();
+                        if (data.folders != null) {
+                            db.folderDao().insertAll(data.folders);
+                            for (com.driot.bookplayer.db.Folder f : data.folders) {
+                                restoredFolderIds.add(f.getId());
+                            }
+                        }
+                        if (data.zikFiles != null) {
+                            db.zikFileDao().insertAll(data.zikFiles);
+                            java.util.Set<Long> restoredZikIds = new java.util.HashSet<>();
+                            for (ZikFile z : data.zikFiles) {
+                                restoredZikIds.add(z.getId());
+                            }
+                            java.util.List<com.driot.bookplayer.player.heatmaps.PlaySession> back =
+                                    new java.util.ArrayList<>();
+                            for (com.driot.bookplayer.player.heatmaps.PlaySession ps : keptSessions) {
+                                if (restoredZikIds.contains(ps.zikFileId)) {
+                                    back.add(ps);
+                                }
+                            }
+                            if (!back.isEmpty()) {
+                                db.playSessionDao().insertAll(back);
+                            }
+                        }
                     }
-                    db.bookSourceDao().deleteAll();
-                    db.bookSourceDao().insertAll(data.bookSources);
+                    if (restoreSources) {
+                        for (BookSource bs : data.bookSources) {
+                            // Keep the link to its book only when that book was restored too.
+                            if (bs.idFolder != null && !restoredFolderIds.contains(bs.idFolder)) {
+                                bs.idFolder = null;
+                            }
+                        }
+                        db.bookSourceDao().deleteAll();
+                        db.bookSourceDao().insertAll(data.bookSources);
+                    }
                 });
-            });
-        }
-
-        if (includeBookProgress && (data.folders != null || data.zikFiles != null)) {
-            AppDatabase.databaseWriteExecutor.execute(() -> {
-                AppDatabase db = AppDatabase.getDatabase(context);
-                db.runInTransaction(() -> {
-                    // Folder first - ZikFile.idFolder references it, and rows are reinserted
-                    // with their original ids intact so the relationship survives. Note: the
-                    // stored path/uri is tied to the old device/install and its SAF permission
-                    // grant does not transfer - the entry reappears with its saved progress,
-                    // but needs the file re-added before it can actually play again.
-                    db.zikFileDao().deleteAll();
-                    db.folderDao().deleteAll();
-                    if (data.folders != null) {
-                        db.folderDao().insertAll(data.folders);
-                    }
-                    if (data.zikFiles != null) {
-                        db.zikFileDao().insertAll(data.zikFiles);
-                    }
-                });
-            });
+            };
+            // Off the main thread run it right here, so a caller that continues afterwards (the
+            // full restore looking for books to download again) sees the finished result.
+            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                AppDatabase.databaseWriteExecutor.execute(dbWork);
+            } else {
+                dbWork.run();
+            }
         }
     }
 }
