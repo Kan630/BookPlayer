@@ -394,7 +394,22 @@ public class FullBackupHelper {
 
     private static void deleteQuietly(Context context, Uri uri) {
         try {
-            context.getContentResolver().delete(uri, null, null);
+            if ("file".equalsIgnoreCase(uri.getScheme())) {
+                if (uri.getPath() != null && !new File(uri.getPath()).delete()) {
+                    KanLogger.myLogW(TAG, "could not delete cancelled backup's partial file: " + uri);
+                }
+                return;
+            }
+            // A file chosen in the system file picker is a document: ContentResolver.delete() is
+            // "not supported" for those, DocumentsContract.deleteDocument() is the way.
+            if (android.provider.DocumentsContract.isDocumentUri(context, uri)) {
+                if (android.provider.DocumentsContract.deleteDocument(context.getContentResolver(), uri)) {
+                    return;
+                }
+            } else if (context.getContentResolver().delete(uri, null, null) > 0) {
+                return;
+            }
+            KanLogger.myLogW(TAG, "could not delete cancelled backup's partial file: " + uri);
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "could not delete cancelled backup's partial file: " + uri);
         }

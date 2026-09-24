@@ -447,7 +447,9 @@ public class FullBackupActivity extends BaseActivity {
 
     /** The ebooks line only exists when there are ebooks read aloud by text-to-speech. */
     private void showDurations(long audioMs, long ebookMs) {
-        tvDuration.setText(getString(R.string.full_backup_audio_duration, Tonio.formatTime(audioMs)));
+        // formatTime() gives an empty string for zero, which would leave "Total audio: " blank.
+        tvDuration.setText(getString(R.string.full_backup_audio_duration,
+                audioMs > 0 ? Tonio.formatTime(audioMs) : "-"));
         if (ebookMs > 0) {
             tvEbooksDuration.setText(getString(R.string.full_backup_ebooks_duration, Tonio.formatTime(ebookMs)));
             tvEbooksDuration.setVisibility(View.VISIBLE);

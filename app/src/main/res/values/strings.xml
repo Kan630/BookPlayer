@@ -1024,6 +1024,8 @@
     <string name="backup_skip_redownloadable_explain">Leaves out the audio of books (Librivox, podcasts, direct links) whose download address is saved. After a restore they show up with their progress but without files, and have to be downloaded again.</string>
     <string name="redownload_missing_books_button">Download missing books again (%d)</string>
     <string name="full_backup_ebooks_duration">Ebooks (read aloud): %s</string>
+    <string name="redownload_done">The missing files were downloaded again.</string>
+    <string name="redownload_failed">Could not download the missing files again. The address may no longer work.</string>
     <string name="redownload_started">Downloading the missing files again...</string>
     <string name="redownload_offer_message">The audio files of this book are missing, but they can be downloaded again. Your progress is kept.</string>
     <string name="redownload_offer_button">Download again</string>
@@ -1057,7 +1059,7 @@
     <string name="full_restore_preview_size">Backup size: %s</string>
     <string name="full_restore_preview_count_books">%d book(s)</string>
     <string name="full_restore_preview_count_zikfiles">%d other audio file(s)</string>
-    <string name="full_restore_preview_count_librivox">%d LibriVox source(s)</string>
+    <string name="full_restore_preview_count_librivox">%d saved download address(es)</string>
     <string name="full_restore_preview_count_radios">%d radio station(s)</string>
     <string name="full_restore_preview_count_podcasts">%d podcast(s)</string>
     <string name="full_restore_preview_count_podcast_history">%d podcast episode(s) in history</string>
