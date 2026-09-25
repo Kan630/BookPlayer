@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nav rail instead of bottom nav: phones in landscape (too little height for a bottom
+         bar + mini player) and any window >= 600dp wide (tablets, unfolded foldables). -->
+    <item name="activity_app_nav" type="layout">@layout/activity_app_nav_rail</item>
+</resources>
