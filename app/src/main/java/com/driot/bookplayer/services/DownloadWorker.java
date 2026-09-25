@@ -21,15 +21,14 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.HttpCodeHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.helpers.WebFileNameHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.SocketException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -62,8 +61,6 @@ public class DownloadWorker extends ImportWorker {
     private static final String STAGING_FOLDER = "DownloadStaging";
 
     private static final long POLL_INTERVAL_MS = 1000;
-    private static final int CONNECT_TIMEOUT_MS = 30_000;
-    private static final int READ_TIMEOUT_MS = 30_000;
 
     private final Context context;
 
@@ -113,7 +110,7 @@ public class DownloadWorker extends ImportWorker {
             if (early != null)
                 return early;
             try {
-                dmId = enqueue(dm, urlStr, destFolder, title);
+                dmId = enqueue(dm, j, urlStr, destFolder, title);
             } catch (EnqueueFailure f) {
                 return f.result;
             }
@@ -137,7 +134,8 @@ public class DownloadWorker extends ImportWorker {
         }
     }
 
-    private long enqueue(DownloadManager dm, String urlStr, String destFolder, String title) throws EnqueueFailure {
+    private long enqueue(DownloadManager dm, ImportJob j, String urlStr, String destFolder, String title)
+            throws EnqueueFailure {
         if (!NetworkHelper.isNetworkAvailable(context)) {
             emitDownloadPause(context.getString(R.string.no_internet_connection));
             throw new EnqueueFailure(Result.retry());
@@ -148,7 +146,7 @@ public class DownloadWorker extends ImportWorker {
         // enforces our network security config too but would only report a generic error.
         String fileName;
         try {
-            fileName = resolveFileName(urlStr);
+            fileName = WebFileNameHelper.resolve(urlStr);
         } catch (UnknownHostException e) {
             myLogE("No internet connection [" + e.getMessage() + "]");
             emitDownloadPause(context.getString(R.string.no_internet_connection));
@@ -167,6 +165,8 @@ public class DownloadWorker extends ImportWorker {
             myLogW("Probe failed [" + e.getMessage() + "] - using name from url");
             fileName = Tonio.getFileNameFromUrl(urlStr);
         }
+
+        fileName = withExpectedExtension(fileName, j);
 
         File stagingDir = stagingDirFor(destFolder);
         if (stagingDir == null) {
@@ -252,38 +252,6 @@ public class DownloadWorker extends ImportWorker {
         if (!staging.exists() && !staging.mkdirs())
             return null;
         return staging;
-    }
-
-    private String resolveFileName(String urlStr) throws IOException {
-        URL probeUrl = new URL(urlStr);
-        HttpURLConnection probe = (HttpURLConnection) probeUrl.openConnection();
-        try {
-            probe.setConnectTimeout(CONNECT_TIMEOUT_MS);
-            probe.setReadTimeout(READ_TIMEOUT_MS);
-            probe.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
-            probe.setRequestMethod("HEAD");
-            probe.setInstanceFollowRedirects(false); // capture Location
-            probe.connect();
-
-            int code = probe.getResponseCode();
-            String location = probe.getHeaderField("Location");
-            myLog("Probe response code: " + code + ", Location: " + location);
-
-            if ((code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM
-                    || code == 307 || code == 308) && location != null && !location.isEmpty()) {
-                String name = Tonio.getFileNameFromUrl(new URL(probeUrl, location).toString());
-                myLog("Filename from redirect Location: " + name);
-                return name;
-            }
-            String cdName = extractFileNameFromContentDisposition(probe.getHeaderField("Content-Disposition"));
-            if (cdName != null && !cdName.isEmpty()) {
-                myLog("Filename from Content-Disposition: " + cdName);
-                return cdName;
-            }
-            return Tonio.getFileNameFromUrl(urlStr);
-        } finally {
-            probe.disconnect();
-        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -445,6 +413,26 @@ public class DownloadWorker extends ImportWorker {
     // Helpers
     // ---------------------------------------------------------------------------------------------
 
+    /**
+     * Keeps the extension the import was set up for (unzip / split steps rely on it): if the
+     * server's name doesn't carry it, fall back to the name the import screen showed.
+     */
+    private static String withExpectedExtension(String name, ImportJob j) {
+        String ext = j.fileExtension;
+        if (ext == null || ext.isEmpty())
+            return name;
+        String dotExt = "." + ext.toLowerCase(Locale.ROOT);
+        if (name.toLowerCase(Locale.ROOT).endsWith(dotExt))
+            return name;
+        String original = j.originalFile;
+        if (original != null) {
+            original = original.substring(original.lastIndexOf('/') + 1);
+            if (original.toLowerCase(Locale.ROOT).endsWith(dotExt))
+                return original;
+        }
+        return name + dotExt;
+    }
+
     private static long parseId(@Nullable String s) {
         if (s == null || s.isEmpty())
             return -1;
@@ -517,40 +505,5 @@ public class DownloadWorker extends ImportWorker {
         return String.format(Locale.US, "%s", formatSizeMB(written));
     }
 
-    /**
-     * Extracts filename from Content-Disposition header.
-     * Handles both:
-     *   Content-Disposition: attachment; filename="pg13951-images-3.epub"
-     *   Content-Disposition: attachment; filename*=UTF-8''pg13951-images-3.epub
-     */
-    private static String extractFileNameFromContentDisposition(String contentDisposition) {
-        if (contentDisposition == null || contentDisposition.isEmpty()) return null;
-
-        // Try filename*=UTF-8''<name> (RFC 5987, takes priority)
-        int starIdx = contentDisposition.indexOf("filename*=");
-        if (starIdx >= 0) {
-            String val = contentDisposition.substring(starIdx + 10).trim();
-            // Strip encoding prefix like UTF-8''
-            int quoteIdx = val.indexOf("''");
-            if (quoteIdx >= 0) val = val.substring(quoteIdx + 2);
-            val = val.split(";")[0].trim();
-            try {
-                return java.net.URLDecoder.decode(val, "UTF-8");
-            } catch (Exception ignored) {}
-            return val;
-        }
-
-        // Try filename="<name>" or filename=<name>
-        int idx = contentDisposition.indexOf("filename=");
-        if (idx < 0) return null;
-
-        String val = contentDisposition.substring(idx + 9).trim();
-        if (val.startsWith("\"")) {
-            int end = val.indexOf('"', 1);
-            return end > 0 ? val.substring(1, end) : null;
-        }
-        // unquoted: take until ; or end
-        return val.split(";")[0].trim();
-    }
 
 }

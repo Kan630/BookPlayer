@@ -44,6 +44,8 @@ public class AddResourceActivity extends FullActivity {
 
     private OngoingTaskViewModel viewModel; // keep reference
     private boolean didEnterExitMode = false;
+    // Which job Exit mode was entered for - see leaveExitModeIfNewJob()
+    private String exitModeJobKey;
 
     @Override
     protected int getNavSectionId() {
@@ -97,6 +99,8 @@ public class AddResourceActivity extends FullActivity {
             tvErrorText.setText(ui.errorText);
             tvWarning.setText(ui.warningText);
             warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
+
+            leaveExitModeIfNewJob(ui);
 
             // When no longer running (FAILED / SUCCEEDED / CANCELLED), close flow once
             if (!didEnterExitMode && ui.isFinished()) {
@@ -293,6 +297,8 @@ public class AddResourceActivity extends FullActivity {
     private void enterExitMode() {
         myLog("enterExitMode");
         didEnterExitMode = true;
+        OngoingTaskUiState current = viewModel.getUi().getValue();
+        exitModeJobKey = current != null ? jobKey(current) : null;
         navHelper.removeAddBookNavSpecial();
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {
@@ -306,6 +312,28 @@ public class AddResourceActivity extends FullActivity {
                     .putExtra("scrollToTop", true));
             finish();
         });
+    }
+
+    /**
+     * This screen can stay alive in Exit mode (e.g. left in the back stack after a cancel) and then
+     * be shown again while the next import runs - it must offer Cancel again for that new job,
+     * not keep the finished one's Exit button.
+     */
+    private void leaveExitModeIfNewJob(OngoingTaskUiState ui) {
+        if (!didEnterExitMode || !ui.isRunningLike() || jobKey(ui).equals(exitModeJobKey))
+            return;
+        myLog("leaveExitMode - new job running: [" + ui.title + "]");
+        didEnterExitMode = false;
+        exitModeJobKey = null;
+        if (delayedFinishHandler != null && delayedFinishRunnable != null) {
+            delayedFinishHandler.removeCallbacks(delayedFinishRunnable);
+        }
+        bCancel.setText(getString(android.R.string.cancel));
+        bCancel.setOnClickListener(v -> performCancel());
+    }
+
+    private static String jobKey(OngoingTaskUiState ui) {
+        return ui.title + "|" + ui.futureFolderPath;
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.helpers.WebFileNameHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.googlecode.mp4parser.DataSource;
@@ -230,6 +231,7 @@ public class BookCandidate implements Parcelable {
 
         // Cache filename to avoid redundant calls
         this.name = SupportedFilesHelper.getFileName(context, uri);
+        this.name = resolveWebName(uri, this.name);
         // Use filename-based getType to avoid calling getFileName again
         this.sourceType = SupportedFilesHelper.getType(this.name);
 
@@ -274,6 +276,26 @@ public class BookCandidate implements Parcelable {
 
         this.path = this.name;
         this.selected = true;
+    }
+
+    /**
+     * A web link's last segment isn't always the file's name (Gutenberg's "11.epub3.images"
+     * redirects to "pg11-images-3.epub"): when it isn't a supported format, ask the server.
+     * Network call - this constructor runs off the main thread (ImportBookSingleViewModel).
+     */
+    private static String resolveWebName(Uri uri, String urlName) {
+        String scheme = uri.getScheme();
+        if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
+                || SupportedFilesHelper.isBookSupported(urlName))
+            return urlName;
+        try {
+            String resolved = WebFileNameHelper.resolve(uri.toString());
+            if (resolved != null && SupportedFilesHelper.isBookSupported(resolved))
+                return resolved;
+        } catch (Exception e) {
+            myLogW("resolveWebName failed for " + uri + " [" + e.getMessage() + "]");
+        }
+        return urlName;
     }
 
     private void initializeTypes() {

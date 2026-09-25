@@ -183,7 +183,8 @@ public class BookLoadingWorkLauncher {
 
             if (doDownload) {
                 j.downloadFileUrl = s.dynamicUri.toString();
-                j.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(ctx.getApplicationContext());
+                j.downloadDestinationFolder = StorageHelper.getDownloadFolderPathFor(ctx.getApplicationContext(),
+                        s.futureFolderPath);
                 Constraints constraints = buildDownloadConstraints();
                 steps.add(new OneTimeWorkRequest.Builder(DownloadWorker.class)
                         .setConstraints(constraints)

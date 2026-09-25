@@ -162,6 +162,19 @@ public class StorageHelper {
         return getDownloadFolder(context).getAbsolutePath();
     }
 
+    /**
+     * Download folder on the same volume as the book's final folder, so the per-import SD card /
+     * device choice (ImportBookSingleActivity) applies to the download too instead of the global
+     * setting. Falls back to the global setting when futureFolderPath isn't a plain file path.
+     */
+    public static String getDownloadFolderPathFor(Context context, @Nullable String futureFolderPath) {
+        if (futureFolderPath == null || !futureFolderPath.startsWith("/"))
+            return getDownloadFolderPath(context);
+        File sd = isExternalSDCardAvailable(context) ? getRemovableSDCardPath(context) : null;
+        boolean onSd = sd != null && futureFolderPath.startsWith(sd.getAbsolutePath());
+        return getFolder(context, Var.FOLDER_DOWNLOAD, onSd).getAbsolutePath();
+    }
+
     // RECEIVED BOOKS (for Nearby Share)
     public static String getBooksFolderPathForReceivedBooks(Context context) {
         // Use internal storage Books folder for received books
