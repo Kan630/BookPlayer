@@ -139,6 +139,7 @@
                 <Button
                     android:id="@+id/bSetSleep"
                     android:text="@string/btnSleepSet"
+                    style="@style/Widget.BookPlayer.Button.Secondary"
                     android:textSize="13sp"
                     android:paddingVertical="0dp"
                     android:layout_marginStart="15dp"
@@ -208,8 +209,8 @@
                     android:text="-"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:textSize="30sp"
-                    android:paddingVertical="0dp" />
+                    android:textSize="24sp"
+                    android:padding="0dp" />
 
                 <TextView
                     android:id="@+id/textViewSpeed"
@@ -228,7 +229,8 @@
                     android:text="+"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    android:padding="0dp" />
             </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar"
@@ -276,11 +278,13 @@
 
                     <com.google.android.material.slider.Slider
                         android:id="@+id/sbSeek"
+                        style="@style/Widget.Material3.Slider.Legacy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:trackHeight="2dp"
                         app:trackColor="?attr/colorSecondary"
                         app:thumbColor="?attr/colorSecondary"
+                        app:thumbRadius="10dp"
                         />
                     <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
                         android:id="@+id/heatMapSeek"
@@ -322,7 +326,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ibPlayPause"
             style="@style/PlayActivityActionButtons"
-            android:contentDescription="@string/play"
+            android:contentDescription="@string/Play"
             app:icon="@drawable/ic_hourglass_24"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
@@ -333,7 +337,7 @@
             android:id="@+id/mbForward"
             style="@style/PlayActivityActionButtons"
             android:text="@string/forward"
-            android:contentDescription="@string/rewind"
+            android:contentDescription="@string/forward"
             app:icon="@drawable/ic_media_fast_forward_24"
             app:iconGravity="textTop"
             app:iconPadding="4dp"

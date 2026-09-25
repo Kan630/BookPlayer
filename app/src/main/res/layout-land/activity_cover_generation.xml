@@ -41,8 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -50,32 +49,37 @@
                     android:text="@string/Text"
                     android:layout_marginEnd="12dp" />
 
-                <EditText
-                    android:id="@+id/edtInitials"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="AB"
-                    android:maxLength="5"
-                    android:singleLine="true"
-                    android:inputType="textCapCharacters"
-                    android:imeOptions="actionDone" />
+                    android:hint="AB">
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText"
+                        android:id="@+id/edtInitials"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minLines="1"
+                        android:maxLines="4"
+                        android:gravity="center_vertical"
+                        android:inputType="textMultiLine|textCapCharacters"
+                        android:imeOptions="actionDone" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <!-- Rounded switch -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
+                android:gravity="center_vertical">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/rounded_corners"
                     android:layout_marginEnd="12dp" />
-
                 <Switch
                     android:id="@+id/switchRounded"
                     android:layout_width="wrap_content"
@@ -108,14 +112,15 @@
                     android:max="22" />
             </LinearLayout>
 
+
             <!-- RGB Rows -->
             <!-- R -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="24dp"
@@ -123,15 +128,20 @@
                     android:text="R"
                     android:gravity="center" />
 
-                <EditText
-                    android:id="@+id/edtR"
-                    android:layout_width="72dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="0-255"
-                    android:singleLine="true"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:hint="0-255">
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                        android:id="@+id/edtR"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <SeekBar
                     android:id="@+id/seekR"
@@ -145,9 +155,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="24dp"
@@ -155,15 +165,20 @@
                     android:text="G"
                     android:gravity="center" />
 
-                <EditText
-                    android:id="@+id/edtG"
-                    android:layout_width="72dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="0-255"
-                    android:singleLine="true"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:hint="0-255">
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                        android:id="@+id/edtG"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <SeekBar
                     android:id="@+id/seekG"
@@ -177,9 +192,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="24dp"
@@ -187,15 +202,20 @@
                     android:text="B"
                     android:gravity="center" />
 
-                <EditText
-                    android:id="@+id/edtB"
-                    android:layout_width="72dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.BookPlayer.TextInputLayout.Compact"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="0-255"
-                    android:singleLine="true"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:hint="0-255">
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.BookPlayer.TextInputEditText.Compact"
+                        android:id="@+id/edtB"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <SeekBar
                     android:id="@+id/seekB"
@@ -209,24 +229,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:gravity="end"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btnCancel"
+                    style="@style/Widget.BookPlayer.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@android:string/cancel" />
 
                 <Button
                     android:id="@+id/btnSave"
+                    style="@style/Widget.BookPlayer.Button.Primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/save"
                     android:layout_marginStart="12dp" />
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
