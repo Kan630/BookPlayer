@@ -10,7 +10,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import android.Manifest;
-import android.app.UiAutomation;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,10 +67,16 @@ import java.util.concurrent.TimeUnit;
  * dangerous runtime permission it can request, rather than only exercising the granted path.
  * See memory "permission_handling_test_plan" for the inventory this was built from.
  *
- * <p>Each test: revokes the relevant permission(s) up front (so the OS shows its live grant
- * dialog on request, regardless of what earlier tests in the suite granted), triggers the
- * request, denies it via UiAutomator, then asserts the app's own denial UI/messaging appeared
- * and the activity didn't crash.
+ * <p>Each test: checks the relevant permission(s) are NOT granted (so the OS shows its live
+ * grant dialog on request), triggers the request, denies it via UiAutomator, then asserts the
+ * app's own denial UI/messaging appeared and the activity didn't crash.
+ *
+ * <p>The tests never revoke anything themselves: revoking a granted runtime permission makes
+ * Android kill the app ("permissions revoked"), and this test runs in that same process, so the
+ * whole instrumentation run would die with it. Instead run-ordered-suite.sh revokes them from the
+ * host (pm revoke) before starting, and this class runs early in OrderedInstrumentedTestSuite -
+ * before DeepSettingsTest / InputScreensCrashSurfaceTest grant everything. A case whose
+ * permission is already granted is skipped, not failed.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -112,7 +117,7 @@ public class PermissionHandlingTest implements LogSupport {
 
     @Test
     public void recordAudioPermission_denied_showsRedDeniedTextAndNoCrash() {
-        revokePermissions(Manifest.permission.RECORD_AUDIO);
+        requireNotGranted(Manifest.permission.RECORD_AUDIO);
 
         // MainActivity is now the app's sole Activity - launch it straight onto the Settings tab
         // instead of the old standalone SettingsHostActivity.
@@ -157,7 +162,7 @@ public class PermissionHandlingTest implements LogSupport {
     public void getOtherActivity_readAudioPermissionDenied_showsMessageAndNoCrash() {
         boolean tiramisuPlus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
         String perm = tiramisuPlus ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
-        revokePermissions(perm);
+        requireNotGranted(perm);
 
         // MainActivity is now the app's sole Activity - launch it straight onto the Add Book tab
         // (its own add_book_nav_graph start destination, GetActivityFragment/the hub) instead of
@@ -219,7 +224,7 @@ public class PermissionHandlingTest implements LogSupport {
 
         boolean tiramisuPlus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
         String perm = tiramisuPlus ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
-        revokePermissions(perm);
+        requireNotGranted(perm);
 
         Intent intent = new Intent(appContext, ImportBookSingleActivity.class)
                 .putExtra(ImportBookSingleActivity.EXTRA_URI, contentUri)
@@ -270,7 +275,7 @@ public class PermissionHandlingTest implements LogSupport {
     @Test
     public void backupShareActivity_permissionsDenied_showsToastAndNoCrash() {
         String[] perms = nearbyPermissionSet();
-        revokePermissions(perms);
+        requireNotGranted(perms);
 
         Intent intent = new Intent(appContext, BackupShareActivity.class)
                 .putExtra(BackupShareActivity.EXTRA_MODE, BackupShareActivity.MODE_SEND)
@@ -300,7 +305,7 @@ public class PermissionHandlingTest implements LogSupport {
     @Test
     public void nearbyShareActivity_permissionsDenied_showsToastAndNoCrash() {
         String[] perms = nearbyPermissionSet();
-        revokePermissions(perms);
+        requireNotGranted(perms);
 
         Bundle nearbyShareArgs = new Bundle();
         nearbyShareArgs.putBoolean("RECEIVE_MODE", true);
@@ -340,7 +345,7 @@ public class PermissionHandlingTest implements LogSupport {
         Folder folder = firstUsableFolder();
         Assume.assumeTrue("No existing, on-disk book folder found in DB - run LoadManyBookTest first", folder != null);
 
-        revokePermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        requireNotGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         Intent intent = new Intent(appContext, ExportActivity.class)
                 .putExtra(Intents.EXTRA_FOLDER, folder)
@@ -372,7 +377,7 @@ public class PermissionHandlingTest implements LogSupport {
         Assume.assumeTrue("WRITE_EXTERNAL_STORAGE is only requested pre-Android 10 (API < 29)",
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.Q);
 
-        revokePermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        requireNotGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         Intent intent = new Intent(appContext, AdminActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -414,16 +419,12 @@ public class PermissionHandlingTest implements LogSupport {
         return perms.toArray(new String[0]);
     }
 
-    private void revokePermissions(String... permissions) {
-        UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+    private void requireNotGranted(String... permissions) {
         for (String permission : permissions) {
-            try {
-                automation.revokeRuntimePermission(appContext.getPackageName(), permission);
-                myLogD("Revoked " + permission);
-            } catch (Exception e) {
-                myLogD("Could not revoke " + permission + " (likely unsupported on this API level): "
-                        + e.getMessage());
-            }
+            boolean granted = androidx.core.content.ContextCompat.checkSelfPermission(appContext, permission)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            Assume.assumeFalse(permission + " is already granted - revoke it from the host first"
+                    + " (run-ordered-suite.sh does), revoking it in-process would kill the app", granted);
         }
     }
 

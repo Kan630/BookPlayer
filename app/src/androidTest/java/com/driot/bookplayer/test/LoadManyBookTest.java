@@ -27,8 +27,8 @@ import androidx.annotation.IdRes;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.contrib.RecyclerViewActions;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
 import androidx.work.testing.SynchronousExecutor;
@@ -39,6 +39,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.global.Option;
@@ -59,6 +60,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.MediaService;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -128,9 +130,6 @@ public class LoadManyBookTest implements LogSupport {
 
     private String lastPlayedSong = "init no song";
 
-    // Launches MainActivity before each test
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     StringBuilder logFinalImportMsg;
     StringBuilder logFinalPlayMsg;
@@ -181,7 +180,19 @@ public class LoadManyBookTest implements LogSupport {
                 .build();
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
 
+        // Launched by hand, not through ActivityScenarioRule: the app recreates MainActivity during
+        // the run (e.g. AddResourceActivity restarts it with CLEAR_TOP after an import), and the
+        // rule only tracks the instance it launched - its teardown then waited for that dead
+        // instance ("Activity never becomes requested state DESTROYED") and failed the test.
+        appContext.startActivity(new Intent(appContext, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        TestNavUtils.assertWaitForActivity(MainActivity.class, 10_000, "MainActivity did not start");
         TestNavUtils.logCurrentActivity();
+    }
+
+    @After
+    public void finishAppActivities() {
+        TestNavUtils.finishAllActivities();
     }
 
     @Test
@@ -269,7 +280,7 @@ public class LoadManyBookTest implements LogSupport {
             logFinalPlayMsg.append("\n--------------------------");
         }
         stopPlaybackIfAny();
-        TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
+        backToLibrary(3);
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         myLogI(nbAttempted + " fixture(s) attempted");
         myLogI(nbImported + " books imported");
@@ -297,24 +308,6 @@ public class LoadManyBookTest implements LogSupport {
                 "Mismatch between nb of imported book, and nb of actually present books");
         myLog("nb Books imported =" + nbImported);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
-
-        // ActivityScenarioRule's own teardown (right after this method returns) calls
-        // ActivityScenario.moveToState(DESTROYED), which has been observed to occasionally race
-        // MainActivity's lifecycle-stage tracking at that exact moment - a NullPointerException
-        // ("Current state was null unexpectedly. Last stage = STARTED") thrown from
-        // ActivityScenario.moveToState() itself, not from anything in this file, and not fixed by
-        // stopPlaybackIfAny() alone (MediaService can legitimately stay alive - "Browser clients
-        // present -> do not stop service" - even once actual audio playback has stopped).
-        // Settling to RESUMED explicitly here, from inside the test method where any resulting
-        // exception can be caught and merely logged, gives whatever transient condition causes
-        // this a chance to resolve on our own terms before the Rule's own uncatchable teardown
-        // call hits the same check.
-        try {
-            activityRule.getScenario().moveToState(androidx.lifecycle.Lifecycle.State.RESUMED);
-        } catch (Exception e) {
-            myLogW("Pre-teardown settle to RESUMED failed (informational only, not a test failure): "
-                    + e.getMessage());
-        }
 
         // Only raised now, after every fixture has been attempted and the full report above is
         // logged - a KO fixture failing gracefully is expected (see [[ko_fixture_convention]] and
@@ -355,9 +348,35 @@ public class LoadManyBookTest implements LogSupport {
         }
     }
 
+    /**
+     * Back to MainActivity AND its library list. Since the single-Activity nav rewrite, a
+     * multi-track book's track list (ZikFileFragment) lives inside MainActivity too, so reaching
+     * MainActivity alone isn't enough: back from PlayActivity lands on that track list. Presses
+     * back only while the library isn't displayed, so it never backs out of the app.
+     */
+    private void backToLibrary(int maxActivityBacks) {
+        TestNavUtils.maybePressBackTo(MainActivity.class, maxActivityBacks, 1_000);
+        for (int i = 0; i < 3 && !isLibraryDisplayed(); i++) {
+            myLogD("MainActivity isn't showing the library - pressing back (" + i + ")");
+            androidx.test.espresso.Espresso.pressBack();
+            TestNavUtils.sleep(500, "after back to library");
+        }
+    }
+
+    private static boolean isLibraryDisplayed() {
+        if (!TestNavUtils.waitForWindowFocus(1_000))
+            return false;
+        try {
+            onView(withId(ID_MAIN_RECYCLER)).check(matches(isDisplayed()));
+            return true;
+        } catch (NoMatchingViewException | AssertionError e) {
+            return false;
+        }
+    }
+
     private void goPlay(long idFolder) throws InterruptedException {
         TestNavUtils.logCurrentActivity();
-        TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
+        backToLibrary(3);
         TestNavUtils.logCurrentActivity();
         openTargetedItemThenPlay(idFolder, PLAY_TIME);
     }
@@ -366,12 +385,8 @@ public class LoadManyBookTest implements LogSupport {
      * Sends MediaService a direct, UI-independent stop command. Needed at the very end of the
      * loop: {@link #runPlay} only presses the on-screen pause button when
      * {@code Option.getOpenPlayActivity()} is on and PlayActivity is actually showing - when it's
-     * off, the last book played is left running in the background indefinitely. Leaving it
-     * running when {@code ActivityScenarioRule} then tears MainActivity down at the end of this
-     * test can race with the rule's own lifecycle-state tracking (observed as
-     * "Current state was null unexpectedly. Last stage = STARTED" from
-     * {@code ActivityScenario.moveToState()}, itself thrown from the rule's teardown, not from
-     * anything in this file).
+     * off, the last book played is left running in the background indefinitely, into the next
+     * test of the suite.
      */
     private void stopPlaybackIfAny() {
         try {
@@ -447,7 +462,7 @@ public class LoadManyBookTest implements LogSupport {
             DocumentFile[] children = caseRoot.listFiles();
             if (children != null) {
                 for (DocumentFile child : children) {
-                    if (child.isDirectory()) {
+                    if (child.isDirectory() && !isHiddenName(child.getName())) {
                         out.add(new FixtureItem(child.getName(), child.getUri()));
                     }
                 }
@@ -458,13 +473,23 @@ public class LoadManyBookTest implements LogSupport {
         return randomSample(out, MAX_FIXTURES_PER_CATEGORY);
     }
 
+    /**
+     * Dot-files aren't fixtures: e.g. macOS "._name.epub" AppleDouble metadata copied next to the
+     * real file - sampling one produced a bogus "container.xml not found" import failure.
+     */
+    private static boolean isHiddenName(String name) {
+        return name != null && name.startsWith(".");
+    }
+
     /** Recursively collects plain files (skipping directories) under a SAF DocumentFile tree. */
     private void collectFilesRecursivelySaf(DocumentFile dir, List<FixtureItem> out) {
         DocumentFile[] children = dir.listFiles();
         if (children == null)
             return;
         for (DocumentFile child : children) {
-            if (child.isDirectory()) {
+            if (isHiddenName(child.getName())) {
+                continue;
+            } else if (child.isDirectory()) {
                 collectFilesRecursivelySaf(child, out);
             } else {
                 out.add(new FixtureItem(child.getName(), child.getUri()));
@@ -537,7 +562,12 @@ public class LoadManyBookTest implements LogSupport {
             TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "arfff");
             myLogD("ok, on ImportBookSingleActivity");
 
-            onView(withId(android.R.id.content)).perform(swipeUp());
+            // An unsupported file (e.g. .pdf) makes ImportBookSingleActivity redirect to
+            // SupportedExtensionsActivity and finish right away - swiping then targets the dying
+            // window and Espresso waits 10s for focus it never gets. The loop below handles that
+            // screen (btnOk), so only swipe when the import screen is actually staying.
+            if (!TestNavUtils.waitForActivity(SupportedExtensionsActivity.class, 1_500))
+                onView(withId(android.R.id.content)).perform(swipeUp());
 
             myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " ms...");
             Thread.sleep(DEBUG_VISUAL_CHECK);
@@ -586,7 +616,7 @@ public class LoadManyBookTest implements LogSupport {
             if (isUnsupportedType) {
                 myLog("File type not supported by this import path - dismissing SupportedExtensionsActivity");
                 onView(withId(R.id.btnOk)).perform(click());
-                TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
+                backToLibrary(3);
                 return -1;
             }
 
@@ -727,7 +757,7 @@ public class LoadManyBookTest implements LogSupport {
             // The failed import may have left us on an error screen (ImportBookSingleActivity or
             // AddResourceActivity) rather than back on MainActivity - get back there so the next
             // fixture in the loop starts from a clean state.
-            TestNavUtils.maybePressBackTo(MainActivity.class, 4, 1_000);
+            backToLibrary(4);
             return -1;
         } finally {
             if (importProbe != null)
@@ -822,7 +852,7 @@ public class LoadManyBookTest implements LogSupport {
             return out;
         for (String path : queryIndexedPathsUnderPrefix(context, root.getAbsolutePath())) {
             File f = new File(path);
-            if (f.isFile())
+            if (f.isFile() && !isHiddenName(f.getName()))
                 out.add(f);
         }
         return out;

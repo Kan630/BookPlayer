@@ -16,6 +16,7 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.util.HumanReadables;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitor;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 
@@ -125,6 +126,22 @@ public class TestNavUtils {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Finishes every activity of the app still alive - an @After replacement for
+     * ActivityScenarioRule's teardown in tests where the app recreates MainActivity (the rule
+     * only tracks the instance it launched and then waits forever for it to reach DESTROYED).
+     */
+    public static void finishAllActivities() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            ActivityLifecycleMonitor monitor = ActivityLifecycleMonitorRegistry.getInstance();
+            for (Stage stage : new Stage[] { Stage.RESUMED, Stage.PAUSED, Stage.STOPPED, Stage.STARTED,
+                    Stage.CREATED }) {
+                for (Activity a : monitor.getActivitiesInStage(stage))
+                    a.finish();
+            }
+        });
     }
 
     public static boolean maybePressBackTo(Class<? extends Activity> target, int maxPresses, long perStepWaitMs) {

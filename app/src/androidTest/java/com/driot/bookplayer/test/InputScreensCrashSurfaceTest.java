@@ -8,6 +8,9 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static org.hamcrest.Matchers.allOf;
 
 import android.Manifest;
 import android.content.Context;
@@ -25,9 +28,10 @@ import android.widget.Spinner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.PerformException;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -44,8 +48,10 @@ import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -108,12 +114,11 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
     }
 
     private Context appContext;
+    // The bottom-nav tab being stressed - see recoverToScreen()
+    private int currentTabId;
 
     @Rule
     public LoggingWatcher logs = new LoggingWatcher();
-
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
     public void setUp() {
@@ -121,6 +126,9 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
         appContext = ApplicationProvider.getApplicationContext();
         KanLogger.init(appContext);
         Option.setTechLog(true);
+        // The screens are reached through the bottom nav - DeepSettingsTest, earlier in the suite,
+        // randomizes settings and can leave it hidden.
+        Option.setDisplayAppNavBar(true);
 
         // A button on these screens can trigger a runtime permission prompt (a system dialog
         // outside this app) which would otherwise strand Espresso with no RESUMED activity of
@@ -134,12 +142,22 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
                 .build();
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
 
-        TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity did not come to foreground");
+        // Launched by hand, not through ActivityScenarioRule: the add-book screens can make the app
+        // recreate MainActivity, and the rule's teardown then waits forever for the instance it
+        // launched ("Activity never becomes requested state DESTROYED") - see finishAllActivities().
+        appContext.startActivity(new Intent(appContext, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        TestNavUtils.assertWaitForActivity(MainActivity.class, 10_000, "MainActivity did not come to foreground");
+    }
+
+    @After
+    public void finishAppActivities() {
+        TestNavUtils.finishAllActivities();
     }
 
     @Test
     public void addBookScreens_editTextsCheckboxesButtons_doNotCrash() {
-        clickBottomNavTab(R.id.nav_add);
+        clickBottomNavTab(R.id.nav_add, Tonio.isPure(appContext) ? R.id.mainScroll : R.id.root);
 
         if (Tonio.isPure(appContext)) {
             // pure skips the hub and lands straight on the local-file screen - no LibriVox/Ebook/
@@ -161,7 +179,7 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
             myLog("Radio tab does not exist on pure flavor - skipping");
             return;
         }
-        clickBottomNavTab(R.id.nav_radio);
+        clickBottomNavTab(R.id.nav_radio, R.id.mainScroll);
         stressScreen("GetRadio");
     }
 
@@ -171,7 +189,7 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
             myLog("Podcast tab does not exist on pure flavor - skipping");
             return;
         }
-        clickBottomNavTab(R.id.nav_podcast);
+        clickBottomNavTab(R.id.nav_podcast, R.id.mainScroll);
         stressScreen("GetPodcast");
     }
 
@@ -179,10 +197,35 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
     // Navigation
     // ---------------------------------------------------------------------------------------
 
-    private void clickBottomNavTab(int tabId) {
+    /**
+     * Each tab keeps its own back stack, so the click may land on whatever sub-screen an earlier
+     * test left open. If the tab's start screen (identified by rootId) isn't showing, click the
+     * selected tab again, which resets it to its start - after closing the soft keyboard, which
+     * the search screens open and which covers the bottom nav.
+     */
+    private void clickBottomNavTab(int tabId, int rootId) {
+        currentTabId = tabId;
         myLogI("Clicking bottom nav tab: " + getResourceName(tabId));
+        // A freshly (re)launched MainActivity may not be laid out yet (seen with an RTL app
+        // language left by DeepSettingsTest: tab views still 0x0) - click would be refused.
+        TestNavUtils.waitForViewVisible(tabId, 10_000, "bottom nav tab never laid out");
         onView(withId(tabId)).perform(click());
         TestNavUtils.sleep(500, "settle after tab switch");
+        if (isViewDisplayed(rootId))
+            return;
+        myLogI("Tab not on its start screen - reselecting it");
+        Espresso.closeSoftKeyboard();
+        onView(withId(tabId)).perform(click());
+        TestNavUtils.sleep(500, "settle after tab reselect");
+    }
+
+    private static boolean isViewDisplayed(int viewId) {
+        try {
+            onView(withId(viewId)).check(matches(isDisplayed()));
+            return true;
+        } catch (NoMatchingViewException | AssertionError e) {
+            return false;
+        }
     }
 
     /** Clicks a hub button to enter a sub-screen, stresses it, then returns to the hub. */
@@ -320,7 +363,18 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
             SystemClock.sleep(300);
         }
 
-        // Step 2: back out of in-app navigation until this screen's root reappears.
+        // Step 2: a button may have switched tab (e.g. ibSettings opens the Settings tab) - pressing
+        // back from that tab's root would close the app, so click our own tab again instead: tabs
+        // keep their back stack, so it comes back on this screen.
+        int selected = selectedBottomNavTab();
+        if (currentTabId != 0 && selected != 0 && selected != currentTabId) {
+            myLogI(causeWidget + " switched to tab " + getResourceName(selected) + " - going back to "
+                    + getResourceName(currentTabId));
+            onView(withId(currentTabId)).perform(click());
+            SystemClock.sleep(500);
+        }
+
+        // Step 3: back out of in-app navigation until this screen's root reappears.
         for (int i = 0; i < MAX_BACK_PRESSES_TO_RECOVER; i++) {
             try {
                 onView(withId(R.id.mainScroll)).check(matches(isDisplayed()));
@@ -332,6 +386,19 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
         }
 
         failWithLivenessCheck(screenName, causeWidget);
+    }
+
+    /** Selected bottom-nav item id, or 0 if the bottom nav isn't reachable right now. */
+    private static int selectedBottomNavTab() {
+        final int[] selected = { 0 };
+        try {
+            onView(withId(R.id.bottomNav)).check((view, noView) -> {
+                if (view instanceof BottomNavigationView)
+                    selected[0] = ((BottomNavigationView) view).getSelectedItemId();
+            });
+        } catch (Throwable ignored) {
+        }
+        return selected[0];
     }
 
     /**
@@ -365,7 +432,9 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
             onView(withId(viewId)).perform(new ViewAction() {
                 @Override
                 public Matcher<View> getConstraints() {
-                    return isDisplayed();
+                    // not isDisplayed(): focusGuard is a deliberately 0-width focus sink, and the
+                    // soft keyboard can cover most of mainScroll
+                    return withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE);
                 }
 
                 @Override
@@ -380,7 +449,7 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
                 }
             });
             return true;
-        } catch (NoMatchingViewException e) {
+        } catch (NoMatchingViewException | PerformException e) {
             return false;
         }
     }
@@ -398,7 +467,10 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
 
     private Widgets collectWidgets() {
         final Widgets widgets = new Widgets();
-        onView(withId(R.id.nav_host_container)).perform(new ViewAction() {
+        // NavHostFragment gives its own view the id of the container it sits in, so
+        // nav_host_container matches twice: take the inner one (the current tab's host).
+        onView(allOf(withId(R.id.nav_host_container), withParent(withId(R.id.nav_host_container))))
+                .perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();

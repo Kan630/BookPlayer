@@ -295,6 +295,9 @@ public class ImportBookSingleActivity extends FullActivity {
                 return;
 
             if (!bookCandidate.isMimeSupported) {
+                // The candidate is posted twice (fast init, then heavy init) - redirect only once
+                if (isFinishing())
+                    return;
                 startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
                 finish();
                 return;

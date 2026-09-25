@@ -8,6 +8,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
@@ -207,7 +208,10 @@ public class DeepSettingsTest implements LogSupport {
         // Its fragment now lives inside the shared NavHostFragment container (one per bottom-nav
         // tab, MainActivity attaches/detaches into R.id.nav_host_container - see MainActivity.
         // attachTab()), not inside the SettingsSectionView row anymore - walk that subtree instead.
-        onView(withId(R.id.nav_host_container)).perform(new ViewAction() {
+        // NavHostFragment gives its own view the id of the container it sits in, so
+        // nav_host_container matches twice: take the inner one (the current tab's host).
+        onView(allOf(withId(R.id.nav_host_container), withParent(withId(R.id.nav_host_container))))
+                .perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();
