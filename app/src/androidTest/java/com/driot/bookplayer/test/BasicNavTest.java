@@ -132,8 +132,8 @@ public abstract class BasicNavTest implements LogSupport {
                 // menu_settings
                 MenuHelpers.tapMenu(R.string.settings);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(R.id.scrollView)).perform(swipeUp());
-                onView(withId(R.id.scrollView)).perform(swipeDown());
+                onView(withId(R.id.settingsCategoryScroll)).perform(swipeUp());
+                onView(withId(R.id.settingsCategoryScroll)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 /*

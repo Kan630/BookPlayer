@@ -61,6 +61,14 @@ public class SettingsSectionView extends LinearLayout {
         return headerClickable;
     }
 
+    /** Two-pane settings: marks this row as the category currently shown in the detail pane. */
+    public void setSelectedInPane(boolean selected) {
+        headerClickable.setSelected(selected);
+        findViewById(R.id.headerRow).setBackgroundResource(selected
+                ? R.drawable.bg_overlay_card_theme_selected
+                : R.drawable.bg_overlay_card_theme);
+    }
+
     public CharSequence getTitle() {
         return tvTitle.getText();
     }

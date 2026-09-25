@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings as list + detail side by side (tablets, foldables, wide phones in landscape). -->
+    <item name="fragment_settings_category_list" type="layout">@layout/fragment_settings_category_list_two_pane</item>
+    <bool name="settings_two_pane">true</bool>
+</resources>

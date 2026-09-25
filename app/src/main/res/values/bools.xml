@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Must match which fragment_settings_category_list layout is picked (see values-w720dp). -->
+    <bool name="settings_two_pane">false</bool>
+</resources>
