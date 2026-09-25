@@ -14,6 +14,11 @@ import java.util.List;
 @Dao
 public interface ImportJobDao {
 
+        /** Source the book stored at this folder was imported from (import history). */
+        @Query("SELECT originalUri FROM ImportJob WHERE futureFolderPath = :folderPath "
+                        + "AND originalUri IS NOT NULL AND originalUri != '' ORDER BY createdAt DESC LIMIT 1")
+        String getOriginalUriForFolderPath(String folderPath);
+
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         void upsert(ImportJob job);
 

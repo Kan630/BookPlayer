@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.imports.OriginalHashBackfill;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class AppUpgrade {
@@ -72,6 +73,24 @@ public final class AppUpgrade {
         if (!prefs.getBoolean(KEY_BACKFILLED_GUTENBERG_SOURCES, false)) {
             prefs.edit().putBoolean(KEY_BACKFILLED_GUTENBERG_SOURCES, true).apply();
             backfillGutenbergSources(context);
+        }
+
+        // Books imported without an originalHash (none saved by the single import screen from
+        // 2026-02-14 to 2026-09-25) - see OriginalHashBackfill. It reads files, so it gets its own
+        // low-priority thread rather than the DB executor; the flag is only set once a full pass
+        // is done, so a pass cut short by the app being killed simply runs again next launch.
+        final String KEY_BACKFILLED_ORIGINAL_HASHES = "backfilled_original_hashes";
+        if (!prefs.getBoolean(KEY_BACKFILLED_ORIGINAL_HASHES, false)) {
+            Thread t = new Thread(() -> {
+                try {
+                    OriginalHashBackfill.run(context.getApplicationContext());
+                    prefs.edit().putBoolean(KEY_BACKFILLED_ORIGINAL_HASHES, true).apply();
+                } catch (Exception e) {
+                    myLogEE(e, "OriginalHashBackfill failed");
+                }
+            }, "OriginalHashBackfill");
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.start();
         }
 
         // ---- Migration: introduce NOT_ROAMING (only if app was previously < XXX) ----

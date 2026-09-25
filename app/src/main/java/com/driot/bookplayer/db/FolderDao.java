@@ -38,6 +38,13 @@ public interface FolderDao {
     @Query("SELECT COUNT(id) FROM Folder WHERE path = :sFolderPath")
     long folderAlreadyExist_checkFolderPath(String sFolderPath);
 
+    // "0" is HashWorker.HASH_NOT_COMPUTED - never a real hash
+    @Query("SELECT * FROM Folder WHERE originalHash IS NULL OR originalHash = '' OR originalHash = '0'")
+    List<Folder> getFoldersWithoutOriginalHash();
+
+    @Query("UPDATE Folder SET originalHash = :originalHash WHERE id = :folderId")
+    void updateOriginalHash(long folderId, String originalHash);
+
     /** Other books stored in the same folder - their files must survive deleting this one. */
     @Query("SELECT COUNT(id) FROM Folder WHERE path = :path AND id != :exceptFolderId")
     long countOtherFoldersWithPath(String path, long exceptFolderId);
