@@ -6,6 +6,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -222,10 +223,17 @@ public class DownloadWorker extends ImportWorker {
         return req;
     }
 
-    /** App-specific external dir on the same volume as the destination when possible (cheap move). */
+    /**
+     * App-specific external dir on the same volume as the destination when possible (cheap move).
+     * Before Android 11 the DownloadManager process can't write into our Android/data folder on a
+     * removable SD card (it enqueues fine, then fails with "Permission denied" on every retry,
+     * seen on API 28), so there it always stages on the primary volume.
+     */
     @Nullable
     private File stagingDirFor(String destFolder) {
         File[] dirs = ContextCompat.getExternalFilesDirs(context, null);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+            dirs = new File[] { dirs.length > 0 ? dirs[0] : null };
         File chosen = null;
         for (File d : dirs) {
             if (d == null)
@@ -302,6 +310,10 @@ public class DownloadWorker extends ImportWorker {
                 } else {
                     myLogW("stopped by WorkManager (reason " + getStopReason()
                             + ") - DownloadManager keeps going, will resume polling");
+                    // Nobody polls until the retry, so leave the reason on screen
+                    emitDownloadPause(getStopReason() == WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
+                            ? context.getString(R.string.download_waiting_for_network)
+                            : context.getString(R.string.download_stopped_by_system_will_retry));
                 }
                 return Result.retry();
             }
