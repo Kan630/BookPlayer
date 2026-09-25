@@ -228,6 +228,8 @@
     <string name="beta_test">prueba beta</string>
     <string name="are_you_sure">¿Estás seguro?</string>
     <string name="app_info">Información de la app</string>
+    <string name="utilities_open_app_info">Abrir información de la app</string>
+    <string name="utilities_app_info_explanation">Abre la página de ajustes del sistema Android para esta app, donde puedes revisar los permisos, consultar el uso de almacenamiento o forzar la detención de la app.</string>
     <string name="delete_logs">Borrar registros</string>
     <string name="Import_failed">Error en la importación</string>
     <string name="About_to_start_download">A punto de comenzar la descarga…</string>
@@ -253,6 +255,7 @@
     <string name="unexpected_error">Error inesperado</string>
     <string name="an_error_occurred">Ocurrió un error</string>
     <string name="no_internet_connection">Sin conexión a internet</string>
+    <string name="server_address_not_found">No se puede acceder al servidor: no se encontró su dirección. Tu conexión puede ser inestable, inténtalo de nuevo.</string>
     <string name="no_metadata_available">No hay metadatos disponibles</string>
     <string name="please_type_a_search_string">Por favor, escriba una cadena de búsqueda</string>
 
@@ -432,8 +435,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_rewind_after_pause_text">Rebobinar el audio unos segundos antes de reanudar la reproducción (una pausa de 5 minutos rebobina 3 seg, una pausa de 1 h rebobina 5 seg, …)</string>
     <string name="option_pick_theme_color_title">Elige el tema de color de la app</string>
     <string name="option_delete_source_file_title">Eliminación automática del archivo fuente</string>
-    <string name="option_delete_source_file_subtitle"><i>Después de cargar un audiolibro en BookPlayer, el archivo/carpeta original puede eliminarse automáticamente.
-\nEsto solo es posible con archivos zip o si la opción anterior está activada (si los audios se copian en la memoria reservada de BookPlayer).</i></string>
+    <string name="option_delete_source_file_subtitle">Después de cargar un audiolibro en BookPlayer, el archivo o carpeta de origen elegido puede eliminarse automáticamente.\nNota: esto solo es posible para archivos ZIP o si la opción «Copiar archivos» está activada.</string>
     <string name="option_delete_source_file_text">Eliminar automáticamente el archivo/carpeta seleccionado una vez cargado en BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">¡¡ Atención - Autoeliminación !!</string>
     <string name="option_alert_delete_source_file_message">Todos los archivos cargados en BookPlayer serán eliminados de la memoria del dispositivo.\n\n¿Estás seguro?</string>
@@ -815,6 +817,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="bOpenMassImport_desc">Importación masiva: crea tantos audiolibros como elementos haya en la carpeta que elijas.</string>
     <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
     <string name="type_here_">Escribe aquí…</string>
+    <string name="direct_link_hint">https://…</string>
 
 
     <string name="most_downloaded">"Más descargados"</string>
@@ -831,6 +834,9 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="option_podcast_episodes_expand">mostrar descripciones</string>
     <string name="option_create_cover">Crear portadas</string>
     <string name="option_create_cover_text">Si no se encuentra una imagen de portada al cargar el libro, se creará una imagen en tonos pastel con las iniciales del título.</string>
+    <string name="option_show_filtered_file_buttons_title">Accesos directos por tipo de archivo</string>
+    <string name="option_show_filtered_file_buttons_text">Mostrar botones de acceso directo ZIP / M4B / EPUB</string>
+    <string name="option_show_filtered_file_buttons_subtitle">Añade botones rápidos en la pantalla Añadir para elegir directamente un archivo de un tipo concreto, sin pasar por el selector de archivos general.</string>
     <string name="reset_progress_from_this_track">reiniciar progreso desde esta pista</string>
 
     <string name="rename_track">renombrar pista</string>
@@ -914,6 +920,7 @@ BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</fo
     <string name="No_chapters_found">No se encontraron capítulos</string>
     <string name="Unsupported_ebook_type">Tipo de libro electrónico no compatible</string>
     <string name="download_stopped_by_system_will_retry">Descarga detenida por el sistema — se reintentará</string>
+    <string name="download_waiting_for_network">Esperando una conexión de red adecuada…</string>
     <string name="download_resuming">Reanudando descarga</string>
     <string name="importing_book">Importando libro</string>
     <string name="checking_size">comprobando tamaño</string>
@@ -1033,6 +1040,10 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="search_tip_single_word">Consejo: una sola palabra suele dar mejores resultados</string>
     <string name="podcast_search_edittext_title">Buscar... (todos los idiomas)</string>
     <string name="import_settings">Configuración de importación</string>
+    <string name="option_import_completion_title">Al terminar una importación:</string>
+    <string name="option_import_completion_do_nothing">No hacer nada</string>
+    <string name="option_import_completion_open_book">Abrir el libro</string>
+    <string name="option_import_completion_play_book">Reproducir el libro</string>
     <string name="option_split_m4b_subtitle">Si no está marcado, los archivos M4B se importarán como pistas únicas.</string>
     <string name="option_split_m4b_subtitle_note">Nota: la función de división por capítulos solo admite archivos M4B muy estándar.</string>
     <string name="Playback">Reproducción</string>
@@ -1201,6 +1212,8 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="share_title">Compartir vía</string>
     <string name="share_radio_body">Echa un vistazo a esta radio web en vivo en BookPlayer</string>
     <string name="share_radio_head">Compartir radio de BookPlayer</string>
+    <string name="share_podcast_body">Echa un vistazo a este episodio de podcast en BookPlayer</string>
+    <string name="share_podcast_head">Compartir podcast de BookPlayer</string>
 
 
     <string name="massimport_all_aready_imported">No hay elementos para importar (todos ya están importados)</string>
@@ -1423,22 +1436,72 @@ Puede ser bastante lento…</string>
     <string name="auto_backup_recovery_positive">Restaurar</string>
     <string name="auto_backup_recovery_negative">Ahora no</string>
     <string name="book_needs_relink">El archivo de este libro aún no está en este dispositivo - vuelve a añadirlo para continuar donde lo dejaste.</string>
-    <string name="full_backup_title">Copia de seguridad completa</string>
-    <string name="full_backup_desc">Empaqueta todo - tus audiolibros, las imágenes de portada y todos los datos de la app - en un único archivo zip que guardas donde quieras: tarjeta SD, unidad USB, una app de almacenamiento en la nube como Google Drive o Dropbox si está instalada, o compartido directamente mediante Quick Share, correo electrónico o cualquier otra app.</string>
+    <string name="backup_screen_title">Copia de seguridad</string>
+    <string name="restore_screen_title">Restaurar</string>
+    <string name="backup_restore_activity_label">Copia de seguridad / Restauración</string>
+    <string name="full_backup_desc">Guarda tu biblioteca en un único archivo zip: ajustes y progreso siempre, y además - a tu elección - los propios archivos de audiolibro y las portadas.</string>
+    <string name="backup_scope_full_title">Completa</string>
+    <string name="backup_scope_partial_title">Parcial</string>
+    <string name="backup_scope_full_explain">Incluye todo: cada archivo de audiolibro, cada imagen de portada y todos los datos de la app.</string>
+    <string name="backup_destination_file">Guardar en archivo zip</string>
+    <string name="backup_destination_quick_share">Quick Share</string>
+    <string name="backup_destination_size_warning">Esta copia de seguridad es grande para Quick Share - la transferencia puede ser lenta o poco fiable. Con este tamaño, guardar en un archivo zip es más fiable.</string>
+    <string name="backup_quick_share_title_send">Enviar copia de seguridad</string>
+    <string name="backup_quick_share_title_receive">Recibir copia de seguridad</string>
+    <string name="backup_quick_share_explain_send">Enviando tu copia de seguridad a un dispositivo cercano con BookPlayer instalado (no requiere internet). En el otro dispositivo, elige Restaurar ➜ Quick Share para recibirla.</string>
+    <string name="backup_quick_share_explain_receive">Esperando recibir una copia de seguridad de un dispositivo cercano con BookPlayer instalado (no requiere internet). En el otro dispositivo, elige Copia de seguridad ➜ Quick Share ➜ Iniciar copia de seguridad para enviarla.</string>
+    <string name="backup_quick_share_file_info">%1$s (%2$s)</string>
+    <string name="backup_quick_share_progress">Transfiriendo… %1$d%%</string>
+    <string name="backup_quick_share_writing_locally">Preparando la copia de seguridad…</string>
+    <string name="backup_quick_share_send_failed">No se pudo preparar la copia de seguridad para el envío: %s</string>
+    <string name="backup_quick_share_receive_failed">No se pudo recibir la copia de seguridad: %s</string>
+    <string name="backup_scope_partial_explain">Elige abajo exactamente qué incluir.</string>
+    <string name="backup_include_book_files_title">Incluir los archivos de los libros</string>
+    <string name="backup_include_book_files_explain">Desactivado por defecto - las casillas de abajo solo guardan el progreso y los ajustes de tus libros, no el audio en sí. Actívalo para elegir también libros concretos que incluir completos, con sus archivos.</string>
+    <string name="backup_skip_redownloadable_title">Omitir los libros que se pueden volver a descargar</string>
+    <string name="backup_skip_redownloadable_explain">Excluye el audio de los libros (Librivox, podcasts, enlaces directos) cuya dirección de descarga está guardada. Tras una restauración aparecen con su progreso pero sin archivos, y hay que volver a descargarlos.</string>
+    <string name="redownload_missing_books_button">Volver a descargar los libros que faltan (%d)</string>
+    <string name="full_backup_ebooks_duration">Ebooks (leídos en voz alta): %s</string>
+    <string name="redownload_done">Los archivos que faltaban se han vuelto a descargar.</string>
+    <string name="redownload_failed">No se pudieron volver a descargar los archivos que faltan. Puede que la dirección ya no funcione.</string>
+    <string name="redownload_started">Volviendo a descargar los archivos que faltan...</string>
+    <string name="redownload_offer_message">Faltan los archivos de audio de este libro, pero se pueden volver a descargar. Tu progreso se conserva.</string>
+    <string name="redownload_offer_button">Volver a descargar</string>
+    <string name="backup_skip_sdcard_title">Omitir los libros vinculados desde la tarjeta SD</string>
+    <string name="backup_skip_sdcard_explain">Excluye los libros cuyos archivos están en la tarjeta SD fuera de la carpeta propia de BookPlayer - permanecen en la tarjeta. Los libros de la carpeta SD reservada de BookPlayer siempre se incluyen, ya que desinstalar la app los elimina.</string>
+    <string name="backup_book_redownloadable_tag">se puede volver a descargar</string>
+    <string name="backup_no_books_available">No se encontraron libros elegibles - tu biblioteca está vacía.</string>
     <string name="full_backup_size_needed">Almacenamiento necesario: %s</string>
     <string name="full_backup_audio_duration">Audio total: %s</string>
     <string name="full_backup_eta">Tiempo restante estimado: %s</string>
-    <string name="full_backup_start">Iniciar copia de seguridad completa</string>
+    <string name="full_backup_start">Iniciar copia de seguridad</string>
     <string name="full_backup_progress">Copiando %1$s — %2$d%% (%3$s / %4$s)</string>
-    <string name="full_backup_success">Copia de seguridad completa finalizada.</string>
+    <string name="full_backup_success">Copia de seguridad finalizada.</string>
     <string name="full_backup_partial_failure">Copia de seguridad finalizada, pero algunos archivos no se pudieron copiar. Revisa el destino antes de confiar en él.</string>
-    <string name="full_backup_failed">Error en la copia de seguridad completa: %s</string>
-    <string name="full_restore_title">Restaurar desde copia de seguridad completa</string>
+    <string name="full_backup_cancelled">Copia de seguridad cancelada.</string>
+    <string name="full_backup_could_not_start">No se pudo escribir el archivo de copia de seguridad.</string>
+    <string name="full_backup_cancelling">Cancelando…</string>
+    <string name="full_backup_failed">Error en la copia de seguridad: %s</string>
     <string name="full_restore_desc">Restaura todo desde un archivo zip de copia de seguridad completa - audiolibros, imágenes de portada y todos los datos de la aplicación - en este dispositivo, sobrescribiendo tu biblioteca y configuración actuales.</string>
-    <string name="full_restore_start">Elegir archivo de copia de seguridad completa y restaurar</string>
+    <string name="full_restore_pick_file">Elegir archivo de copia de seguridad</string>
+    <string name="restore_source_pick_file">Elegir el archivo</string>
     <string name="full_restore_success">Restauración completa finalizada. Reinicia la aplicación.</string>
     <string name="full_restore_partial_failure">La restauración terminó, pero algunos archivos no se pudieron restaurar. Revisa tu biblioteca antes de confiar en ella.</string>
+    <string name="full_restore_cancelled">Restauración cancelada. Tus ajustes y tu progreso no se han modificado, pero es posible que algunos archivos ya se hayan sobrescrito - revisa tu biblioteca antes de confiar en ella.</string>
+    <string name="full_restore_could_not_start">No se pudo leer el archivo de copia de seguridad.</string>
     <string name="full_restore_failed">Error en la restauración completa: %s</string>
+    <string name="full_restore_reading">Leyendo el contenido de la copia de seguridad…</string>
+    <string name="full_restore_preview_title">Contenido de la copia de seguridad</string>
+    <string name="full_restore_preview_invalid">No parece un archivo de copia de seguridad creado aquí (no se encontró backup.json dentro).</string>
+    <string name="full_restore_preview_date">Fecha de la copia: %s</string>
+    <string name="full_restore_preview_size">Tamaño de la copia: %s</string>
+    <string name="full_restore_preview_count_books">%d libro(s)</string>
+    <string name="full_restore_preview_count_zikfiles">%d otro(s) archivo(s) de audio</string>
+    <string name="full_restore_preview_count_librivox">%d dirección(es) de descarga guardada(s)</string>
+    <string name="full_restore_preview_count_radios">%d emisora(s) de radio</string>
+    <string name="full_restore_preview_count_podcasts">%d podcast(s)</string>
+    <string name="full_restore_preview_count_podcast_history">%d episodio(s) de podcast en el historial</string>
+    <string name="full_restore_preview_preferences">Ajustes de la app incluidos</string>
     <string name="import_export_select_at_least_one_to_backup">Seleccione al menos un elemento para realizar la copia de seguridad</string>
     <string name="import_export_select_at_least_one_to_restore">Seleccione al menos un elemento para restaurar</string>
     <string name="import_export_select_at_least_one_to_share">Seleccione al menos un elemento para compartir</string>
@@ -1446,8 +1509,9 @@ Puede ser bastante lento…</string>
     <string name="import_export_select_data_restore">Seleccione los datos a restaurar:</string>
     <string name="stats_database_title">Estadísticas de la base de datos</string>
     <string name="utilities_backup_library">Copia de seguridad</string>
-    <string name="utilities_backup_restore_desc">Guarde y restaure algunos elementos y preferencias desde/hacia un archivo o mediante el uso compartido rápido.</string>
-    <string name="utilities_full_backup_desc">O empaqueta todo - incluidos tus archivos de audiolibros reales e imágenes de portada, no solo la configuración - en un solo archivo zip desde el que podrás restaurar más adelante.</string>
+    <string name="utilities_backup_restore_desc">Guarda y restaura tu biblioteca en/desde un archivo - ajustes y progreso siempre, y además, a tu elección, los propios archivos de audiolibro.</string>
+    <string name="utilities_quick_access_title">Acceso rápido</string>
+    <string name="utilities_quick_access_desc">Accesos directos también disponibles desde el menú de la pantalla principal.</string>
     <string name="utilities_backup_restore_title">Copia de seguridad / Restauración</string>
     <string name="utilities_restore_library">Restaurar</string>
 
@@ -1500,6 +1564,7 @@ Puede ser bastante lento…</string>
     <string name="delete_system_cache">Eliminar caché del sistema</string>
     <string name="delete_system_cache_explanation">Vacía la caché del sistema de Android utilizada para archivos temporales, como las portadas de episodios de podcast aún no descargados. Android la recrea automáticamente según sea necesario.</string>
     <string name="DeleteSystemCache_AskConfirm">"Estás a punto de vaciar la caché del sistema de la aplicación.\nEsto es seguro y ahorrará espacio, los archivos temporales se recrearán según sea necesario.\n¿Estás seguro?"</string>
+    <string name="utilities_cache_management_title">Gestión de caché</string>
     <string name="option_metadata_titles">Títulos de capítulos de metadatos</string>
     <string name="option_metadata_titles_text">Intente utilizar títulos de metadatos (etiquetas) en lugar de nombres de archivos para crear nombres de capítulos.</string>
     <string name="import_export_backup_note">Nota: Esta copia de seguridad excluye los audiolibros locales. Para guardarlos, use la opción de compartir o exportar en las páginas de información de cada libro.</string>

@@ -227,6 +227,8 @@
     <string name="beta_test">बीटा परीक्षण</string>
     <string name="are_you_sure">क्या आप सुनिश्चित हैं ?</string>
     <string name="app_info">ऐप जानकारी</string>
+    <string name="utilities_open_app_info">ऐप की जानकारी खोलें</string>
+    <string name="utilities_app_info_explanation">इस ऐप का Android सिस्टम सेटिंग्स पेज खोलता है, जहाँ आप अनुमतियाँ देख सकते हैं, स्टोरेज का उपयोग जाँच सकते हैं या ऐप को ज़बरदस्ती बंद कर सकते हैं।</string>
     <string name="delete_logs">लॉग हटाएँ</string>
     <string name="Import_failed">आयात विफल</string>
     <string name="About_to_start_download">डाउनलोड शुरू होने वाला है…</string>
@@ -252,6 +254,7 @@
     <string name="unexpected_error">अप्रत्याशित त्रुटि</string>
     <string name="an_error_occurred">एक त्रुटि हुई</string>
     <string name="no_internet_connection">इंटरनेट कनेक्शन नहीं</string>
+    <string name="server_address_not_found">सर्वर तक नहीं पहुँच सके: उसका पता नहीं मिला। आपका कनेक्शन अस्थिर हो सकता है, कृपया फिर से प्रयास करें।</string>
     <string name="no_metadata_available">कोई मेटाडेटा उपलब्ध नहीं</string>
     <string name="please_type_a_search_string">कृपया खोज स्ट्रिंग टाइप करें</string>
 
@@ -425,9 +428,7 @@
     <string name="option_rewind_after_pause_text">"प्ले फिर शुरू करने से कुछ सेकंड पहले ऑडियो रिवाइंड करें, (5 मिनट के विराम पर 3 सेकंड का रिवाइंड, 1 घंटे के विराम पर 5 सेकंड, …)"</string>
     <string name="option_pick_theme_color_title">अपना ऐप रंग थीम चुनें</string>
     <string name="option_delete_source_file_title">स्रोत फ़ाइल का स्वतः मिटाना</string>
-    <string name="option_delete_source_file_subtitle"><i>जब कोई ऑडियोबुक BookPlayer में लोड हो जाती है, तो चुनी गई स्रोत फ़ाइल/फ़ोल्डर स्वतः हटाया जा सकता है.
-        \nध्यान दें कि यह केवल zip के लिए या ऊपर वाला विकल्प टिक होने पर संभव है (यदि ऑडियो BookPlayer के आरक्षित मेमोरी में कॉपी किए जाते हैं)।
-        </i></string>
+    <string name="option_delete_source_file_subtitle">जब कोई ऑडियोबुक BookPlayer में लोड हो जाती है, तो आपकी चुनी गई स्रोत फ़ाइल/फ़ोल्डर स्वतः हटाया जा सकता है।\nध्यान दें: यह केवल ZIP फ़ाइलों के लिए या \'फ़ाइलें कॉपी करें\' विकल्प चालू होने पर ही संभव है।</string>
     <string name="option_delete_source_file_text">BookPlayer में लोड होने के बाद चुनी गई फ़ाइल/फ़ोल्डर स्वतः हटाएँ।</string>
     <string name="option_alert_delete_source_file_title">!! चेतावनी - स्वतः हटाना !!</string>
     <string name="option_alert_delete_source_file_message">BookPlayer में लोड की गई हर फ़ाइल डिवाइस मेमोरी से हटा दी जाएगी.\n\nक्या आप सुनिश्चित हैं ?.</string>
@@ -813,6 +814,7 @@
     <string name="bOpenMassImport_desc">मास आयात : आप जिस फ़ोल्डर को चुनेंगे, उसमें मौजूद प्रत्येक आइटम के लिए एक ऑडियोबुक बनाएं</string>
     <string name="bOpenFolder_desc">फ़ोल्डर चुनें : सभी ऑडियो (यदि उपफ़ोल्डर हैं तो उनमें भी) एक ही किताब में आयात हो जाएँगे।</string>
     <string name="type_here_">यहाँ लिखें…</string>
+    <string name="direct_link_hint">https://…</string>
 
 
     <string name="most_downloaded">"सबसे अधिक डाउनलोड"</string>
@@ -829,6 +831,9 @@
     <string name="option_podcast_episodes_expand">विवरण दिखाएँ</string>
     <string name="option_create_cover">कवर बनाएँ</string>
     <string name="option_create_cover_text">यदि पुस्तक लोड करते समय कोई कवर छवि नहीं मिली, तो पुस्तक शीर्षक के आद्याक्षरों के साथ एक पेस्टल छवि बनाई जाएगी।</string>
+    <string name="option_show_filtered_file_buttons_title">फ़ाइल प्रकार शॉर्टकट</string>
+    <string name="option_show_filtered_file_buttons_text">ZIP / M4B / EPUB शॉर्टकट बटन दिखाएँ</string>
+    <string name="option_show_filtered_file_buttons_subtitle">जोड़ें स्क्रीन पर त्वरित बटन जोड़ता है, ताकि सामान्य फ़ाइल पिकर के बिना सीधे किसी विशेष प्रकार की फ़ाइल चुनी जा सके।</string>
     <string name="reset_progress_from_this_track">इस ट्रैक से प्रोग्रेस रीसेट करें</string>
 
     <string name="rename_track">ट्रैक का नाम बदलें</string>
@@ -912,6 +917,7 @@
     <string name="No_chapters_found">कोई अध्याय नहीं मिला</string>
     <string name="Unsupported_ebook_type">असमर्थित ईबुक प्रकार</string>
     <string name="download_stopped_by_system_will_retry">डाउनलोड सिस्टम द्वारा रोका गया — फिर प्रयास करेंगे</string>
+    <string name="download_waiting_for_network">उपयुक्त नेटवर्क कनेक्शन की प्रतीक्षा है…</string>
     <string name="download_resuming">डाउनलोड फिर शुरू हो रहा है</string>
     <string name="importing_book">किताब आयात हो रही है</string>
     <string name="checking_size">आकार जाँच रहे हैं</string>
@@ -1031,6 +1037,10 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="search_tip_single_word">सुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)</string>
     <string name="import_settings">आयात सेटिंग्स</string>
+    <string name="option_import_completion_title">इम्पोर्ट पूरा होने पर:</string>
+    <string name="option_import_completion_do_nothing">कुछ न करें</string>
+    <string name="option_import_completion_open_book">पुस्तक खोलें</string>
+    <string name="option_import_completion_play_book">पुस्तक चलाएँ</string>
     <string name="option_split_m4b_subtitle">यदि अनचेक किया गया, तो M4B फ़ाइलें एकल ट्रैक के रूप में आयात की जाएंगी।</string>
     <string name="option_split_m4b_subtitle_note">नोट: अध्याय विभाजन सुविधा वर्तमान में केवल बहुत मानक M4B फ़ाइलों का समर्थन करती है।</string>
     <string name="Playback">प्लेबैक</string>
@@ -1199,6 +1209,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="share_title">शेयर करें</string>
     <string name="share_radio_body">BookPlayer पर इस लाइव वेब रेडियो को देखें</string>
     <string name="share_radio_head">BookPlayer रेडियो शेयर</string>
+    <string name="share_podcast_body">BookPlayer पर इस पॉडकास्ट एपिसोड को देखें</string>
+    <string name="share_podcast_head">BookPlayer पॉडकास्ट शेयर</string>
 
 
     <string name="massimport_all_aready_imported">आयात करने के लिए कोई आइटम नहीं (सभी पहले से मौजूद हैं)</string>
@@ -1417,22 +1429,72 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="auto_backup_recovery_positive">पुनर्स्थापित करें</string>
     <string name="auto_backup_recovery_negative">अभी नहीं</string>
     <string name="book_needs_relink">इस पुस्तक की फ़ाइल अभी तक इस डिवाइस पर नहीं है - जहाँ आपने छोड़ा था वहाँ से जारी रखने के लिए इसे फिर से जोड़ें।</string>
-    <string name="full_backup_title">पूर्ण बैकअप</string>
-    <string name="full_backup_desc">सब कुछ पैक करता है - आपकी ऑडियोबुक्स, कवर छवियां, और सभी ऐप डेटा - एक ही ज़िप फ़ाइल में जिसे आप जहाँ चाहें सहेज सकते हैं: SD कार्ड, USB ड्राइव, Google Drive या Dropbox जैसा क्लाउड स्टोरेज ऐप (यदि इंस्टॉल है), या Quick Share, ईमेल, या किसी अन्य ऐप के ज़रिए सीधे साझा करें।</string>
+    <string name="backup_screen_title">बैकअप</string>
+    <string name="restore_screen_title">पुनर्स्थापना</string>
+    <string name="backup_restore_activity_label">बैकअप / पुनर्स्थापना</string>
+    <string name="full_backup_desc">अपनी लाइब्रेरी को एक ही zip फ़ाइल में सहेजें: सेटिंग्स और प्रगति हमेशा, और - आपकी पसंद पर - असली ऑडियोबुक फ़ाइलें और कवर भी।</string>
+    <string name="backup_scope_full_title">पूर्ण</string>
+    <string name="backup_scope_partial_title">आंशिक</string>
+    <string name="backup_scope_full_explain">सब कुछ शामिल है: हर ऑडियोबुक फ़ाइल, हर कवर छवि, और सभी ऐप डेटा।</string>
+    <string name="backup_destination_file">Zip फ़ाइल में सहेजें</string>
+    <string name="backup_destination_quick_share">Quick Share</string>
+    <string name="backup_destination_size_warning">यह बैकअप Quick Share के लिए बड़ा है - ट्रांसफ़र धीमा या अविश्वसनीय हो सकता है। इस आकार पर zip फ़ाइल में सहेजना अधिक भरोसेमंद है।</string>
+    <string name="backup_quick_share_title_send">बैकअप भेजें</string>
+    <string name="backup_quick_share_title_receive">बैकअप प्राप्त करें</string>
+    <string name="backup_quick_share_explain_send">आपका बैकअप पास के ऐसे डिवाइस पर भेजा जा रहा है जिसमें BookPlayer इंस्टॉल है (इंटरनेट की ज़रूरत नहीं)। दूसरे डिवाइस पर इसे प्राप्त करने के लिए पुनर्स्थापना ➜ Quick Share चुनें।</string>
+    <string name="backup_quick_share_explain_receive">पास के ऐसे डिवाइस से बैकअप प्राप्त होने की प्रतीक्षा है जिसमें BookPlayer इंस्टॉल है (इंटरनेट की ज़रूरत नहीं)। दूसरे डिवाइस पर बैकअप भेजने के लिए बैकअप ➜ Quick Share ➜ बैकअप शुरू करें चुनें।</string>
+    <string name="backup_quick_share_file_info">%1$s (%2$s)</string>
+    <string name="backup_quick_share_progress">ट्रांसफ़र हो रहा है… %1$d%%</string>
+    <string name="backup_quick_share_writing_locally">बैकअप तैयार हो रहा है…</string>
+    <string name="backup_quick_share_send_failed">भेजने के लिए बैकअप तैयार नहीं हो सका: %s</string>
+    <string name="backup_quick_share_receive_failed">बैकअप प्राप्त नहीं हो सका: %s</string>
+    <string name="backup_scope_partial_explain">नीचे ठीक-ठीक चुनें कि क्या शामिल करना है।</string>
+    <string name="backup_include_book_files_title">असली पुस्तक फ़ाइलें शामिल करें</string>
+    <string name="backup_include_book_files_explain">डिफ़ॉल्ट रूप से बंद - नीचे दिए बॉक्स केवल आपकी पुस्तकों की प्रगति और सेटिंग्स का बैकअप लेते हैं, ऑडियो का नहीं। विशिष्ट पुस्तकों को फ़ाइलों सहित पूरी तरह शामिल करने के लिए इसे चालू करें।</string>
+    <string name="backup_skip_redownloadable_title">फिर से डाउनलोड की जा सकने वाली पुस्तकें छोड़ें</string>
+    <string name="backup_skip_redownloadable_explain">उन पुस्तकों (Librivox, पॉडकास्ट, डायरेक्ट लिंक) का ऑडियो छोड़ देता है जिनका डाउनलोड पता सहेजा गया है। पुनर्स्थापना के बाद वे अपनी प्रगति के साथ दिखती हैं लेकिन फ़ाइलों के बिना, और उन्हें फिर से डाउनलोड करना होगा।</string>
+    <string name="redownload_missing_books_button">गायब पुस्तकें फिर से डाउनलोड करें (%d)</string>
+    <string name="full_backup_ebooks_duration">ईबुक्स (पढ़कर सुनाई गई): %s</string>
+    <string name="redownload_done">गायब फ़ाइलें फिर से डाउनलोड हो गईं।</string>
+    <string name="redownload_failed">गायब फ़ाइलें फिर से डाउनलोड नहीं हो सकीं। हो सकता है पता अब काम न करे।</string>
+    <string name="redownload_started">गायब फ़ाइलें फिर से डाउनलोड हो रही हैं...</string>
+    <string name="redownload_offer_message">इस पुस्तक की ऑडियो फ़ाइलें गायब हैं, लेकिन उन्हें फिर से डाउनलोड किया जा सकता है। आपकी प्रगति सुरक्षित है।</string>
+    <string name="redownload_offer_button">फिर से डाउनलोड करें</string>
+    <string name="backup_skip_sdcard_title">SD कार्ड से जुड़ी पुस्तकें छोड़ें</string>
+    <string name="backup_skip_sdcard_explain">उन पुस्तकों को छोड़ देता है जिनकी फ़ाइलें BookPlayer के अपने फ़ोल्डर के बाहर SD कार्ड पर हैं - वे कार्ड पर ही रहती हैं। BookPlayer के आरक्षित SD फ़ोल्डर की पुस्तकें हमेशा शामिल की जाती हैं, क्योंकि ऐप अनइंस्टॉल करने पर वे हट जाती हैं।</string>
+    <string name="backup_book_redownloadable_tag">फिर से डाउनलोड की जा सकती है</string>
+    <string name="backup_no_books_available">कोई योग्य पुस्तक नहीं मिली - आपकी लाइब्रेरी खाली है।</string>
     <string name="full_backup_size_needed">आवश्यक स्टोरेज: %s</string>
     <string name="full_backup_audio_duration">कुल ऑडियो: %s</string>
     <string name="full_backup_eta">अनुमानित शेष समय: %s</string>
-    <string name="full_backup_start">पूर्ण बैकअप शुरू करें</string>
+    <string name="full_backup_start">बैकअप शुरू करें</string>
     <string name="full_backup_progress">%1$s कॉपी हो रहा है — %2$d%% (%3$s / %4$s)</string>
-    <string name="full_backup_success">पूर्ण बैकअप पूरा हुआ।</string>
+    <string name="full_backup_success">बैकअप पूरा हुआ।</string>
     <string name="full_backup_partial_failure">बैकअप पूरा हुआ, लेकिन कुछ फ़ाइलें कॉपी नहीं हो सकीं। इस पर भरोसा करने से पहले गंतव्य की जाँच करें।</string>
-    <string name="full_backup_failed">पूर्ण बैकअप विफल: %s</string>
-    <string name="full_restore_title">पूर्ण बैकअप से पुनर्स्थापित करें</string>
+    <string name="full_backup_cancelled">बैकअप रद्द किया गया।</string>
+    <string name="full_backup_could_not_start">बैकअप फ़ाइल नहीं लिखी जा सकी।</string>
+    <string name="full_backup_cancelling">रद्द हो रहा है…</string>
+    <string name="full_backup_failed">बैकअप विफल: %s</string>
     <string name="full_restore_desc">एक पूर्ण बैकअप zip फ़ाइल से सब कुछ वापस पुनर्स्थापित करता है - ऑडियोबुक, कवर छवियां, और सभी ऐप डेटा - इस डिवाइस पर, आपकी वर्तमान लाइब्रेरी और सेटिंग्स को अधिलेखित करते हुए।</string>
-    <string name="full_restore_start">पूर्ण बैकअप फ़ाइल चुनें और पुनर्स्थापित करें</string>
+    <string name="full_restore_pick_file">बैकअप फ़ाइल चुनें</string>
+    <string name="restore_source_pick_file">फ़ाइल चुनें</string>
     <string name="full_restore_success">पूर्ण पुनर्स्थापन पूरा हुआ। कृपया ऐप को पुनरारंभ करें।</string>
     <string name="full_restore_partial_failure">पुनर्स्थापन पूरा हुआ, लेकिन कुछ फ़ाइलें पुनर्स्थापित नहीं की जा सकीं। भरोसा करने से पहले अपनी लाइब्रेरी जांचें।</string>
+    <string name="full_restore_cancelled">पुनर्स्थापना रद्द की गई। आपकी सेटिंग्स और प्रगति नहीं बदली गईं, लेकिन हो सकता है कुछ फ़ाइलें पहले ही ओवरराइट हो चुकी हों - इस पर भरोसा करने से पहले अपनी लाइब्रेरी जाँच लें।</string>
+    <string name="full_restore_could_not_start">बैकअप फ़ाइल नहीं पढ़ी जा सकी।</string>
     <string name="full_restore_failed">पूर्ण पुनर्स्थापन विफल: %s</string>
+    <string name="full_restore_reading">बैकअप की सामग्री पढ़ी जा रही है…</string>
+    <string name="full_restore_preview_title">बैकअप की सामग्री</string>
+    <string name="full_restore_preview_invalid">यह यहाँ बनाई गई बैकअप फ़ाइल नहीं लगती (इसके अंदर backup.json नहीं मिला)।</string>
+    <string name="full_restore_preview_date">बैकअप की तारीख: %s</string>
+    <string name="full_restore_preview_size">बैकअप का आकार: %s</string>
+    <string name="full_restore_preview_count_books">%d पुस्तक(ें)</string>
+    <string name="full_restore_preview_count_zikfiles">%d अन्य ऑडियो फ़ाइल(ें)</string>
+    <string name="full_restore_preview_count_librivox">%d सहेजे गए डाउनलोड पते</string>
+    <string name="full_restore_preview_count_radios">%d रेडियो स्टेशन</string>
+    <string name="full_restore_preview_count_podcasts">%d पॉडकास्ट</string>
+    <string name="full_restore_preview_count_podcast_history">इतिहास में %d पॉडकास्ट एपिसोड</string>
+    <string name="full_restore_preview_preferences">ऐप सेटिंग्स शामिल हैं</string>
     <string name="import_export_select_at_least_one_to_backup">कृपया बैकअप के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_restore">कृपया पुनर्स्थापित करने के लिए कम से कम एक आइटम चुनें</string>
     <string name="import_export_select_at_least_one_to_share">कृपया साझा करने के लिए कम से कम एक आइटम चुनें</string>
@@ -1440,8 +1502,9 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="import_export_select_data_restore">पुनर्स्थापित करने के लिए डेटा चुनें:</string>
     <string name="stats_database_title">डेटाबेस सांख्यिकी</string>
     <string name="utilities_backup_library">बैकअप</string>
-    <string name="utilities_backup_restore_desc">फ़ाइल के माध्यम से या त्वरित साझाकरण के माध्यम से कुछ आइटम और प्राथमिकताओं को सहेजें और पुनर्स्थापित करें।</string>
-    <string name="utilities_full_backup_desc">या सब कुछ एक साथ पैक करें - केवल सेटिंग्स ही नहीं, बल्कि आपकी वास्तविक ऑडियोबुक फ़ाइलें और कवर छवियां भी - एक ही zip में, जिससे आप बाद में पुनर्स्थापित कर सकें।</string>
+    <string name="utilities_backup_restore_desc">अपनी लाइब्रेरी को फ़ाइल में सहेजें और उससे पुनर्स्थापित करें - सेटिंग्स और प्रगति हमेशा, और आपकी पसंद पर असली ऑडियोबुक फ़ाइलें भी।</string>
+    <string name="utilities_quick_access_title">त्वरित पहुँच</string>
+    <string name="utilities_quick_access_desc">शॉर्टकट जो मुख्य स्क्रीन के मेनू से भी उपलब्ध हैं।</string>
     <string name="utilities_backup_restore_title">बैकअप / पुनर्स्थापना</string>
     <string name="utilities_restore_library">पुनर्स्थापना</string>
 
@@ -1494,6 +1557,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="delete_system_cache">सिस्टम कैश हटाएं</string>
     <string name="delete_system_cache_explanation">एंड्रॉइड सिस्टम कैश को साफ़ करता है जो अस्थायी फ़ाइलों के लिए उपयोग होता है, जैसे अभी तक डाउनलोड न किए गए पॉडकास्ट एपिसोड कवर। ज़रूरत पड़ने पर एंड्रॉइड इसे स्वतः फिर से बना लेता है।</string>
     <string name="DeleteSystemCache_AskConfirm">"आप ऐप का सिस्टम कैश साफ़ करने वाले हैं।\nयह सुरक्षित है और जगह बचाएगा, अस्थायी फ़ाइलें ज़रूरत पड़ने पर फिर से बन जाएंगी।\nक्या आप सुनिश्चित हैं?"</string>
+    <string name="utilities_cache_management_title">कैश प्रबंधन</string>
     <string name="option_metadata_titles">मेटाडेटा अध्याय शीर्षक</string>
     <string name="option_metadata_titles_text">अध्याय नाम बनाने के लिए फ़ाइल नामों के बजाय मेटाडेटा शीर्षक (टैग) का उपयोग करने का प्रयास करें।</string>
     <string name="import_export_backup_note">नोट: इस बैकअप में स्थानीय ऑडियोबुक शामिल नहीं हैं। उन्हें सहेजने के लिए, व्यक्तिगत पुस्तक सूचना पृष्ठों पर शेयर या एक्सपोर्ट विकल्प का उपयोग करें।</string>
