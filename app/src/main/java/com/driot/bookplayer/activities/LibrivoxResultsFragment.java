@@ -264,7 +264,7 @@ public class LibrivoxResultsFragment extends LoggingFragment {
                 Exception dummyEx = new Exception(msg);
 
                 if (NetworkHelper.isUnknownHost(dummyEx)) {
-                    finalError = getString(R.string.no_internet_connection) + "\n\n" + msg;
+                    finalError = NetworkHelper.unknownHostMessage(requireContext()) + "\n\n" + msg;
                 } else if (NetworkHelper.isTimeout(dummyEx)) {
                     finalError = getString(R.string.request_timeout) + "\n\n" + msg;
                 } else if ("invalid_response".equals(msg)) {

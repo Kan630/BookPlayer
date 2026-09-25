@@ -33,7 +33,7 @@ import retrofit2.Response;
 public class RadioResultsViewModel extends LoggingAndroidViewModel {
 
     // ---- One-shot UI events (Activity observes and maps to toasts / finish) ----
-    public enum UiEvent { NO_RESULT_FINISH, NETWORK_ERROR_FINISH, NO_INTERNET_FINISH }
+    public enum UiEvent { NO_RESULT_FINISH, NETWORK_ERROR_FINISH, UNKNOWN_HOST_FINISH }
 
     private final MutableLiveData<UiEvent> uiEvent = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isInitialLoading = new MutableLiveData<>(false);
@@ -221,7 +221,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                 setLoading(false);
                 if (!isPagination) {
                     if (NetworkHelper.isUnknownHost(t)) {
-                        uiEvent.postValue(UiEvent.NO_INTERNET_FINISH);
+                        uiEvent.postValue(UiEvent.UNKNOWN_HOST_FINISH);
                     } else {
                         myLogEE(t, "radio search failed (" + lastSearchMode + ")");
                         uiEvent.postValue(UiEvent.NETWORK_ERROR_FINISH);

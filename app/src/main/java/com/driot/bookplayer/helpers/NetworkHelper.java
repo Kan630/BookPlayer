@@ -194,6 +194,15 @@ public class NetworkHelper {
         return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 
+    /** Message for a request that failed with isUnknownHost(): "no internet" only when the device
+     * really has no network. Online, an unknown host means the DNS lookup for that server failed
+     * (flaky network, DNS outage), which takes ~5 s to time out and would be wrongly reported. */
+    public static String unknownHostMessage(Context context) {
+        return context.getString(hasInternet(context)
+                ? R.string.server_address_not_found
+                : R.string.no_internet_connection);
+    }
+
     /** Walks cause chain to detect UnknownHostException or related network failure messages. */
     public static boolean isUnknownHost(Throwable e) {
         while (e != null) {

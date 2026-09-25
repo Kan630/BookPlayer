@@ -11,16 +11,19 @@
     android:layout_margin="4dp"
     android:foreground="?android:attr/selectableItemBackground">
 
+    <!-- match_parent heights: in a multi-column grid (landscape/tablet) GridLayoutManager
+         stretches every card of a row to the tallest one; llMain's background (white or the
+         listened/current highlight) must fill it, not leave a card-coloured strip below. -->
     <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     >
 
     <LinearLayout
         android:id="@+id/llMain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:padding="12dp"
         android:orientation="vertical"
         android:background="?attr/colorSurfaceVariant"

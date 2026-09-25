@@ -255,7 +255,7 @@ public class RadioResultsFragment extends LoggingFragment {
 
                         if (NetworkHelper.isUnknownHost(t)) {
                             resumeGlideAfterPlay();
-                            myToastE(getString(R.string.no_internet_connection));
+                            myToastE(NetworkHelper.unknownHostMessage(requireContext()));
                         } else {
                             myLogEE(t, "resolveUrl failed");
                             if (apiStation.url_resolved != null
@@ -359,8 +359,8 @@ public class RadioResultsFragment extends LoggingFragment {
                 case NO_RESULT_FINISH:
                     myToast(getString(R.string.no_result));
                     break;
-                case NO_INTERNET_FINISH:
-                    myToastE(getString(R.string.no_internet_connection));
+                case UNKNOWN_HOST_FINISH:
+                    myToastE(NetworkHelper.unknownHostMessage(requireContext()));
                     break;
                 case NETWORK_ERROR_FINISH:
                     myToastE(getString(R.string.an_error_occurred));

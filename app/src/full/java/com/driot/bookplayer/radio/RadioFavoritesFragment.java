@@ -244,7 +244,7 @@ public class RadioFavoritesFragment extends LoggingFragment {
                     public void onFailure(Call<UrlResolve> call, Throwable t) {
                         setProgressVisible(false, null);
                         if (NetworkHelper.isUnknownHost(t)) {
-                            myToastE(getString(R.string.no_internet_connection));
+                            myToastE(NetworkHelper.unknownHostMessage(requireContext()));
                         } else {
                             myLogEE(t, "resolveUrl failed");
                             myToastE(getString(R.string.error_radio_renew_url));
