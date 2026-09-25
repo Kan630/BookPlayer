@@ -1,5 +1,6 @@
 package com.driot.bookplayer.tts;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -9,10 +10,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.player.PlaybackUiState;
-import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.lang.ref.WeakReference;
 
@@ -25,7 +24,13 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsOverlayManager {
 
-    private final WeakReference<BaseActivity> activityRef;
+    /** Whatever shows the player's loading overlay (the player screen, e.g. PlayerFragment). */
+    public interface Host {
+        void showTtsLoading(boolean show, @Nullable String msg);
+    }
+
+    private final WeakReference<Host> hostRef;
+    private final Context appContext;
     @Nullable
     private final AppTtsManager ttsManager;
     private final Handler uiH = new Handler(Looper.getMainLooper());
@@ -42,20 +47,16 @@ public class TtsOverlayManager {
     private int auto_hide_countdown_seconds = Option.DEFAULT_TTS_OVERLAY_TIMEOUT_SEC;
     private String currentPhase = "";
 
-    public TtsOverlayManager(BaseActivity activity) {
-        this(activity, null);
-    }
-
-    public TtsOverlayManager(BaseActivity activity, @Nullable AppTtsManager ttsManager) {
-        this.activityRef = new WeakReference<>(activity);
+    public TtsOverlayManager(Host host, Context context, @Nullable AppTtsManager ttsManager) {
+        this.hostRef = new WeakReference<>(host);
+        this.appContext = context.getApplicationContext();
         this.ttsManager = ttsManager;
         this.safetyTimeoutRunnable = new Runnable() {
             @Override
             public void run() {
-                BaseActivity act = activityRef.get();
-                if (!(act instanceof PlayActivity))
+                Host host = hostRef.get();
+                if (host == null)
                     return;
-                PlayActivity playAct = (PlayActivity) act;
 
                 if (auto_hide_countdown_seconds <= 0) {
                     // The engine may still be cold-binding (e.g. right after switching TTS
@@ -65,14 +66,14 @@ public class TtsOverlayManager {
                             + " (stillWarmingUp=" + stillWarmingUp + ")");
                     loadingProgressOverlayTimerStarted = false;
                     overlayVisible = false;
-                    playAct.showTtsLoading(false);
-                    PlaybackCommands.pause(playAct);
-                    myToastEE(null, playAct.getString(stillWarmingUp
+                    host.showTtsLoading(false, null);
+                    PlaybackCommands.pause(appContext);
+                    myToastEE(null, appContext.getString(stillWarmingUp
                             ? R.string.tts_engine_still_warming_up
                             : R.string.tts_error_timeout));
                 } else {
                     overlayVisible = true;
-                    playAct.showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
+                    host.showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
                     auto_hide_countdown_seconds--;
                     uiH.postDelayed(this, 1000);
                 }
@@ -83,8 +84,7 @@ public class TtsOverlayManager {
                 myLogD("TTS OVERLAY: disabled by user option");
                 return;
             }
-            BaseActivity act = activityRef.get();
-            if (act instanceof PlayActivity) {
+            if (hostRef.get() != null) {
                 auto_hide_countdown_seconds = Option.getTtsOverlayTimeoutSec();
                 uiH.removeCallbacks(safetyTimeoutRunnable);
                 uiH.post(safetyTimeoutRunnable);
@@ -116,9 +116,9 @@ public class TtsOverlayManager {
             startLoadingProgressOverlayTimer();
             // If already visible, update message immediately for responsiveness
             if (overlayVisible) {
-                BaseActivity act = activityRef.get();
-                if (act instanceof PlayActivity) {
-                    ((PlayActivity) act).showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
+                Host host = hostRef.get();
+                if (host != null) {
+                    host.showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
                 }
             }
             myLogD("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
@@ -155,9 +155,9 @@ public class TtsOverlayManager {
             uiH.removeCallbacks(loadingRunnable);
             uiH.removeCallbacks(safetyTimeoutRunnable);
             myLogI("stopLoadingProgressOverlayTimer");
-            BaseActivity act = activityRef.get();
-            if (act instanceof PlayActivity) {
-                ((PlayActivity) act).showTtsLoading(false);
+            Host host = hostRef.get();
+            if (host != null) {
+                host.showTtsLoading(false, null);
             }
         }
     }
