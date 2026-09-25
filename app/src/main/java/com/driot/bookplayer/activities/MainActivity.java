@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
 import androidx.annotation.Nullable;
@@ -129,6 +130,15 @@ public class MainActivity extends FullActivity {
         SETTINGS_DESTINATION_BY_FRAGMENT_CLASS.put(NetworkSettingsFragment.class.getName(), R.id.networkSettingsFragment);
         SETTINGS_DESTINATION_BY_FRAGMENT_CLASS.put(UtilitiesSettingsFragment.class.getName(), R.id.utilitiesSettingsFragment);
         SETTINGS_DESTINATION_BY_FRAGMENT_CLASS.put(MassiveImportSettingsFragment.class.getName(), R.id.massiveImportSettingsFragment);
+    }
+
+    /** Reverse of SETTINGS_DESTINATION_BY_FRAGMENT_CLASS: the settings fragment class shown for
+     * a settings_nav_graph destination (used by the two-pane settings list), or null. */
+    @Nullable
+    public static String settingsFragmentClassFor(@IdRes int destinationId) {
+        for (Map.Entry<String, Integer> e : SETTINGS_DESTINATION_BY_FRAGMENT_CLASS.entrySet())
+            if (e.getValue() == destinationId) return e.getKey();
+        return null;
     }
 
     private static final Map<Integer, String> TAB_TAG = new HashMap<>();

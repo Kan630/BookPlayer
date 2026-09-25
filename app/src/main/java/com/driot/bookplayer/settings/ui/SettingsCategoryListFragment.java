@@ -11,13 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AdminActivity;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.driot.bookplayer.views.SettingsSectionView;
@@ -36,7 +34,7 @@ import java.util.Map;
  * Two-pane mode (R.bool.settings_two_pane, width >= 720dp): the selected category is shown
  * next to the list as a child fragment instead of being navigated to, so the tab's nav graph,
  * back handling and MainActivity.startSettings() direct links are unchanged. The detail
- * fragment class is read from the nav graph destination, so the graph stays the one source.
+ * fragment class comes from MainActivity's settings destination map.
  */
 public class SettingsCategoryListFragment extends LoggingFragment {
 
@@ -143,14 +141,13 @@ public class SettingsCategoryListFragment extends LoggingFragment {
             return;
         Integer destinationId = destinationBySection.get(sectionViewId);
         if (destinationId == null) return;
-        NavDestination destination = NavHostFragment.findNavController(this).getGraph().findNode(destinationId);
-        if (!(destination instanceof FragmentNavigator.Destination)) {
-            myLogEE(null, "showInDetailPane: no fragment destination for " + destinationId);
+        String fragmentClass = MainActivity.settingsFragmentClassFor(destinationId);
+        if (fragmentClass == null) {
+            myLogEE(null, "showInDetailPane: no settings fragment class for destination " + destinationId);
             return;
         }
         FragmentManager fm = getChildFragmentManager();
-        Fragment detail = fm.getFragmentFactory().instantiate(requireContext().getClassLoader(),
-                ((FragmentNavigator.Destination) destination).getClassName());
+        Fragment detail = fm.getFragmentFactory().instantiate(requireContext().getClassLoader(), fragmentClass);
         fm.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.settings_detail_container, detail)
