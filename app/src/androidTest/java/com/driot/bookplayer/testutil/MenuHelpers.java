@@ -100,7 +100,17 @@ public final class MenuHelpers {
     private static void clickItemViaUiDevice(UiDevice device, String title, @StringRes int menuTitleRes) {
         myLogD("Looking for menu item: [" + title + "]");
         try {
-            // First try direct find (if it's already on screen)
+            // Overflow popup items first: their title view is id/title. A plain text match can hit
+            // another view with the same text first - e.g. the nav rail's "Settings" label on
+            // tablets - and leave the popup open.
+            UiObject menuItem = device.findObject(new UiSelector().text(title).resourceIdMatches(".*:id/title"));
+            if (menuItem.waitForExists(1000)) {
+                menuItem.click();
+                myLogD("Tapped popup menu item via UiDevice: [" + title + "]");
+                return;
+            }
+
+            // Then any view with that text (if it's already on screen)
             UiObject item = device.findObject(new UiSelector().text(title));
             if (item.waitForExists(1000)) {
                 item.click();

@@ -260,7 +260,7 @@ public class PlayActivity extends BaseActivity {
             String nbSec = String.valueOf(Option.get_ForwardSeconds());
             String bRewindText = "-" + nbSec + " " + getString(R.string.sec);
             bRewind.setText(bRewindText);
-            String bForwardText = "-" + nbSec + " " + getString(R.string.sec);
+            String bForwardText = "+" + nbSec + " " + getString(R.string.sec);
             bForward.setText(bForwardText);
         }
         bPlayPause.setOnClickListener(v -> {

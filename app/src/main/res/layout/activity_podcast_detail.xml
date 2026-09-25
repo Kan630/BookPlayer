@@ -35,13 +35,20 @@
                 android:layout_marginBottom="0dp"
                 >
 
-                <!-- Container with image and overlay buttons -->
-                <RelativeLayout
+                <!-- Container with image and overlay buttons. Capped at 480dp and centered: the two
+                     icon columns sit at its edges, which on wide windows (landscape, tablets) would
+                     otherwise put them far from the 200dp cover. -->
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    android:layout_marginBottom="12dp"
-                    app:layout_collapseMode="parallax"
-                    app:layout_collapseParallaxMultiplier="0.65"
+                    android:layout_marginBottom="12dp">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:layout_constraintWidth_max="480dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     >
 
                     <ImageView
@@ -127,6 +134,7 @@
 
                     </LinearLayout>
                 </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!-- Title / description (collapse away with the header) -->
                 <TextView

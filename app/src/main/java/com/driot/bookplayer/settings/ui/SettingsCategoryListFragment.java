@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.driot.bookplayer.R;
@@ -32,9 +33,9 @@ import java.util.Map;
  * [[radio_deeplink_applinks_fix]].
  *
  * Two-pane mode (R.bool.settings_two_pane, width >= 720dp): the selected category is shown
- * next to the list as a child fragment instead of being navigated to, so the tab's nav graph,
- * back handling and MainActivity.startSettings() direct links are unchanged. The detail
- * fragment class comes from MainActivity's settings destination map.
+ * next to the list as a child fragment instead of being navigated to, so the tab's nav graph and
+ * back handling are unchanged. MainActivity.startSettings() direct links reach the pane through
+ * SettingsPaneViewModel. The detail fragment class comes from MainActivity's settings map.
  */
 public class SettingsCategoryListFragment extends LoggingFragment {
 
@@ -94,10 +95,35 @@ public class SettingsCategoryListFragment extends LoggingFragment {
         } else if (shownDetail == null || !destinationBySection.containsKey(selectedSectionId)) {
             showInDetailPane(destinationBySection.containsKey(selectedSectionId)
                     ? selectedSectionId
-                    : destinationBySection.keySet().iterator().next());
+                    : destinationBySection.keySet().iterator().next(), null, false);
         } else {
             updateSelection();
         }
+
+        if (twoPane) {
+            SettingsPaneViewModel paneVm = new ViewModelProvider(requireActivity()).get(SettingsPaneViewModel.class);
+            paneVm.getRequest().observe(getViewLifecycleOwner(), request -> {
+                if (request == null) return;
+                paneVm.consume();
+                for (Map.Entry<Integer, Integer> e : destinationBySection.entrySet()) {
+                    if (e.getValue() == request.destinationId) {
+                        showInDetailPane(e.getKey(), request.args, true);
+                        scrollToSection(e.getKey());
+                        return;
+                    }
+                }
+                myLogEE(null, "pane request for unknown destination " + request.destinationId);
+            });
+        }
+    }
+
+    private void scrollToSection(int sectionViewId) {
+        View root = getView();
+        if (root == null) return;
+        View section = root.findViewById(sectionViewId);
+        View scroll = root.findViewById(R.id.settingsCategoryScroll);
+        if (section != null && scroll != null)
+            scroll.post(() -> scroll.scrollTo(0, Math.max(0, section.getTop() - section.getHeight())));
     }
 
     @Override
@@ -129,14 +155,16 @@ public class SettingsCategoryListFragment extends LoggingFragment {
         destinationBySection.put(sectionViewId, destinationId);
         sectionView.getHeaderView().setOnClickListener(v -> {
             if (twoPane)
-                showInDetailPane(sectionViewId);
+                showInDetailPane(sectionViewId, null, false);
             else
                 Navigation.findNavController(root).navigate(destinationId);
         });
     }
 
-    private void showInDetailPane(int sectionViewId) {
-        if (sectionViewId == selectedSectionId
+    /** @param args  arguments for the detail fragment (a direct link's), null for a plain tap
+     *  @param force replace the detail even if that category is already shown (new arguments) */
+    private void showInDetailPane(int sectionViewId, @Nullable Bundle args, boolean force) {
+        if (!force && sectionViewId == selectedSectionId
                 && getChildFragmentManager().findFragmentById(R.id.settings_detail_container) != null)
             return;
         Integer destinationId = destinationBySection.get(sectionViewId);
@@ -148,6 +176,8 @@ public class SettingsCategoryListFragment extends LoggingFragment {
         }
         FragmentManager fm = getChildFragmentManager();
         Fragment detail = fm.getFragmentFactory().instantiate(requireContext().getClassLoader(), fragmentClass);
+        if (args != null)
+            detail.setArguments(args);
         fm.beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.settings_detail_container, detail)

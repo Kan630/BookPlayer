@@ -186,9 +186,7 @@ public class DeepSettingsTest implements LogSupport {
                 .perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.sleep(WAIT_DELAY_SECTION_AFTER_SCROLL, "WAIT_DELAY_SECTION_AFTER_SCROLL");
 
-        // Back to the category list
-        Espresso.pressBack();
-        verifyDetailOpen(false);
+        backToCategoryList();
     }
 
     private void testSectionInteractions(int sectionId) {
@@ -316,9 +314,7 @@ public class DeepSettingsTest implements LogSupport {
         // the whole section with NoMatchingViewException instead of just skipping one control.
         dismissAnyDialog();
 
-        // Back to the category list
-        Espresso.pressBack();
-        verifyDetailOpen(false);
+        backToCategoryList();
     }
 
     private final String[] randomValues = { "", "123", "abc", "VeryLongStressTestString1234567890!@#$%^&*()", "0.5",
@@ -332,6 +328,18 @@ public class DeepSettingsTest implements LogSupport {
         }
     }
 
+    private boolean isTwoPane() {
+        return appContext.getResources().getBoolean(R.bool.settings_two_pane);
+    }
+
+    /** Single-pane: back from the category screen to the list. Two-pane: nothing to do - the
+     * list is still on screen, and back would leave the Settings tab altogether. */
+    private void backToCategoryList() {
+        if (isTwoPane()) return;
+        Espresso.pressBack();
+        verifyDetailOpen(false);
+    }
+
     /**
      * With the NavController-based graph, "detail open" means the category list's own root
      * view (settings_layout_root, from fragment_settings_category_list.xml) has been replaced
@@ -339,6 +347,14 @@ public class DeepSettingsTest implements LogSupport {
      * pane, so its presence/absence in the view hierarchy IS the open/closed signal.
      */
     private void verifyDetailOpen(boolean open) {
+        if (isTwoPane()) {
+            // Two-pane (width >= 720dp, e.g. the tablet AVD): the list never goes away; the
+            // category's screen is the child of the detail container next to it.
+            onView(withId(R.id.settings_layout_root)).check(matches(isDisplayed()));
+            if (open)
+                onView(withParent(withId(R.id.settings_detail_container))).check(matches(isDisplayed()));
+            return;
+        }
         if (open) {
             onView(withId(R.id.settings_layout_root)).check(doesNotExist());
         } else {

@@ -52,6 +52,7 @@ import com.driot.bookplayer.settings.ui.NetworkSettingsFragment;
 import com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
+import com.driot.bookplayer.settings.ui.SettingsPaneViewModel;
 import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
 import com.driot.bookplayer.settings.ui.StorageSettingsFragment;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
@@ -108,8 +109,6 @@ public class MainActivity extends FullActivity {
     public static final String EXTRA_NAV_DEST_ID = "EXTRA_NAV_DEST_ID";
     public static final String EXTRA_NAV_ARGS = "EXTRA_NAV_ARGS";
     public static final String EXTRA_NAV_DIRECT_LINK = "EXTRA_NAV_DIRECT_LINK";
-    public static final String EXTRA_NAV_TITLE_RES = "EXTRA_NAV_TITLE_RES";
-    public static final String EXTRA_NAV_TITLE_TEXT = "EXTRA_NAV_TITLE_TEXT";
 
     /** Fragment-argument key some Settings screens read to decide whether to show their own
      * local title bar - preserved from the old SettingsHostActivity for compatibility. */
@@ -379,14 +378,6 @@ public class MainActivity extends FullActivity {
             Bundle args = intent.getBundleExtra(EXTRA_NAV_ARGS);
             boolean directLink = intent.getBooleanExtra(EXTRA_NAV_DIRECT_LINK, false);
 
-            CharSequence titleText = intent.getCharSequenceExtra(EXTRA_NAV_TITLE_TEXT);
-            if (titleText != null) {
-                setTitle(titleText);
-            } else {
-                int titleRes = intent.getIntExtra(EXTRA_NAV_TITLE_RES, 0);
-                if (titleRes != 0) setTitle(titleRes);
-            }
-
             if (directLink) {
                 navigateDirectLink(tabId, destId, args);
             } else if (destId != 0) {
@@ -550,11 +541,31 @@ public class MainActivity extends FullActivity {
             selectTab(tabId, false);
             return;
         }
+        if (tabId == R.id.nav_settings && settingsFragmentClassFor(destId) != null
+                && getResources().getBoolean(R.bool.settings_two_pane)) {
+            navigateSettingsPane(destId, args);
+            return;
+        }
         if (tabId != currentNavSectionId) {
             directLinkReturnStack.push(new DirectLink(currentNavSectionId, tabId, destId));
         }
         switchToTab(tabId);
         navigateOnTop(tabId, destId, args);
+    }
+
+    /** Two-pane settings (wide windows): a settings direct link opens that category in the pane
+     * next to the list instead of a full-width page on top. The return link points at the list
+     * itself, so back still dismisses it and returns to the origin tab. */
+    private void navigateSettingsPane(int destId, @Nullable Bundle args) {
+        if (R.id.nav_settings != currentNavSectionId) {
+            directLinkReturnStack.push(new DirectLink(currentNavSectionId, R.id.nav_settings,
+                    R.id.settingsCategoryListFragment));
+        }
+        switchToTab(R.id.nav_settings);
+        NavHostFragment host = getTabHost(R.id.nav_settings);
+        if (host != null)
+            host.getNavController().popBackStack(R.id.settingsCategoryListFragment, false);
+        new ViewModelProvider(this).get(SettingsPaneViewModel.class).show(destId, args);
     }
 
     /** Removes a direct-linked screen from its tab once the user backs out of it. Normally that's a
@@ -637,7 +648,9 @@ public class MainActivity extends FullActivity {
     // ============================================================================
     // Settings: preserves the old SettingsHostActivity.start(...) public API exactly (same 3
     // overloads, same signatures) so none of its ~9 external callers need to change beyond the
-    // class name they call it on.
+    // class name they call it on. The activityTitle* parameters are now ignored: the shared
+    // toolbar only shows on the Library root, so setting the activity title just left e.g.
+    // "Radio Settings" on the Library toolbar afterwards; settings screens show their own title.
     // ============================================================================
 
     public static void startSettings(Context ctx, Class<? extends Fragment> fragmentClass,
@@ -672,11 +685,6 @@ public class MainActivity extends FullActivity {
         i.putExtra(EXTRA_NAV_DEST_ID, destId);
         i.putExtra(EXTRA_NAV_ARGS, args);
         i.putExtra(EXTRA_NAV_DIRECT_LINK, true);
-        if (activityTitleText != null) {
-            i.putExtra(EXTRA_NAV_TITLE_TEXT, activityTitleText);
-        } else if (activityTitleRes != 0) {
-            i.putExtra(EXTRA_NAV_TITLE_RES, activityTitleRes);
-        }
         ctx.startActivity(i);
     }
 

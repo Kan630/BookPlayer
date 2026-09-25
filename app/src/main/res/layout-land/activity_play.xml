@@ -327,9 +327,9 @@
             android:id="@+id/ibPlayPause"
             style="@style/PlayActivityActionButtons"
             android:contentDescription="@string/Play"
+            android:text="@string/Play"
+            android:textColor="@android:color/transparent"
             app:icon="@drawable/ic_hourglass_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
             android:layout_marginHorizontal="6dp"
             />
 
