@@ -69,7 +69,8 @@ public abstract class FullActivity extends BaseActivity {
         // - side insets (sys.left/right) always, to handle landscape nav bar on the side
         //   (phone: nav bar moves to the right edge, hiding the close button without this)
         // - bottom inset when:
-        //     a) landscape layout: bottomNav is a NavigationRailView (on the left), so it does
+        //     a) rail layout (landscape or width >= 600dp, see activity_app_nav_rail): bottomNav
+        //        is a NavigationRailView (on the left), so it does
         //        NOT absorb sys.bottom — miniNowPlaying is constrained bottom_toBottomOf=parent
         //        and must apply sys.bottom itself.
         //     b) portrait layout: bottomNav (BottomNavigationView) is hidden by the user option,
@@ -82,7 +83,7 @@ public abstract class FullActivity extends BaseActivity {
             final int initTop    = miniNowPlaying.getPaddingTop();
             final int initRight  = miniNowPlaying.getPaddingRight();
             final int initBottom = miniNowPlaying.getPaddingBottom();
-            // NavigationRailView (landscape) sits on the left — it does not absorb sys.bottom
+            // NavigationRailView (landscape / wide windows) sits on the left — it does not absorb sys.bottom
             final boolean isNavRail   = appNavBarView instanceof NavigationRailView;
             final boolean applyBottom = isNavRail || !displayAppNavBar();
 
