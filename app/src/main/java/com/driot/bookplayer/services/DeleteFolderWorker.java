@@ -49,7 +49,12 @@ public class DeleteFolderWorker extends LoggingWorker {
             AppDatabase db = AppDatabase.getDatabase(appCtx);
 
             String folderPath = db.zikFileDao().getFolderPath((int) folderId);
-            if (!eraseFolderAndFiles(appCtx, folderPath)) {
+            long sharing = folderPath == null ? 0 : db.folderDao().countOtherFoldersWithPath(folderPath, folderId);
+            if (sharing > 0) {
+                // A duplicate import could store two books in one folder: erasing it would take the
+                // other book's files too - only drop this book's rows.
+                myLogW(sharing + " other book(s) use [" + folderPath + "] - keeping the files on disk");
+            } else if (!eraseFolderAndFiles(appCtx, folderPath)) {
                 myLogEE(null, "Disk delete error");
             } else {
                 myLogD("Disk delete done");

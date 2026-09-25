@@ -30,11 +30,17 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder WHERE timeListened > 0 ORDER BY timeListened DESC")
     List<Folder> getAllByTimeListenedDesc();
 
-    @Query("SELECT COUNT(id) FROM Folder WHERE name LIKE :sFolderName")
+    // Exact matches, not LIKE: "_" and "%" are common in file names and would act as wildcards
+    // (e.g. "FrostTonight_librivox" matching any character in place of the "_").
+    @Query("SELECT COUNT(id) FROM Folder WHERE name = :sFolderName COLLATE NOCASE")
     long folderAlreadyExist_checkFolderName(String sFolderName);
 
-    @Query("SELECT COUNT(id) FROM Folder WHERE path LIKE :sFolderPath")
+    @Query("SELECT COUNT(id) FROM Folder WHERE path = :sFolderPath")
     long folderAlreadyExist_checkFolderPath(String sFolderPath);
+
+    /** Other books stored in the same folder - their files must survive deleting this one. */
+    @Query("SELECT COUNT(id) FROM Folder WHERE path = :path AND id != :exceptFolderId")
+    long countOtherFoldersWithPath(String path, long exceptFolderId);
 
     @Query("SELECT path FROM Folder WHERE id =:folderId")
     long getFolderPath(long folderId);
@@ -77,10 +83,10 @@ public interface FolderDao {
     @Query("UPDATE Folder SET hash = :hash WHERE id = :folderId")
     void updateHash(long folderId, String hash);
 
-    @Query("SELECT name FROM Folder WHERE originalHash LIKE :originalHash")
+    @Query("SELECT name FROM Folder WHERE originalHash = :originalHash LIMIT 1")
     String originalHashAlreadyExist_getBookName(String originalHash);
 
-    @Query("SELECT name FROM Folder WHERE path LIKE :sFolderPath")
+    @Query("SELECT name FROM Folder WHERE path = :sFolderPath LIMIT 1")
     String folderAlreadyExist_checkFolderPath_getBookName(String sFolderPath);
 
     @Query("SELECT * FROM Folder WHERE name LIKE :name")

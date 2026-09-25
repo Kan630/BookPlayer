@@ -605,7 +605,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                 // Only ever delete from disk what we actually own (a real filesystem copy under
                 // internal storage) - never a source folder the user merely linked in place (see
                 // the same guard in ImportHelper.cleanUp() / DeleteFolderWorker).
-                if (folderPath != null && StorageHelper.isInInternalMemory(folderPath)) {
+                // Nor a folder another book also points to (their files would go with it).
+                if (folderPath != null && StorageHelper.isInInternalMemory(folderPath)
+                        && db.folderDao().countOtherFoldersWithPath(folderPath, createdNewFolderId) == 0) {
                     try {
                         FileHelper.deleteFolderRecursive(folderPath);
                     } catch (Exception e) {
@@ -643,6 +645,17 @@ public class FinalParseFolderWorker extends ImportWorker {
             myLog("saving in existing folder : " + importJob.addToExistingFolderId);
             saveFiles(importJob.addToExistingFolderId);
         } else {
+            // Last line of defence: never save a second book on a folder another book already
+            // uses (BookLoadingWorkLauncher.ensureUniqueDestination() should have prevented it) -
+            // both would then play, and on delete erase, the same files.
+            Folder existing = AppDatabase.getDatabase(context).folderDao().getFolderByPath(importJob.futureFolderPath);
+            if (existing != null) {
+                String dev = "folder path already used by book id=" + existing.getId() + " : "
+                        + importJob.futureFolderPath;
+                String user = context.getString(R.string.error_media_already_loaded_samePath) + existing.getName();
+                emitFailed(TASK_NAME, dev, user);
+                throw new ImportAbortException(TASK_NAME, dev, user);
+            }
             myLogD("creating folder");
             Folder folder = new Folder();
             folder.setName(importJob.title);

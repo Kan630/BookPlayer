@@ -86,7 +86,6 @@ public class ImportBookSingleActivity extends FullActivity {
 
     private String audioBookTitle; // name can be changed... so keep as separate var
 
-    private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
     private boolean storageWarningShown = false;
@@ -154,6 +153,9 @@ public class ImportBookSingleActivity extends FullActivity {
     private LinearLayout llNewBookIdentity;
     private boolean titleManuallyEdited = false;
     private boolean programmaticTitleUpdate = false;
+    // Set once the duplicate-name check has added a date to the title - the candidate is posted
+    // twice (fast then heavy init) and the second post must not put the plain name back.
+    private boolean titleDateSuffixed = false;
     // Set once the user explicitly picks a cover via the popup menu (candidate/upload/generate).
     // Overrides the auto-detected coverCandidates.get(0) - and, unlike the plain auto-detected
     // cover, is real enough to persist even if it came from an in-memory-only source like the
@@ -321,7 +323,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 targetPlaybackFileName = bookCandidate.originalFile;
             }
 
-            if (!titleManuallyEdited) {
+            if (!titleManuallyEdited && !titleDateSuffixed) {
                 audioBookTitle = bookCandidate.audioBookName;
                 programmaticTitleUpdate = true;
                 etBookTitle.setText(audioBookTitle);
@@ -382,11 +384,6 @@ public class ImportBookSingleActivity extends FullActivity {
 
             displayAppendWarning();
             buildDestinationFolderSpinner();
-
-            // Observe originalHash from ViewModel
-            viewModel.getOriginalHash().observe(this, hash -> {
-                originalHash = hash;
-            });
 
             // Observe loading state
             viewModel.getIsLoading().observe(this, isLoading -> {
@@ -564,6 +561,12 @@ public class ImportBookSingleActivity extends FullActivity {
                     String finalFutureFolderPath;
 
                     if (folderToAddTo == null) {
+                        // Authoritative name check: the title may have been edited after the
+                        // screen's own check.
+                        if (ImportValidator.checkNameExists(ImportBookSingleActivity.this, audioBookTitle)) {
+                            audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
+                            myLogW("book name already in DB at confirm time - changed to [" + audioBookTitle + "]");
+                        }
                         String futureFolderPath;
                         long lCheck;
                         if (!isCopySelected()) {
@@ -578,18 +581,21 @@ public class ImportBookSingleActivity extends FullActivity {
                                     futureFolderPath);
                             lCheck = existingPath != null ? 1 : 0;
                         }
-                        finalFutureFolderPath = futureFolderPath;
-                        // btnConfirm.setEnabled(true);
                         if (lCheck > 0) {
-                            futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
                             myLogW("folder path does already exist in DB (internal copy case) : ["
-                                    + finalFutureFolderPath
-                                    + "]");
-                            myLog("filesystem folder name changed to [" + futureFolderName + "]");
+                                    + futureFolderPath + "]");
+                            futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
+                            // The path must move with the name - it used to stay on the existing
+                            // book's folder, so the workers extracted into it and a second book
+                            // got saved on the same path.
+                            futureFolderPath = getUnzipFolder(this, isSdCardSelected()).getAbsolutePath() + "/"
+                                    + futureFolderName;
+                            myLog("filesystem folder changed to [" + futureFolderPath + "]");
                         } else {
                             futureFolderName = audioBookTitle;
                             myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
                         }
+                        finalFutureFolderPath = futureFolderPath;
                     } else {
                         myLogD("adding to existing book => overwriting folder values");
                         audioBookTitle = folderToAddTo.getName();
@@ -620,7 +626,10 @@ public class ImportBookSingleActivity extends FullActivity {
                     // no clean "jump to playback" target - leave it unset there.
                     state.targetPlaybackFileName = (folderToAddTo == null) ? targetPlaybackFileName : null;
                     state.originalFile = bookCandidate.originalFile;
-                    state.originalHash = originalHash;
+                    // The hash the duplicate check used - saved so a later import of the same
+                    // file is caught (it wasn't saved at all from 2026-02-14 to 2026-09-25).
+                    state.originalHash = HASH_NOT_COMPUTED.equals(bookCandidate.originalHash) ? null
+                            : bookCandidate.originalHash;
                     state.sourceLocation = bookCandidate.sourceLocation;
                     state.fileExtension = bookCandidate.fileExtension;
                     state.mimeType = bookCandidate.mimeType;
@@ -1082,8 +1091,9 @@ public class ImportBookSingleActivity extends FullActivity {
             stopAndDisableEverything();
             return;
         }
-        checkPathDoesNotAlreadyExist();
-        checkNameDoesNotAlreadyExist();
+        // Name first: the path check is what enables Confirm, so it must not be possible to
+        // confirm before a duplicate name got its date suffix.
+        checkNameDoesNotAlreadyExist(this::checkPathDoesNotAlreadyExist);
     }
 
     private void checkPathDoesNotAlreadyExist() {
@@ -1113,7 +1123,7 @@ public class ImportBookSingleActivity extends FullActivity {
         }
     }
 
-    private void checkNameDoesNotAlreadyExist() {
+    private void checkNameDoesNotAlreadyExist(Runnable then) {
         myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
         new Thread(() -> {
             boolean nameExists = ImportValidator.checkNameExists(ImportBookSingleActivity.this, audioBookTitle);
@@ -1121,6 +1131,10 @@ public class ImportBookSingleActivity extends FullActivity {
                 if (nameExists) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                     audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
+                    titleDateSuffixed = true;
+                    programmaticTitleUpdate = true;
+                    etBookTitle.setText(audioBookTitle);
+                    programmaticTitleUpdate = false;
                     String strText;
                     if (boolAlso) {
                         strText = getString(R.string.Also);
@@ -1133,6 +1147,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 } else {
                     myLogD("OK, folder name doesn't already exist in DB");
                 }
+                then.run();
             });
         }).start();
     }

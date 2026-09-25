@@ -25,7 +25,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
 
     private final MutableLiveData<BookCandidate> bookCandidate = new MutableLiveData<>();
-    private final MutableLiveData<String> originalHash = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(true);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
@@ -192,29 +191,8 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
         return loadingStatus;
     }
 
-    /**
-     * Compute hash for the given URI in background thread.
-     * Result will be posted to originalHash LiveData.
-     */
-    public void computeHash(Uri uri) {
-        executorService.execute(() -> {
-            try {
-                String hash = com.driot.bookplayer.utils.HashWorker.computeHashFromUri(getApplication(), uri);
-                originalHash.postValue(hash);
-                myLogD("Hash computed: " + hash);
-            } catch (Exception e) {
-                myLogEE(e, "Error computing hash");
-                originalHash.postValue(null);
-            }
-        });
-    }
-
     public LiveData<BookCandidate> getBookCandidate() {
         return bookCandidate;
-    }
-
-    public LiveData<String> getOriginalHash() {
-        return originalHash;
     }
 
     public LiveData<Boolean> getIsLoading() {

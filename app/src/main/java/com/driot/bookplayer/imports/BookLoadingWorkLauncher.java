@@ -16,6 +16,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -27,9 +28,11 @@ import com.driot.bookplayer.services.EbookSplitWorker;
 import com.driot.bookplayer.services.FinalParseFolderWorker;
 import com.driot.bookplayer.services.M4bSplitWorker;
 import com.driot.bookplayer.services.UncompressWorker;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +47,8 @@ public class BookLoadingWorkLauncher {
         if (s == null)
             throw new IllegalStateException("No task bookState found for BookLoadingWorkLauncher");
         AppDatabase.databaseWriteExecutor.execute(() -> {
+            if (s.addToExistingFolderId <= 0)
+                ensureUniqueDestination(ctx, s);
             String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();
 
             boolean doDownload = false;
@@ -376,6 +381,35 @@ public class BookLoadingWorkLauncher {
     // observed hanging this exact constraint forever on a device with ~5.9GB free, leaving the
     // whole import work chain permanently BLOCKED with no error surfaced). DownloadWorker does
     // its own app-controlled free-space check instead - see Var.MIN_FREE_STORAGE_MB_FOR_DOWNLOAD.
+    /**
+     * A new book must never share its folder with another one: the copy/unzip/split workers would
+     * write into that book's files, and deleting either book would then wipe both. The import
+     * screens try to prevent it themselves; this is the one place every entry point goes through
+     * (single, mass, LibriVox, ebooks, rescan), so it's also the safety net for all of them. Only
+     * for folders the app creates itself (plain paths) - a linked source (content:// uri) is left
+     * to the screens' own check and to FinalParseFolderWorker's.
+     */
+    private static void ensureUniqueDestination(Context ctx, ImportBookTaskState s) {
+        String path = s.futureFolderPath;
+        if (path == null || !path.startsWith("/"))
+            return;
+        FolderDao dao = AppDatabase.getDatabase(ctx).folderDao();
+        File wanted = new File(path);
+        File candidate = wanted;
+        String suffix = " " + Tonio.getCurrentDateTimeString();
+        for (int i = 2; dao.getFolderByPath(candidate.getAbsolutePath()) != null || candidate.exists(); i++) {
+            candidate = new File(wanted.getParentFile(), wanted.getName() + suffix + (i > 2 ? " " + (i - 1) : ""));
+        }
+        if (candidate == wanted)
+            return;
+        myLogW("destination already used by another book or on disk: [" + path + "] -> [" + candidate + "]");
+        if (wanted.getName().equals(s.futureFolderName))
+            s.futureFolderName = candidate.getName();
+        if (wanted.getName().equals(s.title)) // same date-suffix rule as the single import screen
+            s.title = candidate.getName();
+        s.futureFolderPath = candidate.getAbsolutePath();
+    }
+
     private static Constraints buildDownloadConstraints() {
         NetworkHelper.NetworkPolicyManual policy = Option.getNetworkPolicyManualDownload();
         return switch (policy) {
