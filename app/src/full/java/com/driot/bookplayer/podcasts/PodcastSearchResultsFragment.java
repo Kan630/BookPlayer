@@ -66,6 +66,13 @@ public class PodcastSearchResultsFragment extends LoggingFragment {
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(requireContext(), span);
+        // Position 0 is the adapter's header (title + result count): full width on multi-column grids.
+        glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == 0 ? span : 1;
+            }
+        });
         recyclerView.setLayoutManager(glm);
         recyclerView
                 .addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(requireContext(), Var.GRID_LAYOUT_SPACER)));
