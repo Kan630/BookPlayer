@@ -95,6 +95,12 @@ public interface PodcastDao {
     @Query("UPDATE Podcast SET image = :imagePath WHERE idFolder = :folderId")
     void updateImageForFolderId(long folderId, String imagePath);
 
+    @Query("UPDATE Podcast SET image = :newPath WHERE image = :oldPath")
+    int replaceImagePath(String oldPath, String newPath);
+
+    @Query("SELECT * FROM Podcast WHERE image IS NOT NULL AND image != '' AND image NOT LIKE 'http%'")
+    List<Podcast> getAllWithLocalImages();
+
     @Query("UPDATE Podcast SET episodeCoverStatus = :status WHERE feedId = :feedId")
     void updateEpisodeCoverStatus(long feedId, int status);
 

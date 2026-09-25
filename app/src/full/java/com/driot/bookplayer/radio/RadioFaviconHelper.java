@@ -52,10 +52,75 @@ public class RadioFaviconHelper {
     private static final int FAVICON_SMALL_THRESHOLD_PX = 64;
     private static final int FAVICON_SMALL_BOX_PX = 64; // inner box size inside the 256×256 canvas
 
+    /**
+     * The one cover every screen should show for a station (lists, station page, mini-player,
+     * notification, Android Auto), in this priority order:
+     *   1. s.favicon when it is a local file that exists (persisted by resolveAndPersistFavicon /
+     *      RadioHelper.handleRadioImages - the station's "official" cover)
+     *   2. the list disk cache (cached_images/radio_cover_uuid.jpg, may come from the resolver chain)
+     *   3. s.favicon as-is (remote URL), or null
+     * loadRadioFavicon() follows the same order, then falls back to the resolver chain.
+     * Does file I/O: fine on main thread for a single station, prefer background for lists.
+     */
+    @androidx.annotation.Nullable
+    public static String effectiveCover(Context context, RadioStation s) {
+        if (s == null)
+            return null;
+        String local = existingLocalFavicon(s);
+        if (local != null)
+            return local;
+        File diskFile = cachedCoverFile(context, s.stationuuid);
+        if (diskFile.exists() && diskFile.length() > 0)
+            return diskFile.getAbsolutePath();
+        return (!TextUtils.isEmpty(s.favicon) && !"null".equals(s.favicon)) ? s.favicon : null;
+    }
+
+    @androidx.annotation.Nullable
+    private static String existingLocalFavicon(RadioStation s) {
+        if (TextUtils.isEmpty(s.favicon) || s.favicon.startsWith("http") || "null".equals(s.favicon))
+            return null;
+        File f = new File(s.favicon);
+        return (f.exists() && f.length() > 0) ? f.getAbsolutePath() : null;
+    }
+
+    /**
+     * The station's declared favicon changed: drop every cover file we made for it so all screens
+     * re-download the new one instead of showing the old file. Call off the main thread.
+     */
+    public static void forgetPersistedCover(Context context, RadioStation s) {
+        File images = StorageHelper.getImageFolder(context, false);
+        File[] files = {
+                cachedCoverFile(context, s.stationuuid),
+                new File(images, "radio_cover_" + s.stationuuid + ".jpg"),
+                !TextUtils.isEmpty(s.favicon) && !s.favicon.startsWith("http") ? new File(s.favicon) : null };
+        for (File f : files) {
+            // only delete files inside our own image folders
+            if (f != null && f.exists() && f.getParentFile() != null
+                    && (f.getParentFile().equals(images)
+                        || f.getParentFile().equals(StorageHelper.getImageFolder(context, true)))) {
+                if (!f.delete())
+                    myLogW("forgetPersistedCover: could not delete " + f);
+            }
+        }
+    }
+
+    private static File cachedCoverFile(Context context, String uuid) {
+        return new File(StorageHelper.getImageFolder(context, true), "radio_cover_" + uuid + ".jpg");
+    }
+
     public static void loadRadioFavicon(RadioStation s, ImageView favicon, int replacementResource,
                                         Map<String, String> faviconCache) {
         favicon.setTag(s.stationuuid);
         Context context = favicon.getContext().getApplicationContext();
+
+        // Step 0 — persisted local cover wins (same as effectiveCover(), so every screen agrees)
+        String local = existingLocalFavicon(s);
+        if (local != null) {
+            myLogDD("step 0/db-local: [" + s.name + "] => " + local);
+            faviconCache.put(s.stationuuid, local);
+            GlideLoader.load(favicon, local, replacementResource);
+            return;
+        }
 
         // Step 1 — memory cache hit
         if (faviconCache.containsKey(s.stationuuid)) {
@@ -70,8 +135,7 @@ public class RadioFaviconHelper {
         }
 
         // Step 1b — disk cache hit: load local file immediately, no network needed
-        File diskFile = new File(StorageHelper.getImageFolder(context, true),
-                "radio_cover_" + s.stationuuid + ".jpg");
+        File diskFile = cachedCoverFile(context, s.stationuuid);
         if (diskFile.exists() && diskFile.length() > 0) {
             String localPath = diskFile.getAbsolutePath();
             myLogDD("step 1b/disk-cache: [" + s.name + "] hit => " + diskFile.getName());
@@ -178,6 +242,12 @@ public class RadioFaviconHelper {
 
                 if (outFile.exists() && outFile.length() > 0) {
                     myLogDD("step D/skip: [" + stationName + "] already on disk: " + outFile.getName());
+                    if (!isCached) {
+                        // DB may still hold the remote URL (e.g. reset by an API refresh): point it back
+                        AppDatabase.getDatabase(context)
+                                .radioStationDao()
+                                .updateFavicon(uuid, outFile.getAbsolutePath());
+                    }
                     return;
                 }
 

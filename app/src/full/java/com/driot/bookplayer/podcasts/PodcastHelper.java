@@ -603,7 +603,44 @@ public class PodcastHelper {
         return null;
     }
 
+    // A Folder cover file was moved (cached_images -> images, see ImageHelper.processPendingImages()).
+    // A podcast's folder shares its cover file with the Podcast row (PodcastSyncWorker), so follow it.
+    public static void onImageFileMoved(Context context, String oldPath, String newPath) {
+        int n = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().replaceImagePath(oldPath, newPath);
+        if (n > 0)
+            myLogD("onImageFileMoved: " + n + " podcast image path(s) updated => " + newPath);
+    }
+
+    // Podcast rows whose local cover file is gone (moved without updating the row, cleaned, restored
+    // from another device...): point them at the moved file if any, else back to the original URL
+    // so they get re-cached below. Call off the main thread.
+    private static void healMissingPodcastImages(Context context) {
+        PodcastDao dao = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao();
+        for (Podcast podcast : dao.getAllWithLocalImages()) {
+            File f = new File(podcast.image);
+            if (f.exists() && f.length() > 0)
+                continue;
+            File moved = new File(com.driot.bookplayer.helpers.StorageHelper.getImageFolder(context, false), f.getName());
+            if (moved.exists() && moved.length() > 0) {
+                myLogW("healMissingPodcastImages: [" + podcast.title + "] => " + moved.getAbsolutePath());
+                podcast.image = moved.getAbsolutePath();
+            } else if (podcast.imageOriginalUrl != null && podcast.imageOriginalUrl.startsWith("http")) {
+                myLogW("healMissingPodcastImages: [" + podcast.title + "] => back to " + podcast.imageOriginalUrl);
+                podcast.image = podcast.imageOriginalUrl;
+                podcast.date_maj = 0; // re-cache on this pass
+            } else {
+                continue;
+            }
+            dao.update(podcast);
+        }
+    }
+
     public static void handlePodcastImages(Context context, long currentTime) {
+        try {
+            healMissingPodcastImages(context);
+        } catch (Exception e) {
+            myLogEE(e, "healMissingPodcastImages");
+        }
         if (NetworkHelper.hasInternet(context)) {
             AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
             List<Podcast> pendingPodcasts = db.podcastDao()

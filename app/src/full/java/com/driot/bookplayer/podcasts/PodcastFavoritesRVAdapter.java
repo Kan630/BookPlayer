@@ -147,7 +147,10 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             desc.setVisibility(View.GONE);
             //Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image)).into(image);
             KanLogger.myLog(podcast.image);
-            Glide.with(image.getContext()).load(podcast.image).into(image);
+            // podcast.image is usually a locally cached file: if it's gone, fall back to the feed URL
+            Glide.with(image.getContext()).load(podcast.image)
+                    .error(Glide.with(image.getContext()).load(podcast.imageOriginalUrl))
+                    .into(image);
 
             // Read-only indicator, not a button: no click listener, so a tap on it falls through
             // to itemView's own click (same as tapping anywhere else on the card).

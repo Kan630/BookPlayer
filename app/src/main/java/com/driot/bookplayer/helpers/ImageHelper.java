@@ -153,6 +153,7 @@ public class ImageHelper {
                         try {
                             db.folderDao().updateImage(f.getId(), moved);
                             myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
+                            PodcastHelper.onImageFileMoved(context, path, moved);
                         } catch (Exception e) {
                             myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
                         }

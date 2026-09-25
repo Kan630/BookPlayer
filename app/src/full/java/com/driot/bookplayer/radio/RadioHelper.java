@@ -53,18 +53,11 @@ public class RadioHelper {
 					.getAllWithExternalImagesUnchangedSince24h(currentTime);
 			for (RadioStation radioStation : radioStations) {
 				myLog("caching favicon for: " + radioStation.name);
-				String url = radioStation.favicon;
-				String imagePath = ImageHelper.IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
-				String localPath = ImageHelper.downloadAndVerifyImage(context, url, imagePath, false);
-
-				if (localPath != null) {
-					myLogD("Radio favicon downloaded for " + url);
-					radioStation.favicon = localPath;
-				} else {
-					myLogW("Radio favicon download failed or invalid for: " + url);
-				}
 				radioStation.date_maj = System.currentTimeMillis();
 				db.radioStationDao().update(radioStation);
+				// Same pipeline as the lists/station page: images/radio_cover_<uuid>.jpg, DB favicon
+				// updated when saved (after the row write above, so it can't be overwritten)
+				RadioFaviconHelper.resolveAndPersistFavicon(context, radioStation);
 			}
 		}
 	}
@@ -171,7 +164,7 @@ public class RadioHelper {
 		if (rs.id <= 0)
 			myLogE("null radio ID");
 		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
-				rs.id, rs.name, rs.favicon, caller);
+				rs.id, rs.name, RadioFaviconHelper.effectiveCover(context, rs), caller);
 		updatePlayed(context, rs);
 	}
 
@@ -197,42 +190,19 @@ public class RadioHelper {
 			dbStation.bitrate = apiStation.bitrate;
 			dbStation.hls = apiStation.hls;
 
-			// Protect local favicon with deep comparison
-			boolean isLocalFavicon = dbStation.favicon != null && !dbStation.favicon.startsWith("http");
+			// Keep the persisted local cover unless the station's declared favicon URL really changed.
+			// (Comparing bytes can't work: the local file is re-encoded by RadioFaviconHelper, so
+			// hashes never matched and the station flip-flopped between local file and remote URL.)
+			boolean isLocalFavicon = dbStation.favicon != null && !dbStation.favicon.isEmpty()
+					&& !dbStation.favicon.startsWith("http");
+			boolean apiHasFavicon = apiStation.favicon != null && apiStation.favicon.startsWith("http");
 			if (isLocalFavicon) {
-				if (apiStation.favicon != null && !apiStation.favicon.isEmpty()) {
-					byte[] remoteBytes = com.driot.bookplayer.helpers.NetworkHelper
-							.fetchBytesWithHttpsFallbackForImage(apiStation.favicon);
-					if (remoteBytes != null) {
-						byte[] localBytes = null;
-						try {
-							java.io.File localFile = new java.io.File(dbStation.favicon);
-							if (localFile.exists()) {
-								java.io.InputStream in = new java.io.FileInputStream(localFile);
-								java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-								byte[] buf = new byte[8192];
-								int n;
-								while ((n = in.read(buf)) != -1) {
-									out.write(buf, 0, n);
-								}
-								in.close();
-								localBytes = out.toByteArray();
-							}
-						} catch (Exception e) {
-							myLogW("Failed to read local favicon for comparison: " + e);
-						}
-
-						if (localBytes != null) {
-							String remoteHash = com.driot.bookplayer.helpers.ImageHelper.shortHash(remoteBytes);
-							String localHash = com.driot.bookplayer.helpers.ImageHelper.shortHash(localBytes);
-							if (!remoteHash.equals(localHash)) {
-								myLogW("Favicon changed (content diff), updating to remote: " + apiStation.favicon);
-								dbStation.favicon = apiStation.favicon;
-							}
-						} else {
-							dbStation.favicon = apiStation.favicon;
-						}
-					}
+				boolean urlChanged = apiHasFavicon && dbStation.imageOriginalUrl != null
+						&& !apiStation.favicon.equals(dbStation.imageOriginalUrl);
+				if (urlChanged) {
+					myLogW("Favicon URL changed for " + dbStation.name + ", re-downloading: " + apiStation.favicon);
+					RadioFaviconHelper.forgetPersistedCover(context, dbStation);
+					dbStation.favicon = apiStation.favicon;
 				}
 			} else {
 				dbStation.favicon = apiStation.favicon;
@@ -273,7 +243,7 @@ public class RadioHelper {
 		RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
 		if (rs != null) {
 			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url,
-					rs.id, rs.name, rs.favicon, null);
+					rs.id, rs.name, RadioFaviconHelper.effectiveCover(context, rs), null);
 			return true;
 		} else {
 			return false;
@@ -315,7 +285,7 @@ public class RadioHelper {
 					+ radioLink;
 			String sharedMessageHead = appCtx.getString(R.string.share_radio_head);
 
-			Uri imageUri = ShareHelper.resolveShareImageUri(appCtx, rs.favicon, "share_radio_" + rs.stationuuid + ".jpg");
+			Uri imageUri = ShareHelper.resolveShareImageUri(appCtx, RadioFaviconHelper.effectiveCover(appCtx, rs), "share_radio_" + rs.stationuuid + ".jpg");
 
 			ShareHelper.shareContent(context, sharedMessageBody, sharedMessageHead, imageUri);
 		});
@@ -339,12 +309,13 @@ public class RadioHelper {
 					.setSubtitle(rs.tags);
 
 			// Icon
-			if (rs.favicon != null) {
-				Bitmap icon = MediaService.iconCache.get(rs.favicon);
+			String cover = RadioFaviconHelper.effectiveCover(context, rs);
+			if (cover != null) {
+				Bitmap icon = MediaService.iconCache.get(cover);
 				if (icon == null) {
-					icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), rs.favicon, 158);
+					icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), cover, 158);
 					if (icon != null)
-						MediaService.iconCache.put(rs.favicon, icon);
+						MediaService.iconCache.put(cover, icon);
 				}
 				if (icon != null)
 					b.setIconBitmap(icon);

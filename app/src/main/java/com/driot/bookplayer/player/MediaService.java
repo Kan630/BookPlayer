@@ -1087,7 +1087,21 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         showForegroundNotification(isPlaying());
     }
 
+    // Runs r now if already on main thread, otherwise posts it. ExoPlayer (engine) is main-thread only,
+    // and several paths (next/prev track, loadAndPlayTrack failures) start on DB executors.
+    private void runOnMain(Runnable r) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            r.run();
+        } else {
+            main.post(r);
+        }
+    }
+
     private void alertNewTrack() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            main.post(this::alertNewTrack);
+            return;
+        }
         myLog("alertNewTrack()");
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
@@ -2139,10 +2153,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void loadFileKO(String strFilePathError) {
         myLogE("loadFileKO");
-        FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError, getPlayMode());
-        ErrorLoadingFile = true;
-        ErrorUi.showPlayAudioErrorMessage(this, null, strFilePathError);
-        shutdown(false);
+        runOnMain(() -> {
+            FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError, getPlayMode());
+            ErrorLoadingFile = true;
+            ErrorUi.showPlayAudioErrorMessage(this, null, strFilePathError);
+            shutdown(false); // releases the engine: must be on main thread
+        });
     }
 
     private void onEnginePrepared(long gen) {

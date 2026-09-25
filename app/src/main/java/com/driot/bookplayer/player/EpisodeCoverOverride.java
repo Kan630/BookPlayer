@@ -1,6 +1,8 @@
 package com.driot.bookplayer.player;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -21,6 +23,7 @@ public class EpisodeCoverOverride {
 
     private final Context appContext;
     private final Listener listener;
+    private final Handler main = new Handler(Looper.getMainLooper());
 
     private volatile String override = null;
 
@@ -42,15 +45,18 @@ public class EpisodeCoverOverride {
             String img = PodcastHelper.getEpisodeCoverForZikFile(appContext, zikFileId);
             if (img == null)
                 return;
-            // Guard: a newer track may have already loaded while this lookup was in flight.
-            PlayList pl = PlayList.getInstance();
-            ZikFile current = (pl != null) ? pl.getZikFile() : null;
-            if (current != null && current.getId() == zikFileId) {
-                override = img;
-                if (listener != null) {
-                    listener.onCoverResolved();
+            // Back to main thread: the listener touches the player (ExoPlayer is main-thread only).
+            main.post(() -> {
+                // Guard: a newer track may have already loaded while this lookup was in flight.
+                PlayList pl = PlayList.getInstance();
+                ZikFile current = (pl != null) ? pl.getZikFile() : null;
+                if (current != null && current.getId() == zikFileId) {
+                    override = img;
+                    if (listener != null) {
+                        listener.onCoverResolved();
+                    }
                 }
-            }
+            });
         });
     }
 }

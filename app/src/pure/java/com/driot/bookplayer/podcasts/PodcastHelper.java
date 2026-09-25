@@ -94,6 +94,10 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
+    public static void onImageFileMoved(Context context, String oldPath, String newPath) {
+        // no podcasts in pure flavor
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }
