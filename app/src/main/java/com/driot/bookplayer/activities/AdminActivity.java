@@ -45,6 +45,7 @@ import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class AdminActivity extends BaseActivity {
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {
         {
-            put("Debug Database Activity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
+            put("Database export", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
             // put("Tts Read Txt Activity",
             // com.driot.bookplayer.activities.TtsReadTxtActivity.class);
         }
@@ -298,8 +299,10 @@ public class AdminActivity extends BaseActivity {
         int margin = (int) (8 * getResources().getDisplayMetrics().density);
 
         for (Map.Entry<String, Class<?>> entry : quickButtons.entrySet()) {
-            Button b = new Button(this);
+            MaterialButton b = new MaterialButton(this);
             b.setText(entry.getKey());
+            b.setIconResource(R.drawable.ic_file_save);
+            b.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,

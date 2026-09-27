@@ -62,7 +62,17 @@ public class PodcastSyncWorker extends LoggingWorker {
         // setForegroundEarly(buildForegroundInfo());
 
         // 1. Ensure folder is registered
-        Folder folderDb = folderDao.getByName(name);
+        // Look up by the podcast's own folder link, then by path, and only then by name: a name
+        // lookup alone misses a podcast folder renamed in the library, which then got a second
+        // Folder row - and every file already on disk looked "new" to the scan below.
+        Folder folderDb = null;
+        com.driot.bookplayer.db.Podcast podcastRow = podcastDao.getPodcastByFeedId(feedId);
+        if (podcastRow != null && podcastRow.idFolder != null)
+            folderDb = folderDao.getById(podcastRow.idFolder);
+        if (folderDb == null)
+            folderDb = folderDao.getFolderByPath(path);
+        if (folderDb == null)
+            folderDb = folderDao.getByName(name);
         long idFolder = -1;
         if (folderDb != null) {
             idFolder = folderDb.getId();
@@ -115,6 +125,12 @@ public class PodcastSyncWorker extends LoggingWorker {
         for (File file : files) {
             myLogD("file : [" +  file.getName() + ']');
             int idFile = zikFileDao.getId(idFolder, file.getName());
+            if (idFile < 1 && isFileReferenced(zikFileDao, folder, file)) {
+                // Already in the library under another Folder row (renamed, restored, legacy
+                // path...): it is not new, and must never be seen as a duplicate of itself.
+                myLogW("file already referenced by a ZikFile, skipping: " + file.getAbsolutePath());
+                continue;
+            }
 
             long episodeId = PodcastHelper.getEpisodeIdFromName(file.getName());
             if (episodeId < 1) {
@@ -148,7 +164,7 @@ public class PodcastSyncWorker extends LoggingWorker {
                         // check) and files that already made it to disk before this fix existed.
                         long fileSize = file.length();
                         Episode duplicate = findDuplicateByTitleAndSize(existingEpisodesForPodcast, episode.title,
-                                fileSize, zikFileDao);
+                                file, zikFileDao);
                         if (duplicate != null) {
                             myLogE("PodcastSyncWorker => SKIPPED duplicate import (title+size match with existing idEpisode="
                                     + duplicate.idEpisode + " idZikFile=" + duplicate.idZikFile + ") for file ["
@@ -235,8 +251,22 @@ public class PodcastSyncWorker extends LoggingWorker {
     // episode's file directly rather than trusting ZikFile.size, since that field may still be
     // unpopulated (0) on older rows. Requires a positive size on both sides so two episodes with
     // unknown/zero size never match on title alone.
-    private Episode findDuplicateByTitleAndSize(List<Episode> existingEpisodes, String title, long fileSize,
+    private static boolean isFileReferenced(CommonZikFileDao zikFileDao, File folder, File file) {
+        return zikFileDao.countReferencing(folder.getAbsolutePath() + "/" + file.getName(),
+                folder.getAbsolutePath(), file.getName()) > 0;
+    }
+
+    private static boolean isSameFile(File a, File b) {
+        try {
+            return a.getCanonicalPath().equals(b.getCanonicalPath());
+        } catch (Exception e) {
+            return a.getAbsolutePath().equals(b.getAbsolutePath());
+        }
+    }
+
+    private Episode findDuplicateByTitleAndSize(List<Episode> existingEpisodes, String title, File file,
             CommonZikFileDao zikFileDao) {
+        long fileSize = file.length();
         if (title == null || fileSize <= 0)
             return null;
         String normalizedTitle = title.trim();
@@ -250,7 +280,12 @@ public class PodcastSyncWorker extends LoggingWorker {
             if (existingZik == null || existingZik.getPath() == null)
                 continue;
             File existingFile = new File(existingZik.getPath());
-            if (existingFile.exists() && existingFile.length() == fileSize) {
+            if (existingFile.isDirectory() && existingZik.getName() != null) // legacy folder-path row
+                existingFile = new File(existingFile, existingZik.getName());
+            // The only copy is never a duplicate of itself - deleting it would lose the episode.
+            if (isSameFile(existingFile, file))
+                continue;
+            if (existingFile.isFile() && existingFile.length() == fileSize) {
                 return existing;
             }
         }
