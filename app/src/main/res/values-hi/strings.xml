@@ -1235,8 +1235,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="max_value_label">अधिकतम = </string>
     <string name="already_imported_under_name">इस नाम से पहले ही आयातित: </string>
     <string name="no_episode_downloaded">कोई एपिसोड डाउनलोड नहीं हुआ</string>
-    <string name="no_backup_found">❌ कोई बैकअप नहीं मिला: </string>
-    <string name="error_reading_backup">बैकअप पढ़ने में त्रुटि: </string>
     <string name="error_label_multiline">त्रुटि : \n</string>
     <string name="no_ebooks_found_search">कोई ईबुक नहीं मिली \nखोज के लिए [%1$s] \nभाषा के साथ [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">ई-बुक नहीं मिली \nशेल्फ [%1$s] \nभाषा [%2$s]</string>

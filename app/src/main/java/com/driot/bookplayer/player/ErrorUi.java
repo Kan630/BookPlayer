@@ -81,12 +81,8 @@ public class ErrorUi {
         com.driot.bookplayer.db.AppDatabase.databaseReadExecutor.execute(() -> {
             long folderId = -1;
             try {
-                // MediaService passes its whole error text ("resolvePlayableUri failed for: <path>")
-                // where a path is expected.
-                String cleanPath = zikFilePath == null ? null
-                        : zikFilePath.replaceFirst("^resolvePlayableUri failed for:\\s*", "");
-                com.driot.bookplayer.db.ZikFile zf = cleanPath == null ? null
-                        : com.driot.bookplayer.db.AppDatabase.getDatabase(app).zikFileDao().getByPath(cleanPath);
+                com.driot.bookplayer.db.ZikFile zf = zikFilePath == null ? null
+                        : com.driot.bookplayer.db.AppDatabase.getDatabase(app).zikFileDao().getByPath(zikFilePath);
                 if (zf == null) {
                     PlayList pl = PlayList.getInstance();
                     zf = pl != null ? pl.getZikFile() : null;
@@ -114,6 +110,17 @@ public class ErrorUi {
         });
     }
 
+    /** Playback could not start for a reason that is not the track's file: generic message, no
+     *  file diagnosis and no "Download again" offer (see MediaService.loadKO()). */
+    public static void showGenericPlayError(Context context) {
+        try {
+            MsgBox.alert(context, context.getString(R.string.error_reading_track),
+                    context.getString(R.string.error_generic));
+        } catch (Throwable t) {
+            myToastEE(t, context.getString(R.string.error_reading_track));
+        }
+    }
+
     public static String getErrorMessageConsideringZikFilePath(Context context, String zikFilePath) {
         String errMessage;
 
@@ -122,12 +129,9 @@ public class ErrorUi {
         myLog("playlist file exist = " + exists + " : [" + zikFilePath + "]");
 
         if (!exists) {
-            if (StorageHelper.isInInternalMemory(zikFilePath)) {
-                myLogW(Var.SHOULD_NOT_HAPPEN + " : file in app-reserved storage is unreadable [" + zikFilePath + "]");
-                errMessage = context.getString(R.string.source_not_found);
-            } else {
-                errMessage = context.getString(R.string.source_not_found_deleted);
-            }
+            // Also in app storage: the app deletes its own files there (podcast AutoDelete, book
+            // deletion), so "may have been deleted" is the likely story, not an unreadable file.
+            errMessage = context.getString(R.string.source_not_found_deleted);
         } else {
             StorageHelper.MemoryLocationType location = StorageHelper.getMemoryLocationType(context, zikFilePath);
             boolean isReserved = (location == StorageHelper.MemoryLocationType.INTERNAL_RESERVED

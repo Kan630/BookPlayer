@@ -1240,8 +1240,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="max_value_label">Max = </string>
     <string name="already_imported_under_name">Bereits importiert unter dem Namen: </string>
     <string name="no_episode_downloaded">Keine Episode heruntergeladen</string>
-    <string name="no_backup_found">❌ Kein Backup gefunden in: </string>
-    <string name="error_reading_backup">Fehler beim Lesen des Backups: </string>
     <string name="error_label_multiline">Fehler : \n</string>
     <string name="no_ebooks_found_search">Keine E-Books gefunden \nfür Suche [%1$s] \nmit Sprache [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Keine E-Books gefunden \nfür Bücherregal [%1$s] \nmit Sprache [%2$s]</string>

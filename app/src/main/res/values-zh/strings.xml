@@ -1237,8 +1237,6 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="max_value_label">最大值 = </string>
     <string name="already_imported_under_name">已以此名称导入： </string>
     <string name="no_episode_downloaded">未下载剧集</string>
-    <string name="no_backup_found">❌ 在以下位置未找到备份： </string>
-    <string name="error_reading_backup">读取备份时出错： </string>
     <string name="error_label_multiline">错误：\n</string>
     <string name="no_ebooks_found_search">未找到电子书 \n搜索 [%1$s] \n语言 [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">未找到电子书 \n书架 [%1$s] \n语言 [%2$s]</string>

@@ -1239,8 +1239,6 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="max_value_label">Max = </string>
     <string name="already_imported_under_name">Già importato con il nome: </string>
     <string name="no_episode_downloaded">Nessun episodio scaricato</string>
-    <string name="no_backup_found">❌ Nessun backup trovato in: </string>
-    <string name="error_reading_backup">Errore lettura backup: </string>
     <string name="error_label_multiline">Errore : \n</string>
     <string name="no_ebooks_found_search">Nessun ebook trovato \nper la ricerca [%1$s] \ncon lingua [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Nessun ebook trovato \nper scaffale [%1$s] \ncon lingua [%2$s]</string>

@@ -939,7 +939,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
             alertError("nextTrack", "nextTrack : error getting playlist");
-            loadFileKO(null);
+            loadKO("nextTrack: no playlist");
             return;
         }
         final ZikFile nextZikFile = pl.nextTrack();
@@ -1041,7 +1041,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
             alertError("previousTrack", "previousTrack : error getting playlist");
-            loadFileKO(null);
+            loadKO("previousTrack: no playlist");
             return;
         }
         final ZikFile prevZikFile = pl.previousTrack();
@@ -1852,7 +1852,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (!showForegroundNotification(isPlaying())) {
             myLogEE(null, "loadFile: failed to show foreground notification (FGS restriction?), aborting load.");
             setUiPhase(Intents.PHASE_ERROR, "Background start restricted");
-            loadFileKO(zf.getPath());
+            loadKO("background start restricted: " + zf.getPath());
             return;
         }
 
@@ -2151,12 +2151,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-    private void loadFileKO(String strFilePathError) {
+    // A track could not be loaded: the error dialog diagnoses that track's file (deleted,
+    // permission, unsupported format...). trackPath is the ZikFile path, nothing else.
+    private void loadFileKO(String trackPath) {
         myLogE("loadFileKO");
         runOnMain(() -> {
-            FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError, getPlayMode());
+            FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(trackPath, getPlayMode());
             ErrorLoadingFile = true;
-            ErrorUi.showPlayAudioErrorMessage(this, null, strFilePathError);
+            ErrorUi.showPlayAudioErrorMessage(this, null, trackPath);
+            shutdown(false); // releases the engine: must be on main thread
+        });
+    }
+
+    // Loading failed for a reason that is not the track's file (no playlist, folder row missing,
+    // background start refused...): generic message - a file diagnosis would blame a file that may
+    // be fine. detail only goes to the log and analytics.
+    private void loadKO(String detail) {
+        myLogE("loadKO: " + detail);
+        runOnMain(() -> {
+            FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(detail, getPlayMode());
+            ErrorLoadingFile = true;
+            ErrorUi.showGenericPlayError(this);
             shutdown(false); // releases the engine: must be on main thread
         });
     }
@@ -2723,7 +2738,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (src == null) {
             err = "resolvePlayableUri failed for: " + zikFile.getPath();
             myLogEE(null, err);
-            loadFileKO(err);
+            loadFileKO(zikFile.getPath());
             return false;
         }
 
@@ -2731,7 +2746,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (folder == null) {
             err = "Folder not found for [" + zikFile.getFolderName() + "]";
             myLogEE(null, err);
-            loadFileKO(err);
+            loadKO(err);
             return false;
         }
 
@@ -2744,7 +2759,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (list == null || list.isEmpty()) {
             err = "ZikFile list empty";
             myLogEE(null, err);
-            loadFileKO(err);
+            loadKO(err);
             return false;
         }
 
@@ -2773,7 +2788,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (zikFile == null) {
             err = "loadAndPlayFolder: " + folder.getName() + " - could not find zikFile";
             myLogEE(null, err);
-            loadFileKO(err);
+            loadKO(err);
             return false;
         }
         return loadAndPlayTrack(zikFile);

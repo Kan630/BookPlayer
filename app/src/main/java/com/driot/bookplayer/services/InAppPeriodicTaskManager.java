@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.DownloadLeftoverSweeper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.importexport.AutoBackupSnapshotManager;
 import com.driot.bookplayer.podcasts.PodcastHelper;
@@ -40,6 +41,12 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
                     ImageHelper.processPendingImages(context, System.currentTimeMillis(), "InApp Periodic Task Manager");
 /// Small safety-net snapshot for Android's own Auto Backup (progress/prefs/favorites/podcast history)
                     AutoBackupSnapshotManager.writeSnapshot(context);
+/// Leftovers of interrupted downloads (stale .part files, empty unused podcast folders)
+                    try {
+                        DownloadLeftoverSweeper.sweep(context);
+                    } catch (Exception e) {
+                        myLogEE(e, "DownloadLeftoverSweeper");
+                    }
 
                 }, Var.PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS, periodMinutes, TimeUnit.MINUTES);
             }

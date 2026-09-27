@@ -1238,8 +1238,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="max_value_label">Макс = </string>
     <string name="already_imported_under_name">Уже импортировано под именем: </string>
     <string name="no_episode_downloaded">Нет загруженных эпизодов</string>
-    <string name="no_backup_found">❌ Не найдено резервной копии в: </string>
-    <string name="error_reading_backup">Ошибка чтения резервной копии: </string>
     <string name="error_label_multiline">Ошибка : \n</string>
     <string name="no_ebooks_found_search">Электронные книги не найдены \nпо запросу [%1$s] \nс языком [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Книги не найдены \nдля полки [%1$s] \nс языком [%2$s]</string>

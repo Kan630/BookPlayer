@@ -1238,8 +1238,6 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="max_value_label">Máx = </string>
     <string name="already_imported_under_name">Já importado com o nome: </string>
     <string name="no_episode_downloaded">Nenhum episódio baixado</string>
-    <string name="no_backup_found">❌ Nenhum backup encontrado em: </string>
-    <string name="error_reading_backup">Erro ao ler backup: </string>
     <string name="error_label_multiline">Erro : \n</string>
     <string name="no_ebooks_found_search">Nenhum ebook encontrado \npara busca [%1$s] \ncom idioma [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Nenhum ebook encontrado \npara estante [%1$s] \ncom idioma [%2$s]</string>

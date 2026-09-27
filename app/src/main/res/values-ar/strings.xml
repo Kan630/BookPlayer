@@ -1234,8 +1234,6 @@
     <string name="max_value_label">الحد الأقصى = </string>
     <string name="already_imported_under_name">تم الاستيراد بالفعل تحت الاسم: </string>
     <string name="no_episode_downloaded">لم يتم تنزيل أي حلقة</string>
-    <string name="no_backup_found">❌ لم يتم العثور على نسخة احتياطية في: </string>
-    <string name="error_reading_backup">خطأ في قراءة النسخة الاحتياطية: </string>
     <string name="error_label_multiline">خطأ : \n</string>
     <string name="no_ebooks_found_search">لم يتم العثور على كتب إلكترونية \nللبحث [%1$s] \nباللغة [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">لم يتم العثور على كتب إلكترونية \nلرف [%1$s] \nباللغة [%2$s]</string>

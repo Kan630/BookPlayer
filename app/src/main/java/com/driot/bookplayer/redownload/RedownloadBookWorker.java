@@ -152,12 +152,17 @@ public class RedownloadBookWorker extends Worker {
                     while ((n = in.read(buf)) > 0) {
                         o.write(buf, 0, n);
                     }
+                } catch (java.io.IOException ex) {
+                    part.delete(); // no half-written leftover next to the book
+                    throw ex;
                 }
                 if (t.dest.exists()) {
                     t.dest.delete();
                 }
                 if (part.renameTo(t.dest)) {
                     restored++;
+                } else {
+                    part.delete();
                 }
             }
         }
@@ -186,6 +191,9 @@ public class RedownloadBookWorker extends Worker {
         if (dest.exists()) {
             dest.delete();
         }
-        return part.renameTo(dest) ? 1 : 0;
+        if (part.renameTo(dest))
+            return 1;
+        part.delete();
+        return 0;
     }
 }

@@ -1244,8 +1244,6 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="max_value_label">Max = </string>
     <string name="already_imported_under_name">Déjà importé sous le nom : </string>
     <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
-    <string name="no_backup_found">❌ Aucune sauvegarde trouvée dans : </string>
-    <string name="error_reading_backup">Erreur de lecture de la sauvegarde : </string>
     <string name="error_label_multiline">Erreur : \n</string>
     <string name="no_ebooks_found_search">Aucun ebook trouvé \npour la recherche [%1$s] \navec la langue [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Aucun ebook trouvé

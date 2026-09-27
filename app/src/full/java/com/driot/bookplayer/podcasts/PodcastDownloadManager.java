@@ -3,6 +3,8 @@ package com.driot.bookplayer.podcasts;
 import android.content.Context;
 
 import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.Constraints;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -34,9 +36,25 @@ public class PodcastDownloadManager {
             return;
         }
 
+        if (episodes == null || episodes.isEmpty())
+            return;
+
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
 
+        Data finalizeData = new Data.Builder()
+                .putString(FinalizeDownloadWorker.KEY_FOLDER_PATH, targetFolder.getAbsolutePath())
+                .putString(FinalizeDownloadWorker.KEY_FOLDER_NAME, targetFolder.getName())
+                .putLong(FinalizeDownloadWorker.KEY_FEED_ID, podcastFeedId)
+                .build();
+
+        // Wait for a connection instead of burning the worker's retries while offline.
+        Constraints online = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+
+        // Sequential chain: episode 1, finalize, episode 2, finalize... The finalize after each
+        // episode (it queues one podcast sync per folder, see FinalizeDownloadWorker) makes every
+        // episode playable as soon as it is downloaded, not when the whole batch is. A failed
+        // episode does not break the chain (PodcastDownloadEpisodeWorker skips it).
         for (PodcastEpisode episode : episodes) {
             String destFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
             String destPath = new File(targetFolder, destFileName).getAbsolutePath();
@@ -48,27 +66,18 @@ public class PodcastDownloadManager {
 
             OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(PodcastDownloadEpisodeWorker.class)
                     .setInputData(inputData)
+                    .setConstraints(online)
                     .addTag("DOWNLOAD_EPISODE_" + episode.id)
                     .build();
 
-            if (continuation == null) {
-                continuation = wm.beginWith(request);
-            } else {
-                continuation = continuation.then(request);
-            }
+            OneTimeWorkRequest finalizeRequest = new OneTimeWorkRequest.Builder(FinalizeDownloadWorker.class)
+                    .setInputData(finalizeData)
+                    .build();
+
+            continuation = (continuation == null ? wm.beginWith(request) : continuation.then(request))
+                    .then(finalizeRequest);
         }
 
-        Data finalizeData = new Data.Builder()
-                .putString(FinalizeDownloadWorker.KEY_FOLDER_PATH, targetFolder.getAbsolutePath())
-                .putString(FinalizeDownloadWorker.KEY_FOLDER_NAME, targetFolder.getName())
-                .putLong(FinalizeDownloadWorker.KEY_FEED_ID, podcastFeedId)
-                .build();
-
-        OneTimeWorkRequest finalizeRequest = new OneTimeWorkRequest.Builder(FinalizeDownloadWorker.class)
-                .setInputData(finalizeData)
-                .build();
-
-        continuation = continuation.then(finalizeRequest);
         continuation.enqueue();
     }
 
