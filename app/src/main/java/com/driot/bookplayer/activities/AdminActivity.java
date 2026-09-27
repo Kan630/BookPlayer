@@ -165,14 +165,19 @@ public class AdminActivity extends BaseActivity {
 
         findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {
+                java.io.File sdFolder = StorageHelper.getUnzipFolder(this, true);
+                java.io.File deviceFolder = StorageHelper.getUnzipFolder(this, false);
                 myLogD("-----------------");
                 myLogD("-- SD CARD");
                 myLogD("-----------------");
-                FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
+                if (sdFolder != null && sdFolder.equals(deviceFolder))
+                    myLogD("(no SD card: same folder as DEVICE, not listed twice)");
+                else
+                    FileHelper.listAllFiles(sdFolder);
                 myLogD("-----------------");
                 myLogD("-- DEVICE");
                 myLogD("-----------------");
-                FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
+                FileHelper.listAllFiles(deviceFolder);
                 myLogD("-----------------");
             }).start();
         });

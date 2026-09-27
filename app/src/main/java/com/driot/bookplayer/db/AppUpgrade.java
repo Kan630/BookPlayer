@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.OriginalHashBackfill;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class AppUpgrade {
@@ -89,6 +90,24 @@ public final class AppUpgrade {
                     myLogEE(e, "OriginalHashBackfill failed");
                 }
             }, "OriginalHashBackfill");
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.start();
+        }
+
+        // Podcast rows left by concurrent syncs (see FinalizeDownloadWorker): duplicate rows for
+        // one file, and rows whose file AutoDelete removed while a twin row stayed ("could not
+        // find the file"). Reads the disk, so its own low-priority thread; the flag is only set
+        // once a full pass is done, so an interrupted pass runs again next launch.
+        final String KEY_REPAIRED_PODCAST_ROWS = "repaired_podcast_duplicate_rows";
+        if (!prefs.getBoolean(KEY_REPAIRED_PODCAST_ROWS, false)) {
+            Thread t = new Thread(() -> {
+                try {
+                    PodcastHelper.repairDuplicateAndGhostEpisodeRows(context.getApplicationContext());
+                    prefs.edit().putBoolean(KEY_REPAIRED_PODCAST_ROWS, true).apply();
+                } catch (Exception e) {
+                    myLogEE(e, "repairDuplicateAndGhostEpisodeRows failed");
+                }
+            }, "PodcastRowsRepair");
             t.setPriority(Thread.MIN_PRIORITY);
             t.start();
         }

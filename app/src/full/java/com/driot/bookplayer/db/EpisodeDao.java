@@ -78,6 +78,28 @@ public interface EpisodeDao {
 
     // Sets (not increments) timeListened - used to re-apply a recovered value from
     // PendingEpisodeHistory after a restore, see PodcastEpisodeViewModel.
+    // Duplicate ZikFile rows being merged: the episode follows the surviving row.
+    @Query("UPDATE Episode SET idZikFile = :toZikFileId WHERE idZikFile = :fromZikFileId")
+    int moveToZikFile(long fromZikFileId, long toZikFileId);
+
+    // A downloaded episode's listening time lives on its ZikFile row; moved here when that row is
+    // deleted so podcast totals (PodcastDao: Folder + Episode time) don't drop.
+    @Query("UPDATE Episode SET timeListened = timeListened + :seconds WHERE idZikFile = :zikFileId")
+    int addTimeListenedForZikFileId(long zikFileId, long seconds);
+
+    // Same, for a row the Episode no longer links to: found by the id in the file name instead.
+    @Query("UPDATE Episode SET timeListened = timeListened + :seconds WHERE idEpisode = :idEpisode")
+    int addTimeListenedForEpisodeId(long idEpisode, long seconds);
+
+    // Listening time kept on a podcast's episodes (streamed, or downloaded then deleted), in seconds.
+    @Query("SELECT COALESCE(SUM(e.timeListened), 0) FROM Episode e JOIN Podcast p ON p.id = e.idPodcast"
+            + " WHERE p.idFolder = :folderId")
+    long getEpisodeTimeListenedForFolder(long folderId);
+
+    // An episode linked to a downloaded row is not deleted: clears marks left by a re-download.
+    @Query("UPDATE Episode SET date_delete = NULL WHERE date_delete IS NOT NULL AND idZikFile IS NOT NULL")
+    int clearDateDeleteOfDownloadedEpisodes();
+
     @Query("UPDATE Episode SET timeListened = :timeListened WHERE id = :id")
     void setTimeListened(long id, long timeListened);
 

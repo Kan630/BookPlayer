@@ -98,6 +98,14 @@ public class PodcastHelper {
         // no podcasts in pure flavor
     }
 
+    public static void repairDuplicateAndGhostEpisodeRows(Context context) {
+        // no podcasts in pure flavor
+    }
+
+    public static long getEpisodeTimeListenedForFolder(Context context, long folderId) {
+        return 0; // no podcasts in pure flavor
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }

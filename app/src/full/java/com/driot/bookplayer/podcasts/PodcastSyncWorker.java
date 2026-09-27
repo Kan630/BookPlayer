@@ -187,13 +187,22 @@ public class PodcastSyncWorker extends LoggingWorker {
                         zikFile.setDuration(duration);
                         zikFile.setSize(fileSize);
                         zikFile.date_added = System.currentTimeMillis();
-                        newZikFileId = zikFileDao.insert(zikFile);
+                        // Re-checked and inserted in one transaction: the probe above takes seconds,
+                        // long enough for another sync to have registered this very file meanwhile.
+                        Long inserted = db.runInTransaction(
+                                () -> isFileReferenced(zikFileDao, folder, file) ? null : zikFileDao.insert(zikFile));
+                        if (inserted == null) {
+                            myLogW("file registered meanwhile by another sync, skipping: " + file.getAbsolutePath());
+                            continue;
+                        }
+                        newZikFileId = inserted;
                         myLogD("ZikFile inserted with ID: " + newZikFileId + " - [" + trackTitle + "]");
                         newFilesCount++;
 
                         if (podcastId != null) {
                             episode.idZikFile = newZikFileId;
                             episode.date_import = System.currentTimeMillis();
+                            episode.date_delete = null; // downloaded again after an auto-delete
 
                             // Episode just got downloaded - if its cover was sitting in the OS
                             // cache dir, promote it to the persistent folder (same idea as
@@ -253,7 +262,7 @@ public class PodcastSyncWorker extends LoggingWorker {
     // unknown/zero size never match on title alone.
     private static boolean isFileReferenced(CommonZikFileDao zikFileDao, File folder, File file) {
         return zikFileDao.countReferencing(folder.getAbsolutePath() + "/" + file.getName(),
-                folder.getAbsolutePath(), file.getName()) > 0;
+                folder.getAbsolutePath(), file.getName(), -1) > 0;
     }
 
     private static boolean isSameFile(File a, File b) {

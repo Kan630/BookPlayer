@@ -27,6 +27,10 @@ public interface PlaySessionDao {
     @Query("SELECT * FROM PlaySession")
     List<PlaySession> getAll();
 
+    // Duplicate ZikFile rows being merged: their sessions follow the surviving row.
+    @Query("UPDATE PlaySession SET zikFileId = :toZikFileId WHERE zikFileId = :fromZikFileId")
+    int moveToZikFile(long fromZikFileId, long toZikFileId);
+
     @Query("SELECT * FROM PlaySession WHERE zikFileId = :zikFileId")
     List<PlaySession> getAllForFile(long zikFileId);
 

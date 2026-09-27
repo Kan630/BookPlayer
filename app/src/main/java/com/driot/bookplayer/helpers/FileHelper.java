@@ -1,5 +1,7 @@
 package com.driot.bookplayer.helpers;
 
+import com.driot.bookplayer.utils.Tonio;
+
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -345,7 +347,9 @@ public class FileHelper {
                 myLog(indent + "[DIR]  " + file.getAbsolutePath());
                 listFilesRecursive(file, indent + "  ");
             } else {
-                myLog(indent + "[FILE] " + file.getAbsolutePath());
+                // exact bytes first (machine-comparable, spots truncated files), readable size after
+                myLog(indent + "[FILE] " + file.getAbsolutePath() + " | " + file.length() + " B | "
+                        + Tonio.getReadableSize(file.length()));
             }
         }
     }

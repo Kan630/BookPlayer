@@ -255,6 +255,7 @@ public class PodcastHelper {
         long thresholdTime = now - days * 24L * 60 * 60 * 1000;
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
+          synchronized (EPISODE_ROWS_LOCK) {
             AppDatabase db = AppDatabase.getDatabase(context);
             CommonZikFileDao zikFileDao = db.zikFileDao();
             EpisodeDao episodeDao = db.episodeDao();
@@ -270,31 +271,53 @@ public class PodcastHelper {
 
             Set<Long> foldersToUpdate = new HashSet<>();
 
-            for (ZikFile zikFile : filesToDelete) {
+            for (ZikFile listed : filesToDelete) {
+                // Re-read: an earlier merge in this same pass may have changed this row (merged
+                // progress/time) - acting on the list's snapshot would lose that.
+                ZikFile zikFile = zikFileDao.getById(listed.getId());
+                if (zikFile == null)
+                    continue;
                 String path = zikFile.getPath();
                 if (path == null) {
                     myLogE("AutoDelete => path is null");
                     continue;
                 }
 
-                File file = new File(path);
-                if (!file.exists() || !file.isFile()) {
-                    // legacy
-                    file = new File(path + "/" + zikFile.getName());
-                    if (!file.exists() || !file.isFile()) {
-                        // Already gone from disk - nothing left to delete there, but still
-                        // fall through to the DB cleanup below so this row stops being
-                        // re-selected by getListenedPodcastEpisodesToDelete() on every run.
-                        myLogE("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
-                        file = null;
-                    } else {
-                        myLogW("legacy paths : path/name"); // 2025-10-09 (some 2 months old podcasts stays in my phone)
+                File file = resolveEpisodeFile(zikFile);
+                if (file == null) {
+                    if (!isEpisodeFolderReachable(zikFile)) {
+                        myLogW("AutoDelete => folder not reachable (storage unmounted?), row kept: " + path);
+                        continue;
                     }
+                    // Already gone from disk - nothing left to delete there, but still clean up the
+                    // DB so this row stops being re-selected by getListenedPodcastEpisodesToDelete().
+                    myLogE("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
+                }
+
+                long fileId = zikFile.getId();
+
+                // Several rows can point at the same file (duplicate rows left by concurrent syncs,
+                // see FinalizeDownloadWorker). Then only this row goes: it is merged into a surviving
+                // one (progress, listening time, play sessions, episode link) and the file stays.
+                // Deleting the file here would leave the other rows pointing at nothing ("could not
+                // find the file"). The survivor now carries the listened progress, so a later run
+                // removes it - and the file - the normal way.
+                File sameFile = (file != null) ? file : new File(path);
+                List<ZikFile> others = zikFileDao.getReferencing(sameFile.getAbsolutePath(),
+                        sameFile.getParent(), sameFile.getName(), fileId);
+                if (!others.isEmpty()) {
+                    ZikFile survivor = pickDuplicateSurvivor(others, episodeDao);
+                    db.runInTransaction(() -> mergeDuplicateInto(db, zikFile, survivor));
+                    myLogW("AutoDelete => duplicate row " + fileId + " merged into " + survivor.getId()
+                            + " (" + others.size() + " other row(s) use the file, kept): " + path);
+                    dbDeleted++;
+                    foldersToUpdate.add((long) zikFile.getIdFolder());
+                    continue;
                 }
 
                 if (file != null) {
                     if (!file.delete()) {
-                        myLogE("AutoDelete => Failed to delete file " + fsDeleted + 1 + "/" + deleteListSize + ": " + path);
+                        myLogE("AutoDelete => Failed to delete file " + (fsDeleted + 1) + "/" + deleteListSize + ": " + path);
                         continue;
                     }
 
@@ -303,21 +326,10 @@ public class PodcastHelper {
                     fsDeleted++;
                 }
 
-                long fileId = zikFile.getId();
-
-                // update before delete because onCascade null
-                int updated = episodeDao.updateDateDeleteForZikFileId(fileId, System.currentTimeMillis());
-                if (updated == 0) {
-                    myLogE("AutoDelete => Failed to update in DB Episode: " + fileId);
+                int updated = db.runInTransaction(() -> removeEpisodeRow(db, zikFile));
+                if (updated < 0)
                     continue;
-                }
-                dbUpdated++;
-
-                int deletedZik = zikFileDao.deleteById(fileId);
-                if (deletedZik == 0) {
-                    myLogE("AutoDelete => Failed to delete in DB ZikFile: " + fileId);
-                    continue;
-                }
+                dbUpdated += updated;
                 dbDeleted++;
                 foldersToUpdate.add((long) zikFile.getIdFolder());
             }
@@ -332,8 +344,165 @@ public class PodcastHelper {
                     }
                 }
             }
-
+          }
         });
+    }
+
+    // AutoDelete and the one-time repair both merge/delete episode rows: never both at once
+    // (databaseWriteExecutor has several threads).
+    private static final Object EPISODE_ROWS_LOCK = new Object();
+
+    // The file a podcast row plays: its full path, or (legacy rows) folder path + name. Null if
+    // neither is on disk.
+    @androidx.annotation.Nullable
+    private static File resolveEpisodeFile(ZikFile z) {
+        if (z.getPath() == null)
+            return null;
+        File f = new File(z.getPath());
+        if (f.isFile())
+            return f;
+        File legacy = new File(f, z.getName());
+        return legacy.isFile() ? legacy : null;
+    }
+
+    // A missing file only counts as deleted if its folder is still there: an unmounted SD card makes
+    // every file on it look missing, and those rows must survive until it comes back.
+    private static boolean isEpisodeFolderReachable(ZikFile z) {
+        File f = new File(z.getPath());
+        File dir = f.getParentFile();
+        return f.isDirectory() || (dir != null && dir.isDirectory());
+    }
+
+    // Removes a podcast row whose file is gone (or just deleted). Its listening time moves to the
+    // Episode first (which outlives the row), so the podcast's "listened" total doesn't drop -
+    // found by the link, else by the id in the file name. Then the Episode is marked deleted
+    // (update before delete: the link is SET NULL with the row) and the row goes. A row no Episode
+    // links to (an unlinked duplicate) is still deleted: skipping it left a row whose file was gone.
+    // Returns the number of Episodes marked deleted (0 or 1), -1 if the row could not be deleted.
+    // Run in a transaction.
+    private static int removeEpisodeRow(AppDatabase db, ZikFile z) {
+        EpisodeDao episodeDao = db.episodeDao();
+        long id = z.getId();
+        if (z.timeListened > 0 && episodeDao.addTimeListenedForZikFileId(id, z.timeListened) == 0) {
+            long idEpisode = getEpisodeIdFromName(z.getName());
+            if (idEpisode > 0)
+                episodeDao.addTimeListenedForEpisodeId(idEpisode, z.timeListened);
+        }
+        int updated = episodeDao.updateDateDeleteForZikFileId(id, System.currentTimeMillis());
+        if (updated == 0)
+            myLogW("no Episode linked to ZikFile " + id + ", deleting the row anyway");
+        if (db.zikFileDao().deleteById(id) == 0) {
+            myLogE("Failed to delete in DB ZikFile: " + id);
+            return -1;
+        }
+        return updated;
+    }
+
+    /**
+     * One-time repair (AppUpgrade) of the rows left by concurrent podcast syncs, see
+     * FinalizeDownloadWorker: several rows for one file, and rows whose file AutoDelete removed
+     * while a twin row stayed ("could not find the file"). Per file of a podcast folder:
+     * duplicates are merged into one row (mergeDuplicateInto: nothing the user sees is lost); if
+     * the file is gone, that row is then removed like AutoDelete does (removeEpisodeRow: listening
+     * time kept on the Episode, which shows as not downloaded again). Also clears the "deleted"
+     * mark of episodes downloaded again after being deleted. Files on disk are never touched.
+     * Call off the main thread.
+     */
+    public static void repairDuplicateAndGhostEpisodeRows(Context context) {
+        synchronized (EPISODE_ROWS_LOCK) {
+            AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+            EpisodeDao episodeDao = db.episodeDao();
+
+            // Same folder + same file: rows in different folders are different books, left alone.
+            java.util.Map<String, List<ZikFile>> byFile = new java.util.LinkedHashMap<>();
+            for (ZikFile z : db.zikFileDao().getAllPodcastZikFiles()) {
+                if (z.getPath() == null)
+                    continue;
+                File f = resolveEpisodeFile(z);
+                String key = z.getIdFolder() + "|" + (f != null ? f.getAbsolutePath()
+                        : new File(z.getPath()).isDirectory() ? z.getPath() + "/" + z.getName() : z.getPath());
+                byFile.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(z);
+            }
+
+            int merged = 0, removed = 0, skipped = 0;
+            Set<Long> folders = new HashSet<>();
+            for (List<ZikFile> rows : byFile.values()) {
+                boolean exists = resolveEpisodeFile(rows.get(0)) != null;
+                if (exists && rows.size() == 1)
+                    continue;
+                if (!exists && !isEpisodeFolderReachable(rows.get(0))) {
+                    myLogW("repair => folder not reachable (storage unmounted?), kept: " + rows.get(0).getPath());
+                    skipped++;
+                    continue;
+                }
+                ZikFile survivor = pickDuplicateSurvivor(rows, episodeDao);
+                for (ZikFile dup : rows) {
+                    if (dup.getId() == survivor.getId())
+                        continue;
+                    db.runInTransaction(() -> mergeDuplicateInto(db, dup, survivor));
+                    merged++;
+                    myLogW("repair => duplicate row " + dup.getId() + " (" + Math.round(dup.getPercentdone())
+                            + "%) merged into " + survivor.getId() + ": " + dup.getPath());
+                }
+                if (!exists) {
+                    ZikFile fresh = db.zikFileDao().getById(survivor.getId());
+                    if (fresh != null && db.runInTransaction(() -> removeEpisodeRow(db, fresh)) >= 0) {
+                        removed++;
+                        myLogW("repair => row " + fresh.getId() + " removed, file gone (" + fresh.timeListened
+                                + "s listened kept on the episode): " + fresh.getPath());
+                    }
+                }
+                folders.add((long) rows.get(0).getIdFolder());
+            }
+
+            // Episodes downloaded again after an auto-delete kept their old "deleted" mark.
+            int cleared = episodeDao.clearDateDeleteOfDownloadedEpisodes();
+
+            for (Long idFolder : folders)
+                Sql.updateFolderTable(context, idFolder);
+            myLogI("repair => " + merged + " duplicate row(s) merged, " + removed + " row(s) of missing files removed, "
+                    + skipped + " file(s) skipped (folder not reachable), " + cleared + " stale episode delete mark(s) cleared");
+        }
+    }
+
+    // Among rows sharing one file, the one to keep: the row the Episode links to, else the most
+    // listened one.
+    private static ZikFile pickDuplicateSurvivor(List<ZikFile> candidates, EpisodeDao episodeDao) {
+        ZikFile best = candidates.get(0);
+        for (ZikFile z : candidates) {
+            if (episodeDao.getByZikFileId(z.getId()) != null)
+                return z;
+            if (z.getPercentdone() > best.getPercentdone())
+                best = z;
+        }
+        return best;
+    }
+
+    // Folds a duplicate row into the survivor, then deletes it. Nothing the user sees is lost: the
+    // furthest progress wins, listening time adds up, play sessions/ticks (heatmaps) and the
+    // episode link move over. Run in a transaction.
+    private static void mergeDuplicateInto(AppDatabase db, ZikFile dup, ZikFile survivor) {
+        long from = dup.getId(), to = survivor.getId();
+        ZikFile s = db.zikFileDao().getById(to); // fresh copy, not a caller's snapshot
+        if (s == null)
+            return; // survivor gone meanwhile: leave the duplicate as it is
+        db.playSessionDao().moveToZikFile(from, to);
+        db.playTickDao().moveToZikFile(from, to);
+        if (db.episodeDao().getByZikFileId(to) == null)
+            db.episodeDao().moveToZikFile(from, to); // unique idZikFile: only when the survivor has none
+
+        if (dup.getPercentdone() > s.getPercentdone()) {
+            s.setPercentdone(dup.getPercentdone());
+            s.setPosition(dup.getPosition());
+            s.setFinished(dup.isFinished());
+        }
+        s.timeListened += dup.timeListened;
+        if (dup.lLastAccess != null && (s.lLastAccess == null || dup.lLastAccess > s.lLastAccess))
+            s.lLastAccess = dup.lLastAccess;
+        if (dup.lFirstAccess != null && (s.lFirstAccess == null || dup.lFirstAccess < s.lFirstAccess))
+            s.lFirstAccess = dup.lFirstAccess;
+        db.zikFileDao().update(s);
+        db.zikFileDao().deleteById(from);
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
@@ -870,6 +1039,14 @@ public class PodcastHelper {
     public static void updateImage(long folderId, String imagePath, Context context) {
         AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId,
                 imagePath);
+    }
+
+    // Listening time of a podcast folder that its remaining tracks no longer carry: streamed
+    // episodes, and downloaded ones since deleted (AutoDelete moves their time to the Episode).
+    // Same total as the podcast screen (PodcastDao.getTotalTimeListenedForPodcast). Seconds.
+    public static long getEpisodeTimeListenedForFolder(Context context, long folderId) {
+        return AppDatabase.getDatabase(context.getApplicationContext()).episodeDao()
+                .getEpisodeTimeListenedForFolder(folderId);
     }
 
     public static void addSecondToTimeListened(Context context, long trackId) {

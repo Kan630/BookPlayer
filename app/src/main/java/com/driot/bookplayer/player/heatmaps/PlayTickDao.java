@@ -43,4 +43,8 @@ public interface PlayTickDao {
             GROUP BY bucket
         """)
         List<PlayTickBucket> getBucketCounts(long zikFileId, long bucketSizeMs);
+
+    // Duplicate ZikFile rows being merged: their ticks follow the surviving row.
+    @Query("UPDATE PlayTick SET zikFileId = :toZikFileId WHERE zikFileId = :fromZikFileId")
+    int moveToZikFile(long fromZikFileId, long toZikFileId);
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -44,7 +45,12 @@ public class FinalizeDownloadWorker extends Worker {
                 .setInputData(syncData)
                 .build();
 
-        WorkManager.getInstance(getApplicationContext()).enqueue(syncRequest);
+        // One sync per folder at a time: each sync scans the whole folder and inserts what it
+        // doesn't find in the DB, so two running together both inserted the same files (duplicate
+        // ZikFile rows, seen on real devices). APPEND_OR_REPLACE queues this one after a running
+        // sync of the same folder instead (and replaces a failed/cancelled chain).
+        WorkManager.getInstance(getApplicationContext()).enqueueUniqueWork(
+                "podcast_sync:" + folderPath, ExistingWorkPolicy.APPEND_OR_REPLACE, syncRequest);
 
         return Result.success();
     }

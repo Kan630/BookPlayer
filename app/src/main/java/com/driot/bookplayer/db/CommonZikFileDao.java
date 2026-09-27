@@ -53,10 +53,15 @@ public interface CommonZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE path = :path LIMIT 1")
     ZikFile getByPath(String path);
 
-    // A file on disk is in the library if a row holds its full path, or (legacy rows written by
-    // old versions) its folder path in "path" and its file name in "name".
-    @Query("SELECT COUNT(id) FROM ZikFile WHERE path = :fullPath OR (path = :folderPath AND name = :name)")
-    int countReferencing(String fullPath, String folderPath, String name);
+    // Rows (other than exceptId, -1 for none) using a file on disk: by full path, or (legacy rows
+    // written by old versions) by folder path in "path" + file name in "name".
+    @Query("SELECT COUNT(id) FROM ZikFile WHERE id != :exceptId"
+            + " AND (path = :fullPath OR (path = :folderPath AND name = :name))")
+    int countReferencing(String fullPath, String folderPath, String name, long exceptId);
+
+    @Query("SELECT * FROM ZikFile WHERE id != :exceptId"
+            + " AND (path = :fullPath OR (path = :folderPath AND name = :name))")
+    List<ZikFile> getReferencing(String fullPath, String folderPath, String name, long exceptId);
 
     // Last-resort match for OpenWithHelper: some vendor file managers hand out a content:// Uri
     // whose real filesystem path can't be resolved (no _data column, not a DocumentsContract
@@ -141,6 +146,9 @@ public interface CommonZikFileDao {
             "AND lLastAccess IS NOT NULL AND lLastAccess < :thresholdTime " +
             "AND idFolder IN (SELECT id FROM Folder WHERE sourceLocation = 'podcast')")
     List<ZikFile> getListenedPodcastEpisodesToDelete(int minPercent, long thresholdTime);
+
+    @Query("SELECT z.* FROM ZikFile z JOIN Folder f ON f.id = z.idFolder WHERE f.sourceLocation = 'podcast'")
+    List<ZikFile> getAllPodcastZikFiles();
 
     @Query("DELETE FROM ZikFile WHERE id = :id")
     int deleteById(long id);
