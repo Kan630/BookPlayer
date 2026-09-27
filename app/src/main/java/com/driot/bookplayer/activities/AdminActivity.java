@@ -5,20 +5,16 @@ import android.app.DownloadManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,7 +51,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,7 +66,6 @@ public class AdminActivity extends BaseActivity {
     private int pendingLogFlushDays = 7;
 
     private LinearLayout btnContainer;
-    private ListView listActivities;
 
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {
@@ -255,9 +249,7 @@ public class AdminActivity extends BaseActivity {
 
         // auto stuff
         btnContainer = findViewById(R.id.btnContainer);
-        listActivities = findViewById(R.id.listActivities);
         addDynamicButtons();
-        populateLaunchableActivitiesList();
     }
 
     private void deleteBooksSinceMinutes(int minutesAgo) {
@@ -315,47 +307,6 @@ public class AdminActivity extends BaseActivity {
 
             btnContainer.addView(b);
         }
-    }
-
-    private void populateLaunchableActivitiesList() {
-        PackageManager pm = getPackageManager();
-
-        Intent query = new Intent(Intent.ACTION_MAIN);
-        query.addCategory(Intent.CATEGORY_LAUNCHER);
-        // Limit to this app’s package
-        query.setPackage(getPackageName());
-
-        List<ResolveInfo> infos = pm.queryIntentActivities(query, 0);
-        List<String> labels = new ArrayList<>();
-        List<String> classNames = new ArrayList<>();
-
-        for (ResolveInfo ri : infos) {
-            ActivityInfo ai = ri.activityInfo;
-            if (ai == null)
-                continue;
-
-            // Skip AdminActivity itself (optional)
-            if (AdminActivity.class.getName().equals(ai.name))
-                continue;
-
-            CharSequence label = ri.loadLabel(pm);
-            labels.add(label != null ? label.toString() : ai.name);
-            classNames.add(ai.name);
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_list_item_1, labels);
-        listActivities.setAdapter(adapter);
-
-        listActivities.setOnItemClickListener((parent, view, position, id) -> {
-            String className = classNames.get(position);
-            try {
-                Class<?> cls = Class.forName(className);
-                startActivity(new Intent(this, cls));
-            } catch (ClassNotFoundException e) {
-                Toast.makeText(this, "Activity not found", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void launchActivitySafely(Class<?> clazz) {
