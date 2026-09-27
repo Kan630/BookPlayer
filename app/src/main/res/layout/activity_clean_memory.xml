@@ -14,67 +14,69 @@
         android:padding="8dp"
         >
 
-        <!-- Storage Selection + Refresh -->
-        <LinearLayout
+        <!-- Storage selection: only shown with an SD card (CleanMemoryFragment.setupRadioButtons) -->
+        <RadioGroup
+            android:id="@+id/storage_selector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:gravity="center"
             >
-            <RadioGroup
-                android:id="@+id/storage_selector"
-                android:layout_width="0dp"
+
+            <RadioButton
+                android:id="@+id/radio_internal"
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                >
+                android:text="@string/device" />
 
-                <RadioButton
-                    android:id="@+id/radio_internal"
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/device" />
-
-                <RadioButton
-                    android:id="@+id/radio_sdcard"
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/SD_card" />
-            </RadioGroup>
-            <ImageButton
-                android:id="@+id/btn_clean_memory_refresh"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/refresh"
-                android:src="@drawable/ic_refresh_24"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:visibility="visible"
-                />
-        </LinearLayout>
+            <RadioButton
+                android:id="@+id/radio_sdcard"
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/SD_card" />
+        </RadioGroup>
 
         <!-- Storage Stats: fixed height so autosize shrinks text until all 3 lines fit on one line each -->
-        <TextView
-            android:id="@+id/cachefiles_stats_text"
+        <!-- Refresh sits in the banner's corner: no row of its own (it used to cost a whole line) -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:minHeight="72dp"
-            android:textSize="16sp"
-            android:fontFamily="monospace"
-            android:textColor="?attr/colorOnPrimary"
-            android:gravity="start"
-            android:padding="8dp"
-            android:lineSpacingMultiplier="0.5"
-            android:background="?attr/colorPrimary"
-            android:text="mem stats..."
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="10sp"
-            app:autoSizeMaxTextSize="16sp"
-            app:autoSizeStepGranularity="1sp"
-            />
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/cachefiles_stats_text"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:minHeight="72dp"
+                android:textSize="16sp"
+                android:fontFamily="monospace"
+                android:textColor="?attr/colorOnPrimary"
+                android:gravity="start"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingEnd="44dp"
+                android:lineSpacingMultiplier="0.5"
+                android:background="?attr/colorPrimary"
+                android:text="mem stats..."
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="16sp"
+                app:autoSizeStepGranularity="1sp"
+                />
+
+            <ImageButton
+                android:id="@+id/btn_clean_memory_refresh"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="2dp"
+                android:contentDescription="@string/refresh"
+                android:src="@drawable/ic_refresh_24"
+                app:tint="?attr/colorOnPrimary"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                />
+        </FrameLayout>
 
         <!-- Cache Files List + Empty state -->
         <FrameLayout

@@ -1605,6 +1605,45 @@
     <string name="modify_group_actions">Actions</string>
     <string name="option_copy_file_or">or</string>
     <string name="option_copy_file_just_link">just link</string>
+
+    <!-- Podcast episode cleanup sheet (long press on a podcast in the Clean screen) -->
+    <string name="podcast_cleanup_title">Clean up episodes</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">%1$d downloaded episode · %2$s</item>
+        <item quantity="other">%1$d downloaded episodes · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">Already listened</string>
+    <string name="podcast_cleanup_listened_desc">Finished, or played past %d%% (your automatic deletion threshold)</string>
+    <string name="podcast_cleanup_never_title">Never played</string>
+    <string name="podcast_cleanup_untouched_title">Not touched lately</string>
+    <string name="podcast_cleanup_untouched_desc">Neither downloaded nor played for at least:</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 year</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">%1$d episode · %2$s</item>
+        <item quantity="other">%1$d episodes · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">Nothing to remove</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">Delete %d episode?</item>
+        <item quantity="other">Delete %d episodes?</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">%s will be freed. Listening progress and statistics are kept, and the episodes can be downloaded again at any time.</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">%1$d episode deleted, %2$s freed</item>
+        <item quantity="other">%1$d episodes deleted, %2$s freed</item>
+    </plurals>
+    <string name="clean_podcast_tip_title">Tip</string>
+    <string name="clean_podcast_tip_message">Long-press a podcast in this list to quickly clean up its episodes.</string>
+    <string name="utilities_tips_title">Tips</string>
+    <string name="utilities_show_tips_again">Show tips again</string>
+    <string name="utilities_show_tips_again_explanation">Tips you asked not to see again will show up again.</string>
+    <string name="utilities_tips_reset_done">Tips will show again</string>
+    <string name="dont_show_again">Don\'t show again</string>
+    <string name="podcast_cleanup_footnote">The episode loaded in the player is never included.</string>
 </resources>
 
 

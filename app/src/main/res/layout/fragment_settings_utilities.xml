@@ -135,6 +135,29 @@
 
             <TextView
                 style="@style/SettingsGroupTitle"
+                android:text="@string/utilities_tips_title" />
+
+            <Button
+                style="@style/Widget.BookPlayer.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/btn_show_tips_again"
+                android:text="@string/utilities_show_tips_again" />
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/utilities_show_tips_again_explanation"
+                android:textStyle="italic" />
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsGroupCard">
+        <LinearLayout style="@style/SettingsGroupCardContent">
+
+            <TextView
+                style="@style/SettingsGroupTitle"
                 android:text="@string/utilities_cache_management_title" />
 
             <Button

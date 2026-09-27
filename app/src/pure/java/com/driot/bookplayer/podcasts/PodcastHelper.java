@@ -98,6 +98,14 @@ public class PodcastHelper {
         // no podcasts in pure flavor
     }
 
+    /** Fragment result posted by the episode cleanup sheet after a deletion (host refreshes). */
+    public static final String EPISODE_CLEANUP_RESULT_KEY = "podcast_episode_cleanup_done";
+
+    public static void showEpisodeCleanup(androidx.fragment.app.Fragment host, long folderId, String podcastName,
+            String image) {
+        // no podcasts in pure flavor
+    }
+
     public static void repairDuplicateAndGhostEpisodeRows(Context context) {
         // no podcasts in pure flavor
     }

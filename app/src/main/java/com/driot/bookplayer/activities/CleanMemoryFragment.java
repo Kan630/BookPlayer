@@ -22,6 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.ActivityResultLauncher;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.global.Intents;
@@ -90,6 +94,18 @@ public class CleanMemoryFragment extends LoggingFragment
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
         cacheFilesAdapter = new CleanMemoryRVAdapter(requireContext(), this, this);
+        // Long press on a podcast: quick bulk removal of its episodes (listened / never played /
+        // untouched). Full flavor only - PodcastHelper's pure stub does nothing.
+        cacheFilesAdapter.setOnItemLongClickListener(item -> {
+            if (!Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation) || item.idFolder <= 0)
+                return false;
+            myLogI("Long click on podcast [" + item.folderName + "]");
+            PodcastHelper.showEpisodeCleanup(this, item.idFolder, item.folderName, item.image);
+            return true;
+        });
+        getChildFragmentManager().setFragmentResultListener(PodcastHelper.EPISODE_CLEANUP_RESULT_KEY,
+                getViewLifecycleOwner(), (key, result) ->
+                        cacheFilesViewModel.refreshStorageCache(requireContext(), cacheFilesViewModel.isUsingInternal()));
         recyclerViewCacheFiles.setAdapter(cacheFilesAdapter);
         recyclerViewCacheFiles.setLayoutManager(new LinearLayoutManager(requireContext()));
 
@@ -98,6 +114,7 @@ public class CleanMemoryFragment extends LoggingFragment
             myLogD("Enriched list updated: " + (fileWithSummaries != null ? fileWithSummaries.size() : 0));
             cacheFilesAdapter.setFilesWithSummary(fileWithSummaries);
             updateEmptyListVisibility(fileWithSummaries);
+            maybeShowPodcastCleanupTip(fileWithSummaries);
         });
 
         cacheFilesViewModel.getTotalAudioSizeMB().observe(getViewLifecycleOwner(), audioMB -> {
@@ -284,6 +301,37 @@ public class CleanMemoryFragment extends LoggingFragment
                 getString(R.string.Delete),
                 getString(android.R.string.cancel),
                 REQ_DELETE_AUDIO);
+    }
+
+    // Tip about the podcast long press, once per visit to this screen, only when the list shows a
+    // podcast (never on pure), until the user ticks "don't show again".
+    private boolean podcastTipChecked = false;
+
+    private final ActivityResultLauncher<Intent> podcastTipLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                Intent data = result.getData();
+                if (data != null && data.getBooleanExtra(MsgBoxActivity.RESULT_CHECKED, false)) {
+                    myLogI("---- USER hides the podcast cleanup tip for good ----");
+                    Pref.setCleanPodcastTipHidden(true);
+                }
+            });
+
+    private void maybeShowPodcastCleanupTip(@Nullable List<FolderWithSummary> items) {
+        if (podcastTipChecked || items == null || items.isEmpty() || Pref.getCleanPodcastTipHidden())
+            return;
+        boolean hasPodcast = false;
+        for (FolderWithSummary item : items) {
+            if (Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation) && item.idFolder > 0) {
+                hasPodcast = true;
+                break;
+            }
+        }
+        podcastTipChecked = true; // the first loaded list decides, list refreshes don't re-ask
+        if (!hasPodcast)
+            return;
+        podcastTipLauncher.launch(MsgBoxActivity.buildInfo(requireContext(),
+                getString(R.string.clean_podcast_tip_title), getString(R.string.clean_podcast_tip_message), null)
+                .putExtra(MsgBoxActivity.EXTRA_CHECKBOX_TEXT, getString(R.string.dont_show_again)));
     }
 
     private boolean hasAnyContent(boolean internal) {

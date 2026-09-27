@@ -35,6 +35,7 @@ import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.testutil.LogSupport;
@@ -75,6 +76,8 @@ public abstract class BasicNavTest implements LogSupport {
 
                 KanLogger.init(appContext);
                 Option.setTechLog(true);
+                // The Clean screen's podcast tip (MsgBoxActivity) would cover the list this test swipes.
+                Pref.setCleanPodcastTipHidden(true);
 
                 if (desiredOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
                         myLog("+++++++++++++ Orientation = PORTRAIT -----------------------");

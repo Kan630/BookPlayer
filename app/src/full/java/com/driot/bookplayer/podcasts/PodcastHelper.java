@@ -16,6 +16,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -267,75 +268,21 @@ public class PodcastHelper {
 
             int fsDeleted = 0;
             int dbDeleted = 0;
-            int dbUpdated = 0;
 
             Set<Long> foldersToUpdate = new HashSet<>();
 
             for (ZikFile listed : filesToDelete) {
-                // Re-read: an earlier merge in this same pass may have changed this row (merged
-                // progress/time) - acting on the list's snapshot would lose that.
-                ZikFile zikFile = zikFileDao.getById(listed.getId());
-                if (zikFile == null)
+                int outcome = deleteDownloadedEpisode(db, listed.getId(), "AutoDelete");
+                if (outcome == EPISODE_KEPT)
                     continue;
-                String path = zikFile.getPath();
-                if (path == null) {
-                    myLogE("AutoDelete => path is null");
-                    continue;
-                }
-
-                File file = resolveEpisodeFile(zikFile);
-                if (file == null) {
-                    if (!isEpisodeFolderReachable(zikFile)) {
-                        myLogW("AutoDelete => folder not reachable (storage unmounted?), row kept: " + path);
-                        continue;
-                    }
-                    // Already gone from disk - nothing left to delete there, but still clean up the
-                    // DB so this row stops being re-selected by getListenedPodcastEpisodesToDelete().
-                    myLogE("AutoDelete => file already missing on disk, cleaning up DB only: " + path);
-                }
-
-                long fileId = zikFile.getId();
-
-                // Several rows can point at the same file (duplicate rows left by concurrent syncs,
-                // see FinalizeDownloadWorker). Then only this row goes: it is merged into a surviving
-                // one (progress, listening time, play sessions, episode link) and the file stays.
-                // Deleting the file here would leave the other rows pointing at nothing ("could not
-                // find the file"). The survivor now carries the listened progress, so a later run
-                // removes it - and the file - the normal way.
-                File sameFile = (file != null) ? file : new File(path);
-                List<ZikFile> others = zikFileDao.getReferencing(sameFile.getAbsolutePath(),
-                        sameFile.getParent(), sameFile.getName(), fileId);
-                if (!others.isEmpty()) {
-                    ZikFile survivor = pickDuplicateSurvivor(others, episodeDao);
-                    db.runInTransaction(() -> mergeDuplicateInto(db, zikFile, survivor));
-                    myLogW("AutoDelete => duplicate row " + fileId + " merged into " + survivor.getId()
-                            + " (" + others.size() + " other row(s) use the file, kept): " + path);
-                    dbDeleted++;
-                    foldersToUpdate.add((long) zikFile.getIdFolder());
-                    continue;
-                }
-
-                if (file != null) {
-                    if (!file.delete()) {
-                        myLogE("AutoDelete => Failed to delete file " + (fsDeleted + 1) + "/" + deleteListSize + ": " + path);
-                        continue;
-                    }
-
-                    // At this point, file was deleted
-                    myLogD("AutoDelete => Deleted file: " + path);
+                if (outcome == EPISODE_FILE_AND_ROW_DELETED)
                     fsDeleted++;
-                }
-
-                int updated = db.runInTransaction(() -> removeEpisodeRow(db, zikFile));
-                if (updated < 0)
-                    continue;
-                dbUpdated += updated;
                 dbDeleted++;
-                foldersToUpdate.add((long) zikFile.getIdFolder());
+                foldersToUpdate.add((long) listed.getIdFolder());
             }
 
             if (dbDeleted != 0) {
-                myLogI("AutoDelete => " + fsDeleted + "/" + dbDeleted + "/" + dbUpdated
+                myLogI("AutoDelete => " + fsDeleted + " file(s)/" + dbDeleted + " row(s)"
                         + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from "
                         + days + " days) + " + percent + "% completion");
                 for (Long idFolder : foldersToUpdate) {
@@ -346,6 +293,165 @@ public class PodcastHelper {
             }
           }
         });
+    }
+
+    /** One category of the manual episode cleanup: the downloaded episodes it would remove. */
+    public static final class EpisodeCleanupGroup {
+        public final List<Long> zikFileIds = new java.util.ArrayList<>();
+        public long bytes;
+    }
+
+    /** What each cleanup choice would remove in one podcast folder (PodcastEpisodeCleanupSheet). */
+    public static final class EpisodeCleanupPreview {
+        public final EpisodeCleanupGroup listened = new EpisodeCleanupGroup();
+        public final EpisodeCleanupGroup neverPlayed = new EpisodeCleanupGroup();
+        public final EpisodeCleanupGroup untouched = new EpisodeCleanupGroup();
+        public int episodeCount;
+        public long totalBytes;
+        public int listenedPercent;
+    }
+
+    /**
+     * Sorts a podcast folder's downloaded episodes into the manual cleanup choices:
+     * listened (finished, or played past the auto-delete completion %), never played (no progress,
+     * no listening time), and untouched for untouchedMonths (neither downloaded nor played since).
+     * The episode currently loaded in the player is never included. Reads the disk (sizes): call
+     * off the main thread.
+     */
+    public static EpisodeCleanupPreview previewEpisodeCleanup(Context context, long folderId, int untouchedMonths) {
+        EpisodeCleanupPreview preview = new EpisodeCleanupPreview();
+        int percent = Option.getPodcastAutoDeleteCompletionPercentage();
+        preview.listenedPercent = (percent >= 10 && percent <= 100) ? percent : 95;
+
+        java.util.Calendar cutoff = java.util.Calendar.getInstance();
+        cutoff.add(java.util.Calendar.MONTH, -untouchedMonths);
+        long untouchedBefore = cutoff.getTimeInMillis();
+
+        long playingId = -1;
+        PlayList pl = PlayList.getInstance();
+        if (pl != null && !pl.isStream() && pl.getZikFile() != null)
+            playingId = pl.getZikFile().getId();
+
+        for (ZikFile z : AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao().getZikFiles(folderId)) {
+            File f = resolveEpisodeFile(z);
+            long size = f != null ? f.length() : 0;
+            preview.episodeCount++;
+            preview.totalBytes += size;
+            if (z.getId() == playingId)
+                continue;
+
+            if (z.isFinished() || z.getPercentdone() >= preview.listenedPercent)
+                add(preview.listened, z, size);
+            if (!z.isFinished() && z.getPercentdone() <= 0 && z.timeListened <= 0)
+                add(preview.neverPlayed, z, size);
+            long lastTouched = Math.max(z.date_added, z.lLastAccess != null ? z.lLastAccess : 0);
+            if (lastTouched > 0 && lastTouched < untouchedBefore)
+                add(preview.untouched, z, size);
+        }
+        return preview;
+    }
+
+    private static void add(EpisodeCleanupGroup group, ZikFile z, long size) {
+        group.zikFileIds.add((long) z.getId());
+        group.bytes += size;
+    }
+
+    /** Outcome of deleteDownloadedEpisodes(). */
+    public static final class EpisodeCleanupResult {
+        public int removed;
+        public long freedBytes;
+    }
+
+    /**
+     * Deletes the given downloaded episodes of one podcast folder, each exactly like AutoDelete
+     * does (deleteDownloadedEpisode: listening time kept, shared files kept, unreachable storage
+     * left alone). Call off the main thread.
+     */
+    public static EpisodeCleanupResult deleteDownloadedEpisodes(Context context, long folderId, List<Long> zikFileIds) {
+        EpisodeCleanupResult result = new EpisodeCleanupResult();
+        synchronized (EPISODE_ROWS_LOCK) {
+            AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+            for (long id : zikFileIds) {
+                ZikFile z = db.zikFileDao().getById(id);
+                File f = z != null ? resolveEpisodeFile(z) : null;
+                long size = f != null ? f.length() : 0;
+                int outcome = deleteDownloadedEpisode(db, id, "Cleanup");
+                if (outcome == EPISODE_KEPT)
+                    continue;
+                result.removed++;
+                if (outcome == EPISODE_FILE_AND_ROW_DELETED)
+                    result.freedBytes += size;
+            }
+        }
+        if (result.removed > 0)
+            Sql.updateFolderTable(context, folderId);
+        myLogI("Cleanup => " + result.removed + "/" + zikFileIds.size() + " episode(s) removed from folder "
+                + folderId + ", " + result.freedBytes + " bytes freed");
+        return result;
+    }
+
+    /** Fragment result posted by the episode cleanup sheet after a deletion (host refreshes). */
+    public static final String EPISODE_CLEANUP_RESULT_KEY = "podcast_episode_cleanup_done";
+
+    /** Long press on a podcast in the Clean screen: opens the episode cleanup sheet. */
+    public static void showEpisodeCleanup(androidx.fragment.app.Fragment host, long folderId, String podcastName,
+            @androidx.annotation.Nullable String image) {
+        PodcastEpisodeCleanupSheet.newInstance(folderId, podcastName, image)
+                .show(host.getChildFragmentManager(), PodcastEpisodeCleanupSheet.TAG);
+    }
+
+    // What deleteDownloadedEpisode() did with one row.
+    private static final int EPISODE_KEPT = 0;                 // nothing done (see log)
+    private static final int EPISODE_MERGED = 1;               // duplicate row merged, file kept
+    private static final int EPISODE_ROW_DELETED = 2;          // file was already gone, row removed
+    private static final int EPISODE_FILE_AND_ROW_DELETED = 3;
+
+    /**
+     * Removes one downloaded episode: its file, then its row (listening time kept on the Episode,
+     * which shows as not downloaded again - removeEpisodeRow). When other rows use the same file
+     * (duplicate rows left by concurrent syncs, see FinalizeDownloadWorker) only this row goes,
+     * merged into one of them, and the file stays: deleting it would leave them pointing at
+     * nothing ("could not find the file"). A missing file whose folder is unreachable (unmounted
+     * SD card) keeps its row. Shared by AutoDelete and the manual cleanup
+     * (PodcastEpisodeCleanupSheet). Caller holds EPISODE_ROWS_LOCK, off the main thread.
+     */
+    private static int deleteDownloadedEpisode(AppDatabase db, long zikFileId, String logPrefix) {
+        // Fresh read: an earlier merge in the same pass may have changed this row.
+        ZikFile zikFile = db.zikFileDao().getById(zikFileId);
+        if (zikFile == null || zikFile.getPath() == null)
+            return EPISODE_KEPT;
+        String path = zikFile.getPath();
+
+        File file = resolveEpisodeFile(zikFile);
+        if (file == null) {
+            if (!isEpisodeFolderReachable(zikFile)) {
+                myLogW(logPrefix + " => folder not reachable (storage unmounted?), row kept: " + path);
+                return EPISODE_KEPT;
+            }
+            myLogE(logPrefix + " => file already missing on disk, cleaning up DB only: " + path);
+        }
+
+        File sameFile = (file != null) ? file : new File(path);
+        List<ZikFile> others = db.zikFileDao().getReferencing(sameFile.getAbsolutePath(),
+                sameFile.getParent(), sameFile.getName(), zikFileId);
+        if (!others.isEmpty()) {
+            ZikFile survivor = pickDuplicateSurvivor(others, db.episodeDao());
+            db.runInTransaction(() -> mergeDuplicateInto(db, zikFile, survivor));
+            myLogW(logPrefix + " => duplicate row " + zikFileId + " merged into " + survivor.getId()
+                    + " (" + others.size() + " other row(s) use the file, kept): " + path);
+            return EPISODE_MERGED;
+        }
+
+        if (file != null) {
+            if (!file.delete()) {
+                myLogE(logPrefix + " => Failed to delete file: " + path);
+                return EPISODE_KEPT;
+            }
+            myLogD(logPrefix + " => Deleted file: " + path);
+        }
+        if (db.runInTransaction(() -> removeEpisodeRow(db, zikFile)) < 0)
+            return EPISODE_KEPT;
+        return file != null ? EPISODE_FILE_AND_ROW_DELETED : EPISODE_ROW_DELETED;
     }
 
     // AutoDelete and the one-time repair both merge/delete episode rows: never both at once

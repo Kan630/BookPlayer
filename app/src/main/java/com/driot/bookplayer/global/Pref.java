@@ -152,6 +152,21 @@ public class Pref {
     // Whether we've already offered to restore a recovered auto-backup snapshot (see
     // AutoBackupSnapshotManager / MainActivity's empty-library check) - asked at most once,
     // so declining it doesn't nag the user every time the library happens to be empty.
+    // Clean screen: tip about long-pressing a podcast (PodcastEpisodeCleanupSheet), until "don't show again".
+    public static boolean getCleanPodcastTipHidden() {
+        return admin.getBoolean("CLEAN_PODCAST_TIP_HIDDEN", false);
+    }
+
+    public static void setCleanPodcastTipHidden(boolean value) {
+        admin.edit().putBoolean("CLEAN_PODCAST_TIP_HIDDEN", value).apply();
+    }
+
+    // Settings > Utilities > "Show tips again": every tip hidden with "don't show again" comes back.
+    // A new tip with such a flag must be reset here too.
+    public static void resetHiddenTips() {
+        setCleanPodcastTipHidden(false);
+    }
+
     public static boolean getAutoBackupRecoveryPrompted() {
         return admin.getBoolean("AUTO_BACKUP_RECOVERY_PROMPTED", false);
     }

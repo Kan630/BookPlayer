@@ -96,6 +96,9 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
             myLog("User clicks on " + file.getName());
             onItemClickListener.onItemClick(item, position);
         });
+
+        holder.itemView.setOnLongClickListener(onItemLongClickListener == null ? null
+                : v -> onItemLongClickListener.onItemLongClick(item));
     }
 
     @Override
@@ -129,6 +132,17 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
 
     public interface OnItemClickListener {
         void onItemClick(FolderWithSummary item, int position);
+    }
+
+    /** Returns true when the long press was handled (it then also suppresses the click). */
+    public interface OnItemLongClickListener {
+        boolean onItemLongClick(FolderWithSummary item);
+    }
+
+    private OnItemLongClickListener onItemLongClickListener;
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
     }
 
  }
