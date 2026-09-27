@@ -92,13 +92,20 @@ public class CleanMemoryFragment extends LoggingFragment
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
         cacheFilesAdapter = new CleanMemoryRVAdapter(requireContext(), this, this);
-        // Long press on a podcast: quick bulk removal of its episodes (listened / never played /
-        // untouched). Full flavor only - PodcastHelper's pure stub does nothing.
+        // Long press: quick cleanup actions. Podcasts and radio recordings get their episode /
+        // recording cleanup (full flavor only - PodcastHelper's pure stubs do nothing), anything
+        // else the book quick actions (or, for a folder no book points to, its contents).
         cacheFilesAdapter.setOnItemLongClickListener(item -> {
-            if (!Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation) || item.idFolder <= 0)
-                return false;
-            myLogI("Long click on podcast [" + item.folderName + "]");
-            PodcastHelper.showEpisodeCleanup(this, item.idFolder, item.folderName, item.image);
+            String name = item.folderName != null && !item.folderName.isEmpty() ? item.folderName : item.file.getName();
+            myLogI("Long click on [" + name + "] (" + item.sourceLocation + ")");
+            if (item.idFolder > 0 && Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation)) {
+                PodcastHelper.showEpisodeCleanup(this, item.idFolder, name, item.image);
+            } else if (item.idFolder > 0 && Var.SOURCE_LOCATION_RADIO_RECORDING.equals(item.sourceLocation)) {
+                PodcastHelper.showRecordingCleanup(this, item.idFolder, name, item.image);
+            } else {
+                CleanItemSheet.newInstance(item.idFolder, name, item.image, item.file, item.folderSizeInBytes)
+                        .show(getChildFragmentManager(), CleanItemSheet.TAG);
+            }
             return true;
         });
         getChildFragmentManager().setFragmentResultListener(PodcastHelper.EPISODE_CLEANUP_RESULT_KEY,
@@ -301,20 +308,15 @@ public class CleanMemoryFragment extends LoggingFragment
                 REQ_DELETE_AUDIO);
     }
 
-    // Tip about the podcast long press, once per visit to this screen, only when the list shows a
-    // podcast (never on pure), until the user ticks "don't show again" (TipHelper).
+    // Tip about the long press (quick cleanup actions), once per visit to this screen with a
+    // non-empty list, until the user ticks "don't show again" (TipHelper).
     private boolean podcastTipChecked = false;
 
     private void maybeShowPodcastCleanupTip(@Nullable List<FolderWithSummary> items) {
         if (podcastTipChecked || items == null || items.isEmpty())
             return;
         podcastTipChecked = true; // the first loaded list decides, list refreshes don't re-ask
-        for (FolderWithSummary item : items) {
-            if (Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation) && item.idFolder > 0) {
-                TipHelper.maybeShow(requireContext(), TipHelper.Tip.CLEAN_PODCAST_LONG_PRESS);
-                return;
-            }
-        }
+        TipHelper.maybeShow(requireContext(), TipHelper.Tip.CLEAN_PODCAST_LONG_PRESS);
     }
 
     private boolean hasAnyContent(boolean internal) {

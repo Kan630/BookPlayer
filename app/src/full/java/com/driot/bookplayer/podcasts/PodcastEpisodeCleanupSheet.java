@@ -43,10 +43,14 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
     private static final String ARG_FOLDER_ID = "folderId";
     private static final String ARG_NAME = "name";
     private static final String ARG_IMAGE = "image";
+    private static final String ARG_RECORDINGS = "recordings";
+    // Recordings have no auto-delete setting to borrow the "listened" threshold from.
+    private static final int RECORDING_LISTENED_PERCENT = 95;
     private static final int[] UNTOUCHED_MONTHS = { 1, 3, 6, 12 };
     private static final int DEFAULT_UNTOUCHED_MONTHS = 3;
 
     private long folderId;
+    private boolean recordings; // radio recordings folder: same choices, recordings wording
     private int untouchedMonths = DEFAULT_UNTOUCHED_MONTHS;
     private boolean deleting = false;
     private int loadGeneration = 0;
@@ -54,7 +58,7 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
     private TextView summary;
     private OptionViews listened, neverPlayed, untouched;
 
-    /** The views of one included item_podcast_cleanup_option card. */
+    /** The views of one included item_cleanup_option card. */
     private static final class OptionViews {
         final TextView count;
         final MaterialButton button;
@@ -72,9 +76,11 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         }
     }
 
-    public static PodcastEpisodeCleanupSheet newInstance(long folderId, String name, @Nullable String image) {
+    public static PodcastEpisodeCleanupSheet newInstance(long folderId, String name, @Nullable String image,
+            boolean recordings) {
         Bundle args = new Bundle();
         args.putLong(ARG_FOLDER_ID, folderId);
+        args.putBoolean(ARG_RECORDINGS, recordings);
         args.putString(ARG_NAME, name);
         args.putString(ARG_IMAGE, image);
         PodcastEpisodeCleanupSheet sheet = new PodcastEpisodeCleanupSheet();
@@ -94,6 +100,9 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
         Bundle args = requireArguments();
         folderId = args.getLong(ARG_FOLDER_ID);
+        recordings = args.getBoolean(ARG_RECORDINGS);
+        if (recordings)
+            ((TextView) view.findViewById(R.id.cleanup_title)).setText(R.string.recording_cleanup_title);
         ((TextView) view.findViewById(R.id.cleanup_podcast_name)).setText(args.getString(ARG_NAME));
         String image = args.getString(ARG_IMAGE);
         if (image != null && !image.isEmpty())
@@ -104,7 +113,8 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         listened = new OptionViews(view.findViewById(R.id.cleanup_listened), R.drawable.ic_done_all_24,
                 getString(R.string.podcast_cleanup_listened_title), "…");
         neverPlayed = new OptionViews(view.findViewById(R.id.cleanup_never_played), R.drawable.ic_hourglass_24,
-                getString(R.string.podcast_cleanup_never_title), getString(R.string.podcast_episode_status_never_played));
+                getString(R.string.podcast_cleanup_never_title), getString(recordings
+                        ? R.string.recording_cleanup_never_desc : R.string.podcast_episode_status_never_played));
         untouched = new OptionViews(view.findViewById(R.id.cleanup_untouched), R.drawable.ic_schedule_24,
                 getString(R.string.podcast_cleanup_untouched_title), getString(R.string.podcast_cleanup_untouched_desc));
         addPeriodChips(untouched.extra);
@@ -156,18 +166,21 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         int months = untouchedMonths;
         setButtonsEnabled(false);
         AppDatabase.databaseReadExecutor.execute(() -> {
-            PodcastHelper.EpisodeCleanupPreview p = PodcastHelper.previewEpisodeCleanup(app, folderId, months);
+            PodcastHelper.EpisodeCleanupPreview p = recordings
+                    ? PodcastHelper.previewEpisodeCleanup(app, folderId, months, RECORDING_LISTENED_PERCENT)
+                    : PodcastHelper.previewEpisodeCleanup(app, folderId, months);
             View root = getView();
             if (root == null)
                 return;
             root.post(() -> {
                 if (!isAdded() || generation != loadGeneration)
                     return;
-                summary.setText(getResources().getQuantityString(R.plurals.podcast_cleanup_summary,
+                summary.setText(getResources().getQuantityString(recordings ? R.plurals.recording_cleanup_summary : R.plurals.podcast_cleanup_summary,
                         p.episodeCount, p.episodeCount, Tonio.getReadableSize(p.totalBytes)));
                 ((TextView) requireView().findViewById(R.id.cleanup_listened)
                         .findViewById(R.id.cleanup_option_desc))
-                        .setText(getString(R.string.podcast_cleanup_listened_desc, p.listenedPercent));
+                        .setText(getString(recordings ? R.string.recording_cleanup_listened_desc
+                                : R.string.podcast_cleanup_listened_desc, p.listenedPercent));
                 show(listened, p.listened);
                 show(neverPlayed, p.neverPlayed);
                 show(untouched, p.untouched);
@@ -180,7 +193,8 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         option.bytes = group.bytes;
         int n = group.zikFileIds.size();
         option.count.setText(n == 0 ? getString(R.string.podcast_cleanup_nothing)
-                : getResources().getQuantityString(R.plurals.podcast_cleanup_count, n, n,
+                : getResources().getQuantityString(
+                        recordings ? R.plurals.recording_cleanup_count : R.plurals.podcast_cleanup_count, n, n,
                         Tonio.getReadableSize(group.bytes)));
         option.button.setEnabled(n > 0 && !deleting);
     }
@@ -197,8 +211,10 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
         long bytes = option.bytes;
         new MaterialAlertDialogBuilder(requireContext())
                 .setIcon(R.drawable.ic_delete_24)
-                .setTitle(getResources().getQuantityString(R.plurals.podcast_cleanup_confirm_title, ids.size(), ids.size()))
-                .setMessage(getString(R.string.podcast_cleanup_confirm_message, Tonio.getReadableSize(bytes)))
+                .setTitle(getResources().getQuantityString(recordings ? R.plurals.recording_cleanup_confirm_title
+                        : R.plurals.podcast_cleanup_confirm_title, ids.size(), ids.size()))
+                .setMessage(getString(recordings ? R.string.recording_cleanup_confirm_message
+                        : R.string.podcast_cleanup_confirm_message, Tonio.getReadableSize(bytes)))
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.Delete, (d, w) -> delete(ids))
                 .show();
@@ -218,7 +234,8 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
                 deleting = false;
                 if (!isAdded())
                     return;
-                Toast.makeText(app, getResources().getQuantityString(R.plurals.podcast_cleanup_done, r.removed,
+                Toast.makeText(app, getResources().getQuantityString(
+                        recordings ? R.plurals.recording_cleanup_done : R.plurals.podcast_cleanup_done, r.removed,
                         r.removed, Tonio.getReadableSize(r.freedBytes)), Toast.LENGTH_LONG).show();
                 getParentFragmentManager().setFragmentResult(PodcastHelper.EPISODE_CLEANUP_RESULT_KEY, new Bundle());
                 loadPreview();

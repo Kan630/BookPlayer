@@ -319,9 +319,15 @@ public class PodcastHelper {
      * off the main thread.
      */
     public static EpisodeCleanupPreview previewEpisodeCleanup(Context context, long folderId, int untouchedMonths) {
-        EpisodeCleanupPreview preview = new EpisodeCleanupPreview();
         int percent = Option.getPodcastAutoDeleteCompletionPercentage();
-        preview.listenedPercent = (percent >= 10 && percent <= 100) ? percent : 95;
+        return previewEpisodeCleanup(context, folderId, untouchedMonths, (percent >= 10 && percent <= 100) ? percent : 95);
+    }
+
+    /** Same, with an explicit "listened" threshold (radio recordings: no auto-delete setting). */
+    public static EpisodeCleanupPreview previewEpisodeCleanup(Context context, long folderId, int untouchedMonths,
+            int listenedPercent) {
+        EpisodeCleanupPreview preview = new EpisodeCleanupPreview();
+        preview.listenedPercent = listenedPercent;
 
         java.util.Calendar cutoff = java.util.Calendar.getInstance();
         cutoff.add(java.util.Calendar.MONTH, -untouchedMonths);
@@ -396,7 +402,14 @@ public class PodcastHelper {
     /** Long press on a podcast in the Clean screen: opens the episode cleanup sheet. */
     public static void showEpisodeCleanup(androidx.fragment.app.Fragment host, long folderId, String podcastName,
             @androidx.annotation.Nullable String image) {
-        PodcastEpisodeCleanupSheet.newInstance(folderId, podcastName, image)
+        PodcastEpisodeCleanupSheet.newInstance(folderId, podcastName, image, false)
+                .show(host.getChildFragmentManager(), PodcastEpisodeCleanupSheet.TAG);
+    }
+
+    /** Long press on a radio recordings folder in the Clean screen: same sheet, recordings wording. */
+    public static void showRecordingCleanup(androidx.fragment.app.Fragment host, long folderId, String name,
+            @androidx.annotation.Nullable String image) {
+        PodcastEpisodeCleanupSheet.newInstance(folderId, name, image, true)
                 .show(host.getChildFragmentManager(), PodcastEpisodeCleanupSheet.TAG);
     }
 

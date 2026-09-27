@@ -149,7 +149,7 @@ public final class RedownloadHelper {
 
     /** The plain file path behind a stored track path: file:// addresses are percent-encoded
      *  ("my%20book/track%201.mp3"), raw paths are used as they are. Null for content:// (SAF). */
-    private static String plainPath(String path) {
+    public static String plainPath(String path) {
         if (path == null || path.startsWith("content://")) {
             return null;
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- PodcastEpisodeCleanupSheet: long press on a podcast in the Clean screen. -->
+<!-- CleanItemSheet: long press on a book (or a folder unknown to the library) in the Clean screen. -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -17,7 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Header: the podcast and what it currently takes -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,13 +24,13 @@
             android:orientation="horizontal">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/cleanup_cover"
+                android:id="@+id/clean_item_cover"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_marginEnd="14dp"
                 android:importantForAccessibility="no"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_podcast_24"
+                android:src="@drawable/ic_menu_book_24"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
 
             <LinearLayout
@@ -41,15 +40,15 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/cleanup_title"
+                    android:id="@+id/clean_item_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/podcast_cleanup_title"
+                    android:text="@string/clean_item_title"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
                     android:textColor="?attr/colorPrimary" />
 
                 <TextView
-                    android:id="@+id/cleanup_podcast_name"
+                    android:id="@+id/clean_item_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -57,7 +56,7 @@
                     android:textAppearance="?attr/textAppearanceTitleLarge" />
 
                 <TextView
-                    android:id="@+id/cleanup_summary"
+                    android:id="@+id/clean_item_summary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="…"
@@ -66,25 +65,29 @@
             </LinearLayout>
         </LinearLayout>
 
-        <include
-            android:id="@+id/cleanup_listened"
-            layout="@layout/item_cleanup_option" />
-
-        <include
-            android:id="@+id/cleanup_never_played"
-            layout="@layout/item_cleanup_option" />
-
-        <include
-            android:id="@+id/cleanup_untouched"
-            layout="@layout/item_cleanup_option" />
+        <!-- Action cards (item_cleanup_option), only the ones that apply -->
+        <LinearLayout
+            android:id="@+id/clean_item_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
         <TextView
+            android:id="@+id/clean_item_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:text="@string/podcast_cleanup_footnote"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+        <!-- Folder unknown to the library: what it contains -->
+        <LinearLayout
+            android:id="@+id/clean_item_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

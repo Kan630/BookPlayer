@@ -1641,13 +1641,76 @@
     <string name="tip_tracks_long_press">Long-press a track to open its options: reset, delete, change the track order…</string>
     <string name="tip_text_reader_gestures">Pinch to zoom the text in or out. Double-tap to turn auto-scroll on or off.</string>
     <string name="tip_podcast_cover_tap">Tap the podcast cover to switch between your downloaded episodes and all the episodes available online.</string>
-    <string name="clean_podcast_tip_message">Long-press a podcast in this list to quickly clean up its episodes.</string>
+    <string name="clean_podcast_tip_message">Long-press an item in this list for quick cleanup actions.</string>
     <string name="utilities_tips_title">Tips</string>
     <string name="utilities_show_tips_again">Show tips again</string>
     <string name="utilities_show_tips_again_explanation">Tips you asked not to see again will show up again.</string>
     <string name="utilities_tips_reset_done">Tips will show again</string>
     <string name="dont_show_again">Don\'t show again</string>
     <string name="podcast_cleanup_footnote">The episode loaded in the player is never included.</string>
+
+    <!-- Radio recordings variant of the episode cleanup sheet -->
+    <string name="recording_cleanup_title">Clean up recordings</string>
+    <string name="recording_cleanup_never_desc">Recorded, never played</string>
+    <string name="recording_cleanup_listened_desc">Finished, or played past %d%%</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">%1$d recording · %2$s</item>
+        <item quantity="other">%1$d recordings · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">%1$d recording · %2$s</item>
+        <item quantity="other">%1$d recordings · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">Delete %d recording?</item>
+        <item quantity="other">Delete %d recordings?</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">%s will be freed. Deleted recordings cannot be recovered.</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">%1$d recording deleted, %2$s freed</item>
+        <item quantity="other">%1$d recordings deleted, %2$s freed</item>
+    </plurals>
+
+    <!-- Quick actions sheet (long press on a book or unknown folder in the Clean screen) -->
+    <string name="clean_item_title">Quick actions</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">%1$d track · %2$s</item>
+        <item quantity="other">%1$d tracks · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">Free up space, keep the book</string>
+    <string name="clean_item_free_desc">Deletes the audio files. The book, your progress and statistics stay in your library, and it can be downloaded again at any time.</string>
+    <string name="clean_item_free_button">Free up</string>
+    <string name="clean_item_listened_title">Remove listened tracks</string>
+    <string name="clean_item_listened_desc">Deletes the files of the tracks you finished. They can be downloaded again at any time.</string>
+    <string name="clean_item_download_title">Download again</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">%d track is missing on this device</item>
+        <item quantity="other">%d tracks are missing on this device</item>
+    </plurals>
+    <string name="clean_item_download_button">Download</string>
+    <string name="clean_item_move_title">Move to another storage</string>
+    <string name="clean_item_move_desc">Move this book between the device and the SD card.</string>
+    <string name="clean_item_move_button">Move</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">%1$d file · %2$s</item>
+        <item quantity="other">%1$d files · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">No quick action for this book: it cannot be downloaded again. Use the trash button to delete it.</string>
+    <string name="clean_item_orphan_title">Not in your library</string>
+    <string name="clean_item_orphan_desc">This folder is not linked to any book. Here is what it contains - the trash button deletes it.</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…and %d more</item>
+        <item quantity="other">…and %d more</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">Delete %d file?</item>
+        <item quantity="other">Delete %d files?</item>
+    </plurals>
+    <string name="clean_item_confirm_message">%s will be freed. The book and your progress stay in your library, and it can be downloaded again at any time.</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">%1$d file deleted, %2$s freed</item>
+        <item quantity="other">%1$d files deleted, %2$s freed</item>
+    </plurals>
 </resources>
 
 
