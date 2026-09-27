@@ -25,6 +25,16 @@
         android:label="CleanMemory" />
 
     <fragment
+        android:id="@+id/statsFragment"
+        android:name="com.driot.bookplayer.activities.StatsFragment"
+        android:label="Stats" />
+
+    <fragment
+        android:id="@+id/detailedStatsFragment"
+        android:name="com.driot.bookplayer.activities.DetailedStatsFragment"
+        android:label="DetailedStats" />
+
+    <fragment
         android:id="@+id/nearbyShareFragment"
         android:name="com.driot.bookplayer.quickshare.NearbyShareFragment"
         android:label="NearbyShare" />

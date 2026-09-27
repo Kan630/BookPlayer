@@ -217,7 +217,7 @@ public class MoveBookActivity extends BaseActivity {
     }
 
     // ------------------------------------------------------------------------------------
-    // Storage summary - reuses the same StorageBarView + cached size figures as StatsActivity,
+    // Storage summary - reuses the same StorageBarView + cached size figures as StatsFragment,
     // just narrowed down to the three numbers relevant here: free space, space used by books
     // BookPlayer copied (app-managed storage), and space used by books it only links to (their
     // bytes live outside BookPlayer's own storage, so moving/deleting them there doesn't free
@@ -304,7 +304,7 @@ public class MoveBookActivity extends BaseActivity {
         applyLineIcon(spannable, linkedStart, R.drawable.ic_link_2_24px, linkedColor);
         tvBody.setText(spannable);
 
-        // No "appStorage" segment here (unlike StatsActivity's bar) - that overhead is already
+        // No "appStorage" segment here (unlike StatsFragment's bar) - that overhead is already
         // folded into "others" above, since this screen only cares about copied vs linked books.
         bar.setStorageValues(total, others, copied, 0, linked);
     }
@@ -683,7 +683,7 @@ public class MoveBookActivity extends BaseActivity {
     private void onMoveSucceeded() {
         moveInProgress = false;
         myToast(getString(R.string.move_success));
-        // The copied/linked split just changed - refresh the cached figures StatsActivity (and
+        // The copied/linked split just changed - refresh the cached figures StatsFragment (and
         // this screen, if opened again for another book) reads, instead of leaving them stale
         // until the next app start.
         StorageInfoCacheHelper.recalculate(this);

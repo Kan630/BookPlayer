@@ -9,13 +9,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.widgets.StorageBarView;
@@ -28,9 +34,8 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
-import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.BaseActivity;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,7 +47,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class StatsActivity extends BaseActivity {
+/** Storage, version and listening-time totals. A Library-tab destination (was StatsActivity):
+ * opened from the Library menu and Settings > Utilities (direct link), and it leads to
+ * DetailedStatsFragment, from which a book opens on top - so back walks this same path. */
+public class StatsFragment extends LoggingFragment {
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;
@@ -50,11 +58,16 @@ public class StatsActivity extends BaseActivity {
     private TextView tv1_body_internal;
     private TextView tv1_body_sdcard;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stats);
-        InsetHelper.apply(this);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_stats, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         String strPowerManagement = getStringPowerManagement();
         myLogI("Power Management :" + strPowerManagement);
@@ -63,23 +76,23 @@ public class StatsActivity extends BaseActivity {
         viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
         // Setup UI references
-        TextView tv_head_internal = findViewById(R.id.tv1_head);
+        TextView tv_head_internal = view.findViewById(R.id.tv1_head);
         tv_head_internal.setText(R.string.physical_storage_memory);
-        tv1_body_internal = findViewById(R.id.tv1_body_internal);
-        tv1_body_sdcard = findViewById(R.id.tv1_body_sdcard);
-        storageBarInternal = findViewById(R.id.storageBarInternal);
-        storageBarSDCard = findViewById(R.id.storageBarSDCard);
-        LinearLayout llSDCardStorage = findViewById(R.id.llSDCardStorage);
+        tv1_body_internal = view.findViewById(R.id.tv1_body_internal);
+        tv1_body_sdcard = view.findViewById(R.id.tv1_body_sdcard);
+        storageBarInternal = view.findViewById(R.id.storageBarInternal);
+        storageBarSDCard = view.findViewById(R.id.storageBarSDCard);
+        LinearLayout llSDCardStorage = view.findViewById(R.id.llSDCardStorage);
 
         // Observe internal storage data
-        viewModel.getInternalStorageText().observe(this, text -> {
+        viewModel.getInternalStorageText().observe(getViewLifecycleOwner(), text -> {
             if (text != null && tv1_body_internal != null) {
                 tv1_body_internal.setText(text); // text is CharSequence (SpannableString) with colored linked audios
                 tv1_body_internal.setVisibility(View.VISIBLE);
             }
         });
 
-        viewModel.getInternalStorageInfo().observe(this, storageInfo -> {
+        viewModel.getInternalStorageInfo().observe(getViewLifecycleOwner(), storageInfo -> {
             if (storageInfo != null && storageBarInternal != null) {
                 storageBarInternal.setStorageValues(
                         storageInfo.totalStorageBytes,
@@ -97,13 +110,13 @@ public class StatsActivity extends BaseActivity {
         });
 
         // Observe SD card storage data
-        viewModel.getSdCardStorageText().observe(this, text -> {
+        viewModel.getSdCardStorageText().observe(getViewLifecycleOwner(), text -> {
             if (text != null && tv1_body_sdcard != null) {
                 tv1_body_sdcard.setText(text); // text is CharSequence (SpannableString) with colored linked audios
             }
         });
 
-        viewModel.getSdCardStorageInfo().observe(this, storageInfo -> {
+        viewModel.getSdCardStorageInfo().observe(getViewLifecycleOwner(), storageInfo -> {
             if (storageInfo != null && storageBarSDCard != null && llSDCardStorage != null) {
                 storageBarSDCard.setStorageValues(
                         storageInfo.totalStorageBytes,
@@ -124,7 +137,7 @@ public class StatsActivity extends BaseActivity {
         });
 
         // Secret triple-tap (top-end) to open AdminActivity (same as LogListActivity)
-        View secretEntry = findViewById(R.id.viewSecretEntry);
+        View secretEntry = view.findViewById(R.id.viewSecretEntry);
         final long[] taps = new long[3];
         secretEntry.setOnClickListener(v -> {
             System.arraycopy(taps, 1, taps, 0, taps.length - 1);
@@ -134,7 +147,7 @@ public class StatsActivity extends BaseActivity {
                 if (!wasAdmin) {
                     myToast(" you're admin now");
                     Pref.setIsAdmin(true);
-                    startActivity(new Intent(this, AdminActivity.class));
+                    startActivity(new Intent(requireContext(), AdminActivity.class));
                 } else {
                     myToast(" you're not anymore admin ");
                     Pref.setIsAdmin(false);
@@ -148,16 +161,16 @@ public class StatsActivity extends BaseActivity {
                 + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
                 + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
                 + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
-                + "\n" + "\n" + "Google play Service = " + GoogleServicesHelper.getPlayServicesStatus(this)
-                + "\n" + "\n" + "Play Service version = " + GoogleServicesHelper.getPlayServicesVersion(this)
+                + "\n" + "\n" + "Google play Service = " + GoogleServicesHelper.getPlayServicesStatus(requireContext())
+                + "\n" + "\n" + "Play Service version = " + GoogleServicesHelper.getPlayServicesVersion(requireContext())
                 + "\n" + "\n" + "---"
-                + "\n" + "\n" + "Bookplayer package = " + getPackageName()
+                + "\n" + "\n" + "Bookplayer package = " + requireContext().getPackageName()
                 + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
                 + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
                 + "\n" + "\n" + "Bookplayer DB version = " + APP_DATABASE_VERSION;
 
-        TextView tv_head2 = findViewById(R.id.tv2_head);
-        TextView tv_body2 = findViewById(R.id.tv2_body);
+        TextView tv_head2 = view.findViewById(R.id.tv2_head);
+        TextView tv_body2 = view.findViewById(R.id.tv2_body);
         tv_head2.setText(R.string.Version);
         tv_body2.setText(zeText2);
 
@@ -165,12 +178,12 @@ public class StatsActivity extends BaseActivity {
 
         String zeText3 = "Region Locale = " + Locale.getDefault().getCountry()
                 + "\n" + "\n" + "Region TimeZone = " + TimeZone.getDefault().getID()
-                + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(this)
+                + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(requireContext())
                 + "\n" + "\n" + "---"
                 + "\n" + "\n" + "Theme = " + getKindOfTheme();
 
-        TextView tv_head3 = findViewById(R.id.tv3_head);
-        TextView tv_body3 = findViewById(R.id.tv3_body);
+        TextView tv_head3 = view.findViewById(R.id.tv3_head);
+        TextView tv_body3 = view.findViewById(R.id.tv3_body);
         tv_head3.setText(R.string.Miscellaneous);
         tv_body3.setText(zeText3);
 
@@ -195,11 +208,11 @@ public class StatsActivity extends BaseActivity {
         // Build text for main body (without Audio Time, it will be in table header)
         String zeText4 = getString(R.string.stats_install_date_label) + " " + installDateFormatted;
 
-        TextView tv_stats_head = findViewById(R.id.tv_stats_head);
-        TextView tv_stats_install_date = findViewById(R.id.tv_stats_install_date);
-        TextView tv_stats_recovery_date = findViewById(R.id.tv_stats_recovery_date);
-        TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
-        TextView tv_duration_stats_note = findViewById(R.id.tv_duration_stats_note);
+        TextView tv_stats_head = view.findViewById(R.id.tv_stats_head);
+        TextView tv_stats_install_date = view.findViewById(R.id.tv_stats_install_date);
+        TextView tv_stats_recovery_date = view.findViewById(R.id.tv_stats_recovery_date);
+        TableLayout tableDurationDetails = view.findViewById(R.id.tableDurationDetails);
+        TextView tv_duration_stats_note = view.findViewById(R.id.tv_duration_stats_note);
 
         tv_stats_head.setText(R.string.Usage);
         tv_stats_install_date.setText(zeText4);
@@ -234,19 +247,26 @@ public class StatsActivity extends BaseActivity {
             tv_duration_stats_note.setVisibility(View.GONE);
         }
 
-        findViewById(R.id.bt_DetailedStats).setOnClickListener(v ->
-                startActivity(new Intent(this, DetailedStatsActivity.class)));
+        view.findViewById(R.id.bt_DetailedStats).setOnClickListener(v -> {
+            NavOptions options = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_enter_from_right)
+                    .setExitAnim(R.anim.slide_exit_to_left)
+                    .setPopEnterAnim(R.anim.slide_pop_enter_from_left)
+                    .setPopExitAnim(R.anim.slide_pop_exit_to_right)
+                    .build();
+            Navigation.findNavController(v).navigate(R.id.detailedStatsFragment, null, options);
+        });
 
         // Observe DB stats
         if (Tonio.isAdmin()) {
-            TextView tv_body4 = findViewById(R.id.tv4_body);
-            viewModel.getDbStats().observe(this, stats -> {
+            TextView tv_body4 = view.findViewById(R.id.tv4_body);
+            viewModel.getDbStats().observe(getViewLifecycleOwner(), stats -> {
                 if (stats != null && tv_body4 != null) {
                     tv_body4.setText(stats);
                 }
             });
         } else {
-            findViewById(R.id.ll_db_stats).setVisibility(View.GONE);
+            view.findViewById(R.id.ll_db_stats).setVisibility(View.GONE);
         }
     }
 
@@ -434,21 +454,21 @@ public class StatsActivity extends BaseActivity {
             return;
         }
 
-        TableRow row = new TableRow(this);
+        TableRow row = new TableRow(requireContext());
 
         // Label TextView (left column) - bold
-        TextView labelView = new TextView(this);
+        TextView labelView = new TextView(requireContext());
         labelView.setText(label);
         labelView.setPadding(0, 4, 16, 4); // top, right, bottom, left
-        labelView.setTextAppearance(this, R.style.simpleText);
+        labelView.setTextAppearance(requireContext(), R.style.simpleText);
         labelView.setTypeface(null, android.graphics.Typeface.BOLD);
         row.addView(labelView);
 
         // Value TextView (right column) - bold
-        TextView valueView = new TextView(this);
+        TextView valueView = new TextView(requireContext());
         valueView.setText(value);
         valueView.setPadding(0, 4, 0, 4);
-        valueView.setTextAppearance(this, R.style.simpleText);
+        valueView.setTextAppearance(requireContext(), R.style.simpleText);
         valueView.setTypeface(null, android.graphics.Typeface.BOLD);
         valueView.setGravity(android.view.Gravity.END); // Right-align values
         row.addView(valueView);
@@ -471,30 +491,30 @@ public class StatsActivity extends BaseActivity {
         if (valueMs <= 0)
             return;
 
-        TableRow row = new TableRow(this);
+        TableRow row = new TableRow(requireContext());
 
         // Single cell: label + value, then a very fine underline (length = percentage
         // of total)
         int percentage = (totalMs > 0 && valueMs >= 0) ? (int) Math.round(100.0 * valueMs / totalMs) : 0;
         percentage = Math.min(100, Math.max(0, percentage));
 
-        android.widget.LinearLayout cell = new android.widget.LinearLayout(this);
+        android.widget.LinearLayout cell = new android.widget.LinearLayout(requireContext());
         cell.setOrientation(android.widget.LinearLayout.VERTICAL);
 
         // Text row: label + value
-        android.widget.LinearLayout contentLayout = new android.widget.LinearLayout(this);
+        android.widget.LinearLayout contentLayout = new android.widget.LinearLayout(requireContext());
         contentLayout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
 
-        TextView labelView = new TextView(this);
+        TextView labelView = new TextView(requireContext());
         labelView.setText(label);
         labelView.setPadding(0, 4, 16, 4);
-        labelView.setTextAppearance(this, R.style.simpleText);
+        labelView.setTextAppearance(requireContext(), R.style.simpleText);
         contentLayout.addView(labelView);
 
-        TextView valueView = new TextView(this);
+        TextView valueView = new TextView(requireContext());
         valueView.setText(value);
         valueView.setPadding(0, 4, 8, 4);
-        valueView.setTextAppearance(this, R.style.simpleText);
+        valueView.setTextAppearance(requireContext(), R.style.simpleText);
         valueView.setGravity(android.view.Gravity.END);
         android.widget.LinearLayout.LayoutParams valueParams = new android.widget.LinearLayout.LayoutParams(0,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -503,8 +523,8 @@ public class StatsActivity extends BaseActivity {
         cell.addView(contentLayout);
 
         // Very fine underline: length = percentage of row width
-        View underline = new View(this);
-        underline.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.gray_300));
+        View underline = new View(requireContext());
+        underline.setBackgroundColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.gray_300));
         int lineHeightPx = (int) (1f * getResources().getDisplayMetrics().density); // 1dp
         android.widget.LinearLayout.LayoutParams lineParams = new android.widget.LinearLayout.LayoutParams(0,
                 lineHeightPx, percentage);
@@ -513,10 +533,10 @@ public class StatsActivity extends BaseActivity {
                 lineHeightPx, 100 - percentage);
         lineSpacer.topMargin = 2;
 
-        android.widget.LinearLayout lineRow = new android.widget.LinearLayout(this);
+        android.widget.LinearLayout lineRow = new android.widget.LinearLayout(requireContext());
         lineRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
         lineRow.addView(underline, lineParams);
-        lineRow.addView(new View(this), lineSpacer);
+        lineRow.addView(new View(requireContext()), lineSpacer);
         cell.addView(lineRow);
 
         TableRow.LayoutParams spanParams = new TableRow.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -609,8 +629,8 @@ public class StatsActivity extends BaseActivity {
     private String getStringPowerManagement() {
         // SDK23 min
         String strPowerManagement = "";
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        if (powerManager != null && powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+        PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
+        if (powerManager != null && powerManager.isIgnoringBatteryOptimizations(requireContext().getPackageName())) {
             strPowerManagement = getString(R.string.power_management_exempt);
         } else {
             strPowerManagement = getString(R.string.power_management_subject);
@@ -620,7 +640,7 @@ public class StatsActivity extends BaseActivity {
     }
 
     private String getSqlLiteVersion() {
-        SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper()
+        SupportSQLiteDatabase db = DatabaseClient.getInstance(requireContext().getApplicationContext()).getAppDatabase().getOpenHelper()
                 .getWritableDatabase();
         return DatabaseBackupHelper.getSQLiteVersion(db);
     }

@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.HelpActivity;
-import com.driot.bookplayer.activities.StatsActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -143,8 +142,14 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());
         root.findViewById(R.id.btn_delete_system_cache).setOnClickListener(v -> deleteSystemCacheClick());
 
-        root.findViewById(R.id.btn_quick_access_stats).setOnClickListener(v ->
-                startActivity(new Intent(getActivity(), StatsActivity.class)));
+        root.findViewById(R.id.btn_quick_access_stats).setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MainActivity.class)
+                    .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)
+                    .putExtra(MainActivity.EXTRA_NAV_DEST_ID, R.id.statsFragment)
+                    .putExtra(MainActivity.EXTRA_NAV_DIRECT_LINK, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
         root.findViewById(R.id.btn_quick_access_cleaning).setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), MainActivity.class)
                     .putExtra(MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_library)

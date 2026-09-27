@@ -600,7 +600,7 @@ public class MainActivity extends FullActivity {
     /** True exactly when the Library tab is both the active tab and showing its own root screen
      * (mainLibraryFragment, the book list) - the only place the shared toolbar/menu make sense.
      * Every other Library-tab destination (ZikFileFragment/TtsReaderFragment/CleanMemoryFragment/
-     * NearbyShareFragment) draws its own inline header instead, same as they did as standalone
+     * StatsFragment/DetailedStatsFragment/NearbyShareFragment) draws its own inline header instead, same as they did as standalone
      * Activities before this merge - and every other tab draws its own header too. */
     private boolean isOnLibraryRoot() {
         if (currentNavSectionId != R.id.nav_library) return false;
@@ -777,7 +777,7 @@ public class MainActivity extends FullActivity {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
         } else if (itemId == R.id.menu_stats) {
             myLogI("--- USER clicks MENU : STATS ---");
-            startActivity(new Intent(this, StatsActivity.class));
+            navigateDirectLink(R.id.nav_library, R.id.statsFragment, null);
         } else if (itemId == R.id.menu_sendmail) {
             myLogI("--- USER clicks MENU : SEND MAIL ---");
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");

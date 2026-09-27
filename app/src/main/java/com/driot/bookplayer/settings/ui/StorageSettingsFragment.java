@@ -126,7 +126,7 @@ public class StorageSettingsFragment extends LoggingFragment {
                 Tonio.getReadableSize(Math.max(0, totalBytes)), Tonio.getReadableSize(Math.max(0, freeBytes)));
     }
 
-    /** Same colored breakdown StatsActivity shows (gray=others, dark blue=app storage,
+    /** Same colored breakdown StatsFragment shows (gray=others, dark blue=app storage,
      *  indigo=BookPlayer audio, green=linked) - read straight from StorageInfoCacheHelper's
      *  synchronous cache rather than recomputing it (StatsViewModel owns the actual
      *  calculation/cache-refresh). The legend is hidden by default and toggled by tapping the

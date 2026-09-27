@@ -316,7 +316,7 @@ public class Folder implements Parcelable {
 
     /**
      * Icon distinguishing "copied into BookPlayer's reserved storage" vs "linked from shared
-     * storage" - same copy/link concept and icons as MoveBookActivity/StatsActivity. 0 (no icon)
+     * storage" - same copy/link concept and icons as MoveBookActivity/StatsFragment. 0 (no icon)
      * when the location can't be determined.
      */
     public int getCopyOrLinkIconRes(Context context) {

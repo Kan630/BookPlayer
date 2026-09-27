@@ -19,7 +19,7 @@ import com.driot.bookplayer.utils.Tonio;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Read-only list of Folders sorted by time listened, for DetailedStatsActivity. */
+/** Read-only list of Folders sorted by time listened, for DetailedStatsFragment. */
 public class DetailedStatsRVAdapter extends RecyclerView.Adapter<DetailedStatsRVAdapter.VH> {
 
     public interface OnFolderClickListener {

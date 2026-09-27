@@ -639,7 +639,7 @@ public class ModifyFolderActivity extends BaseActivity {
 
     // Placeholder character right after "Audio location :" so a small copy/link icon can be
     // swapped in via ImageSpan - same reserved-storage-vs-linked-storage split and icons as
-    // MoveBookActivity/StatsActivity.
+    // MoveBookActivity/StatsFragment.
     private static final String ICON_ANCHOR = " ";
 
     private void refreshStorageLocationDisplay(ImageView ivStorageIcon, TextView tvStorageIcon) {

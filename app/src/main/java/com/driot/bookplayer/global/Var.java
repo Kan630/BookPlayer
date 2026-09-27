@@ -102,7 +102,7 @@ public class Var {
         public static final String OPEN_WITH_ACTION_BOTH = "both";
 
         // Finer-grained categories for the Pref.addToTotalMsPlayed/getTotalMsPlayed stats totals
-        // only (StatsActivity) - NOT real playback engine modes, PLAY_MODE_* above stays exactly
+        // only (StatsFragment) - NOT real playback engine modes, PLAY_MODE_* above stays exactly
         // as-is for engine/UI purposes. Local (ZikFile-based) playback of a downloaded podcast
         // episode, a radio recording, or a music-type folder would otherwise all silently fall
         // under PLAY_MODE_BOOK's "book" stats bucket, since local playback only ever derives

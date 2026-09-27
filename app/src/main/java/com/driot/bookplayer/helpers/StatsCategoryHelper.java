@@ -10,8 +10,8 @@ import com.driot.bookplayer.global.Var;
 
 /**
  * Single source of truth for bucketing a Folder's local (ZikFile-based) playback into the same
- * listening-time-stats categories used by both the aggregate totals (StatsActivity, accumulated
- * live tick-by-tick in PlaybackProgressUpdater) and the per-folder breakdown (DetailedStatsActivity,
+ * listening-time-stats categories used by both the aggregate totals (StatsFragment, accumulated
+ * live tick-by-tick in PlaybackProgressUpdater) and the per-folder breakdown (DetailedStatsFragment,
  * read from Folder.timeListened at rest) - so the two screens always agree on what counts as what.
  */
 public final class StatsCategoryHelper {

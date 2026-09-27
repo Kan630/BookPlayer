@@ -155,7 +155,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
      * playMode (PLAY_MODE_BOOK/PLAY_MODE_TTS) only tells local playback apart from TTS - it can't
      * by itself distinguish a plain audiobook from a downloaded podcast episode, a radio
      * recording, or a music-type folder, since all of those are just local ZikFile playback under
-     * the hood. Delegate to StatsCategoryHelper (shared with DetailedStatsActivity's per-folder
+     * the hood. Delegate to StatsCategoryHelper (shared with DetailedStatsFragment's per-folder
      * breakdown) whenever a folder is known; fall back to the raw playMode otherwise.
      */
     private static String deriveStatsCategory(String playMode, @Nullable Folder folder) {
