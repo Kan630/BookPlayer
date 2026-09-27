@@ -22,9 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.result.ActivityResultLauncher;
+import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
@@ -304,34 +302,19 @@ public class CleanMemoryFragment extends LoggingFragment
     }
 
     // Tip about the podcast long press, once per visit to this screen, only when the list shows a
-    // podcast (never on pure), until the user ticks "don't show again".
+    // podcast (never on pure), until the user ticks "don't show again" (TipHelper).
     private boolean podcastTipChecked = false;
 
-    private final ActivityResultLauncher<Intent> podcastTipLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                Intent data = result.getData();
-                if (data != null && data.getBooleanExtra(MsgBoxActivity.RESULT_CHECKED, false)) {
-                    myLogI("---- USER hides the podcast cleanup tip for good ----");
-                    Pref.setCleanPodcastTipHidden(true);
-                }
-            });
-
     private void maybeShowPodcastCleanupTip(@Nullable List<FolderWithSummary> items) {
-        if (podcastTipChecked || items == null || items.isEmpty() || Pref.getCleanPodcastTipHidden())
+        if (podcastTipChecked || items == null || items.isEmpty())
             return;
-        boolean hasPodcast = false;
+        podcastTipChecked = true; // the first loaded list decides, list refreshes don't re-ask
         for (FolderWithSummary item : items) {
             if (Var.SOURCE_LOCATION_PODCAST.equals(item.sourceLocation) && item.idFolder > 0) {
-                hasPodcast = true;
-                break;
+                TipHelper.maybeShow(requireContext(), TipHelper.Tip.CLEAN_PODCAST_LONG_PRESS);
+                return;
             }
         }
-        podcastTipChecked = true; // the first loaded list decides, list refreshes don't re-ask
-        if (!hasPodcast)
-            return;
-        podcastTipLauncher.launch(MsgBoxActivity.buildInfo(requireContext(),
-                getString(R.string.clean_podcast_tip_title), getString(R.string.clean_podcast_tip_message), null)
-                .putExtra(MsgBoxActivity.EXTRA_CHECKBOX_TEXT, getString(R.string.dont_show_again)));
     }
 
     private boolean hasAnyContent(boolean internal) {

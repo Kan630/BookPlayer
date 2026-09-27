@@ -26,7 +26,6 @@ public class Pref {
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
     private static final int DEFAULT_LIVE_LOG_HEIGHT = 10; // percentage
 
-    private static final int COUNT_START_SHOW_MSGBOX_CHANGE_TRACK_ORDER = 5;
 
     private static Context appContext;
     private static SharedPreferences prefs;
@@ -89,12 +88,6 @@ public class Pref {
         return prefs;
     }
 
-    public static int getShowMsgBox_ChangeTrackOrder() {
-        int curValue = prefs.getInt("SHOW_MSGBOX_CHANGE_TRACK_ORDER", COUNT_START_SHOW_MSGBOX_CHANGE_TRACK_ORDER);
-        prefs.edit().putInt("SHOW_MSGBOX_CHANGE_TRACK_ORDER", curValue - 1).apply();
-        return curValue;
-    }
-
     public static boolean getShowLiveLogs() {
         try {
             return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);
@@ -152,19 +145,13 @@ public class Pref {
     // Whether we've already offered to restore a recovered auto-backup snapshot (see
     // AutoBackupSnapshotManager / MainActivity's empty-library check) - asked at most once,
     // so declining it doesn't nag the user every time the library happens to be empty.
-    // Clean screen: tip about long-pressing a podcast (PodcastEpisodeCleanupSheet), until "don't show again".
-    public static boolean getCleanPodcastTipHidden() {
-        return admin.getBoolean("CLEAN_PODCAST_TIP_HIDDEN", false);
+    // Tips hidden with "don't show again" (TipHelper), one flag per tip.
+    public static boolean getTipHidden(String key) {
+        return admin.getBoolean(key, false);
     }
 
-    public static void setCleanPodcastTipHidden(boolean value) {
-        admin.edit().putBoolean("CLEAN_PODCAST_TIP_HIDDEN", value).apply();
-    }
-
-    // Settings > Utilities > "Show tips again": every tip hidden with "don't show again" comes back.
-    // A new tip with such a flag must be reset here too.
-    public static void resetHiddenTips() {
-        setCleanPodcastTipHidden(false);
+    public static void setTipHidden(String key, boolean hidden) {
+        admin.edit().putBoolean(key, hidden).apply();
     }
 
     public static boolean getAutoBackupRecoveryPrompted() {
@@ -236,6 +223,16 @@ public class Pref {
 
     public static String getFirstOpenDate() {
         return stats.getString("FIRST_OPEN_DATE", "");
+    }
+
+    // Times the user opened the app (MainActivity freshly created - not rotations, not the
+    // background starts of the player/downloads). Lets tips wait for a user's first launches.
+    public static int getAppLaunchCount() {
+        return stats.getInt("APP_LAUNCH_COUNT", 0);
+    }
+
+    public static void incrementAppLaunchCount() {
+        stats.edit().putInt("APP_LAUNCH_COUNT", getAppLaunchCount() + 1).apply();
     }
 
     public static void addToTotalMsPlayed(String playMode, long ms) {

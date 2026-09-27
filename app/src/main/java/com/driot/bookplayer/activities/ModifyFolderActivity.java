@@ -58,7 +58,6 @@ import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.ErrorUi;
-import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MetaJson;
@@ -168,14 +167,7 @@ public class ModifyFolderActivity extends BaseActivity {
                     .putExtra(Intents.EXTRA_FOLDER, folder)
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-            String warning = null;
-            if (Pref.getShowMsgBox_ChangeTrackOrder() > 0) {
-                if (PlaybackUiBus.get().state().getValue() != null) {
-                    warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
-                }
-                MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
-                        warning);
-            }
+            // Its instructions are a tip of the track list itself (ZikFileFragment.maybeShowTips).
         });
 
         refreshStorageLocationDisplay(ivStorageIcon, tvStorageIcon);

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.TipHelper;
 import android.widget.Toast;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.activities.MainActivity;
@@ -143,7 +144,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         root.findViewById(R.id.btn_app_info).setOnClickListener(v -> openAppInfo());
         root.findViewById(R.id.btn_show_tips_again).setOnClickListener(v -> {
             myLogI("--- USER clicks SHOW TIPS AGAIN ---");
-            Pref.resetHiddenTips();
+            TipHelper.resetAll();
             Toast.makeText(requireContext(), R.string.utilities_tips_reset_done, Toast.LENGTH_SHORT).show();
         });
         root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());

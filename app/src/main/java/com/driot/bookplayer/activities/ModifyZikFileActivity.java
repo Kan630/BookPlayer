@@ -21,7 +21,6 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
@@ -100,12 +99,7 @@ public class ModifyZikFileActivity extends BaseActivity {
                     .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-            String warning = null;
-            if (PlaybackUiBus.get().state().getValue() != null) {
-                warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
-            }
-            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
-                    warning);
+            // Its instructions are a tip of the track list itself (ZikFileFragment.maybeShowTips).
         });
 
         bResetOnlyThisTrack.setOnClickListener(view -> bResetClick());

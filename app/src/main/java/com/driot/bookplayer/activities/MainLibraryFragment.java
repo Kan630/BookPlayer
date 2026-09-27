@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
@@ -119,6 +120,8 @@ public class MainLibraryFragment extends LoggingFragment {
             recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             if (isEmpty)
                 setUpWelcomeMessageView();
+            else
+                TipHelper.maybeShow(requireContext(), TipHelper.Tip.LIBRARY_LONG_PRESS); // once per session
             adapter.submitList(folders, () -> {
                 if (pendingScrollToTop) {
                     pendingScrollToTop = false;

@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -322,9 +324,15 @@ public class MainActivity extends FullActivity {
                     });
         }
 
+        // Hosts restored by the FragmentManager (config change, process death) never went through
+        // attachTab() in this Activity instance.
+        for (Integer tabId : TAB_TAG.keySet())
+            watchDirectLinkDismissal(tabId, getTabHost(tabId));
+
         setupTabClickListener();
 
         if (savedInstanceState == null) {
+            Pref.incrementAppLaunchCount();
             ShareHelper.handleDeepLink(this, getIntent());
             handleMediaSearchIntentIfAny(getIntent());
             handleIntentNavigation(getIntent());
@@ -431,6 +439,39 @@ public class MainActivity extends FullActivity {
         return host != null ? host.getNavController() : null;
     }
 
+    /** Tabs whose NavController already has the watchDirectLinkDismissal listener (per instance:
+     * a recreated Activity re-registers on its restored hosts). */
+    private final java.util.Set<Integer> watchedTabs = new java.util.HashSet<>();
+
+    /**
+     * Returns to the origin tab as soon as a direct-linked screen leaves its tab's back stack,
+     * whatever removed it. The system back press can't be relied on for that: each tab's
+     * NavController registers its own back callback when its host starts - after this Activity's
+     * (Library at first creation, the other tabs when first shown, all of them again after a
+     * detach/attach) - so it wins, pops the screen itself and the user stayed on the target tab's
+     * root (e.g. Settings > Utilities > Cleaning, back => Library instead of Settings). Going
+     * further (a book opened from Cleaning) keeps the screen in the stack: no return then.
+     */
+    private void watchDirectLinkDismissal(int tabId, NavHostFragment host) {
+        if (host == null || !watchedTabs.add(tabId))
+            return;
+        host.getNavController().addOnDestinationChangedListener((controller, destination, arguments) -> {
+            DirectLink pending = directLinkReturnStack.peek();
+            if (pending == null || pending.targetTab != tabId || currentNavSectionId != tabId)
+                return;
+            try {
+                controller.getBackStackEntry(pending.destId);
+                return; // still in the stack (on top, or under a screen opened from it)
+            } catch (IllegalArgumentException gone) {
+                // dismissed
+            }
+            directLinkReturnStack.pop();
+            myLogI("direct-linked screen dismissed -> return to tab " + pending.originTab);
+            // Not from inside the NavController's own dispatch: switching tabs detaches this host.
+            new Handler(Looper.getMainLooper()).post(() -> selectTab(pending.originTab, true));
+        });
+    }
+
     /** Creates (first time only) and attaches the given tab as the sole visible one, detaching
      * whatever was attached before. Does not touch directLinkReturnStack itself - callers decide. */
     private void attachTab(int tabId, boolean isFirstCreate) {
@@ -455,6 +496,7 @@ public class MainActivity extends FullActivity {
         ft.setPrimaryNavigationFragment(targetHost);
         ft.setReorderingAllowed(true);
         ft.commitNow();
+        watchDirectLinkDismissal(tabId, targetHost);
 
         currentNavSectionId = tabId;
         selectAppNavItemFromCode(tabId);
@@ -546,26 +588,30 @@ public class MainActivity extends FullActivity {
             navigateSettingsPane(destId, args);
             return;
         }
-        if (tabId != currentNavSectionId) {
-            directLinkReturnStack.push(new DirectLink(currentNavSectionId, tabId, destId));
-        }
+        int originTab = currentNavSectionId;
         switchToTab(tabId);
         navigateOnTop(tabId, destId, args);
+        // Pushed only once destId is on top: a freshly created tab host first reports its start
+        // screen, which the dismissal watcher (watchDirectLinkDismissal) would take for a return.
+        if (tabId != originTab) {
+            directLinkReturnStack.push(new DirectLink(originTab, tabId, destId));
+        }
     }
 
     /** Two-pane settings (wide windows): a settings direct link opens that category in the pane
      * next to the list instead of a full-width page on top. The return link points at the list
      * itself, so back still dismisses it and returns to the origin tab. */
     private void navigateSettingsPane(int destId, @Nullable Bundle args) {
-        if (R.id.nav_settings != currentNavSectionId) {
-            directLinkReturnStack.push(new DirectLink(currentNavSectionId, R.id.nav_settings,
-                    R.id.settingsCategoryListFragment));
-        }
+        int originTab = currentNavSectionId;
         switchToTab(R.id.nav_settings);
         NavHostFragment host = getTabHost(R.id.nav_settings);
         if (host != null)
             host.getNavController().popBackStack(R.id.settingsCategoryListFragment, false);
         new ViewModelProvider(this).get(SettingsPaneViewModel.class).show(destId, args);
+        if (R.id.nav_settings != originTab) {
+            directLinkReturnStack.push(new DirectLink(originTab, R.id.nav_settings,
+                    R.id.settingsCategoryListFragment));
+        }
     }
 
     /** Removes a direct-linked screen from its tab once the user backs out of it. Normally that's a

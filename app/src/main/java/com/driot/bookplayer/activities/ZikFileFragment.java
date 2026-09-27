@@ -23,6 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.utils.MsgBox;
+import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.adapter.ZikFilesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -181,6 +184,7 @@ public class ZikFileFragment extends LoggingFragment {
             if (list == null)
                 return;
             adapter.submitList(list);
+            maybeShowTips(list);
 
             // Auto-scroll only on first load
             if (!didAutoScrollToLast && !list.isEmpty()) {
@@ -425,6 +429,27 @@ public class ZikFileFragment extends LoggingFragment {
             // The LiveData observer in ZikFileFragment will automatically refresh the list
             // because persistOrder updates the DB, and getZikFilesLive(folderId) is observed.
         });
+    }
+
+    private boolean tipsChecked = false;
+
+    // One tip per opening, on the first non-empty list (TipHelper). In track order mode, its
+    // how-to - plus the playing-tracks warning, which is kept even once the how-to is hidden.
+    private void maybeShowTips(List<ZikFile> list) {
+        if (tipsChecked || list.isEmpty() || folder == null)
+            return;
+        tipsChecked = true;
+        if (activateChangeTrackOrder) {
+            String warning = PlaybackUiBus.get().state().getValue() != null
+                    ? getString(R.string.Quit_the_player_to_move_playing_tracks) : null;
+            if (!TipHelper.maybeShowWithDetails(requireContext(), warning, TipHelper.Tip.TRACK_ORDER) && warning != null)
+                MsgBox.info(requireContext(), getString(R.string.ChangeTrackOrder_Title), warning);
+            return;
+        }
+        if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation()))
+            TipHelper.maybeShow(requireContext(), TipHelper.Tip.PODCAST_COVER_TAP, TipHelper.Tip.TRACKS_LONG_PRESS);
+        else
+            TipHelper.maybeShow(requireContext(), TipHelper.Tip.TRACKS_LONG_PRESS);
     }
 
     private void goUserClickHeader() {

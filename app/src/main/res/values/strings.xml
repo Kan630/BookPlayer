@@ -1636,7 +1636,11 @@
         <item quantity="one">%1$d episode deleted, %2$s freed</item>
         <item quantity="other">%1$d episodes deleted, %2$s freed</item>
     </plurals>
-    <string name="clean_podcast_tip_title">Tip</string>
+    <string name="tip_title">Tip</string>
+    <string name="tip_library_long_press">Long-press a book to rename it, change its cover, reset its progress or delete it.</string>
+    <string name="tip_tracks_long_press">Long-press a track to open its options: reset, delete, change the track order…</string>
+    <string name="tip_text_reader_gestures">Pinch to zoom the text in or out. Double-tap to turn auto-scroll on or off.</string>
+    <string name="tip_podcast_cover_tap">Tap the podcast cover to switch between your downloaded episodes and all the episodes available online.</string>
     <string name="clean_podcast_tip_message">Long-press a podcast in this list to quickly clean up its episodes.</string>
     <string name="utilities_tips_title">Tips</string>
     <string name="utilities_show_tips_again">Show tips again</string>

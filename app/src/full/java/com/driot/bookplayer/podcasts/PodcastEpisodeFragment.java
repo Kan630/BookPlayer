@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
@@ -319,6 +320,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
             myLogI("---- USER CLICK MINI IMAGE ----");
             goToPlaySection();
         });
+        TipHelper.maybeShow(requireContext(), TipHelper.Tip.PODCAST_COVER_TAP); // once per session
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));

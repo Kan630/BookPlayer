@@ -44,6 +44,8 @@ public class MsgBoxActivity extends BaseActivity {
     public static final String EXTRA_POSITIVE = "positive";
     public static final String EXTRA_NEGATIVE = "negative";
     public static final String EXTRA_CHECKBOX_TEXT = "checkbox_text";
+    // Tip preference key (TipHelper): a checked "don't show again" box is stored here on close.
+    public static final String EXTRA_HIDE_TIP_KEY = "hide_tip_key";
     public static final String EXTRA_ICON_RES = "icon_res";
     public static final String EXTRA_NEUTRAL = "neutral"; // text
     public static final String EXTRA_NEUTRAL_INTENT = "neutral_intent"; // optional Intent to launch
@@ -195,10 +197,32 @@ public class MsgBoxActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        // System back closes without the button/scrim paths above: a ticked tip box still counts.
+        if (isFinishing()) {
+            MaterialCheckBox cb = findViewById(R.id.checkbox);
+            if (cb != null)
+                isChecked(cb);
+        }
+        super.onDestroy();
+    }
+
     private Intent withCheck(Intent src, MaterialCheckBox cb) {
         Intent data = new Intent();
-        data.putExtra(RESULT_CHECKED, cb.getVisibility() == View.VISIBLE && cb.isChecked());
+        data.putExtra(RESULT_CHECKED, isChecked(cb));
         return data;
+    }
+
+    // Also stores a tip's "don't show again" (EXTRA_HIDE_TIP_KEY) - every close path goes through here.
+    private boolean isChecked(MaterialCheckBox cb) {
+        boolean checked = cb.getVisibility() == View.VISIBLE && cb.isChecked();
+        String tipKey = getIntent().getStringExtra(EXTRA_HIDE_TIP_KEY);
+        if (checked && tipKey != null) {
+            myLogI("tip hidden for good: " + tipKey);
+            com.driot.bookplayer.global.Pref.setTipHidden(tipKey, true);
+        }
+        return checked;
     }
 
     @DrawableRes
@@ -212,7 +236,7 @@ public class MsgBoxActivity extends BaseActivity {
 
     private Intent resultData(int which, MaterialCheckBox cb) {
         Intent data = new Intent();
-        data.putExtra(RESULT_CHECKED, cb.getVisibility() == View.VISIBLE && cb.isChecked());
+        data.putExtra(RESULT_CHECKED, isChecked(cb));
         data.putExtra(RESULT_WHICH, which);
         return data;
     }

@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsReaderController;
@@ -48,6 +49,7 @@ public class TtsReaderFragment extends LoggingFragment {
         if (miniNowPlaying != null) {
             miniNowPlaying.setVisibility(Option.getTtsFullscreenControls() ? View.VISIBLE : View.GONE);
         }
+        TipHelper.maybeShow(requireContext(), TipHelper.Tip.TEXT_READER_GESTURES); // pinch / double-tap
     }
 
     // Convenience launcher - navigates within MainActivity's own Library graph instead of
