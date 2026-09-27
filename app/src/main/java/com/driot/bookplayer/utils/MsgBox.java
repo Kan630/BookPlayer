@@ -13,6 +13,32 @@ public final class MsgBox {
     private MsgBox() {
     }
 
+    /**
+     * Starts the dialog over the current screen. Fragments hand out a wrapped context (Hilt's
+     * FragmentContextWrapper), not the Activity itself: taken for a non-Activity context, that
+     * added FLAG_ACTIVITY_NEW_TASK and - MsgBoxActivity having taskAffinity="" - opened the
+     * translucent dialog in a task of its own, over black instead of over the app.
+     */
+    public static void start(Context ctx, Intent i) {
+        Activity activity = activityOf(ctx);
+        if (activity != null) {
+            activity.startActivity(i);
+        } else {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // really no screen (service, receiver...)
+            ctx.startActivity(i);
+        }
+    }
+
+    @Nullable
+    public static Activity activityOf(Context ctx) {
+        while (ctx instanceof android.content.ContextWrapper) {
+            if (ctx instanceof Activity)
+                return (Activity) ctx;
+            ctx = ((android.content.ContextWrapper) ctx).getBaseContext();
+        }
+        return null;
+    }
+
     // ==== INFO ====
     public static void info(Context ctx, CharSequence title, CharSequence message) {
         info(ctx, title, message, null);
@@ -20,10 +46,7 @@ public final class MsgBox {
 
     public static void info(Context ctx, CharSequence title, CharSequence message, @Nullable CharSequence details) {
         Intent i = MsgBoxActivity.buildInfo(ctx, title, message, details);
-        if (!(ctx instanceof Activity)) {
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        ctx.startActivity(i);
+        start(ctx, i);
     }
 
     // ==== ALERT ====
@@ -33,10 +56,7 @@ public final class MsgBox {
 
     public static void alert(Context ctx, CharSequence title, CharSequence message, @Nullable CharSequence details) {
         Intent i = MsgBoxActivity.buildAlert(ctx, title, message, details);
-        if (!(ctx instanceof Activity)) {
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        ctx.startActivity(i);
+        start(ctx, i);
     }
 
     public static void alertWithNeutral(Context ctx,
@@ -50,10 +70,7 @@ public final class MsgBox {
         if (neutralIntent != null) {
             i.putExtra(MsgBoxActivity.EXTRA_NEUTRAL_INTENT, neutralIntent);
         }
-        if (!(ctx instanceof Activity)) {
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        ctx.startActivity(i);
+        start(ctx, i);
     }
 
     // ==== QUESTION ====

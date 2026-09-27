@@ -55,9 +55,14 @@ public class MsgBoxActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // BaseActivity just replaced the manifest's dialog theme with the colour skin (opaque
+        // window background): put the translucent-window attributes back, before the window is
+        // built by setContentView().
+        getTheme().applyStyle(R.style.ThemeOverlay_BookPlayer_TranslucentDialog, true);
         setContentView(R.layout.activity_msgbox);
 
         InsetHelper.apply(this);
+        applyBackdrop();
 
         // Reachable during the dialog (see activity_msgbox.xml) - lets the user pause/stop
         // whatever's playing instead of being unable to touch anything behind this modal
@@ -195,6 +200,50 @@ public class MsgBoxActivity extends BaseActivity {
             btn.setMaxLines(2);
             btn.setEllipsize(android.text.TextUtils.TruncateAt.END);
         }
+    }
+
+    // The screen behind stays visible: dimmed by the window itself (the whole screen, system bars
+    // included - the scrim view sits inside the inset-padded content and would leave them bright;
+    // it only catches taps outside the card now), and on Android 12+ also blurred when the device
+    // allows cross-window blur (battery saver or some GPUs turn it off - it can change while
+    // shown, hence the listener). Blurred, it needs less dimming to stay readable.
+    private static final float DIM_ONLY = 0.5f;
+    private static final float DIM_WITH_BLUR = 0.35f;
+    private static final int BLUR_RADIUS_DP = 18;
+    private java.util.function.Consumer<Boolean> blurListener;
+
+    private void applyBackdrop() {
+        View scrim = findViewById(R.id.scrim);
+        if (scrim != null)
+            scrim.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        android.view.Window window = getWindow();
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        android.view.WindowManager.LayoutParams attrs = window.getAttributes();
+        attrs.dimAmount = DIM_ONLY;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+            attrs.setBlurBehindRadius(Math.round(BLUR_RADIUS_DP * getResources().getDisplayMetrics().density));
+            blurListener = enabled -> {
+                android.view.WindowManager.LayoutParams a = getWindow().getAttributes();
+                a.dimAmount = enabled ? DIM_WITH_BLUR : DIM_ONLY;
+                getWindow().setAttributes(a);
+            };
+        }
+        window.setAttributes(attrs);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (blurListener != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            getWindowManager().addCrossWindowBlurEnabledListener(blurListener); // called at once too
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        if (blurListener != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            getWindowManager().removeCrossWindowBlurEnabledListener(blurListener);
+        super.onDetachedFromWindow();
     }
 
     @Override

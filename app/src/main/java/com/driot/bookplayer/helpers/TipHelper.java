@@ -82,9 +82,7 @@ public final class TipHelper {
                     context.getString(tip.message), details)
                     .putExtra(MsgBoxActivity.EXTRA_CHECKBOX_TEXT, context.getString(R.string.dont_show_again))
                     .putExtra(MsgBoxActivity.EXTRA_HIDE_TIP_KEY, tip.prefKey);
-            if (!(context instanceof android.app.Activity))
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            com.driot.bookplayer.utils.MsgBox.start(context, i); // over the current screen, see there
             return true;
         }
         return false;
