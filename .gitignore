@@ -22,3 +22,5 @@ local.properties
 /app/src/release/google-services.json
 /saveFixtures
 /.idea/appInsightsSettings.xml
+# website APKs are uploaded to the server, not versioned
+website/*.apk
