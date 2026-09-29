@@ -17,6 +17,10 @@ import com.driot.bookplayer.utils.log.BaseActivity;
 
 public class OpenWithProxyActivityAll extends BaseActivity {
 
+    /** Kept for onActivityResult: the one-shot grant is handed to the progress screen (see OpenWithHelper). */
+    private Uri sourceUri;
+    private boolean sourcePersisted;
+
     private static final int REQUEST_LOAD_OPTIONS = 1642;
 
     @Override
@@ -42,6 +46,8 @@ public class OpenWithProxyActivityAll extends BaseActivity {
 
         myLogD("OpenWithProxyActivityAll received uri: " + uri);
         boolean persistPermission = UriHelper.checkLongTermReadable(this, uri);
+        sourceUri = uri;
+        sourcePersisted = persistPermission;
 
         //TODO looks like persistPermission=false => false positive, as the file is loaded and can be played...
 
@@ -62,7 +68,7 @@ public class OpenWithProxyActivityAll extends BaseActivity {
 
         if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK) {
             //BookLoadingWorkLauncher.launch(this);
-            Intent intentActivity = new Intent(this, AddResourceActivity.class);
+            Intent intentActivity = OpenWithHelper.progressIntent(this, sourceUri, sourcePersisted);
             startActivity(intentActivity);
         } else {
             myLogW("onActivityResult => not OK");

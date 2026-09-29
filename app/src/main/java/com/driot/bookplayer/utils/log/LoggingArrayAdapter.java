@@ -33,6 +33,11 @@ public abstract class LoggingArrayAdapter<T>
         logger.myLogW(str);
     }
 
+    /** Warning + "log_w" Analytics event: see KanLogger.myLogWA. */
+    protected void myLogWA(Throwable t, String str) {
+        logger.myLogWA(t, str);
+    }
+
     protected void myLogE(String str) {
         logger.myLogE(str);
     }

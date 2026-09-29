@@ -2,9 +2,14 @@ package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+
+import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
@@ -127,6 +132,21 @@ public class OpenWithHelper {
                 }
             });
         });
+    }
+
+    /**
+     * Progress screen shown after the user confirms an "Open with" import. A share that could not be persisted
+     * (WhatsApp, Telegram, Gmail...) only comes with a one-shot read grant owned by the proxy activity, revoked
+     * when the proxy finishes - while CopyFileWorker is still copying ("Permission Denial" in Crashlytics, ~90
+     * users/90 days). Handing the grant to AddResourceActivity keeps it alive until the import is done.
+     */
+    public static Intent progressIntent(Context ctx, @Nullable Uri source, boolean persistPermission) {
+        Intent i = new Intent(ctx, AddResourceActivity.class);
+        if (source != null && !persistPermission && "content".equalsIgnoreCase(source.getScheme())) {
+            i.setClipData(ClipData.newRawUri("import source", source));
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        return i;
     }
 
     private static String resolveDisplayNameFallback(Uri uri) {

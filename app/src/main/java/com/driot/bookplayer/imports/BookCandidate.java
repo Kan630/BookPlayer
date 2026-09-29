@@ -30,6 +30,8 @@ import com.driot.bookplayer.helpers.WebFileNameHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.googlecode.mp4parser.DataSource;
+import com.driot.bookplayer.services.m4b.ChapterPlan;
+import com.driot.bookplayer.services.m4b.Mp4ChapterReader;
 import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -775,14 +777,53 @@ public class BookCandidate implements Parcelable {
                 }
             }
         } catch (Exception e) {
-            myLogEE(e, "Error during combined M4B scan");
             this.tracksCount = 1; // Fallback
+            if (e instanceof java.nio.channels.ClosedByInterruptException || Thread.currentThread().isInterrupted()) {
+                myLogD("scanM4BCombined() interrupted (preview cancelled)");
+            } else {
+                // mp4parser gives up on some files (malformed extra track, box it refuses): same fallback reader as
+                // M4bSplitter, so the preview shows the chapters the split will really produce
+                myLogWA(e, "mp4parser can't read the M4B, trying the fallback chapter reader");
+                if (audioFileInfoArrayList.isEmpty())
+                    previewChaptersWithFallbackReader(context, file, listener);
+            }
         }
 
         myLogD("scanM4BCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks=" + tracksCount);
     }
 
     private DataSource dataSource; // Temporary helper for scanM4BCombined
+
+    /** Chapters via Mp4ChapterReader + ChapterPlan: shown only when the split would accept them. */
+    private void previewChaptersWithFallbackReader(Context context, DocumentFile file, OnMetadataListener listener) {
+        try (android.content.res.AssetFileDescriptor afd = context.getContentResolver()
+                .openAssetFileDescriptor(file.getUri(), "r")) {
+            if (afd == null)
+                return;
+            try (java.io.FileInputStream in = new java.io.FileInputStream(afd.getFileDescriptor())) {
+                Mp4ChapterReader.Result r = Mp4ChapterReader.read(in.getChannel(), afd.getStartOffset(),
+                        afd.getLength());
+                ChapterPlan plan = ChapterPlan.of(r.chapters, r.audioDurationMs);
+                if (!plan.ok()) {
+                    myLogWA(null, "M4B preview: no usable chapters (" + plan.rejectReason + ") | " + r.boxMap);
+                    return;
+                }
+                this.tracksCount = plan.segments.size();
+                for (int i = 0; i < plan.segments.size(); i++) {
+                    ChapterPlan.Segment seg = plan.segments.get(i);
+                    String tName = (i + 1) + ". " + (seg.title.isEmpty() ? "chapter" : seg.title);
+                    AudioFileInfo afi = new AudioFileInfo(tName, tName, seg.endMs - seg.startMs, 0,
+                            file.getUri().toString(), null);
+                    audioFileInfoArrayList.add(afi);
+                    if (listener != null)
+                        listener.onTrackFound(afi);
+                }
+                myLogI("M4B preview from the fallback reader (" + r.source + "): " + tracksCount + " chapters");
+            }
+        } catch (Exception e) {
+            myLogWA(e, "M4B preview: fallback chapter reader failed");
+        }
+    }
 
     private void scanArchiveCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
         long startTime = System.currentTimeMillis();
