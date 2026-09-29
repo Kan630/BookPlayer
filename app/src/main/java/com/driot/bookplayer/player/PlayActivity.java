@@ -25,11 +25,8 @@ public class PlayActivity extends BaseActivity implements PlayerFragment.Host {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
 
-        if (PlayList.getInstance() == null || PlayList.getInstance().getFolder() == null) {
-            myLogEE(null, "nothing to play: PlayList.getInstance() or its folder == null");
-            finish();
-            return;
-        }
+        // No PlayList check here: after Android killed the app in background, PlayerFragment restores the last
+        // playlist from storage, and asks us to close (onPlayerCloseRequested) only if there is nothing to restore.
 
         setContentView(R.layout.activity_play_host);
         InsetHelper.apply(this);

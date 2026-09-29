@@ -143,6 +143,18 @@ public final class PlaybackCommands {
         }
     }
 
+    /** Player reopened after process death: have the service load the restored track, paused. */
+    public static void prepareRestored(Context ctx) {
+        try {
+            ContextCompat.startForegroundService(ctx,
+                    new Intent(ctx, MediaService.class)
+                            .setAction(Intents.CMD_PREPARE_RESTORED)
+                            .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.prepareRestored"));
+        } catch (Throwable t) {
+            myLogEE(t, "prepareRestored: could not start MediaService");
+        }
+    }
+
     public static void pause(Context ctx) {
         try {
             ContextCompat.startForegroundService(ctx,

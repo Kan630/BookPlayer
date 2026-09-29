@@ -25,6 +25,7 @@ public class LoggerHelper {
     public void myLogD(String str) { KanLogger.myLogD(tag, str); }
     public void myLogI(String str) { KanLogger.myLogI(tag, str); }
     public void myLogW(String str) { KanLogger.myLogW(tag, str); }
+    public void myLogWA(Throwable t, String str) { KanLogger.myLogWA(t, tag, str); }
     public void myLogE(String str) { KanLogger.myLogE(tag, str); }
     public void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, tag, str); }
     public void myLogInFile(String str) { KanLogger.myLogInFile(tag, str); }

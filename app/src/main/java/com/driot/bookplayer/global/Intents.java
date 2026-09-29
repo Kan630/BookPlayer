@@ -30,6 +30,8 @@ public class Intents {
     public static final String EXTRA_INDEX = "extra_index"; // optional, default 0
 
     public static final String CMD_TTS_SET_VOICE = "com.driot.bookplayer.CMD_TTS_SET_VOICE";
+    /** Load the restored PlayList's current track paused (player reopened after the process was killed). */
+    public static final String CMD_PREPARE_RESTORED = "com.driot.bookplayer.CMD_PREPARE_RESTORED";
     public static final String EXTRA_TTS_VOICE_NAME = "com.driot.bookplayer.EXTRA_TTS_VOICE_NAME";
 
     public static final String NOTIFICATION_TTS_RANGE = "NOTIFICATION_TTS_RANGE";

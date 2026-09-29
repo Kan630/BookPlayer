@@ -192,6 +192,11 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
         KanLogger.myLogW(TAG_FROM, str);
     }
 
+    /** Warning + "log_w" Analytics event: see KanLogger.myLogWA. */
+    protected void myLogWA(Throwable t, String str) {
+        KanLogger.myLogWA(t, TAG_FROM, str);
+    }
+
     protected void myLogE(String str) {
         KanLogger.myLogE(TAG_FROM, str);
     }

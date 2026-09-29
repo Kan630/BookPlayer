@@ -201,8 +201,22 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
         super.onViewCreated(view, savedInstanceState);
 
         if (PlayList.getInstance() == null) {
-            myLogWA(null, "PlayList.getInstance() == null"); // expected when the app process was killed in background
-            closePlayer();
+            // Expected when Android killed the app in background and the player is reopened (recents, notification...):
+            // restore the last playlist (saved one, or last listened track) instead of closing the player.
+            myLogWA(null, "PlayList.getInstance() == null - restoring from storage");
+            PlayList.createFromStorage(requireContext(), true, restored -> {
+                if (!isAdded() || getView() != view)
+                    return; // player left while restoring
+                Folder restoredFolder = restored != null ? restored.getFolder() : null;
+                if (restoredFolder == null) {
+                    myLogWA(null, "PlayList restore failed (nothing to restore) - closing player");
+                    closePlayer();
+                    return;
+                }
+                setupPlayer(view, restoredFolder);
+                // the service lost its track too: load it paused so title/cover/position show up
+                PlaybackCommands.prepareRestored(requireContext());
+            });
             return;
         }
         Folder folder = PlayList.getInstance().getFolder();
@@ -211,6 +225,11 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
             closePlayer();
             return;
         }
+        setupPlayer(view, folder);
+    }
+
+    /** Everything that needs a loaded playlist; run directly, or after a restore from storage. */
+    private void setupPlayer(@NonNull View view, @NonNull Folder folder) {
         isTextBook = Var.PLAY_TYPE_TEXT.equalsIgnoreCase(folder.playType);
         isPodcast = Var.SOURCE_LOCATION_PODCAST.equalsIgnoreCase(folder.getSourceLocation());
         isMusic = Var.PLAY_TYPE_MUSIC.equalsIgnoreCase(folder.playType);

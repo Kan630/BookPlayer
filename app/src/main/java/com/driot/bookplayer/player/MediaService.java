@@ -1261,6 +1261,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
+            case Intents.CMD_PREPARE_RESTORED:
+                return handlePrepareRestored();
+
             case "CMD_PREV": {
                 backwardAudio();
                 return START_STICKY;
@@ -1451,6 +1454,30 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // of leaving "Please wait" stuck.
             showForegroundNotification(isPlaying());
         }
+        return START_STICKY;
+    }
+
+    /** Player reopened after process death: PlayerFragment restored the PlayList, load its track paused. */
+    private int handlePrepareRestored() {
+        goForegroundPreparing("Preparing…", null);
+        if (engine != null && (engine.isReady() || engine.isPlaying())) {
+            myLog("CMD_PREPARE_RESTORED: a track is already loaded, nothing to do");
+            showForegroundNotification(engine.isPlaying());
+            broadcastUiState("prepareRestored-alreadyLoaded");
+            return START_STICKY;
+        }
+        PlayList pl = PlayList.getInstance();
+        final ZikFile zf = (pl != null && pl.isZikFile()) ? pl.getZikFile() : null;
+        if (zf == null) {
+            myLogWA(null, "CMD_PREPARE_RESTORED: no restored ZikFile to prepare");
+            showForegroundNotification(false);
+            return START_STICKY;
+        }
+        // loadAndPlayTrack hits the DB: never on main
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            if (!loadAndPlayTrack(zf, false, false, false))
+                myLogEE(null, "CMD_PREPARE_RESTORED: could not prepare [" + zf.getName() + "]");
+        });
         return START_STICKY;
     }
 
@@ -2732,7 +2759,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return loadAndPlayTrack(zikFile, false, false);
     }
 
-    private boolean loadAndPlayTrack(ZikFile zikFile, boolean isPodcast, boolean newestFirst) { // Always call me from a
+    private boolean loadAndPlayTrack(ZikFile zikFile, boolean isPodcast, boolean newestFirst) {
+        return loadAndPlayTrack(zikFile, isPodcast, newestFirst, true);
+    }
+
+    /** @param play false = prepare only, stay paused (onEnginePrepared's non-directPlay branch) */
+    private boolean loadAndPlayTrack(ZikFile zikFile, boolean isPodcast, boolean newestFirst, boolean play) { // Always call me from a
                                                                                                 // Background Thread !
         if (zikFile == null) {
             myLogEE(null, "loadAndPlayTrack(zikFile, isPodcast, newestFirst) => zikFile=null");
@@ -2781,7 +2813,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         PlayList.createFromZikFile(getApplicationContext(), playMode, folder, zikFile, list, index);
         main.post(() -> {
-            directPlay = true;
+            directPlay = play;
             loadFile(playMode, src, zikFile);
         });
         return true;

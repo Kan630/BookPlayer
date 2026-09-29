@@ -28,6 +28,7 @@ public final class LoggerStaticHelper {
     public static void myLogD(String str)          { KanLogger.myLogD(getCallerTag(), str); }
     public static void myLogI(String str)          { KanLogger.myLogI(getCallerTag(), str); }
     public static void myLogW(String str)          { KanLogger.myLogW(getCallerTag(), str); }
+    public static void myLogWA(Throwable t, String str) { KanLogger.myLogWA(t, getCallerTag(), str); }
     public static void myLogE(String str)          { KanLogger.myLogE(getCallerTag(), str); }
     public static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, getCallerTag(), str); }
     public static void myLogInFile(String str)     { KanLogger.myLogInFile(getCallerTag(), str); }
