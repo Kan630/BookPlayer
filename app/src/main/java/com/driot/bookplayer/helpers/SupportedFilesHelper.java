@@ -3,6 +3,7 @@ package com.driot.bookplayer.helpers;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
@@ -93,8 +94,33 @@ public class SupportedFilesHelper {
         // myLogD("getFileName(ctx, uri) start: uri = " + uri);
         String name = null;
 
+        // 0) Folder picked with ACTION_OPEN_DOCUMENT_TREE: a tree Uri can't be queried directly ("Unsupported Uri",
+        //    ~110 users/90 days in Crashlytics on folder imports) - ask the tree's root document for its name.
+        if ("content".equalsIgnoreCase(uri.getScheme()) && DocumentsContract.isTreeUri(uri)) {
+            try {
+                DocumentFile tree = DocumentFile.fromTreeUri(ctx, uri);
+                name = tree != null ? tree.getName() : null;
+                if (name != null) {
+                    myLogD("getFileNameFromUri - tree Uri: [" + name + "]");
+                    return name;
+                }
+            } catch (Exception e) {
+                myLogWA(e, "getFileNameFromUri - tree Uri name failed, falling back to its document id");
+            }
+            // No grant / provider refused: last element of the tree document id ("primary:Audiobooks/Book" ->
+            // "Book", "3334-3933:fixtures" -> "fixtures"; the plain path fallback kept the "volume:" prefix)
+            try {
+                String docId = DocumentsContract.getTreeDocumentId(uri);
+                String last = docId.substring(Math.max(docId.lastIndexOf('/'), docId.lastIndexOf(':')) + 1);
+                if (!last.isEmpty())
+                    return last;
+            } catch (Exception e) {
+                myLogWA(e, "getFileNameFromUri - bad tree document id, falling back to path");
+            }
+        }
+
         // 1) Try OpenableColumns (most reliable for content://)
-        if ("content".equalsIgnoreCase(uri.getScheme())) {
+        if (name == null && "content".equalsIgnoreCase(uri.getScheme()) && !DocumentsContract.isTreeUri(uri)) {
             try (Cursor cursor = ctx.getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -112,7 +138,7 @@ public class SupportedFilesHelper {
         }
 
         // 2) Try resolving via MediaStore (DATA column)
-        if (name == null && "content".equalsIgnoreCase(uri.getScheme())) {
+        if (name == null && "content".equalsIgnoreCase(uri.getScheme()) && !DocumentsContract.isTreeUri(uri)) {
             try {
                 String[] projection = { MediaStore.MediaColumns.DATA };
                 try (Cursor cursor = ctx.getContentResolver().query(uri, projection, null, null, null)) {

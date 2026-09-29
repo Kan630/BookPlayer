@@ -5,7 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import static org.junit.Assume.assumeFalse;
+
+import android.content.Context;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -116,6 +124,42 @@ public class SiblingBookDetectorTest {
         SiblingBookDetector.Result r = SiblingBookDetector.detectSiblingsOf(a);
         assertEquals(book, r.parentDir);
         assertEquals(2, r.siblingTrackCount);
+    }
+
+    /**
+     * Crashlytics: an epub opened from Download was resolved to its real path, then HashWorker/scan failed
+     * with EACCES (Android 11+: the path exists but the app can't open it). resolvePickedFile() must keep
+     * the content Uri (return null) in that case, and still return readable files.
+     */
+    @Test
+    public void resolvePickedFile_unreadableRealPath_keepsContentUri() throws Exception {
+        Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        String name = "bp_canread_test_" + System.currentTimeMillis() + ".epub";
+        File shellFile = new File("/storage/emulated/0/Download/" + name);
+        shell("touch " + shellFile.getAbsolutePath()); // created by shell, not owned by the app (no shell redirects here)
+        try {
+            assertEquals("setup: shell could not create " + shellFile, true, shellFile.exists());
+            assumeFalse("app has broad storage access on this device, case not reproducible", shellFile.canRead());
+
+            Uri docUri = DocumentsContract.buildDocumentUri("com.android.externalstorage.documents",
+                    "primary:Download/" + name);
+            assertNull(SiblingBookDetector.resolvePickedFile(ctx, docUri));
+        } finally {
+            shell("rm -f " + shellFile.getAbsolutePath());
+        }
+
+        File readable = touch(tmp.getRoot(), "readable.mp3");
+        assertEquals(readable.getAbsolutePath(),
+                SiblingBookDetector.resolvePickedFile(ctx, Uri.fromFile(readable)).getAbsolutePath());
+    }
+
+    private static void shell(String cmd) throws IOException {
+        ParcelFileDescriptor pfd = InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(cmd);
+        try (ParcelFileDescriptor.AutoCloseInputStream in = new ParcelFileDescriptor.AutoCloseInputStream(pfd)) {
+            while (in.read() != -1) {
+                // drain: the command is finished once its output is closed
+            }
+        }
     }
 
     @Test

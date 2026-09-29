@@ -95,7 +95,14 @@ public final class SiblingBookDetector {
             return null;
         }
         myLogD("resolvePickedFile() resolved real path = [" + path + "]");
-        return new File(path);
+        File file = new File(path);
+        if (!file.canRead()) {
+            // Scoped storage (Android 11+): the file exists but this app may not open it by path (e.g. an epub in
+            // Download: EACCES in HashWorker/scan, seen in Crashlytics) - keep using the content:// Uri instead.
+            myLogWA(null, "resolvePickedFile() - real path not readable by the app, keeping the content Uri");
+            return null;
+        }
+        return file;
     }
 
     /** Does file I/O - call this off the main thread. */

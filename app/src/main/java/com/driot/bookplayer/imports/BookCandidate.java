@@ -722,7 +722,8 @@ public class BookCandidate implements Parcelable {
                     if (directPath == null || directPath.isEmpty()) {
                         directPath = FileHelper.resolveRealPathViaMediaStore(context, file.getName(), file.length());
                     }
-                    if (directPath != null && !directPath.isEmpty() && new java.io.File(directPath).exists()) {
+                    // canRead, not exists: on Android 11+ a path can exist yet be unreadable (EACCES) for this app
+                    if (directPath != null && !directPath.isEmpty() && new java.io.File(directPath).canRead()) {
                         dataSource = new FileDataSourceViaHeapImpl(directPath);
                     } else {
                         // Fallback to channel based datasource (with offset 0)

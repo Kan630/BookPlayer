@@ -38,6 +38,26 @@ public class Pref {
     private static SharedPreferences playlist;
     private static SharedPreferences censorship;
 
+    /**
+     * Cheap and main-thread safe (getSharedPreferences only returns a handle, Android loads the file on its own
+     * thread): called synchronously from MyApp.onCreate so no early caller (service, worker, activity) sees null
+     * fields while init() still runs on its background thread. Was ~100 users/90 days of NPEs in Crashlytics.
+     */
+    public static synchronized void attach(Context context) {
+        if (prefs != null)
+            return;
+        appContext = context.getApplicationContext();
+        prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
+        stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
+        deviceSpecific = appContext.getSharedPreferences(SHARED_PREFERENCE_DEVICE_SPECIFIC, MODE_PRIVATE);
+        admin = appContext.getSharedPreferences(SHARED_PREFERENCE_ADMIN, MODE_PRIVATE);
+        searchHistory = appContext.getSharedPreferences(SHARED_PREFERENCE_SEARCH_HISTORY, MODE_PRIVATE);
+        inAppMsgs = appContext.getSharedPreferences(SHARED_PREFERENCE_IN_APP_MSG, MODE_PRIVATE);
+        migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
+        playlist = appContext.getSharedPreferences(SHARED_PREFERENCE_PLAYLIST, MODE_PRIVATE);
+        censorship = appContext.getSharedPreferences(SHARED_PREFERENCE_CENSORSHIP, MODE_PRIVATE);
+    }
+
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         PrefMigration.run(appContext);

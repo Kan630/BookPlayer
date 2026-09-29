@@ -60,6 +60,10 @@ public class MyApp extends Application {
             // StrictModeHelper.enableStrictModeForDebugBuild();
         }
 
+        // Handles only (no disk read): must exist before any activity/service/worker touches Option/Pref
+        Option.init(getApplicationContext());
+        Pref.attach(getApplicationContext());
+
         // Centralized Prefs warm-up in background
         Executors.newSingleThreadExecutor().execute(() -> {
             Option.init(getApplicationContext());
