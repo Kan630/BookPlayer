@@ -699,6 +699,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         diagnostics = new MediaServiceDiagnostics(this, ID_NOTIFICATION_PLAY_AUDIO_INT);
         diagnostics.register();
 
+        // Playing track deleted from DB: pause instead of playing a ghost (and failing a DB update every second)
+        progress.setOnTrackGone(zikFileId -> main.post(() -> pauseAudio("playing ZikFile " + zikFileId + " deleted")));
+
         episodeCover = new EpisodeCoverOverride(this, () -> {
             refreshMetadataAndNotificationCover();
             broadcastUiState("resolveEpisodeCoverOverride");
@@ -1477,12 +1480,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogW("CMD_TTS_SET_VOICE: engine is null or not TTS, attempting to re-init");
                 PlayList pl = PlayList.getInstance();
                 if (pl != null && pl.isZikFile()) {
-                    loadAndPlayTrack(pl.getZikFile(), false, false);
+                    // loadAndPlayTrack hits the DB: never on main (Room would throw)
+                    final ZikFile zf = pl.getZikFile();
+                    AppDatabase.databaseReadExecutor.execute(() -> loadAndPlayTrack(zf, false, false));
                 } else {
                     myLogW("CMD_TTS_SET_VOICE: playlist null, attempting restore from storage");
                     PlayList.createFromStorage(this, true, restoredPl -> {
                         if (restoredPl != null && restoredPl.isZikFile()) {
-                            main.post(() -> loadAndPlayTrack(restoredPl.getZikFile(), false, false));
+                            AppDatabase.databaseReadExecutor.execute(
+                                    () -> loadAndPlayTrack(restoredPl.getZikFile(), false, false));
                         } else {
                             myLogE("CMD_TTS_SET_VOICE: cannot re-init, playlist restore failed");
                             PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);

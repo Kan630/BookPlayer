@@ -21,6 +21,7 @@ import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.LongConsumer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,6 +36,16 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
 
     private volatile long suspendUntil = 0;
     private PlaySession playSession;
+
+    /** Id of a ZikFile whose DB row vanished while playing (deleted by the user) - updates for it are skipped. */
+    private volatile long goneZikFileId = -1;
+    @Nullable
+    private volatile LongConsumer onTrackGone;
+
+    /** Called (on the updater's IO thread) once when the playing ZikFile no longer exists in DB. */
+    public void setOnTrackGone(@Nullable LongConsumer listener) {
+        this.onTrackGone = listener;
+    }
 
     @Inject
     public PlaybackProgressUpdater(@ApplicationContext Context ctx) {
@@ -65,6 +76,9 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             if (zf == null) {
                 //TODO update if radio
                 return;
+            }
+            if (zf.getId() == goneZikFileId) {
+                return; // row deleted while playing: already reported once, don't hammer the DB every second
             }
 
 
@@ -141,6 +155,13 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
 
                     // recalculate other fields
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
+                } else if (dao.getById(zf.getId()) == null) {
+                    // The playing track was deleted (e.g. from ModifyZikFileActivity): expected, not an error
+                    goneZikFileId = zf.getId();
+                    myLogW("update skipped: ZikFile " + zf.getId() + " (" + zf.getName() + ") no longer in DB");
+                    LongConsumer l = onTrackGone;
+                    if (l != null)
+                        l.accept(zf.getId());
                 } else {
                     myLogEE(null, "update failed for " + zf.getName());
                 }

@@ -86,6 +86,12 @@ public class LogTextActivity extends BaseActivity {
 
             }
 
+            if (inputStream == null) {
+                // Unknown/missing typeStorage: nothing to read (was a NullPointerException in InputStreamReader)
+                myLogE("getTextFileContentInArrayList - no input stream for typeStorage [" + typeStorage + "]");
+                return null;
+            }
+
             reader = new BufferedReader(
                     new InputStreamReader(inputStream));
 
@@ -115,6 +121,13 @@ public class LogTextActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().getStringExtra("file") == null || getIntent().getStringExtra("typeStorage") == null) {
+            // Launched without its extras (seen in Crashlytics at session start): nothing to show.
+            // Checked before forcing landscape, which would recreate the activity first.
+            myLogE("LogTextActivity started without file/typeStorage extras - closing");
+            finish();
+            return;
+        }
         // Force landscape orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_log_text);

@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -140,13 +141,15 @@ public class ModifyZikFileActivity extends BaseActivity {
     }
 
     private void deleteZikFile() {
-        // delete ZikFile if exist in app memory
-        if (deleteZikFileFromDisk()) {
-            myLog("Ok file deleted");
-            deleteZikFileFromDB(zikFile.getId()); // to delete from DB
-        } else {
-            myToastEE(null, "Error deleting zik file from internal app memory");
-        }
+        // Sequential on purpose: read the path, erase the file (if in app memory), THEN delete the DB row.
+        // Running both in parallel let the row vanish first -> null path -> file left on disk.
+        new Thread(() -> {
+            String zikFilePath = AppDatabase.getDatabase(this).zikFileDao().getZikFilePath(zikFile.getId());
+            runOnUiThread(() -> {
+                deleteZikFileFromDisk(zikFilePath);
+                deleteZikFileFromDB(zikFile.getId()); // finishes the activity
+            });
+        }).start();
     }
 
     private void deleteZikFileFromDB(long id) {
@@ -161,26 +164,24 @@ public class ModifyZikFileActivity extends BaseActivity {
         }).start();
     }
 
-    private boolean deleteZikFileFromDisk() {
-        new Thread(() -> {
-            String zikFilePath = AppDatabase.getDatabase(this).zikFileDao().getZikFilePath(zikFile.getId());
-            runOnUiThread(() -> {
-                eraseFileFromDisk("file://" + zikFilePath);
-                finish();
-            });
-        }).start();
-        return true;
+    private void deleteZikFileFromDisk(String zikFilePath) {
+        // DB paths are usually already "file:///..." - only add the scheme when missing
+        String strPath = zikFilePath;
+        if (strPath != null && !strPath.contains("://"))
+            strPath = "file://" + strPath;
+        eraseFileFromDisk(strPath);
     }
 
     private void eraseFileFromDisk(String strPath) {
         String starter = "file:///";
         myLog("Deleting ZikFile : [" + strPath + "]");
-        if (strPath.length() > 5) {
+        if (strPath != null && strPath.length() > 5) {
             if (!StorageHelper.isInInternalMemory(strPath)) {
                 myLog("NO DISK DELETE : Not a folder in user data, skip deletion");
             } else {
                 if (strPath.startsWith(starter)) {
-                    strPath = strPath.replace(starter, "");
+                    // Uri.getPath() keeps the leading "/" and decodes %20 etc. (stored paths are encoded)
+                    strPath = Uri.parse(strPath).getPath();
                     try {
                         File zikFileToDelete = new File(strPath);
                         if (zikFileToDelete.exists()) {
