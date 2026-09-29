@@ -33,6 +33,7 @@ import com.driot.bookplayer.nav.FullActivity;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
@@ -105,7 +106,7 @@ public class ImportBookSingleActivity extends FullActivity {
 
     @Inject
     protected AppTtsManager ttsManager;
-    private Button btnConfirm, btnCancel;
+    private Button btnConfirm, btnCancel, btnGoToExistingBook;
     private ProgressBar progressBarStep1, progressBarStep2;
     private TextView tvProgressStatusStep1, tvProgressStatusStep2;
 
@@ -227,6 +228,7 @@ public class ImportBookSingleActivity extends FullActivity {
         TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnCancel = findViewById(R.id.btnCancel);
+        btnGoToExistingBook = findViewById(R.id.btnGoToExistingBook);
 
         findViewById(R.id.cvCover).setOnClickListener(this::openCoverPickerMenu);
 
@@ -1036,6 +1038,31 @@ public class ImportBookSingleActivity extends FullActivity {
         errorTextView.setVisibility(View.VISIBLE);
     }
 
+    private Folder getExistingFolderByHash(String hash) {
+        try {
+            return AppDatabase.getDatabase(this).folderDao().getByOriginalHash(hash);
+        } catch (Exception e) {
+            myLogEE(e, "Error checking hash exists: " + hash);
+            return null;
+        }
+    }
+
+    /** Blocking duplicate: explain where the book already is and offer to open it instead. */
+    private void showAlreadyInLibrary(Folder existingFolder) {
+        showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
+                + "\n\"" + existingFolder.getName() + "\"");
+        stopAndDisableEverything();
+        long folderId = existingFolder.getId();
+        btnGoToExistingBook.setVisibility(View.VISIBLE);
+        btnGoToExistingBook.setOnClickListener(v -> {
+            myLogI("------ USER CLICKS btn GO TO EXISTING BOOK [" + folderId + "]");
+            startActivity(new Intent(this, MainActivity.class)
+                    .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
+                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK));
+            finish();
+        });
+    }
+
     // FIRST BLOCKING CHECK
     private void doChecks_step1_hashNotExist(String hash) {
         myLog("Checking if hash [" + hash + "] already exists in DB for [" + uri + "]");
@@ -1049,9 +1076,10 @@ public class ImportBookSingleActivity extends FullActivity {
             doChecks_Step2();
         } else {
             new Thread(() -> {
-                String existingBook = ImportValidator.checkHashExists(ImportBookSingleActivity.this, hash);
+                Folder existingFolder = getExistingFolderByHash(hash);
                 runOnUiThread(() -> {
-                    if (existingBook != null) {
+                    if (existingFolder != null) {
+                        String existingBook = existingFolder.getName();
                         if (uri.toString().startsWith("http")) {
                             // TODO, ideally, a second hash column should be computed "realHashOfTheContent"
                             myLogW("same Hash [" + hash + "] for URL " + uri + " for book = "
@@ -1064,9 +1092,7 @@ public class ImportBookSingleActivity extends FullActivity {
                             myLog("-----------------------------------------------------------------------------------");
                             myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
                             myLog("-----------------------------------------------------------------------------------");
-                            showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
-                                    + "\n" + existingBook);
-                            stopAndDisableEverything();
+                            showAlreadyInLibrary(existingFolder);
                             return;
                         }
                     } else {
@@ -1103,13 +1129,11 @@ public class ImportBookSingleActivity extends FullActivity {
             String strPath = uri.toString();
             myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
             new Thread(() -> {
-                String audioBookAlreadyThere = AppDatabase.getDatabase(this).folderDao()
-                        .folderAlreadyExist_checkFolderPath_getBookName(strPath);
+                Folder existingFolder = AppDatabase.getDatabase(this).folderDao().getFolderByPath(strPath);
                 runOnUiThread(() -> {
-                    if (audioBookAlreadyThere != null) {
+                    if (existingFolder != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
-                        showError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
-                        stopAndDisableEverything();
+                        showAlreadyInLibrary(existingFolder);
                     } else {
                         myLogD("OK, folder path doesn't already exist in DB");
                     }

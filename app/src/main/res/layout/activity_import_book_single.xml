@@ -242,7 +242,7 @@
 
             <Button
                 android:id="@+id/btnCancel"
-                style="@style/Widget.BookPlayer.Button.Text"
+                style="@style/Widget.BookPlayer.Button.Secondary"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -250,6 +250,16 @@
 
             <View android:layout_width="16dp"
                 android:layout_height="match_parent" />
+
+            <!-- Shown instead of Confirm when the media is already in the library -->
+            <Button
+                android:id="@+id/btnGoToExistingBook"
+                style="@style/Widget.BookPlayer.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="@string/option_import_completion_open_book" />
 
             <Button
                 android:id="@+id/btnConfirm"

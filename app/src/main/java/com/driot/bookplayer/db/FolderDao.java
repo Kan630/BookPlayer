@@ -93,6 +93,9 @@ public interface FolderDao {
     @Query("SELECT name FROM Folder WHERE originalHash = :originalHash LIMIT 1")
     String originalHashAlreadyExist_getBookName(String originalHash);
 
+    @Query("SELECT * FROM Folder WHERE originalHash = :originalHash LIMIT 1")
+    Folder getByOriginalHash(String originalHash);
+
     @Query("SELECT name FROM Folder WHERE path = :sFolderPath LIMIT 1")
     String folderAlreadyExist_checkFolderPath_getBookName(String sFolderPath);
 
