@@ -431,7 +431,12 @@ public class NetworkHelper {
                     myLogW("No address associated with hostname: " + url);
                     return null;
                 }
-                myLogEE(t, "fetch failed for: " + url);
+                if (t instanceof java.io.IOException) {
+                    // third-party image hosts (radio logos, covers): bad certs, timeouts, resets are not app bugs
+                    myLogWA(t, "fetch failed for: " + url);
+                } else {
+                    myLogEE(t, "fetch failed for: " + url);
+                }
                 return null;
             } finally {
                 try {

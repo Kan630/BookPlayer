@@ -281,7 +281,7 @@ public class FileHelper {
                 result = cursor.getString(index);
             }
         } catch (Exception e) {
-            myLogEE(e, "error with getDataColumn");
+            myLogWA(e, "error with getDataColumn"); // expected: many providers have no _data column, callers fall back
             return null;
         } finally {
             if (cursor != null)

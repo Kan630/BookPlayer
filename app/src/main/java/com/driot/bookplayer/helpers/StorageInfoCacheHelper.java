@@ -166,7 +166,7 @@ public class StorageInfoCacheHelper {
                     }
                 }
             } catch (Exception e) {
-                myLogEE(e, "getFileSize() - file://");
+                myLogWA(e, "getFileSize() - file://"); // storage stats only: missing file is expected
                 return -1;
             }
         } else {
@@ -174,7 +174,7 @@ public class StorageInfoCacheHelper {
             try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
                 return (pfd != null) ? pfd.getStatSize() : -1;
             } catch (Exception e) {
-                myLogEE(e, "getFileSize() - content://");
+                myLogWA(e, "getFileSize() - content://"); // storage stats only: revoked/missing documents are expected
                 return -1;
             }
         }

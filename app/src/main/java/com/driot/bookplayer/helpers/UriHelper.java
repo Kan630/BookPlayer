@@ -438,7 +438,7 @@ public class UriHelper {
             myLog("persisting permission for uri [" + src + "]");
             return true; // persistable → good
         } catch (SecurityException e) {
-            myLogEE(null, "could not persist permission for uri [" + src + "] - " + e.getMessage());
+            myLogWA(e, "could not persist permission for uri [" + src + "]"); // expected for Telegram/MediaStore shares, caller copies instead
             return false;
         } catch (Exception e) {
             myLogEE(null, "Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());

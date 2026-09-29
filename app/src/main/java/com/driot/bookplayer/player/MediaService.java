@@ -2804,7 +2804,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("loadAndPlay()");
         PlayList.createFromStorage(this, true, pl -> {
             if (pl == null) {
-                myLogEE(null, "loadAndPlay: no stored playlist to restore, shutting down");
+                myLogWA(null, "loadAndPlay: no stored playlist to restore, shutting down"); // expected on a first run / after data reset
                 main.post(() -> shutdown(false));
                 return;
             }

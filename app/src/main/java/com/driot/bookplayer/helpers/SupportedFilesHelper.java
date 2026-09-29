@@ -127,7 +127,7 @@ public class SupportedFilesHelper {
                     }
                 }
             } catch (Exception e) {
-                myLogEE(e, "getFileNameFromUri - MediaStore failed");
+                myLogWA(e, "getFileNameFromUri - MediaStore failed, falling back"); // many providers have no _data column
             }
         }
 
@@ -207,7 +207,7 @@ public class SupportedFilesHelper {
                     }
                 }
             } catch (Exception e) {
-                myLogEE(e, "getMimeType(ctx, uri) - extension fallback");
+                myLogWA(e, "getMimeType(ctx, uri) - extension fallback");
             }
         }
 

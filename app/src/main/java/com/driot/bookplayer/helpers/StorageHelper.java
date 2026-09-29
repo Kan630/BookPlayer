@@ -472,7 +472,7 @@ public class StorageHelper {
 
         // TODO maybe try redownload from Podcast.imageOriginalUri
         // use processPendingImage, or run it
-        myLogEE(null, "checkAndCleanImagePath : no valid image file - [" + fileName + "]");
+        myLogWA(null, "checkAndCleanImagePath : no valid image file - [" + fileName + "]"); // DbClean cleanup case, handled by returning null
         return null;
     }
 

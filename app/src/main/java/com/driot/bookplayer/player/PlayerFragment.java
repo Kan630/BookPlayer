@@ -201,7 +201,7 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
         super.onViewCreated(view, savedInstanceState);
 
         if (PlayList.getInstance() == null) {
-            myLogEE(null, "PlayList.getInstance() == null");
+            myLogWA(null, "PlayList.getInstance() == null"); // expected when the app process was killed in background
             closePlayer();
             return;
         }

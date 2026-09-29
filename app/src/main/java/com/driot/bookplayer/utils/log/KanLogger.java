@@ -190,7 +190,7 @@ public class KanLogger {
     }
 
     public static void myLogW(String str) {
-        myLogE("", str);
+        myLogW("", str);
     }
 
     public static void myLogW(String prefix, String str) {
@@ -205,32 +205,81 @@ public class KanLogger {
             if (LOG_THEM_ALL)
                 Log.w(logcatPrefix, str);
         }
+        // Warnings are breadcrumbs in Crashlytics (attached to the next crash/non-fatal), never reports
+        try {
+            if (CrashReport.allow("W|" + prefix + "|" + str) >= 0)
+                FirebaseCrashlytics.getInstance().log(CrashReport.clip("W " + prefix + " " + str));
+        } catch (Throwable ignored) {
+        } // Never let Crashlytics reporting crash the app
     }
 
     public static void myLogEE(Throwable t, String str) {
         myLogEE(t, "", str);
     }
 
-    // TODO add e.getClass() to the string ?
+    /**
+     * Expected/handled problem worth counting, not worth a Crashlytics non-fatal:
+     * warning (+ Crashlytics breadcrumb) and a "log_w" Analytics event (deduplicated per minute).
+     */
+    public static void myLogWA(@Nullable Throwable t, String prefix, String str) {
+        myLogW(prefix, str + (t != null ? " : " + t : ""));
+        try {
+            if (CrashReport.allow("WA|" + prefix + "|" + str + "|" + (t != null ? t.getClass().getName() : "")) < 0)
+                return;
+            FirebaseAnalyticsHelper.tellAnalyticsLogWarn(CrashReport.redact(parsePrefix(prefix) + " " + str),
+                    CrashReport.redact(t != null ? t.toString() : ""), "LogWA");
+        } catch (Throwable ignored) {
+        } // Never let reporting crash the app
+    }
+
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str + (t != null ? " : " + t.getMessage() : ""));
+        reportError(t, prefix, str, "LogEE", true);
+    }
+
+    /**
+     * Crashlytics + Analytics side of myLogEE / myToastEE.
+     * - interruptions (user cancel) are breadcrumbs only
+     * - the same report within a minute is dropped (Crashlytics keeps only 8 non-fatals per session)
+     * - t == null: a LoggedError whose stack starts at the real caller, so each call site is its own issue
+     * - e-mail addresses are redacted; Analytics values still go through its own 100-char trimFA
+     */
+    private static void reportError(@Nullable Throwable t, String prefix, String str, String from,
+            boolean recordWithoutThrowable) {
         try {
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_prefix", prefix);
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_errMessage",
-                    (t != null ? " : " + t.getMessage() : ""));
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_customMessage", str);
-            String strFirebaseLog = prefix + " " + str;
-            String androidErrorMessage = "";
-            if (t != null) {
-                androidErrorMessage = t.getMessage();
-                FirebaseCrashlytics.getInstance().recordException(t);
-                strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
-            } else {
-                // Record as non-fatal so myLogEE(null, message) shows in Crashlytics
-                FirebaseCrashlytics.getInstance().recordException(new RuntimeException("LogEE: " + strFirebaseLog));
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            String errMessage = t != null ? String.valueOf(t.getMessage()) : "";
+            if (CrashReport.isInterruption(t)) {
+                crashlytics.log(CrashReport.clip(prefix + " " + str + " - interrupted: " + t));
+                return;
             }
-            FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "LogEE");
+            long suppressed = CrashReport.allow(prefix + "|" + str + "|" + (t != null ? t.getClass().getName() : ""));
+            if (suppressed < 0)
+                return;
+            String repeat = suppressed > 0 ? " (+" + suppressed + " identical in the last minute)" : "";
+
+            crashlytics.setCustomKey("myLogEE_prefix", CrashReport.clip(prefix));
+            crashlytics.setCustomKey("myLogEE_errMessage", CrashReport.clip(t != null ? " : " + errMessage : ""));
+            crashlytics.setCustomKey("myLogEE_customMessage", CrashReport.clip(str));
+            // log before recording so the line is attached to this very report
+            crashlytics.log(CrashReport.clip(prefix + " " + str + (t != null ? " - " + errMessage : "") + repeat));
+
+            if (t != null) {
+                String redacted = CrashReport.redact(t.getMessage());
+                if (t.getMessage() != null && !redacted.equals(t.getMessage())) {
+                    CrashReport.LoggedError e = new CrashReport.LoggedError(t.getClass().getName() + ": " + redacted);
+                    e.setStackTrace(t.getStackTrace());
+                    crashlytics.recordException(e);
+                } else {
+                    crashlytics.recordException(t);
+                }
+            } else if (recordWithoutThrowable) {
+                CrashReport.LoggedError e = new CrashReport.LoggedError(CrashReport.clip(prefix + " " + str));
+                e.setStackTrace(CrashReport.callerStack());
+                crashlytics.recordException(e);
+            }
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(CrashReport.redact(parsePrefix(prefix) + " " + str),
+                    CrashReport.redact(t != null ? t.getMessage() : ""), from);
         } catch (Throwable ignored) {
         } // Never let Crashlytics reporting crash the app
     }
@@ -318,22 +367,8 @@ public class KanLogger {
         myLogE(prefix, msg + (t != null ? " : " + t.getMessage() : ""));
         // Show toast (short) with full hardening
         myToastE(prefix, msg, Toast.LENGTH_SHORT);
-        // Report (avoid double-reporting large stacks if t is null)
-        try {
-            String strFirebaseLog = prefix + " " + str;
-            String androidErrorMessage = "";
-            if (t != null) {
-                androidErrorMessage = t.getMessage();
-                strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
-                FirebaseCrashlytics.getInstance().recordException(t);
-            } else {
-                FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
-            }
-            FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage,
-                    "myToastEE");
-        } catch (Throwable ignored) {
-        } // Never let Crashlytics reporting crash the app
+        // Report (null t: breadcrumb + Analytics only, as before)
+        reportError(t, prefix, str, "myToastEE", false);
     }
 
     public static void myToastE(String str) {

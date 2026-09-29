@@ -191,7 +191,7 @@ public final class PlayList {
         }
 
         // === Normal path: we have something in prefs ===
-        myLogEE(null, "Playlist created from storage - toString: " + pl);
+        myLogI("Playlist created from storage - toString: " + pl); // info, not an error: fires on every headset/media-button play
         FirebaseAnalyticsHelper.tellAnalyticsPlaylistLoadFromStorage(ctx, "pref", pl.toString());
 
         // decide if we need DB

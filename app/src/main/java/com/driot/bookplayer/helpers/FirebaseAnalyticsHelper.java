@@ -14,6 +14,7 @@ import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.driot.bookplayer.utils.log.CrashReport;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.Locale;
@@ -57,12 +58,13 @@ public final class FirebaseAnalyticsHelper {
 
     public static void setCustomKeyCrashlytics(String strKey, String strValue) {
         myLogD("setCustomKeyCrashlytics : " + strKey + " = " + strValue);
-        FirebaseCrashlytics.getInstance().setCustomKey(strKey, trimFA(strValue));
+        // Crashlytics accepts 1024 chars per key: its own limit, not Analytics' 100 (trimFA)
+        FirebaseCrashlytics.getInstance().setCustomKey(strKey, CrashReport.clip(strValue));
     }
 
     public static void logCrashlytics(String strLog) {
         myLogD("logCrashlytics : " + strLog);
-        FirebaseCrashlytics.getInstance().log(trimFA(strLog));
+        FirebaseCrashlytics.getInstance().log(CrashReport.clip(strLog));
     }
 
 //ANALYTICS
@@ -352,6 +354,15 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("log_ee", bundle);
     }
 
+    /** Same params as log_ee (so registered custom dimensions apply), for expected/handled problems. */
+    public static void tellAnalyticsLogWarn(String customErrorTxt, String androidErrorText, String from) {
+        Bundle bundle = new Bundle();
+        bundle.putString("from", trimFA(from));
+        bundle.putString("customErrorTxt", trimFA(customErrorTxt));
+        bundle.putString("androidErrorText", trimFA(androidErrorText));
+        logBundleEvent("log_w", bundle);
+    }
+
     private static void logBundleEvent(String logName, Bundle bundle) {
         try {
             myLogD("Analytics logging - " + logName + " - " + bundle.toString());
@@ -366,7 +377,8 @@ public final class FirebaseAnalyticsHelper {
     }
 
     static String trimFA(String s) {
-        s = String.valueOf(s);
+        // redact first (can change the length), then the Analytics 100-char limit still applies last
+        s = CrashReport.redact(String.valueOf(s));
         if (s.length() <= MAX_FA_PARAM) return s;
         return s.substring(0, MAX_FA_PARAM - 1) + "…";
     }
