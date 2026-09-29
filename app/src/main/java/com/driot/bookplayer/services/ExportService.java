@@ -79,6 +79,17 @@ public class ExportService extends LoggingService {
         return START_NOT_STICKY;
     }
 
+    /** Zip entries must be unique: "a.mp3", "a (2).mp3", "a (3).mp3"... */
+    static String uniqueEntryName(String name, java.util.Set<String> used) {
+        String candidate = name;
+        int dot = name.lastIndexOf('.');
+        String base = dot > 0 ? name.substring(0, dot) : name;
+        String ext = dot > 0 ? name.substring(dot) : "";
+        for (int n = 2; !used.add(candidate); n++)
+            candidate = base + " (" + n + ")" + ext;
+        return candidate;
+    }
+
     private void zipFolder(Folder folder, String destFileFullPath, String destUriStr) {
         String folderPath = folder.getPath();
         Uri folderUri = Uri.parse(folderPath);
@@ -161,12 +172,18 @@ public class ExportService extends LoggingService {
                 String iName = Tonio.getFileNameFromPath(pathImage); // fallback name
                 // if SAF, maybe query name? simpler to trust generic helper or just use
                 // filename
-                filesToZip.add(imageUri);
-                fileNames.add(iName);
-                fileSizes.add(iSize);
-                totalSize += iSize;
-                totalFiles++;
-                myLog("image added: " + iName);
+                if (filesToZip.contains(imageUri) || fileNames.contains(iName)) {
+                    // cover.jpg living in the book folder is already listed above: adding it again threw
+                    // "ZipException: duplicate entry: cover.jpg" (Crashlytics) and the image was missing from the zip
+                    myLog("image already in the folder, not added twice: " + iName);
+                } else {
+                    filesToZip.add(imageUri);
+                    fileNames.add(iName);
+                    fileSizes.add(iSize);
+                    totalSize += iSize;
+                    totalFiles++;
+                    myLog("image added: " + iName);
+                }
             }
         }
 
@@ -196,6 +213,7 @@ public class ExportService extends LoggingService {
             try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(rawOut))) {
                 long zippedSoFar = 0;
                 int currentIndex = 0;
+                java.util.Set<String> usedEntryNames = new java.util.HashSet<>();
 
                 for (int i = 0; i < filesToZip.size(); i++) {
                     if (isCancelled)
@@ -212,7 +230,7 @@ public class ExportService extends LoggingService {
                             continue;
                         }
 
-                        ZipEntry entry = new ZipEntry(fileName);
+                        ZipEntry entry = new ZipEntry(uniqueEntryName(fileName, usedEntryNames));
                         zos.putNextEntry(entry);
 
                         byte[] buffer = new byte[8192];

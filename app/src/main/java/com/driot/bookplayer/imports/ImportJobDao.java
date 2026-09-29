@@ -78,10 +78,16 @@ public interface ImportJobDao {
         void updateProgressText(String id, String txt, long ts);
 
         @Query("UPDATE ImportJob " +
-                        "SET warningText = COALESCE(warningText || '\n', '') || :warn, " +
+                        // keep only the last 4000 chars: appended forever, a row once grew past the 2 MB
+                        // CursorWindow and observeUniqueJob crashed at every launch (SQLiteBlobTooBigException)
+                        "SET warningText = substr(COALESCE(warningText || '\n', '') || :warn, -4000), " +
                         "updatedAt = :ts " +
                         "WHERE importId = :id")
         void appendWarning(String id, String warn, long ts);
+
+        /** Repairs rows grown before the 4000-char cap (they crash any SELECT * with SQLiteBlobTooBigException). */
+        @Query("UPDATE ImportJob SET warningText = substr(warningText, -4000) WHERE length(warningText) > 4000")
+        int trimOversizedWarnings();
 
         // Guarded the same way as updateProgress()/updateProgressText() above - don't let a
         // failure reported after the fact (e.g. a worker step that hadn't yet noticed
@@ -113,7 +119,7 @@ public interface ImportJobDao {
         @Query("UPDATE ImportJob SET downloadWorkId = :downloadManagerId, updatedAt = :ts WHERE importId = :id")
         void setDownloadManagerId(String id, String downloadManagerId, long ts);
 
-        @Query("UPDATE ImportJob SET warningText = COALESCE(warningText || '\n', '') || :why" +
+        @Query("UPDATE ImportJob SET warningText = substr(COALESCE(warningText || '\n', '') || :why, -4000)" +
                         ", showToUser = 1" +
                         ", isLoadingPaused = 1" +
                         ", status = '" + Var.IMPORT_STATUS_PAUSED + "'" +

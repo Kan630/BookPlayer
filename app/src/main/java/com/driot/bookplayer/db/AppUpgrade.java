@@ -76,6 +76,18 @@ public final class AppUpgrade {
             backfillGutenbergSources(context);
         }
 
+        // Every launch (cheap, WHERE-guarded): import jobs whose warningText grew unbounded before it was capped
+        // crashed ImportJobDao.observeUniqueJob with SQLiteBlobTooBigException (Crashlytics, 31 crashes / 2 users).
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                int n = AppDatabase.getDatabase(context).importJobDao().trimOversizedWarnings();
+                if (n > 0)
+                    myLogWA(null, "trimmed oversized ImportJob.warningText on " + n + " row(s)");
+            } catch (Exception e) {
+                myLogEE(e, "trimOversizedWarnings failed");
+            }
+        });
+
         // Books imported without an originalHash (none saved by the single import screen from
         // 2026-02-14 to 2026-09-25) - see OriginalHashBackfill. It reads files, so it gets its own
         // low-priority thread rather than the DB executor; the flag is only set once a full pass

@@ -57,6 +57,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     }
 
     private final Handler main = new Handler(Looper.getMainLooper());
+    /** Builds the VoiceItem list (slow on devices with many voices) - never on main. */
+    private final java.util.concurrent.ExecutorService voiceListExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
     private volatile boolean ready = false;
     private TextToSpeech tts;
     private int consecutiveErrorCount = 0;
@@ -277,10 +279,17 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         if (ready) {
             forEachListener(l -> l.onTtsReady(tts));
             final TextToSpeech ttsSnap = tts;
-            main.post(() -> {
+            // Off the main thread: hundreds of voices x Locale display-name lookups (ICU) caused ANRs on slow
+            // phones (Crashlytics, VoiceItem.prettyLocale). postValue delivers the result on main.
+            voiceListExecutor.execute(() -> {
                 List<VoiceItem> list = new ArrayList<>();
                 try {
-                    for (Voice v : ttsSnap.getVoices()) {
+                    Set<Voice> voices = ttsSnap.getVoices(); // can be null (engine not fully ready): was an NPE
+                    if (voices == null) {
+                        myLogWA(null, "onInit - getVoices() returned null, empty voice list");
+                        voices = Collections.emptySet();
+                    }
+                    for (Voice v : voices) {
                         VoiceItem vi = new VoiceItem(v);
                         myLog("voice: " + VoiceItem.describeVoice(v) + " -> twoLetterCodeLanguage=["
                                 + vi.twoLetterCodeLanguage + "]");
@@ -295,7 +304,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 } catch (Throwable t) {
                     myLogEE(t, "onInit - building VoiceItem list for LiveData");
                 }
-                voicesLiveData.setValue(list);
+                voicesLiveData.postValue(list);
             });
         }
     }
