@@ -32,6 +32,8 @@ public class TtsHelper {
     public static final int READY = 0, SET_VOICE_FAILED = 1, MISSING_DATA = 2, SYNTH_FAIL = 3, ERROR = 4, TIMEOUT = 5;
 
     private static final int MIN_FIRST_UTT_CHARS = 25;
+    /** Snap-to-sentence never goes back more than this (~6 s of speech), so a +10 s skip always moves forward. */
+    private static final int MAX_SNAP_BACK_CHARS = 90;
 
     // optional raw access
     public TextToSpeech raw() {
@@ -129,6 +131,13 @@ public class TtsHelper {
                     // already on boundary
                 } else {
                     int preceding = bi.preceding(relStart);
+                    if (preceding != BreakIterator.DONE && relStart - preceding > MAX_SNAP_BACK_CHARS) {
+                        // Long sentence: its start can be far back (a +10 s skip landed 15 s EARLIER) -
+                        // only back up to the start of the current word
+                        BreakIterator wi = BreakIterator.getWordInstance();
+                        wi.setText(first.text);
+                        preceding = wi.isBoundary(relStart) ? relStart : wi.preceding(relStart);
+                    }
                     if (preceding != BreakIterator.DONE) {
                         snapStart = first.start + preceding;
                         myLog("speakFromOffset : snapped start from " + clampedStart + " to " + snapStart + " (rel "

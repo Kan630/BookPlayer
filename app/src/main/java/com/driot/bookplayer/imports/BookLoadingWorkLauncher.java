@@ -19,6 +19,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -395,17 +396,26 @@ public class BookLoadingWorkLauncher {
             return;
         FolderDao dao = AppDatabase.getDatabase(ctx).folderDao();
         File wanted = new File(path);
+        // The folder name comes from the book title: "Book [00] .m4b" gives a trailing space, which an
+        // SD card (FAT) refuses, and the import then stops at "Creating folder".
+        String rawName = wanted.getName();
+        String safeName = FileHelper.sanitizeFilename(rawName);
+        if (!safeName.equals(rawName)) {
+            myLogW("unsafe folder name [" + rawName + "] -> [" + safeName + "]");
+            wanted = new File(wanted.getParentFile(), safeName);
+        }
         File candidate = wanted;
         String suffix = " " + Tonio.getCurrentDateTimeString();
         for (int i = 2; dao.getFolderByPath(candidate.getAbsolutePath()) != null || candidate.exists(); i++) {
             candidate = new File(wanted.getParentFile(), wanted.getName() + suffix + (i > 2 ? " " + (i - 1) : ""));
         }
-        if (candidate == wanted)
+        if (candidate.getAbsolutePath().equals(path))
             return;
-        myLogW("destination already used by another book or on disk: [" + path + "] -> [" + candidate + "]");
-        if (wanted.getName().equals(s.futureFolderName))
+        if (candidate != wanted)
+            myLogW("destination already used by another book or on disk: [" + path + "] -> [" + candidate + "]");
+        if (rawName.equals(s.futureFolderName))
             s.futureFolderName = candidate.getName();
-        if (wanted.getName().equals(s.title)) // same date-suffix rule as the single import screen
+        if (candidate != wanted && rawName.equals(s.title)) // same date-suffix rule as the single import screen
             s.title = candidate.getName();
         s.futureFolderPath = candidate.getAbsolutePath();
     }

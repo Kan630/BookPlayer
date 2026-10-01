@@ -357,13 +357,15 @@ public class FileHelper {
     public static String sanitizeFilename(String input) {
         if (input == null)
             return null;
-        String out = input.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
-        if (out.isEmpty())
-            out = "untitled";
+        String out = input.replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "_").trim();
         if (out.length() > Var.FILE_NAME_MAX_NB_CHARS) {
             myLogW("sanitizeFilename: file name too long (" + out.length() + "), cutting to " + Var.FILE_NAME_MAX_NB_CHARS + " - [" + input +  "]");
             out = out.substring(0, Var.FILE_NAME_MAX_NB_CHARS);
         }
+        // FAT/exFAT SD cards refuse a trailing space (mkdir -> EINVAL) and silently drop a trailing dot
+        out = out.replaceAll("[\\s.]+$", "");
+        if (out.isEmpty())
+            out = "untitled";
         return out;
     }
 

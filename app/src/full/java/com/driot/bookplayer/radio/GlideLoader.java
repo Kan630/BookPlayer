@@ -1,6 +1,7 @@
 package com.driot.bookplayer.radio;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import android.app.Activity;
@@ -12,7 +13,12 @@ import com.bumptech.glide.request.RequestListener;
 
 public class GlideLoader {
 
-    private static boolean isContextAlive(Context context) {
+    static boolean isContextAlive(Context context) {
+        // A view inside a Hilt fragment has a FragmentContextWrapper, not the Activity itself: without unwrapping,
+        // a favicon resolved after the screen was closed crashed in Glide.with ("load for a destroyed activity")
+        while (context instanceof ContextWrapper wrapper && !(context instanceof Activity)) {
+            context = wrapper.getBaseContext();
+        }
         if (context instanceof Activity activity) {
             return !activity.isDestroyed() && !activity.isFinishing();
         }

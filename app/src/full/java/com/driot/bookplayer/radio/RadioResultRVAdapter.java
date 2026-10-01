@@ -345,6 +345,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder instanceof ItemVH itemVH) {
+            // Views are also recycled while the activity is being destroyed (rotation during an item animation):
+            // Glide.with then throws and the whole destroy crashes
+            if (!GlideLoader.isContextAlive(itemVH.itemView.getContext()))
+                return;
             Glide.with(itemVH.itemView.getContext()).clear(itemVH.favicon);
             Glide.with(itemVH.itemView.getContext()).clear(itemVH.ivFlag);
         }

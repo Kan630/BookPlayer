@@ -191,8 +191,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 });
             }
 
-            if (context instanceof android.app.Activity) {
-                ((android.app.Activity) context).runOnUiThread(() -> {
+            if (context instanceof android.app.Activity activity) {
+                activity.runOnUiThread(() -> {
+                    if (activity.isDestroyed() || activity.isFinishing())
+                        return; // screen closed during the download: Glide.with would throw
                     Object tag = holder.ivEpisodeCover.getTag();
                     if (tag instanceof Long && (Long) tag == idEpisode) {
                         Glide.with(context).load(new File(localPath)).into(holder.ivEpisodeCover);

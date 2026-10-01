@@ -94,8 +94,26 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     // Player initialisation
     // -------------------------------------------------------------------------
 
-    private void initPlayer() {
+    /**
+     * One client for the whole process (as OkHttp recommends). Building it loads every system CA certificate from
+     * disk (sslSocketFactory -> getAcceptedIssuers), and initPlayer runs on the main thread: doing that on each
+     * radio start froze the UI, up to an ANR on a slow/busy device.
+     */
+    private static volatile OkHttpClient sharedHttpClient;
 
+    private OkHttpClient sharedHttpClient() {
+        OkHttpClient client = sharedHttpClient;
+        if (client == null) {
+            synchronized (ExoRadioPlayerEngine.class) {
+                client = sharedHttpClient;
+                if (client == null)
+                    sharedHttpClient = client = buildHttpClient();
+            }
+        }
+        return client;
+    }
+
+    private OkHttpClient buildHttpClient() {
         // --- Cookie-aware OkHttpClient ---
         // Many streaming CDNs (mdstrm.com, etc.) issue session cookies on the
         // first request and require them to be echoed on the redirected CDN URL.
@@ -114,7 +132,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         TrustManager[] trustManagers = buildTrustManagers();
         SSLContext sslContext = buildSslContext(trustManagers);
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        return new OkHttpClient.Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .connectTimeout(15, TimeUnit.SECONDS)
@@ -129,6 +147,11 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                                 .build()
                 ))
                 .build();
+    }
+
+    private void initPlayer() {
+
+        OkHttpClient okHttpClient = sharedHttpClient();
 
         // --- Media3 data-source factory backed by OkHttp ---
         OkHttpDataSource.Factory httpDataSourceFactory =

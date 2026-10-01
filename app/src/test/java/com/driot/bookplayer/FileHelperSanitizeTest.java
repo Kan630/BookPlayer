@@ -1,6 +1,7 @@
 package com.driot.bookplayer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -22,6 +23,12 @@ public class FileHelperSanitizeTest {
         // Leading/trailing whitespace
         assertEquals("Clean Title", FileHelper.sanitizeFilename("  Clean Title  "));
 
+        // FAT/exFAT SD cards refuse a trailing space and drop a trailing dot ("Book [00] .m4b" -> "Book [00] ")
+        assertEquals("Anthem by Ayn Rand [00]", FileHelper.sanitizeFilename("Anthem by Ayn Rand [00] "));
+        assertEquals("Vol. 2", FileHelper.sanitizeFilename("Vol. 2..."));
+        assertEquals("a_b", FileHelper.sanitizeFilename("a\tb"));
+        assertEquals("untitled", FileHelper.sanitizeFilename(" . "));
+
         // Empty/null cases
         assertEquals("untitled", FileHelper.sanitizeFilename(""));
         assertEquals(null, FileHelper.sanitizeFilename(null));
@@ -29,7 +36,8 @@ public class FileHelperSanitizeTest {
         // Long filenames (should be truncated to FILE_NAME_MAX_NB_CHARS)
         String longTitle = "This is a very very very very very very very very very very very very very long title".repeat(3);
         String sanitized = FileHelper.sanitizeFilename(longTitle);
-        assertEquals(Var.FILE_NAME_MAX_NB_CHARS, sanitized.length());
-        assertEquals(longTitle.substring(0, Var.FILE_NAME_MAX_NB_CHARS), sanitized);
+        // (the cut lands on a space here, which is then stripped like any trailing space)
+        assertEquals(longTitle.substring(0, Var.FILE_NAME_MAX_NB_CHARS).trim(), sanitized);
+        assertTrue(sanitized.length() <= Var.FILE_NAME_MAX_NB_CHARS);
     }
 }

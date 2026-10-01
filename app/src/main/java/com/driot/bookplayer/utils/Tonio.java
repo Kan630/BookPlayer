@@ -276,7 +276,7 @@ public class Tonio {
         } else {
             s = s.replace("_", " ");
         }
-        return s;
+        return s.trim(); // "Book [00] .m4b" -> "Book [00] ": a book/track name never keeps edge spaces
     }
 
     /**

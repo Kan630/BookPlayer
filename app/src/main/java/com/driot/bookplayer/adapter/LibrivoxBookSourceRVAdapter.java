@@ -196,11 +196,15 @@ public class LibrivoxBookSourceRVAdapter extends LoggingRVAdapter<RecyclerView.V
             if (localPath != null) {
                 item.imageLocal = localPath;
                 needsUpdate = true;
-                if (context instanceof Activity) {
-                    ((Activity) context).runOnUiThread(() -> Glide.with(imageView)
-                            .load(new File(localPath))
-                            .placeholder(R.drawable.placeholder_cover)
-                            .into(imageView));
+                if (context instanceof Activity activity) {
+                    activity.runOnUiThread(() -> {
+                        if (activity.isDestroyed() || activity.isFinishing())
+                            return; // screen closed during the download: Glide.with would throw
+                        Glide.with(imageView)
+                                .load(new File(localPath))
+                                .placeholder(R.drawable.placeholder_cover)
+                                .into(imageView);
+                    });
                 }
             }
 

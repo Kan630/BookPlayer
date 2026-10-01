@@ -215,14 +215,19 @@ public class LibrivoxDetailFragment extends LoggingFragment {
     private void fetchFallbackImage() {
         myLogD("no local Image found => check on internet");
         // Fallback low-res: archive.org/services/img
+        // Captured now: the screen may be closed before the download ends (requireContext/requireActivity threw then)
+        final android.content.Context appContext = requireContext().getApplicationContext();
         new Thread(() -> {
             String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
-            String localPath = ImageHelper.getOrDownloadLibrivoxImage(requireContext(), viewModel.identifier, fallbackUrl,
+            String localPath = ImageHelper.getOrDownloadLibrivoxImage(appContext, viewModel.identifier, fallbackUrl,
                     false);
             if (localPath != null) {
                 futureCoverPic = localPath;
-                requireActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
+                android.app.Activity activity = getActivity();
+                if (activity == null)
+                    return;
+                activity.runOnUiThread(() -> {
+                    if (!isAdded() || activity.isDestroyed()) return;
                     Glide.with(coverView.getContext())
                             .load(new File(localPath))
                             .placeholder(R.drawable.placeholder_cover)

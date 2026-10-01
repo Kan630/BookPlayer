@@ -169,7 +169,9 @@ public class PermissionRequest {
             @NonNull int[] grantResults) {
         // display the grant or denial of this permission request
         // via an unobtrusive toast message.
-        myLog("onRequestPermissionsResult : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+        // Both arrays are EMPTY when the request was interrupted (rotation, another dialog): [0] crashed
+        myLog("onRequestPermissionsResult : " + java.util.Arrays.toString(permissions) + " - " + requestCode + " - "
+                + java.util.Arrays.toString(grantResults));
         if (verifyPermissions(grantResults)) {
             // Show granted message.
             //showMessage(mGrantedId); // Tonio no need to display message if granted ok

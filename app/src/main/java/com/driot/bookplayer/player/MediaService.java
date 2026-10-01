@@ -519,14 +519,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     break;
                 }
                 case Intents.CMD_UPDATE_SLEEP: {
+                    // Applied here, not re-sent through startForegroundService: that took the generic
+                    // foreground promotion, which swapped the media notification for "Please wait" and
+                    // left the session BUFFERING while paused.
                     int minutes = extras != null ? extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0) : 0;
-                    ContextCompat.startForegroundService(
-                            MediaService.this,
-                            new Intent(MediaService.this, MediaService.class)
-                                    .setAction(Intents.CMD_UPDATE_SLEEP)
-                                    .putExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, minutes)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
+                    if (minutes > 0)
+                        playTimer.reload(minutes);
                     break;
                 }
                 case "CMD_RESET_LAST_USER_ACTION": {

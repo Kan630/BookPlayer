@@ -39,6 +39,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -552,7 +553,12 @@ public class ImportBookSingleActivity extends FullActivity {
                     return;
                 }
 
-                FirebaseAnalyticsHelper.tellAnalyticsManualLoad(
+                // The title field is free text: never keep edge spaces, never an empty name
+                audioBookTitle = audioBookTitle == null ? "" : audioBookTitle.trim();
+                if (audioBookTitle.isEmpty())
+                    audioBookTitle = bookCandidate.audioBookName;
+
+                                FirebaseAnalyticsHelper.tellAnalyticsManualLoad(
                         bookCandidate.sourceType,
                         bookCandidate.fileExtension,
                         bookCandidate.sourceLocation,
@@ -576,7 +582,7 @@ public class ImportBookSingleActivity extends FullActivity {
                             futureFolderPath = uri.toString();
                         } else {
                             futureFolderPath = getUnzipFolder(this, isSdCardSelected()).getAbsolutePath() + "/"
-                                    + audioBookTitle;
+                                    + FileHelper.sanitizeFilename(audioBookTitle);
                             myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
                                     + futureFolderPath + "]");
                             String existingPath = ImportValidator.checkPathExists(ImportBookSingleActivity.this,
@@ -591,7 +597,7 @@ public class ImportBookSingleActivity extends FullActivity {
                             // book's folder, so the workers extracted into it and a second book
                             // got saved on the same path.
                             futureFolderPath = getUnzipFolder(this, isSdCardSelected()).getAbsolutePath() + "/"
-                                    + futureFolderName;
+                                    + FileHelper.sanitizeFilename(futureFolderName);
                             myLog("filesystem folder changed to [" + futureFolderPath + "]");
                         } else {
                             futureFolderName = audioBookTitle;
@@ -1013,7 +1019,9 @@ public class ImportBookSingleActivity extends FullActivity {
         for (int i = 0; i < grantResults.length; i++) {
             myLog(permissions[i] + " => " + grantResults[i] + "   -requestCode=" + requestCode);
         }
-        myLog("onRequestPermissionsResult() : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+        // Both arrays are EMPTY when the request was interrupted: [0] was an ArrayIndexOutOfBounds crash (Crashlytics)
+        myLog("onRequestPermissionsResult() : " + java.util.Arrays.toString(permissions) + " - " + requestCode + " - "
+                + java.util.Arrays.toString(grantResults));
         // Redirect hook call to permission helper method.
         if (mPermissionRequest != null) {
             mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
