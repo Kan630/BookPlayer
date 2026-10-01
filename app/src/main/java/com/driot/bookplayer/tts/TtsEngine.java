@@ -740,6 +740,31 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         return (v != null) ? v.getName() : null;
     }
 
+    /**
+     * True when the engine reports that this voice cannot speak right now: its data is not downloaded yet, or it is
+     * a network voice and the device is offline. Speaking with it only gives "Speech engine error".
+     */
+    public boolean isVoiceUnavailableNow(@Nullable String voiceName, boolean online) {
+        if (disposed || voiceName == null || voiceName.isEmpty() || Option.DEFAULT_VOICE.equalsIgnoreCase(voiceName))
+            return false;
+        try {
+            Set<Voice> voices = mgr.getVoices();
+            if (voices == null)
+                return false;
+            for (Voice v : voices) {
+                if (!voiceName.equals(v.getName()))
+                    continue;
+                Set<String> features = v.getFeatures();
+                boolean notInstalled = features != null
+                        && features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED);
+                return notInstalled || (v.isNetworkConnectionRequired() && !online);
+            }
+        } catch (Throwable t) {
+            myLogW("isVoiceUnavailableNow(" + voiceName + ") : " + t);
+        }
+        return false; // unknown voice: setVoiceByName already handles it (keeps the default)
+    }
+
     public boolean setVoiceByName(@Nullable String voiceName) {
         if (disposed)
             return false;

@@ -551,6 +551,15 @@ public class FullBackupActivity extends BaseActivity {
             }
 
             FullBackupHelper.Result finalResult = result;
+            int missing = 0;
+            if (result == FullBackupHelper.Result.SUCCESS) {
+                try {
+                    missing = FullBackupHelper.countBooksWithMissingFiles(this);
+                } catch (Exception e) {
+                    myLogEE(e, "countBooksWithMissingFiles failed");
+                }
+            }
+            final int booksWithMissingFiles = missing;
             runOnUiThread(() -> {
                 operationInProgress = false;
                 llProgress.setVisibility(View.GONE);
@@ -579,7 +588,11 @@ public class FullBackupActivity extends BaseActivity {
                 }
 
                 tvResult.setVisibility(View.VISIBLE);
-                tvResult.setText(backupResultTextResId(finalResult));
+                if (booksWithMissingFiles > 0) {
+                    tvResult.setText(getString(R.string.full_backup_success_missing_files, booksWithMissingFiles));
+                } else {
+                    tvResult.setText(backupResultTextResId(finalResult));
+                }
             });
         });
     }

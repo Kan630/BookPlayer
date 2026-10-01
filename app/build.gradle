@@ -49,7 +49,7 @@ android {
             }
             legacy {
                 java.srcDirs += 'src/full/java'
-                // res.srcDirs  += 'src/full/res'
+                res.srcDirs  += 'src/full/res' // full-only layouts/drawables used by src/full/java (podcast cleanup sheet)
                 // assets.srcDirs  += 'src/full/assets'
                 // manifest.srcFile 'src/full/AndroidManifest.xml'  ← only if you have a flavor-specific manifest
             }

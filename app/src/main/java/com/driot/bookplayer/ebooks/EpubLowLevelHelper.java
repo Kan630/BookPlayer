@@ -128,6 +128,7 @@ public final class EpubLowLevelHelper {
         boolean skip;
         String skipReason;
 
+        String tocLabel; // this file's name in the book's table of contents (if any)
         String headingRaw; // detected H1–H3/role heading text (if any)
         String titleTagRaw; // <title> text (if any)
         String text; // cleaned plain text body
@@ -189,6 +190,8 @@ public final class EpubLowLevelHelper {
         String bookTitle = (opf.title != null && !opf.title.trim().isEmpty()) ? opf.title.trim() : "untitled";
         String bookTitleNorm = normalizeTitle(bookTitle);
         myLog("Book title: " + bookTitle);
+        Map<String, String> tocLabels = readTocLabels(zip, opf, basePath);
+        myLog("TOC labels: " + tocLabels.size());
 
         File outDir = new File(ctx.getExternalFilesDir(null), "epub_" + FileHelper.sanitizeFilename(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs()) {
@@ -216,6 +219,7 @@ public final class EpubLowLevelHelper {
 
             it.resolvedPath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, it.href));
             it.fileBase = basenameNoExt(it.href);
+            it.tocLabel = tocLabels.get(it.resolvedPath);
 
             // Early skip rules
             if (shouldSkipEarly(opf, it)) {
@@ -299,6 +303,41 @@ public final class EpubLowLevelHelper {
         return result;
     }
 
+    /** Content file path -> TOC label, from the EPUB 3 nav document and/or the EPUB 2 toc.ncx. Never throws. */
+    private static Map<String, String> readTocLabels(Map<String, byte[]> zip, OpfInfo opf, String basePath) {
+        Map<String, String> labels = new LinkedHashMap<>();
+        try {
+            for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
+                String id = e.getKey();
+                String props = opf.manifestProps.get(id);
+                String type = opf.manifestType.get(id);
+                boolean isNav = props != null && props.toLowerCase(Locale.ROOT).contains("nav");
+                boolean isNcx = "application/x-dtbncx+xml".equalsIgnoreCase(type)
+                        || e.getValue().toLowerCase(Locale.ROOT).endsWith(".ncx");
+                if (!isNav && !isNcx)
+                    continue;
+                String tocPath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, e.getValue()));
+                byte[] bytes = zip.get(tocPath);
+                if (bytes == null) {
+                    for (String k : zip.keySet()) {
+                        if (k.equalsIgnoreCase(tocPath)) {
+                            bytes = zip.get(k);
+                            break;
+                        }
+                    }
+                }
+                if (bytes == null)
+                    continue;
+                Map<String, String> found = EpubTocLabels.parse(EpubCommonHelper.bytesToStringWithXmlGuess(bytes), tocPath);
+                for (Map.Entry<String, String> f : found.entrySet())
+                    labels.putIfAbsent(f.getKey(), f.getValue());
+            }
+        } catch (Exception e) {
+            myLogW("readTocLabels failed, chapter names fall back to headings/titles : " + e);
+        }
+        return labels;
+    }
+
     // ===== Title choosing (per item) =====
     private static String chooseTitle(SpineItem it, String bookTitleNorm) {
         // Prefer heading when it doesn't look like the book title
@@ -306,6 +345,13 @@ public final class EpubLowLevelHelper {
             String hNorm = normalizeTitle(it.headingRaw);
             if (!hNorm.isEmpty() && !hNorm.equals(bookTitleNorm)) {
                 return it.headingRaw.trim();
+            }
+        }
+        // Then the name the book's own table of contents gives this file
+        if (it.tocLabel != null) {
+            String lNorm = normalizeTitle(it.tocLabel);
+            if (!lNorm.isEmpty() && !lNorm.equals(bookTitleNorm)) {
+                return it.tocLabel;
             }
         }
         // Otherwise, try <title> if it’s not the book title

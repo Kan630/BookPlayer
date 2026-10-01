@@ -96,6 +96,7 @@ public class MyApp extends Application {
         myLog("Context has been initialized");
 
         LocaleHelper.applyAppLocale(Option.getAppLanguage());
+        LocaleHelper.applyToApplicationResources(this);
 
         setOpenWithProxyEnabled_all(this, false);
         setOpenWithProxyEnabled(this, false);
@@ -128,6 +129,13 @@ public class MyApp extends Application {
         Executors.newSingleThreadExecutor().execute(() -> {
             com.driot.bookplayer.helpers.StorageInfoCacheHelper.init(getApplicationContext());
         });
+    }
+
+    @Override
+    public void onConfigurationChanged(@androidx.annotation.NonNull android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // the system just put the application resources back in the device language
+        LocaleHelper.applyToApplicationResources(this);
     }
 
 }

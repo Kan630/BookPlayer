@@ -533,10 +533,16 @@ public class PodcastEpisodeFragment extends LoggingFragment
     private void updateFavoriteIconColor(boolean isOn) {
         int colorResId = isOn ? android.R.color.holo_red_light : R.color.gray_500;
         int color = ContextCompat.getColor(requireContext(), colorResId);
-        if (btnFavoriteToolbar != null)
+        // screen readers only get the description: it must follow the state like the color does
+        String desc = getString(isOn ? R.string.remove_from_favorites : R.string.Add_to_favorite);
+        if (btnFavoriteToolbar != null) {
             btnFavoriteToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        if (btnFavoriteOverlay != null)
+            btnFavoriteToolbar.setContentDescription(desc);
+        }
+        if (btnFavoriteOverlay != null) {
             btnFavoriteOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            btnFavoriteOverlay.setContentDescription(desc);
+        }
     }
 
     private void updateAutoDownloadIconColor(boolean isOn) {

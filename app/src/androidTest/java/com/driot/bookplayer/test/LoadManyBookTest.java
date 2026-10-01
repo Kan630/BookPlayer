@@ -283,6 +283,11 @@ public class LoadManyBookTest implements LogSupport {
         backToLibrary(3);
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         myLogI(nbAttempted + " fixture(s) attempted");
+        // 0 everywhere means discovery saw nothing (no storage permission / unscanned files / no SAF grant):
+        // the test used to PASS without importing a single book
+        org.junit.Assert.assertTrue("No fixture discovered in any bucket under " + fixturesRootFile
+                + " - grant the storage permission or the SAF tree, or rescan the media store (README_FIXTURES.txt)",
+                nbAttempted > 0);
         myLogI(nbImported + " books imported");
         myLogI(logFinalImportMsg.append("\n--------------------------").toString());
         myLogI(nbPlayed + " books played");
@@ -561,6 +566,15 @@ public class LoadManyBookTest implements LogSupport {
             myLog("ImportBookSingleActivity launched");
             TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "arfff");
             myLogD("ok, on ImportBookSingleActivity");
+
+            // "Import the whole book?" pops up over the import screen when another track sits next to
+            // the fixture (single_files with 2+ files). Left unanswered it hides btnConfirm.
+            if (TestNavUtils.waitForActivity(com.driot.bookplayer.activities.MsgBoxActivity.class, 1_500)) {
+                myLog("sibling-book prompt -> 'Just this file'");
+                onView(withId(R.id.btnNegative)).perform(androidx.test.espresso.action.ViewActions.click());
+                TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 3_000,
+                        "import screen not back after the sibling-book prompt");
+            }
 
             // An unsupported file (e.g. .pdf) makes ImportBookSingleActivity redirect to
             // SupportedExtensionsActivity and finish right away - swiping then targets the dying

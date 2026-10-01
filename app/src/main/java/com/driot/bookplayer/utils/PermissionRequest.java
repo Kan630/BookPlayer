@@ -17,7 +17,6 @@ import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -415,7 +414,7 @@ public class PermissionRequest {
             }
 
             if (mRationaleId == 0) {
-                Log.w(TAG, "Default rationale should only be used during "
+                com.driot.bookplayer.utils.log.KanLogger.myLogW(TAG, "Default rationale should only be used during "
                         + "development.");
 
                 mRationaleId = R.string.permission_rationale;

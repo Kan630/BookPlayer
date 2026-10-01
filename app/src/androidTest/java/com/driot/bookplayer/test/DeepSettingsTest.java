@@ -126,6 +126,14 @@ public class DeepSettingsTest implements LogSupport {
         KanLogger.init(appContext);
         Option.setTechLog(true);
 
+        // Pass 2 randomizes every setting. Three of them wreck what runs next (and the device itself):
+        // a random app language breaks text assertions, a hidden nav bar breaks tab navigation, a
+        // random TTS voice can be one that is not installed. Remember them, restoreKeySettings() puts them back.
+        android.content.SharedPreferences prefs = Option.getSharedPrefs(appContext);
+        for (String key : KEYS_RESTORED_AFTER_TEST) {
+            savedSettings.put(key, prefs.getAll().get(key)); // null = was not set
+        }
+
         // Pass 2 randomly toggles every checkbox, including ones that trigger a runtime
         // permission request (e.g. the Play Behaviour visualizer needs RECORD_AUDIO). That pops
         // a system permission dialog belonging to a different package, which leaves this app
@@ -146,6 +154,28 @@ public class DeepSettingsTest implements LogSupport {
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertWaitForActivity(MainActivity.class, 5_000, "MainActivity not loaded");
         TestNavUtils.waitForViewVisible(R.id.settings_layout_root, 5_000, "Settings category list did not appear");
+    }
+
+    private static final String[] KEYS_RESTORED_AFTER_TEST = { "APP_LANGUAGE", "DISPLAY_APP_NAV_BAR", "TTS_VOICE" };
+    private final java.util.Map<String, Object> savedSettings = new java.util.HashMap<>();
+
+    @org.junit.After
+    public void restoreKeySettings() {
+        if (appContext == null || savedSettings.isEmpty())
+            return;
+        android.content.SharedPreferences.Editor editor = Option.getSharedPrefs(appContext).edit();
+        for (java.util.Map.Entry<String, Object> e : savedSettings.entrySet()) {
+            Object v = e.getValue();
+            if (v == null)
+                editor.remove(e.getKey());
+            else if (v instanceof Boolean)
+                editor.putBoolean(e.getKey(), (Boolean) v);
+            else
+                editor.putString(e.getKey(), String.valueOf(v));
+        }
+        editor.commit();
+        com.driot.bookplayer.helpers.LocaleHelper.applyToApplicationResources(appContext);
+        myLogI("restored after the settings stress : " + savedSettings);
     }
 
     @Test

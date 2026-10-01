@@ -43,6 +43,8 @@ public abstract class BaseBackupManager {
         // Applies to both flavors (unlike radios/podcasts/librivox, which are full-only).
         public List<ZikFile> zikFiles = new ArrayList<>();
         public List<Folder> folders = new ArrayList<>();
+        /** Listening history (stats, heatmaps). Null in backups made before it was added. */
+        public List<com.driot.bookplayer.player.heatmaps.PlaySession> playSessions;
     }
 
     private static Map<String, TypedPref> toTypedPrefs(Map<String, ?> raw) {
@@ -109,6 +111,7 @@ public abstract class BaseBackupManager {
         if (includeBookProgress) {
             data.folders = AppDatabase.getDatabase(context).folderDao().getAll();
             data.zikFiles = AppDatabase.getDatabase(context).zikFileDao().getAll();
+            data.playSessions = AppDatabase.getDatabase(context).playSessionDao().getAll();
         }
     }
 
@@ -186,7 +189,11 @@ public abstract class BaseBackupManager {
                             }
                             java.util.List<com.driot.bookplayer.player.heatmaps.PlaySession> back =
                                     new java.util.ArrayList<>();
-                            for (com.driot.bookplayer.player.heatmaps.PlaySession ps : keptSessions) {
+                            // The backup's own history when it has one (new phone, rollback); else what
+                            // this device already had for those tracks.
+                            java.util.List<com.driot.bookplayer.player.heatmaps.PlaySession> sourceSessions =
+                                    data.playSessions != null ? data.playSessions : keptSessions;
+                            for (com.driot.bookplayer.player.heatmaps.PlaySession ps : sourceSessions) {
                                 if (restoredZikIds.contains(ps.zikFileId)) {
                                     back.add(ps);
                                 }

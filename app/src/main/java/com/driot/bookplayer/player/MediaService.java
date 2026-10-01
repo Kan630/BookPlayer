@@ -1921,6 +1921,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         pickedSource = "global";
                     }
                 }
+                if (picked != null && ((TtsEngine) engine).isVoiceUnavailableNow(picked,
+                        com.driot.bookplayer.helpers.NetworkHelper.isNetworkAvailable(this))) {
+                    // Not downloaded yet / network voice while offline: speak with the default voice instead of
+                    // failing with "Speech engine error". Picking it in the voice selector still applies it.
+                    myLogW("TTS voice [" + picked + "] (source=" + pickedSource + ") not usable now -> default voice");
+                    myToast(getString(R.string.tts_voice_unavailable_using_default, picked));
+                    picked = null;
+                }
                 if (picked != null) {
                     try {
                         boolean ok = ((TtsEngine) engine).setVoiceByName(picked);

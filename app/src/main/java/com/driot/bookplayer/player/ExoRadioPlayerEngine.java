@@ -471,7 +471,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                                 finalSystemTm.checkServerTrusted(chain, authType);
                                 return;
                             } catch (java.security.cert.CertificateException firstEx) {
-                                android.util.Log.w("ExoRadioSSL",
+                                com.driot.bookplayer.utils.log.KanLogger.myLogW("ExoRadioSSL",
                                         "Direct validation failed, trying AIA fetch: "
                                                 + firstEx.getMessage());
                             }
@@ -481,12 +481,12 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                             if (extended != null && extended.length > chain.length) {
                                 try {
                                     finalSystemTm.checkServerTrusted(extended, authType);
-                                    android.util.Log.d("ExoRadioSSL",
+                                    com.driot.bookplayer.utils.log.KanLogger.myLogD("ExoRadioSSL",
                                             "AIA fetch resolved incomplete chain for: "
                                                     + chain[0].getSubjectDN().getName());
                                     return;
                                 } catch (java.security.cert.CertificateException ignored) {
-                                    android.util.Log.w("ExoRadioSSL",
+                                    com.driot.bookplayer.utils.log.KanLogger.myLogW("ExoRadioSSL",
                                             "AIA fetch did not resolve chain for: "
                                                     + chain[0].getSubjectDN().getName());
                                 }
@@ -496,7 +496,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                             //    (handles truly broken servers, still rejects expired certs)
                             try {
                                 chain[0].checkValidity();
-                                android.util.Log.w("ExoRadioSSL",
+                                com.driot.bookplayer.utils.log.KanLogger.myLogW("ExoRadioSSL",
                                         "SSL chain incomplete but leaf cert valid, accepting: "
                                                 + chain[0].getSubjectDN().getName());
                             } catch (java.security.cert.CertificateException e) {
@@ -514,7 +514,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                     }
             };
         } catch (Exception e) {
-            android.util.Log.e("ExoRadioSSL", "buildTrustManagers failed", e);
+            com.driot.bookplayer.utils.log.KanLogger.myLogE("ExoRadioSSL", "buildTrustManagers failed: " + e);
             // Return a no-op trust manager as absolute last resort so the player
             // doesn't crash on init — better to attempt playback than to NPE.
             return new TrustManager[]{
@@ -533,7 +533,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
             sc.init(null, trustManagers, new java.security.SecureRandom());
             return sc;
         } catch (Exception e) {
-            android.util.Log.e("ExoRadioSSL", "buildSslContext failed", e);
+            com.driot.bookplayer.utils.log.KanLogger.myLogE("ExoRadioSSL", "buildSslContext failed: " + e);
             try {
                 return SSLContext.getDefault();
             } catch (Exception ex) {
@@ -561,7 +561,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                 String aiaUrl = extractAiaCaIssuersUrl(current);
                 if (aiaUrl == null) break;
 
-                android.util.Log.d("ExoRadioSSL",
+                com.driot.bookplayer.utils.log.KanLogger.myLogD("ExoRadioSSL",
                         "Fetching intermediate CA from AIA: " + aiaUrl);
 
                 byte[] certBytes = fetchBytes(aiaUrl);
@@ -582,7 +582,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
             return extended.toArray(new X509Certificate[0]);
 
         } catch (Exception e) {
-            android.util.Log.w("ExoRadioSSL", "fetchAiaChain failed: " + e.getMessage());
+            com.driot.bookplayer.utils.log.KanLogger.myLogW("ExoRadioSSL", "fetchAiaChain failed: " + e.getMessage());
             return null;
         }
     }
@@ -659,7 +659,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                 conn.disconnect();
             }
         } catch (Exception e) {
-            android.util.Log.w("ExoRadioSSL", "fetchBytes failed for " + url + ": " + e.getMessage());
+            com.driot.bookplayer.utils.log.KanLogger.myLogW("ExoRadioSSL", "fetchBytes failed for " + url + ": " + e.getMessage());
             return null;
         }
     }

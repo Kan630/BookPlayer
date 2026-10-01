@@ -151,6 +151,24 @@ public class FullBackupHelper {
         return out;
     }
 
+    /**
+     * Books whose track files are (partly) gone from this device: the backup keeps their entry and progress but
+     * cannot contain that audio, so the user must hear about it rather than read a plain "Backup complete".
+     */
+    public static int countBooksWithMissingFiles(Context context) {
+        int count = 0;
+        for (BookFileCandidate c : listBookFileCandidates(context)) {
+            for (File f : trackFiles(c)) {
+                if (!f.exists()) {
+                    KanLogger.myLogW(TAG, "backup: file missing on disk for [" + c.name + "] : " + f);
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+
     private static boolean isManaged(BookFileCandidate c, List<File> roots) {
         if (isInsideAny(c.dir, roots)) {
             return true;

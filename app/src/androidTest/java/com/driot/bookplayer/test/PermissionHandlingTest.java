@@ -352,12 +352,13 @@ public class PermissionHandlingTest implements LogSupport {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try (ActivityScenario<ExportActivity> scenario = ActivityScenario.launch(intent)) {
-            TestNavUtils.assertWaitForActivity(ExportActivity.class, 5_000, "ExportActivity did not open");
-
             // The WRITE_EXTERNAL_STORAGE check (and thus the request) fires straight from
-            // onCreate() on API < 29, before any button click.
-            int denied = denyOsPermissionDialogs(1, 4_000);
+            // onCreate() on API < 29, before any button click: the OS dialog is already on top and
+            // ExportActivity is only PAUSED until it is answered - so answer first, then expect it RESUMED.
+            int denied = denyOsPermissionDialogs(1, 6_000);
             myLog("exportActivity test: denied " + denied + " OS dialog(s)");
+            TestNavUtils.assertWaitForActivity(ExportActivity.class, 5_000,
+                    "ExportActivity not resumed after the permission dialog");
 
             boolean sawToast = waitForTextContaining("Permission denied", 4_000);
             myLog("export denial toast observed: " + sawToast);
@@ -457,7 +458,13 @@ public class PermissionHandlingTest implements LogSupport {
             if (btn == null)
                 break;
             try {
-                btn.click();
+                // A tap sent while the dialog is still animating in is silently dropped by the system
+                // ("Not sending touch gesture to ...GrantPermissionsActivity"): the dialog stayed up, the
+                // app stayed paused and the test failed with NoActivityResumedException.
+                device.waitForIdle(1_500);
+                TestNavUtils.sleep(400, "let the permission dialog settle");
+                UiObject2 settled = findDenyButton(1_000);
+                (settled != null ? settled : btn).click();
                 denied++;
                 TestNavUtils.sleep(300, "after clicking deny");
             } catch (Exception e) {

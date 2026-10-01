@@ -77,6 +77,31 @@ public class LocaleHelper {
         return wrapped;
     }
 
+    /**
+     * Puts the Application context itself in the app's language. Only activities are wrapped (BaseActivity), and
+     * below Android 13 setApplicationLocales does not reach the application context: services and workers then
+     * produced toasts, notifications and import/download status texts in the DEVICE language while the screens
+     * were in the chosen one. Same in-place Resources update as wrapContextWithAppLocale. Never throws.
+     */
+    public static void applyToApplicationResources(Context context) {
+        try {
+            Context app = context.getApplicationContext();
+            String tag = Option.getAppLanguage(app);
+            Locale target = (TextUtils.isEmpty(tag) || Option.DEFAULT_LANGUAGE.equals(tag))
+                    ? getSystemLocale()
+                    : Locale.forLanguageTag(tag);
+            Resources res = app.getResources();
+            if (target.equals(res.getConfiguration().getLocales().get(0)))
+                return;
+            Configuration config = new Configuration(res.getConfiguration());
+            setLocale(config, target);
+            res.updateConfiguration(config, res.getDisplayMetrics());
+            KanLogger.myLogD("LocaleHelper", "application resources now in [" + target + "]");
+        } catch (Exception e) {
+            KanLogger.myLogW("LocaleHelper", "applyToApplicationResources failed : " + e);
+        }
+    }
+
     private static void setLocale(Configuration config, Locale locale) {
         config.setLocales(new LocaleList(locale));
         // Some OEM builds only honor the legacy single-locale field even on modern API levels

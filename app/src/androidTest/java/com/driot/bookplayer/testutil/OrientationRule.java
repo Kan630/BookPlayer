@@ -32,6 +32,9 @@ public class OrientationRule extends ExternalResource {
     protected void after() {
         UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         try {
+            // back to portrait first: unfreezing alone leaves a phone lying flat in landscape, and the
+            // next test class (DeepSettingsTest) then started on the landscape layout and failed
+            device.setOrientationNatural();
             device.unfreezeRotation();
         } catch (RemoteException e) {
             throw new RuntimeException(e);

@@ -96,7 +96,11 @@ public class OngoingTaskFragment extends LoggingFragment {
                 titleText = ui.currentPosition + "/" + ui.totalCount + " " + titleText;
             }
             tvTitle.setText(titleText);
-            tvProgressText.setText(ui.progressText.isEmpty() ? "---" : ui.progressText);
+            // A failed import shows WHY it failed, not the step it stopped at ("Creating folder" in red)
+            boolean failedWithMessage = Var.IMPORT_STATUS_FAILED.equals(ui.status)
+                    && ui.errorText != null && !ui.errorText.trim().isEmpty();
+            tvProgressText.setText(failedWithMessage ? ui.errorText.trim()
+                    : ui.progressText.isEmpty() ? "---" : ui.progressText);
             progressBar.setProgress(ui.progressPercent);
 
             boolean hasWarnings = ui.warningText != null && !ui.warningText.trim().isEmpty();
