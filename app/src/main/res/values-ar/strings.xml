@@ -618,7 +618,7 @@
     <string name="Import_Experimental_M4B_solution_1">قم بإلغاء تحديد خيار "تقسيم m4b".</string>
     <string name="Import_Experimental_M4B_solution_2"><i>يمكنك أيضاً استخدام أداة خارجية لتحويل ملف m4b إلى مجلد من ملفات mp3، ثم استيراد هذا المجلد في BookPlayer.</i></string>
     <string name="Import_Progress_splitting_m4b_file">"جارٍ تقسيم ملف m4b : "</string>
-    <string name="error_media_already_loaded_samePath_under_the_name">تم تحميل هذا الملف مسبقاً ويُخزَّن حالياً تحت الاسم: </string>
+    <string name="error_media_already_loaded_samePath_under_the_name">هذا الملف موجود بالفعل في مكتبتك باسم:</string>
     <string name="init_please_wait">جارٍ التهيئة… الرجاء الانتظار…</string>
     <string name="import_whole_book_suggestion_title">استيراد الكتاب بالكامل؟</string>
     <string name="import_whole_book_suggestion_message">يبدو أن هذا الملف جزء من كتاب أكبر: تم العثور على %1$d مقطع في \"%2$s\". هل تريد استيراد الكتاب بالكامل بدلاً من هذا الملف فقط؟</string>
@@ -958,6 +958,7 @@
     <string name="tts_error_timeout">خطأ في تحويل النص إلى كلام: انتهت المهلة</string>
     <string name="tts_engine_still_warming_up">لا يزال محرك تحويل النص إلى كلام قيد بدء التشغيل - قد يستغرق هذا وقتاً أطول مباشرة بعد تبديل المحركات. يرجى الانتظار لحظة والمحاولة مرة أخرى.</string>
     <string name="tts_error_voice_set_failed">فشل في تطبيق الصوت</string>
+    <string name="tts_voice_unavailable_using_default">الصوت %1$s غير متوفر حالياً (غير منزّل، أو يحتاج إلى اتصال). يتم استخدام الصوت الافتراضي.</string>
     <string name="tts_error_synth_failed">فشل في توليد الصوت أثناء التحضير</string>
     <string name="source_flag">علم المصدر</string>
     <string name="voice_name">اسم الصوت</string>
@@ -1489,6 +1490,8 @@
     <string name="full_backup_start">بدء النسخ الاحتياطي</string>
     <string name="full_backup_progress">جارٍ نسخ %1$s — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">اكتمل النسخ الاحتياطي.</string>
+    <string name="full_backup_success_missing_files">اكتمل النسخ الاحتياطي.
+ملاحظة: %1$d كتاب (كتب) تحتوي على ملفات مفقودة على هذا الجهاز، لذا فإن صوتها غير مدرج بالكامل في النسخة الاحتياطية.</string>
     <string name="full_backup_partial_failure">اكتمل النسخ الاحتياطي، ولكن تعذر نسخ بعض الملفات. تحقق من الوجهة قبل الاعتماد عليها.</string>
     <string name="full_backup_cancelled">تم إلغاء النسخ الاحتياطي.</string>
     <string name="full_backup_could_not_start">تعذرت كتابة ملف النسخة الاحتياطية.</string>
@@ -1630,4 +1633,164 @@
     <string name="modify_group_actions">إجراءات</string>
     <string name="option_copy_file_or">أو</string>
     <string name="option_copy_file_just_link">ربط فقط</string>
+    <string name="podcast_cleanup_title">تنظيف الحلقات</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">حلقة واحدة منزّلة (%1$d) · %2$s</item>
+        <item quantity="two">حلقتان منزّلتان · %2$s</item>
+        <item quantity="few">%1$d حلقات منزّلة · %2$s</item>
+        <item quantity="many">%1$d حلقة منزّلة · %2$s</item>
+        <item quantity="other">%1$d حلقة منزّلة · %2$s</item>
+        <item quantity="zero">%1$d حلقة منزّلة · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">تم الاستماع إليها</string>
+    <string name="podcast_cleanup_listened_desc">منتهية، أو تم تشغيل أكثر من %d%% منها (حد الحذف التلقائي الخاص بك)</string>
+    <string name="podcast_cleanup_never_title">لم تُشغَّل أبداً</string>
+    <string name="podcast_cleanup_untouched_title">لم تُلمس مؤخراً</string>
+    <string name="podcast_cleanup_untouched_desc">لم تُنزَّل ولم تُشغَّل منذ ما لا يقل عن:</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">شهر واحد (%d)</item>
+        <item quantity="two">شهران</item>
+        <item quantity="few">%d أشهر</item>
+        <item quantity="many">%d شهراً</item>
+        <item quantity="other">%d شهر</item>
+        <item quantity="zero">%d شهر</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">سنة واحدة</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">حلقة واحدة (%1$d) · %2$s</item>
+        <item quantity="two">حلقتان · %2$s</item>
+        <item quantity="few">%1$d حلقات · %2$s</item>
+        <item quantity="many">%1$d حلقة · %2$s</item>
+        <item quantity="other">%1$d حلقة · %2$s</item>
+        <item quantity="zero">%1$d حلقة · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">لا يوجد شيء لإزالته</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">حذف حلقة واحدة (%d)؟</item>
+        <item quantity="two">حذف حلقتين؟</item>
+        <item quantity="few">حذف %d حلقات؟</item>
+        <item quantity="many">حذف %d حلقة؟</item>
+        <item quantity="other">حذف %d حلقة؟</item>
+        <item quantity="zero">حذف %d حلقة؟</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">سيتم تحرير %s. يتم الاحتفاظ بتقدم الاستماع والإحصائيات، ويمكن تنزيل الحلقات مرة أخرى في أي وقت.</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">تم حذف حلقة واحدة (%1$d)، تم تحرير %2$s</item>
+        <item quantity="two">تم حذف حلقتين، تم تحرير %2$s</item>
+        <item quantity="few">تم حذف %1$d حلقات، تم تحرير %2$s</item>
+        <item quantity="many">تم حذف %1$d حلقة، تم تحرير %2$s</item>
+        <item quantity="other">تم حذف %1$d حلقة، تم تحرير %2$s</item>
+        <item quantity="zero">تم حذف %1$d حلقة، تم تحرير %2$s</item>
+    </plurals>
+    <string name="tip_title">نصيحة</string>
+    <string name="tip_library_long_press">اضغط مطولاً على كتاب لإعادة تسميته، تغيير غلافه، إعادة تعيين تقدمه أو حذفه.</string>
+    <string name="tip_tracks_long_press">اضغط مطولاً على مقطع لفتح خياراته: إعادة التعيين، الحذف، تغيير ترتيب المقاطع…</string>
+    <string name="tip_text_reader_gestures">اقرص للتكبير أو التصغير في النص. اضغط مرتين لتشغيل أو إيقاف التمرير التلقائي.</string>
+    <string name="tip_podcast_cover_tap">اضغط على غلاف البودكاست للتبديل بين حلقاتك المنزّلة وجميع الحلقات المتاحة عبر الإنترنت.</string>
+    <string name="clean_podcast_tip_message">اضغط مطولاً على عنصر في هذه القائمة للحصول على إجراءات تنظيف سريعة.</string>
+    <string name="utilities_tips_title">النصائح</string>
+    <string name="utilities_show_tips_again">إظهار النصائح مرة أخرى</string>
+    <string name="utilities_show_tips_again_explanation">النصائح التي طلبت عدم رؤيتها مرة أخرى ستظهر من جديد.</string>
+    <string name="utilities_tips_reset_done">ستظهر النصائح من جديد</string>
+    <string name="dont_show_again">عدم الإظهار مرة أخرى</string>
+    <string name="podcast_cleanup_footnote">الحلقة المحمّلة في المشغل لا تُدرج أبداً.</string>
+    <string name="recording_cleanup_title">تنظيف التسجيلات</string>
+    <string name="recording_cleanup_never_desc">مسجّلة، لم تُشغَّل أبداً</string>
+    <string name="recording_cleanup_listened_desc">منتهية، أو تم تشغيل أكثر من %d%% منها</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">تسجيل واحد (%1$d) · %2$s</item>
+        <item quantity="two">تسجيلان · %2$s</item>
+        <item quantity="few">%1$d تسجيلات · %2$s</item>
+        <item quantity="many">%1$d تسجيلاً · %2$s</item>
+        <item quantity="other">%1$d تسجيل · %2$s</item>
+        <item quantity="zero">%1$d تسجيل · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">تسجيل واحد (%1$d) · %2$s</item>
+        <item quantity="two">تسجيلان · %2$s</item>
+        <item quantity="few">%1$d تسجيلات · %2$s</item>
+        <item quantity="many">%1$d تسجيلاً · %2$s</item>
+        <item quantity="other">%1$d تسجيل · %2$s</item>
+        <item quantity="zero">%1$d تسجيل · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">حذف تسجيل واحد (%d)؟</item>
+        <item quantity="two">حذف تسجيلين؟</item>
+        <item quantity="few">حذف %d تسجيلات؟</item>
+        <item quantity="many">حذف %d تسجيلاً؟</item>
+        <item quantity="other">حذف %d تسجيل؟</item>
+        <item quantity="zero">حذف %d تسجيل؟</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">سيتم تحرير %s. لا يمكن استرجاع التسجيلات المحذوفة.</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">تم حذف تسجيل واحد (%1$d)، تم تحرير %2$s</item>
+        <item quantity="two">تم حذف تسجيلين، تم تحرير %2$s</item>
+        <item quantity="few">تم حذف %1$d تسجيلات، تم تحرير %2$s</item>
+        <item quantity="many">تم حذف %1$d تسجيلاً، تم تحرير %2$s</item>
+        <item quantity="other">تم حذف %1$d تسجيل، تم تحرير %2$s</item>
+        <item quantity="zero">تم حذف %1$d تسجيل، تم تحرير %2$s</item>
+    </plurals>
+    <string name="clean_item_title">إجراءات سريعة</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">مقطع واحد (%1$d) · %2$s</item>
+        <item quantity="two">مقطعان · %2$s</item>
+        <item quantity="few">%1$d مقاطع · %2$s</item>
+        <item quantity="many">%1$d مقطعاً · %2$s</item>
+        <item quantity="other">%1$d مقطع · %2$s</item>
+        <item quantity="zero">%1$d مقطع · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">تحرير مساحة، مع الاحتفاظ بالكتاب</string>
+    <string name="clean_item_free_desc">يحذف الملفات الصوتية. يبقى الكتاب وتقدمك وإحصائياتك في مكتبتك، ويمكن تنزيله مرة أخرى في أي وقت.</string>
+    <string name="clean_item_free_button">تحرير مساحة</string>
+    <string name="clean_item_listened_title">إزالة المقاطع المستمع إليها</string>
+    <string name="clean_item_listened_desc">يحذف ملفات المقاطع التي أنهيتها. يمكن تنزيلها مرة أخرى في أي وقت.</string>
+    <string name="clean_item_download_title">تنزيل مرة أخرى</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">مقطع واحد (%d) مفقود على هذا الجهاز</item>
+        <item quantity="two">مقطعان مفقودان على هذا الجهاز</item>
+        <item quantity="few">%d مقاطع مفقودة على هذا الجهاز</item>
+        <item quantity="many">%d مقطعاً مفقوداً على هذا الجهاز</item>
+        <item quantity="other">%d مقطع مفقود على هذا الجهاز</item>
+        <item quantity="zero">%d مقطع مفقود على هذا الجهاز</item>
+    </plurals>
+    <string name="clean_item_download_button">تنزيل</string>
+    <string name="clean_item_move_title">النقل إلى تخزين آخر</string>
+    <string name="clean_item_move_desc">نقل هذا الكتاب بين الجهاز وبطاقة SD.</string>
+    <string name="clean_item_move_button">نقل</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">ملف واحد (%1$d) · %2$s</item>
+        <item quantity="two">ملفان · %2$s</item>
+        <item quantity="few">%1$d ملفات · %2$s</item>
+        <item quantity="many">%1$d ملفاً · %2$s</item>
+        <item quantity="other">%1$d ملف · %2$s</item>
+        <item quantity="zero">%1$d ملف · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">لا يوجد إجراء سريع لهذا الكتاب: لا يمكن تنزيله مرة أخرى. استخدم زر الحذف لحذفه.</string>
+    <string name="clean_item_orphan_title">غير موجود في مكتبتك</string>
+    <string name="clean_item_orphan_desc">هذا المجلد غير مرتبط بأي كتاب. هذا ما يحتويه - زر الحذف يحذفه.</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…والمزيد (%d)</item>
+        <item quantity="two">…والمزيد (%d)</item>
+        <item quantity="few">…و%d أخرى</item>
+        <item quantity="many">…و%d أخرى</item>
+        <item quantity="other">…و%d أخرى</item>
+        <item quantity="zero">…والمزيد (%d)</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">حذف ملف واحد (%d)؟</item>
+        <item quantity="two">حذف ملفين؟</item>
+        <item quantity="few">حذف %d ملفات؟</item>
+        <item quantity="many">حذف %d ملفاً؟</item>
+        <item quantity="other">حذف %d ملف؟</item>
+        <item quantity="zero">حذف %d ملف؟</item>
+    </plurals>
+    <string name="clean_item_confirm_message">سيتم تحرير %s. يبقى الكتاب وتقدمك في مكتبتك، ويمكن تنزيله مرة أخرى في أي وقت.</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">تم حذف ملف واحد (%1$d)، تم تحرير %2$s</item>
+        <item quantity="two">تم حذف ملفين، تم تحرير %2$s</item>
+        <item quantity="few">تم حذف %1$d ملفات، تم تحرير %2$s</item>
+        <item quantity="many">تم حذف %1$d ملفاً، تم تحرير %2$s</item>
+        <item quantity="other">تم حذف %1$d ملف، تم تحرير %2$s</item>
+        <item quantity="zero">تم حذف %1$d ملف، تم تحرير %2$s</item>
+    </plurals>
 </resources>

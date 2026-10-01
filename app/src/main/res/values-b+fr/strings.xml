@@ -635,7 +635,7 @@ C\'est encore calme pour le moment, mais n\'hésitez pas à vous inscrire pour p
     <string name="Import_Experimental_M4B_solution_1">Décochez l\'option "découper m4b".</string>
     <string name="Import_Experimental_M4B_solution_2"><i>Vous pouvez aussi utiliser un outil tiers pour convertir ce fichier m4b en dossier mp3, puis l\'importer dans Bookplayer.</i></string>
     <string name="Import_Progress_splitting_m4b_file">découpage du fichier m4b : </string>
-    <string name="error_media_already_loaded_samePath_under_the_name">Ce média a déjà été importé et est stocké sous le nom : </string>
+    <string name="error_media_already_loaded_samePath_under_the_name">Ce fichier est déjà dans votre bibliothèque sous le nom :</string>
     <string name="init_please_wait">Initialisation… Veuillez patienter…</string>
     <string name="import_whole_book_suggestion_title">Importer le livre entier ?</string>
     <string name="import_whole_book_suggestion_message">Ce fichier semble faire partie d\'un livre plus grand : %1$d pistes ont été trouvées dans \"%2$s\". Importer le livre entier au lieu de seulement ce fichier ?</string>
@@ -1004,6 +1004,7 @@ BookPlayer utilisera les <font color="#81C784">voix intégrées de l\'appareil</
     <string name="tts_error_timeout">Erreur TTS : délai expiré</string>
     <string name="tts_engine_still_warming_up">Le moteur TTS est encore en cours de démarrage - cela peut prendre plus de temps juste après un changement de moteur. Veuillez patienter un instant et réessayer.</string>
     <string name="tts_error_voice_set_failed">Échec de l\'application de la voix</string>
+    <string name="tts_voice_unavailable_using_default">La voix %1$s n\'est pas disponible pour le moment (non téléchargée, ou nécessite une connexion). Utilisation de la voix par défaut.</string>
     <string name="tts_error_synth_failed">Échec de la synthèse de préchauffage</string>
     <string name="source_flag">drapeau de source</string>
     <string name="voice_name">nom de la voix</string>
@@ -1479,6 +1480,8 @@ Cela peut être assez lent…</string>
     <string name="full_backup_start">Démarrer la sauvegarde</string>
     <string name="full_backup_progress">Copie de %1$s — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">Sauvegarde terminée.</string>
+    <string name="full_backup_success_missing_files">Sauvegarde terminée.
+Remarque : %1$d livre(s) ont des fichiers manquants sur cet appareil, leur audio n\'est donc pas entièrement inclus dans la sauvegarde.</string>
     <string name="full_backup_partial_failure">Sauvegarde terminée, mais certains fichiers n\'ont pas pu être copiés. Vérifiez la destination avant de vous y fier.</string>
     <string name="full_backup_cancelled">Sauvegarde annulée.</string>
     <string name="full_backup_could_not_start">Impossible d\'écrire le fichier de sauvegarde.</string>
@@ -1615,4 +1618,119 @@ Cela peut être assez lent…</string>
     <string name="modify_group_actions">Actions</string>
     <string name="option_copy_file_or">ou</string>
     <string name="option_copy_file_just_link">simplement lier</string>
+    <string name="podcast_cleanup_title">Nettoyer les épisodes</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">%1$d épisode téléchargé · %2$s</item>
+        <item quantity="many">%1$d d\'épisodes téléchargés · %2$s</item>
+        <item quantity="other">%1$d épisodes téléchargés · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">Déjà écouté</string>
+    <string name="podcast_cleanup_listened_desc">Terminé, ou écouté au-delà de %d%% (votre seuil de suppression automatique)</string>
+    <string name="podcast_cleanup_never_title">Jamais écouté</string>
+    <string name="podcast_cleanup_untouched_title">Pas touché récemment</string>
+    <string name="podcast_cleanup_untouched_desc">Ni téléchargé ni écouté depuis au moins :</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">%d mois</item>
+        <item quantity="many">%d mois</item>
+        <item quantity="other">%d mois</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 an</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">%1$d épisode · %2$s</item>
+        <item quantity="many">%1$d d\'épisodes · %2$s</item>
+        <item quantity="other">%1$d épisodes · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">Rien à retirer</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">Supprimer %d épisode ?</item>
+        <item quantity="many">Supprimer %d épisodes ?</item>
+        <item quantity="other">Supprimer %d épisodes ?</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">%s seront libérés. La progression d\'écoute et les statistiques sont conservées, et les épisodes peuvent être retéléchargés à tout moment.</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">%1$d épisode supprimé, %2$s libérés</item>
+        <item quantity="many">%1$d épisodes supprimés, %2$s libérés</item>
+        <item quantity="other">%1$d épisodes supprimés, %2$s libérés</item>
+    </plurals>
+    <string name="tip_title">Astuce</string>
+    <string name="tip_library_long_press">Appui long sur un livre pour le renommer, changer sa couverture, réinitialiser sa progression ou le supprimer.</string>
+    <string name="tip_tracks_long_press">Appui long sur une piste pour ouvrir ses options : réinitialiser, supprimer, changer l\'ordre des pistes…</string>
+    <string name="tip_text_reader_gestures">Pincez pour zoomer le texte. Appui double pour activer ou désactiver le défilement automatique.</string>
+    <string name="tip_podcast_cover_tap">Appuyez sur la couverture du podcast pour basculer entre vos épisodes téléchargés et tous les épisodes disponibles en ligne.</string>
+    <string name="clean_podcast_tip_message">Appui long sur un élément de cette liste pour des actions de nettoyage rapides.</string>
+    <string name="utilities_tips_title">Astuces</string>
+    <string name="utilities_show_tips_again">Réafficher les astuces</string>
+    <string name="utilities_show_tips_again_explanation">Les astuces que vous avez demandé de ne plus voir réapparaîtront.</string>
+    <string name="utilities_tips_reset_done">Les astuces réapparaîtront</string>
+    <string name="dont_show_again">Ne plus afficher</string>
+    <string name="podcast_cleanup_footnote">L\'épisode chargé dans le lecteur n\'est jamais inclus.</string>
+    <string name="recording_cleanup_title">Nettoyer les enregistrements</string>
+    <string name="recording_cleanup_never_desc">Enregistré, jamais écouté</string>
+    <string name="recording_cleanup_listened_desc">Terminé, ou écouté au-delà de %d%%</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">%1$d enregistrement · %2$s</item>
+        <item quantity="many">%1$d d\'enregistrements · %2$s</item>
+        <item quantity="other">%1$d enregistrements · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">%1$d enregistrement · %2$s</item>
+        <item quantity="many">%1$d d\'enregistrements · %2$s</item>
+        <item quantity="other">%1$d enregistrements · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">Supprimer %d enregistrement ?</item>
+        <item quantity="many">Supprimer %d enregistrements ?</item>
+        <item quantity="other">Supprimer %d enregistrements ?</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">%s seront libérés. Les enregistrements supprimés ne peuvent pas être récupérés.</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">%1$d enregistrement supprimé, %2$s libérés</item>
+        <item quantity="many">%1$d enregistrements supprimés, %2$s libérés</item>
+        <item quantity="other">%1$d enregistrements supprimés, %2$s libérés</item>
+    </plurals>
+    <string name="clean_item_title">Actions rapides</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">%1$d piste · %2$s</item>
+        <item quantity="many">%1$d de pistes · %2$s</item>
+        <item quantity="other">%1$d pistes · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">Libérer de l\'espace, garder le livre</string>
+    <string name="clean_item_free_desc">Supprime les fichiers audio. Le livre, votre progression et vos statistiques restent dans votre bibliothèque, et il peut être retéléchargé à tout moment.</string>
+    <string name="clean_item_free_button">Libérer</string>
+    <string name="clean_item_listened_title">Retirer les pistes écoutées</string>
+    <string name="clean_item_listened_desc">Supprime les fichiers des pistes terminées. Elles peuvent être retéléchargées à tout moment.</string>
+    <string name="clean_item_download_title">Télécharger à nouveau</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">%d piste est manquante sur cet appareil</item>
+        <item quantity="many">%d de pistes sont manquantes sur cet appareil</item>
+        <item quantity="other">%d pistes sont manquantes sur cet appareil</item>
+    </plurals>
+    <string name="clean_item_download_button">Télécharger</string>
+    <string name="clean_item_move_title">Déplacer vers un autre stockage</string>
+    <string name="clean_item_move_desc">Déplacer ce livre entre l\'appareil et la carte SD.</string>
+    <string name="clean_item_move_button">Déplacer</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">%1$d fichier · %2$s</item>
+        <item quantity="many">%1$d de fichiers · %2$s</item>
+        <item quantity="other">%1$d fichiers · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">Aucune action rapide pour ce livre : il ne peut pas être retéléchargé. Utilisez le bouton de suppression pour le supprimer.</string>
+    <string name="clean_item_orphan_title">Absent de votre bibliothèque</string>
+    <string name="clean_item_orphan_desc">Ce dossier n\'est lié à aucun livre. Voici ce qu\'il contient - le bouton de suppression le supprime.</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…et %d de plus</item>
+        <item quantity="many">…et %d de plus</item>
+        <item quantity="other">…et %d de plus</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">Supprimer %d fichier ?</item>
+        <item quantity="many">Supprimer %d fichiers ?</item>
+        <item quantity="other">Supprimer %d fichiers ?</item>
+    </plurals>
+    <string name="clean_item_confirm_message">%s seront libérés. Le livre et votre progression restent dans votre bibliothèque, et il peut être retéléchargé à tout moment.</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">%1$d fichier supprimé, %2$s libérés</item>
+        <item quantity="many">%1$d fichiers supprimés, %2$s libérés</item>
+        <item quantity="other">%1$d fichiers supprimés, %2$s libérés</item>
+    </plurals>
 </resources>

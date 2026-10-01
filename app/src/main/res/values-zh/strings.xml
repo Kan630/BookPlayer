@@ -623,7 +623,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="Import_Experimental_M4B_solution_1">取消勾选 “拆分 m4b” 选项。</string>
     <string name="Import_Experimental_M4B_solution_2"><i>您也可以使用第三方工具将 m4b 文件转换为 MP3 文件夹，然后导入到 BookPlayer 中。</i></string>
     <string name="Import_Progress_splitting_m4b_file">"正在拆分 m4b 文件：" </string>
-    <string name="error_media_already_loaded_samePath_under_the_name">此媒体已加载，当前名称为：</string>
+    <string name="error_media_already_loaded_samePath_under_the_name">此文件已作为以下名称存在于您的媒体库中：</string>
     <string name="init_please_wait">初始化中… 请稍候…</string>
     <string name="import_whole_book_suggestion_title">导入整本书？</string>
     <string name="import_whole_book_suggestion_message">此文件似乎是一本书的一部分：在\"%2$s\"中找到了 %1$d 个音轨。要导入整本书而不是仅此文件吗？</string>
@@ -962,6 +962,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="tts_error_timeout">TTS 错误：超时</string>
     <string name="tts_engine_still_warming_up">TTS 引擎仍在启动中 - 刚切换引擎后这可能需要更长时间。请稍候片刻后重试。</string>
     <string name="tts_error_voice_set_failed">应用语音失败</string>
+    <string name="tts_voice_unavailable_using_default">语音 %1$s 当前不可用（未下载，或需要网络连接）。将使用默认语音。</string>
     <string name="tts_error_synth_failed">预热合成失败</string>
     <string name="source_flag">来源标志</string>
     <string name="voice_name">语音名称</string>
@@ -1467,6 +1468,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="full_backup_start">开始备份</string>
     <string name="full_backup_progress">正在复制 %1$s — %2$d%%（%3$s / %4$s）</string>
     <string name="full_backup_success">备份已完成。</string>
+    <string name="full_backup_success_missing_files">备份已完成。
+注意：%1$d 本书在此设备上缺少文件，因此其音频未完全包含在备份中。</string>
     <string name="full_backup_partial_failure">备份已完成，但部分文件未能复制。在依赖此备份前请检查目标位置。</string>
     <string name="full_backup_cancelled">备份已取消。</string>
     <string name="full_backup_could_not_start">无法写入备份文件。</string>
@@ -1594,4 +1597,89 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="modify_group_actions">操作</string>
     <string name="option_copy_file_or">或</string>
     <string name="option_copy_file_just_link">仅链接</string>
+    <string name="podcast_cleanup_title">清理剧集</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="other">已下载 %1$d 集 · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">已收听</string>
+    <string name="podcast_cleanup_listened_desc">已完成，或播放超过 %d%%（您的自动删除阈值）</string>
+    <string name="podcast_cleanup_never_title">从未播放</string>
+    <string name="podcast_cleanup_untouched_title">近期未使用</string>
+    <string name="podcast_cleanup_untouched_desc">至少在以下时间内未下载也未播放：</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="other">%d 个月</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 年</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="other">%1$d 集 · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">没有可移除的内容</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="other">删除 %d 集？</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">将释放 %s。收听进度和统计信息会被保留，剧集可随时重新下载。</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="other">已删除 %1$d 集，释放 %2$s</item>
+    </plurals>
+    <string name="tip_title">提示</string>
+    <string name="tip_library_long_press">长按一本书可重命名、更改封面、重置进度或删除它。</string>
+    <string name="tip_tracks_long_press">长按曲目可打开其选项：重置、删除、更改曲目顺序…</string>
+    <string name="tip_text_reader_gestures">双指捏合可放大或缩小文本。双击可开启或关闭自动滚动。</string>
+    <string name="tip_podcast_cover_tap">点击播客封面可在您已下载的剧集与所有在线可用的剧集之间切换。</string>
+    <string name="clean_podcast_tip_message">长按此列表中的项目以执行快捷清理操作。</string>
+    <string name="utilities_tips_title">提示</string>
+    <string name="utilities_show_tips_again">再次显示提示</string>
+    <string name="utilities_show_tips_again_explanation">您选择不再显示的提示将会重新出现。</string>
+    <string name="utilities_tips_reset_done">提示将重新显示</string>
+    <string name="dont_show_again">不再显示</string>
+    <string name="podcast_cleanup_footnote">播放器中已加载的剧集永远不会被包含在内。</string>
+    <string name="recording_cleanup_title">清理录音</string>
+    <string name="recording_cleanup_never_desc">已录制，从未播放</string>
+    <string name="recording_cleanup_listened_desc">已完成，或播放超过 %d%%</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="other">%1$d 条录音 · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="other">%1$d 条录音 · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="other">删除 %d 条录音？</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">将释放 %s。已删除的录音无法恢复。</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="other">已删除 %1$d 条录音，释放 %2$s</item>
+    </plurals>
+    <string name="clean_item_title">快捷操作</string>
+    <plurals name="clean_item_summary">
+        <item quantity="other">%1$d 个曲目 · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">释放空间，保留书籍</string>
+    <string name="clean_item_free_desc">删除音频文件。书籍、您的进度和统计信息会保留在您的媒体库中，并可随时重新下载。</string>
+    <string name="clean_item_free_button">释放空间</string>
+    <string name="clean_item_listened_title">移除已收听曲目</string>
+    <string name="clean_item_listened_desc">删除已完成曲目的文件。它们可以随时重新下载。</string>
+    <string name="clean_item_download_title">重新下载</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="other">此设备上缺失 %d 个曲目</item>
+    </plurals>
+    <string name="clean_item_download_button">下载</string>
+    <string name="clean_item_move_title">移动到其他存储</string>
+    <string name="clean_item_move_desc">在设备和 SD 卡之间移动此书。</string>
+    <string name="clean_item_move_button">移动</string>
+    <plurals name="clean_item_files">
+        <item quantity="other">%1$d 个文件 · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">此书没有可用的快捷操作：无法重新下载。请使用删除按钮将其删除。</string>
+    <string name="clean_item_orphan_title">不在您的媒体库中</string>
+    <string name="clean_item_orphan_desc">此文件夹未关联任何书籍。以下是其内容 - 删除按钮将其删除。</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="other">…还有 %d 个</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="other">删除 %d 个文件？</item>
+    </plurals>
+    <string name="clean_item_confirm_message">将释放 %s。书籍和您的进度会保留在您的媒体库中，并可随时重新下载。</string>
+    <plurals name="clean_item_done">
+        <item quantity="other">已删除 %1$d 个文件，释放 %2$s</item>
+    </plurals>
 </resources>

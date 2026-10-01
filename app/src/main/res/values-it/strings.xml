@@ -623,7 +623,7 @@
     <string name="Import_Experimental_M4B_solution_1">Deseleziona l\'opzione "dividi m4b".</string>
     <string name="Import_Experimental_M4B_solution_2"><i>Puoi anche usare uno strumento di terze parti per convertire prima quel file m4b in una cartella di file mp3, quindi importare la cartella in BookPlayer.</i></string>
     <string name="Import_Progress_splitting_m4b_file">"divisione del file m4b : "</string>
-    <string name="error_media_already_loaded_samePath_under_the_name">Questo media è già stato caricato ed è attualmente archiviato con il nome: </string>
+    <string name="error_media_already_loaded_samePath_under_the_name">Questo file è già nella tua libreria come:</string>
     <string name="init_please_wait">Inizializzazione… Attendere…</string>
     <string name="import_whole_book_suggestion_title">Importare l\'intero libro?</string>
     <string name="import_whole_book_suggestion_message">Questo file sembra far parte di un libro più grande: sono state trovate %1$d tracce in \"%2$s\". Importare l\'intero libro invece di solo questo file?</string>
@@ -963,6 +963,7 @@
     <string name="tts_error_timeout">Errore TTS: timeout</string>
     <string name="tts_engine_still_warming_up">Il motore TTS si sta ancora avviando - questo può richiedere più tempo subito dopo il cambio di motore. Attendi un momento e riprova.</string>
     <string name="tts_error_voice_set_failed">Applicazione della voce non riuscita</string>
+    <string name="tts_voice_unavailable_using_default">La voce %1$s non è disponibile al momento (non scaricata, o richiede una connessione). Verrà usata la voce predefinita.</string>
     <string name="tts_error_synth_failed">Sintesi di riscaldamento non riuscita</string>
     <string name="source_flag">bandiera di origine</string>
     <string name="voice_name">nome della voce</string>
@@ -1476,6 +1477,8 @@ Può essere piuttosto lento…</string>
     <string name="full_backup_start">Avvia backup</string>
     <string name="full_backup_progress">Copia di %1$s in corso — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">Backup completato.</string>
+    <string name="full_backup_success_missing_files">Backup completato.
+Nota: %1$d libro/libri hanno file mancanti su questo dispositivo, quindi il loro audio non è completamente incluso nel backup.</string>
     <string name="full_backup_partial_failure">Backup completato, ma alcuni file non sono stati copiati. Controlla la destinazione prima di farci affidamento.</string>
     <string name="full_backup_cancelled">Backup annullato.</string>
     <string name="full_backup_could_not_start">Impossibile scrivere il file di backup.</string>
@@ -1608,4 +1611,119 @@ Può essere piuttosto lento…</string>
     <string name="modify_group_actions">Azioni</string>
     <string name="option_copy_file_or">o</string>
     <string name="option_copy_file_just_link">collega soltanto</string>
+    <string name="podcast_cleanup_title">Pulisci episodi</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">%1$d episodio scaricato · %2$s</item>
+        <item quantity="many">%1$d episodi scaricati · %2$s</item>
+        <item quantity="other">%1$d episodi scaricati · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">Già ascoltato</string>
+    <string name="podcast_cleanup_listened_desc">Terminato, o ascoltato oltre il %d%% (la tua soglia di eliminazione automatica)</string>
+    <string name="podcast_cleanup_never_title">Mai riprodotto</string>
+    <string name="podcast_cleanup_untouched_title">Non toccato di recente</string>
+    <string name="podcast_cleanup_untouched_desc">Né scaricato né riprodotto da almeno:</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">%d mese</item>
+        <item quantity="many">%d mesi</item>
+        <item quantity="other">%d mesi</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 anno</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">%1$d episodio · %2$s</item>
+        <item quantity="many">%1$d episodi · %2$s</item>
+        <item quantity="other">%1$d episodi · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">Niente da rimuovere</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">Eliminare %d episodio?</item>
+        <item quantity="many">Eliminare %d episodi?</item>
+        <item quantity="other">Eliminare %d episodi?</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">Verranno liberati %s. I progressi di ascolto e le statistiche vengono conservati, e gli episodi possono essere scaricati di nuovo in qualsiasi momento.</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">%1$d episodio eliminato, %2$s liberati</item>
+        <item quantity="many">%1$d episodi eliminati, %2$s liberati</item>
+        <item quantity="other">%1$d episodi eliminati, %2$s liberati</item>
+    </plurals>
+    <string name="tip_title">Suggerimento</string>
+    <string name="tip_library_long_press">Tieni premuto un libro per rinominarlo, cambiarne la copertina, ripristinare i progressi o eliminarlo.</string>
+    <string name="tip_tracks_long_press">Tieni premuta una traccia per aprire le sue opzioni: ripristina, elimina, cambia l\'ordine delle tracce…</string>
+    <string name="tip_text_reader_gestures">Pizzica per aumentare o diminuire lo zoom del testo. Doppio tocco per attivare o disattivare lo scorrimento automatico.</string>
+    <string name="tip_podcast_cover_tap">Tocca la copertina del podcast per passare tra i tuoi episodi scaricati e tutti gli episodi disponibili online.</string>
+    <string name="clean_podcast_tip_message">Tieni premuto un elemento in questa lista per azioni di pulizia rapide.</string>
+    <string name="utilities_tips_title">Suggerimenti</string>
+    <string name="utilities_show_tips_again">Mostra di nuovo i suggerimenti</string>
+    <string name="utilities_show_tips_again_explanation">I suggerimenti che hai chiesto di non vedere più torneranno a essere mostrati.</string>
+    <string name="utilities_tips_reset_done">I suggerimenti torneranno a essere mostrati</string>
+    <string name="dont_show_again">Non mostrare più</string>
+    <string name="podcast_cleanup_footnote">L\'episodio caricato nel lettore non è mai incluso.</string>
+    <string name="recording_cleanup_title">Pulisci registrazioni</string>
+    <string name="recording_cleanup_never_desc">Registrata, mai riprodotta</string>
+    <string name="recording_cleanup_listened_desc">Terminata, o ascoltata oltre il %d%%</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">%1$d registrazione · %2$s</item>
+        <item quantity="many">%1$d registrazioni · %2$s</item>
+        <item quantity="other">%1$d registrazioni · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">%1$d registrazione · %2$s</item>
+        <item quantity="many">%1$d registrazioni · %2$s</item>
+        <item quantity="other">%1$d registrazioni · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">Eliminare %d registrazione?</item>
+        <item quantity="many">Eliminare %d registrazioni?</item>
+        <item quantity="other">Eliminare %d registrazioni?</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">Verranno liberati %s. Le registrazioni eliminate non possono essere recuperate.</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">%1$d registrazione eliminata, %2$s liberati</item>
+        <item quantity="many">%1$d registrazioni eliminate, %2$s liberati</item>
+        <item quantity="other">%1$d registrazioni eliminate, %2$s liberati</item>
+    </plurals>
+    <string name="clean_item_title">Azioni rapide</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">%1$d traccia · %2$s</item>
+        <item quantity="many">%1$d tracce · %2$s</item>
+        <item quantity="other">%1$d tracce · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">Libera spazio, mantieni il libro</string>
+    <string name="clean_item_free_desc">Elimina i file audio. Il libro, i tuoi progressi e le statistiche restano nella tua libreria, e può essere scaricato di nuovo in qualsiasi momento.</string>
+    <string name="clean_item_free_button">Libera spazio</string>
+    <string name="clean_item_listened_title">Rimuovi tracce ascoltate</string>
+    <string name="clean_item_listened_desc">Elimina i file delle tracce terminate. Possono essere scaricate di nuovo in qualsiasi momento.</string>
+    <string name="clean_item_download_title">Scarica di nuovo</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">%d traccia manca su questo dispositivo</item>
+        <item quantity="many">%d tracce mancano su questo dispositivo</item>
+        <item quantity="other">%d tracce mancano su questo dispositivo</item>
+    </plurals>
+    <string name="clean_item_download_button">Scarica</string>
+    <string name="clean_item_move_title">Sposta su un\'altra memoria</string>
+    <string name="clean_item_move_desc">Sposta questo libro tra il dispositivo e la scheda SD.</string>
+    <string name="clean_item_move_button">Sposta</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">%1$d file · %2$s</item>
+        <item quantity="many">%1$d file · %2$s</item>
+        <item quantity="other">%1$d file · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">Nessuna azione rapida per questo libro: non può essere scaricato di nuovo. Usa il pulsante di eliminazione per eliminarlo.</string>
+    <string name="clean_item_orphan_title">Non nella tua libreria</string>
+    <string name="clean_item_orphan_desc">Questa cartella non è collegata a nessun libro. Ecco cosa contiene - il pulsante di eliminazione la elimina.</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…e altri %d</item>
+        <item quantity="many">…e altri %d</item>
+        <item quantity="other">…e altri %d</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">Eliminare %d file?</item>
+        <item quantity="many">Eliminare %d file?</item>
+        <item quantity="other">Eliminare %d file?</item>
+    </plurals>
+    <string name="clean_item_confirm_message">Verranno liberati %s. Il libro e i tuoi progressi restano nella tua libreria, e può essere scaricato di nuovo in qualsiasi momento.</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">%1$d file eliminato, %2$s liberati</item>
+        <item quantity="many">%1$d file eliminati, %2$s liberati</item>
+        <item quantity="other">%1$d file eliminati, %2$s liberati</item>
+    </plurals>
 </resources>

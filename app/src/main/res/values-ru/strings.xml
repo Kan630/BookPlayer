@@ -622,7 +622,7 @@
     <string name="Import_Experimental_M4B_solution_1">Снимите флажок "разбивать m4b".</string>
     <string name="Import_Experimental_M4B_solution_2"><i>Вы также можете использовать стороннюю программу для преобразования файла m4b в папку с mp3, а затем импортировать её в BookPlayer.</i></string>
     <string name="Import_Progress_splitting_m4b_file">"разбиение файла m4b: "</string>
-    <string name="error_media_already_loaded_samePath_under_the_name">Этот файл уже был загружен под именем: </string>
+    <string name="error_media_already_loaded_samePath_under_the_name">Этот файл уже есть в вашей библиотеке под названием:</string>
     <string name="init_please_wait">Инициализация… Пожалуйста, подождите…</string>
     <string name="import_whole_book_suggestion_title">Импортировать всю книгу?</string>
     <string name="import_whole_book_suggestion_message">Этот файл похож на часть большой книги: в папке \"%2$s\" найдено %1$d треков. Импортировать всю книгу вместо только этого файла?</string>
@@ -962,6 +962,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="tts_error_timeout">Ошибка TTS: тайм-аут</string>
     <string name="tts_engine_still_warming_up">Движок синтеза речи (TTS) всё ещё запускается - сразу после смены движка это может занять больше времени. Подождите немного и попробуйте снова.</string>
     <string name="tts_error_voice_set_failed">Не удалось применить голос</string>
+    <string name="tts_voice_unavailable_using_default">Голос %1$s сейчас недоступен (не загружен, либо требуется подключение). Используется голос по умолчанию.</string>
     <string name="tts_error_synth_failed">Ошибка синтеза при подготовке</string>
     <string name="source_flag">флаг источника</string>
     <string name="voice_name">имя голоса</string>
@@ -1481,6 +1482,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="full_backup_start">Начать резервное копирование</string>
     <string name="full_backup_progress">Копирование %1$s — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">Резервное копирование завершено.</string>
+    <string name="full_backup_success_missing_files">Резервное копирование завершено.
+Примечание: у %1$d книг(и) отсутствуют файлы на этом устройстве, поэтому их аудио не полностью включено в резервную копию.</string>
     <string name="full_backup_partial_failure">Резервное копирование завершено, но некоторые файлы не удалось скопировать. Проверьте место назначения, прежде чем полагаться на него.</string>
     <string name="full_backup_cancelled">Резервное копирование отменено.</string>
     <string name="full_backup_could_not_start">Не удалось записать файл резервной копии.</string>
@@ -1616,4 +1619,134 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="modify_group_actions">Действия</string>
     <string name="option_copy_file_or">или</string>
     <string name="option_copy_file_just_link">только ссылка</string>
+    <string name="podcast_cleanup_title">Очистить эпизоды</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">%1$d загруженный эпизод · %2$s</item>
+        <item quantity="few">%1$d загруженных эпизода · %2$s</item>
+        <item quantity="many">%1$d загруженных эпизодов · %2$s</item>
+        <item quantity="other">%1$d загруженных эпизода · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">Уже прослушано</string>
+    <string name="podcast_cleanup_listened_desc">Прослушан полностью или более чем на %d%% (ваш порог автоматического удаления)</string>
+    <string name="podcast_cleanup_never_title">Никогда не воспроизводилось</string>
+    <string name="podcast_cleanup_untouched_title">Давно не трогали</string>
+    <string name="podcast_cleanup_untouched_desc">Не скачивалось и не воспроизводилось как минимум:</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">%d месяц</item>
+        <item quantity="few">%d месяца</item>
+        <item quantity="many">%d месяцев</item>
+        <item quantity="other">%d месяца</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 год</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">%1$d эпизод · %2$s</item>
+        <item quantity="few">%1$d эпизода · %2$s</item>
+        <item quantity="many">%1$d эпизодов · %2$s</item>
+        <item quantity="other">%1$d эпизода · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">Нечего удалять</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">Удалить %d эпизод?</item>
+        <item quantity="few">Удалить %d эпизода?</item>
+        <item quantity="many">Удалить %d эпизодов?</item>
+        <item quantity="other">Удалить %d эпизода?</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">Будет освобождено %s. Прогресс прослушивания и статистика сохраняются, а эпизоды можно будет снова скачать в любой момент.</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">Удалён %1$d эпизод, освобождено %2$s</item>
+        <item quantity="few">Удалено %1$d эпизода, освобождено %2$s</item>
+        <item quantity="many">Удалено %1$d эпизодов, освобождено %2$s</item>
+        <item quantity="other">Удалено %1$d эпизода, освобождено %2$s</item>
+    </plurals>
+    <string name="tip_title">Совет</string>
+    <string name="tip_library_long_press">Долгое нажатие на книгу, чтобы переименовать её, сменить обложку, сбросить прогресс или удалить её.</string>
+    <string name="tip_tracks_long_press">Долгое нажатие на трек открывает его параметры: сброс, удаление, изменение порядка треков…</string>
+    <string name="tip_text_reader_gestures">Сведите или разведите пальцы, чтобы изменить масштаб текста. Двойное касание включает или отключает автопрокрутку.</string>
+    <string name="tip_podcast_cover_tap">Нажмите на обложку подкаста, чтобы переключаться между скачанными эпизодами и всеми доступными онлайн.</string>
+    <string name="clean_podcast_tip_message">Долгое нажатие на элемент этого списка открывает быстрые действия очистки.</string>
+    <string name="utilities_tips_title">Советы</string>
+    <string name="utilities_show_tips_again">Показывать советы снова</string>
+    <string name="utilities_show_tips_again_explanation">Советы, которые вы попросили больше не показывать, появятся снова.</string>
+    <string name="utilities_tips_reset_done">Советы будут показаны снова</string>
+    <string name="dont_show_again">Больше не показывать</string>
+    <string name="podcast_cleanup_footnote">Эпизод, загруженный в проигрывателе, никогда не включается.</string>
+    <string name="recording_cleanup_title">Очистить записи</string>
+    <string name="recording_cleanup_never_desc">Записана, но не воспроизводилась</string>
+    <string name="recording_cleanup_listened_desc">Прослушана полностью или более чем на %d%%</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">%1$d запись · %2$s</item>
+        <item quantity="few">%1$d записи · %2$s</item>
+        <item quantity="many">%1$d записей · %2$s</item>
+        <item quantity="other">%1$d записи · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">%1$d запись · %2$s</item>
+        <item quantity="few">%1$d записи · %2$s</item>
+        <item quantity="many">%1$d записей · %2$s</item>
+        <item quantity="other">%1$d записи · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">Удалить %d запись?</item>
+        <item quantity="few">Удалить %d записи?</item>
+        <item quantity="many">Удалить %d записей?</item>
+        <item quantity="other">Удалить %d записи?</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">Будет освобождено %s. Удалённые записи невозможно восстановить.</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">Удалена %1$d запись, освобождено %2$s</item>
+        <item quantity="few">Удалено %1$d записи, освобождено %2$s</item>
+        <item quantity="many">Удалено %1$d записей, освобождено %2$s</item>
+        <item quantity="other">Удалено %1$d записи, освобождено %2$s</item>
+    </plurals>
+    <string name="clean_item_title">Быстрые действия</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">%1$d трек · %2$s</item>
+        <item quantity="few">%1$d трека · %2$s</item>
+        <item quantity="many">%1$d треков · %2$s</item>
+        <item quantity="other">%1$d трека · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">Освободить место, сохранив книгу</string>
+    <string name="clean_item_free_desc">Удаляет аудиофайлы. Книга, ваш прогресс и статистика остаются в библиотеке, и её можно будет снова скачать в любой момент.</string>
+    <string name="clean_item_free_button">Освободить место</string>
+    <string name="clean_item_listened_title">Удалить прослушанные треки</string>
+    <string name="clean_item_listened_desc">Удаляет файлы прослушанных треков. Их можно будет снова скачать в любой момент.</string>
+    <string name="clean_item_download_title">Скачать снова</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">%d трек отсутствует на этом устройстве</item>
+        <item quantity="few">%d трека отсутствуют на этом устройстве</item>
+        <item quantity="many">%d треков отсутствуют на этом устройстве</item>
+        <item quantity="other">%d трека отсутствуют на этом устройстве</item>
+    </plurals>
+    <string name="clean_item_download_button">Скачать</string>
+    <string name="clean_item_move_title">Переместить на другое хранилище</string>
+    <string name="clean_item_move_desc">Переместить эту книгу между устройством и SD-картой.</string>
+    <string name="clean_item_move_button">Переместить</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">%1$d файл · %2$s</item>
+        <item quantity="few">%1$d файла · %2$s</item>
+        <item quantity="many">%1$d файлов · %2$s</item>
+        <item quantity="other">%1$d файла · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">Для этой книги нет быстрых действий: её нельзя скачать снова. Используйте кнопку удаления, чтобы удалить её.</string>
+    <string name="clean_item_orphan_title">Не в вашей библиотеке</string>
+    <string name="clean_item_orphan_desc">Эта папка не связана ни с одной книгой. Вот что в ней находится - кнопка удаления удалит её.</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…и ещё %d</item>
+        <item quantity="few">…и ещё %d</item>
+        <item quantity="many">…и ещё %d</item>
+        <item quantity="other">…и ещё %d</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">Удалить %d файл?</item>
+        <item quantity="few">Удалить %d файла?</item>
+        <item quantity="many">Удалить %d файлов?</item>
+        <item quantity="other">Удалить %d файла?</item>
+    </plurals>
+    <string name="clean_item_confirm_message">Будет освобождено %s. Книга и ваш прогресс останутся в библиотеке, и её можно будет снова скачать в любой момент.</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">Удалён %1$d файл, освобождено %2$s</item>
+        <item quantity="few">Удалено %1$d файла, освобождено %2$s</item>
+        <item quantity="many">Удалено %1$d файлов, освобождено %2$s</item>
+        <item quantity="other">Удалено %1$d файла, освобождено %2$s</item>
+    </plurals>
 </resources>

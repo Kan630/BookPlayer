@@ -620,7 +620,7 @@
     <string name="Import_Experimental_M4B_solution_1">[split m4b] विकल्प को अनचेक करें।</string>
     <string name="Import_Experimental_M4B_solution_2"><i>आप किसी तृतीय-पक्ष टूल से पहले m4b फ़ाइल को mp3 फ़ाइलों के फ़ोल्डर में बदलकर, फिर उस फ़ोल्डर को BookPlayer में आयात भी कर सकते हैं।</i></string>
     <string name="Import_Progress_splitting_m4b_file">"m4b फ़ाइल विभाजित कर रहे हैं : "</string>
-    <string name="error_media_already_loaded_samePath_under_the_name">यह मीडिया पहले से लोड किया जा चुका है और वर्तमान में इस नाम से संग्रहीत है : </string>
+    <string name="error_media_already_loaded_samePath_under_the_name">यह फ़ाइल पहले से ही आपकी लाइब्रेरी में इस नाम से मौजूद है:</string>
     <string name="init_please_wait">आरंभ हो रहा है… कृपया प्रतीक्षा करें…</string>
     <string name="import_whole_book_suggestion_title">पूरी पुस्तक आयात करें?</string>
     <string name="import_whole_book_suggestion_message">यह फ़ाइल एक बड़ी पुस्तक का हिस्सा लगती है: \"%2$s\" में %1$d ट्रैक मिले। केवल इस फ़ाइल के बजाय पूरी पुस्तक आयात करें?</string>
@@ -959,6 +959,7 @@
     <string name="tts_error_timeout">TTS त्रुटि: समय समाप्त</string>
     <string name="tts_engine_still_warming_up">TTS इंजन अभी भी शुरू हो रहा है - इंजन बदलने के ठीक बाद इसमें अधिक समय लग सकता है। कृपया थोड़ी देर प्रतीक्षा करें और फिर से प्रयास करें।</string>
     <string name="tts_error_voice_set_failed">आवाज़ लागू करने में विफल</string>
+    <string name="tts_voice_unavailable_using_default">आवाज़ %1$s अभी उपलब्ध नहीं है (डाउनलोड नहीं हुई, या कनेक्शन की आवश्यकता है)। डिफ़ॉल्ट आवाज़ का उपयोग किया जा रहा है।</string>
     <string name="tts_error_synth_failed">वार्म-अप सिंथेसिस विफल</string>
     <string name="source_flag">स्रोत फ़्लैग</string>
     <string name="voice_name">आवाज़ का नाम</string>
@@ -1468,6 +1469,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="full_backup_start">बैकअप शुरू करें</string>
     <string name="full_backup_progress">%1$s कॉपी हो रहा है — %2$d%% (%3$s / %4$s)</string>
     <string name="full_backup_success">बैकअप पूरा हुआ।</string>
+    <string name="full_backup_success_missing_files">बैकअप पूरा हुआ।
+ध्यान दें: %1$d पुस्तक(ओं) की फ़ाइलें इस डिवाइस पर गायब हैं, इसलिए उनका ऑडियो बैकअप में पूरी तरह से शामिल नहीं है।</string>
     <string name="full_backup_partial_failure">बैकअप पूरा हुआ, लेकिन कुछ फ़ाइलें कॉपी नहीं हो सकीं। इस पर भरोसा करने से पहले गंतव्य की जाँच करें।</string>
     <string name="full_backup_cancelled">बैकअप रद्द किया गया।</string>
     <string name="full_backup_could_not_start">बैकअप फ़ाइल नहीं लिखी जा सकी।</string>
@@ -1597,4 +1600,104 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="modify_group_actions">कार्रवाइयाँ</string>
     <string name="option_copy_file_or">या</string>
     <string name="option_copy_file_just_link">सिर्फ़ लिंक करें</string>
+    <string name="podcast_cleanup_title">एपिसोड साफ़ करें</string>
+    <plurals name="podcast_cleanup_summary">
+        <item quantity="one">%1$d डाउनलोड किया गया एपिसोड · %2$s</item>
+        <item quantity="other">%1$d डाउनलोड किए गए एपिसोड · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_listened_title">पहले से सुना गया</string>
+    <string name="podcast_cleanup_listened_desc">समाप्त, या %d%% से अधिक सुना गया (आपकी स्वचालित हटाने की सीमा)</string>
+    <string name="podcast_cleanup_never_title">कभी नहीं चलाया गया</string>
+    <string name="podcast_cleanup_untouched_title">हाल में नहीं छुआ गया</string>
+    <string name="podcast_cleanup_untouched_desc">कम से कम इतने समय से न तो डाउनलोड किया गया और न ही चलाया गया:</string>
+    <plurals name="podcast_cleanup_months">
+        <item quantity="one">%d महीना</item>
+        <item quantity="other">%d महीने</item>
+    </plurals>
+    <string name="podcast_cleanup_one_year">1 वर्ष</string>
+    <plurals name="podcast_cleanup_count">
+        <item quantity="one">%1$d एपिसोड · %2$s</item>
+        <item quantity="other">%1$d एपिसोड · %2$s</item>
+    </plurals>
+    <string name="podcast_cleanup_nothing">हटाने के लिए कुछ नहीं</string>
+    <plurals name="podcast_cleanup_confirm_title">
+        <item quantity="one">%d एपिसोड हटाएं?</item>
+        <item quantity="other">%d एपिसोड हटाएं?</item>
+    </plurals>
+    <string name="podcast_cleanup_confirm_message">%s खाली हो जाएगा। सुनने की प्रगति और आँकड़े रखे जाएंगे, और एपिसोड किसी भी समय फिर से डाउनलोड किए जा सकते हैं।</string>
+    <plurals name="podcast_cleanup_done">
+        <item quantity="one">%1$d एपिसोड हटाया गया, %2$s खाली हुआ</item>
+        <item quantity="other">%1$d एपिसोड हटाए गए, %2$s खाली हुआ</item>
+    </plurals>
+    <string name="tip_title">सुझाव</string>
+    <string name="tip_library_long_press">किसी पुस्तक का नाम बदलने, कवर बदलने, प्रगति रीसेट करने या उसे हटाने के लिए उसे लंबे समय तक दबाएं।</string>
+    <string name="tip_tracks_long_press">किसी ट्रैक के विकल्प खोलने के लिए उसे लंबे समय तक दबाएं: रीसेट करें, हटाएं, ट्रैक क्रम बदलें…</string>
+    <string name="tip_text_reader_gestures">टेक्स्ट को ज़ूम इन या आउट करने के लिए पिंच करें। ऑटो-स्क्रॉल को चालू या बंद करने के लिए डबल-टैप करें।</string>
+    <string name="tip_podcast_cover_tap">अपने डाउनलोड किए गए एपिसोड और ऑनलाइन उपलब्ध सभी एपिसोड के बीच स्विच करने के लिए पॉडकास्ट कवर पर टैप करें।</string>
+    <string name="clean_podcast_tip_message">त्वरित सफ़ाई कार्रवाइयों के लिए इस सूची में किसी आइटम को लंबे समय तक दबाएं।</string>
+    <string name="utilities_tips_title">सुझाव</string>
+    <string name="utilities_show_tips_again">सुझाव फिर से दिखाएं</string>
+    <string name="utilities_show_tips_again_explanation">जिन सुझावों को आपने फिर न दिखाने के लिए कहा था, वे फिर से दिखेंगे।</string>
+    <string name="utilities_tips_reset_done">सुझाव फिर से दिखेंगे</string>
+    <string name="dont_show_again">फिर से न दिखाएं</string>
+    <string name="podcast_cleanup_footnote">प्लेयर में लोड किया गया एपिसोड कभी शामिल नहीं होता।</string>
+    <string name="recording_cleanup_title">रिकॉर्डिंग साफ़ करें</string>
+    <string name="recording_cleanup_never_desc">रिकॉर्ड की गई, कभी नहीं चलाई गई</string>
+    <string name="recording_cleanup_listened_desc">समाप्त, या %d%% से अधिक सुना गया</string>
+    <plurals name="recording_cleanup_summary">
+        <item quantity="one">%1$d रिकॉर्डिंग · %2$s</item>
+        <item quantity="other">%1$d रिकॉर्डिंग्स · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_count">
+        <item quantity="one">%1$d रिकॉर्डिंग · %2$s</item>
+        <item quantity="other">%1$d रिकॉर्डिंग्स · %2$s</item>
+    </plurals>
+    <plurals name="recording_cleanup_confirm_title">
+        <item quantity="one">%d रिकॉर्डिंग हटाएं?</item>
+        <item quantity="other">%d रिकॉर्डिंग्स हटाएं?</item>
+    </plurals>
+    <string name="recording_cleanup_confirm_message">%s खाली हो जाएगा। हटाई गई रिकॉर्डिंग को पुनर्प्राप्त नहीं किया जा सकता।</string>
+    <plurals name="recording_cleanup_done">
+        <item quantity="one">%1$d रिकॉर्डिंग हटाई गई, %2$s खाली हुआ</item>
+        <item quantity="other">%1$d रिकॉर्डिंग्स हटाई गईं, %2$s खाली हुआ</item>
+    </plurals>
+    <string name="clean_item_title">त्वरित कार्रवाइयाँ</string>
+    <plurals name="clean_item_summary">
+        <item quantity="one">%1$d ट्रैक · %2$s</item>
+        <item quantity="other">%1$d ट्रैक · %2$s</item>
+    </plurals>
+    <string name="clean_item_free_title">जगह खाली करें, पुस्तक रखें</string>
+    <string name="clean_item_free_desc">ऑडियो फ़ाइलें हटाता है। पुस्तक, आपकी प्रगति और आँकड़े आपकी लाइब्रेरी में बने रहते हैं, और इसे किसी भी समय फिर से डाउनलोड किया जा सकता है।</string>
+    <string name="clean_item_free_button">जगह खाली करें</string>
+    <string name="clean_item_listened_title">सुने गए ट्रैक हटाएं</string>
+    <string name="clean_item_listened_desc">समाप्त किए गए ट्रैक की फ़ाइलें हटाता है। इन्हें किसी भी समय फिर से डाउनलोड किया जा सकता है।</string>
+    <string name="clean_item_download_title">फिर से डाउनलोड करें</string>
+    <plurals name="clean_item_download_desc">
+        <item quantity="one">%d ट्रैक इस डिवाइस पर गायब है</item>
+        <item quantity="other">%d ट्रैक इस डिवाइस पर गायब हैं</item>
+    </plurals>
+    <string name="clean_item_download_button">डाउनलोड करें</string>
+    <string name="clean_item_move_title">किसी अन्य स्टोरेज में स्थानांतरित करें</string>
+    <string name="clean_item_move_desc">इस पुस्तक को डिवाइस और SD कार्ड के बीच स्थानांतरित करें।</string>
+    <string name="clean_item_move_button">स्थानांतरित करें</string>
+    <plurals name="clean_item_files">
+        <item quantity="one">%1$d फ़ाइल · %2$s</item>
+        <item quantity="other">%1$d फ़ाइलें · %2$s</item>
+    </plurals>
+    <string name="clean_item_nothing">इस पुस्तक के लिए कोई त्वरित कार्रवाई नहीं: इसे फिर से डाउनलोड नहीं किया जा सकता। इसे हटाने के लिए ट्रैश बटन का उपयोग करें।</string>
+    <string name="clean_item_orphan_title">आपकी लाइब्रेरी में नहीं</string>
+    <string name="clean_item_orphan_desc">यह फ़ोल्डर किसी पुस्तक से जुड़ा नहीं है। इसमें यह है - ट्रैश बटन इसे हटा देता है।</string>
+    <plurals name="clean_item_more_files">
+        <item quantity="one">…और %d अधिक</item>
+        <item quantity="other">…और %d अधिक</item>
+    </plurals>
+    <plurals name="clean_item_confirm_title">
+        <item quantity="one">%d फ़ाइल हटाएं?</item>
+        <item quantity="other">%d फ़ाइलें हटाएं?</item>
+    </plurals>
+    <string name="clean_item_confirm_message">%s खाली हो जाएगा। पुस्तक और आपकी प्रगति आपकी लाइब्रेरी में बनी रहेगी, और इसे किसी भी समय फिर से डाउनलोड किया जा सकता है।</string>
+    <plurals name="clean_item_done">
+        <item quantity="one">%1$d फ़ाइल हटाई गई, %2$s खाली हुआ</item>
+        <item quantity="other">%1$d फ़ाइलें हटाई गईं, %2$s खाली हुआ</item>
+    </plurals>
 </resources>
