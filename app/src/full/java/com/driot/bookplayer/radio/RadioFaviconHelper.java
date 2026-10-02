@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogD;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogW;
 
@@ -254,7 +255,7 @@ public class RadioFaviconHelper {
                 // SVG files are not decodable by Glide without an extra library — skip them.
                 // Only reject true SVGs; Wikimedia thumbnails look like "logo.svg/300px-logo.svg.png"
                 // and are actually PNGs, so check the path ending, not a substring.
-                String urlPath = url.split("\\?")[0].toLowerCase();
+                String urlPath = url.split("\\?")[0].toLowerCase(Locale.ROOT);
                 if (urlPath.endsWith(".svg")) {
                     myLogDD("step D/skip: [" + stationName + "] SVG not supported — " + url);
                     return;

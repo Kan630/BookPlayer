@@ -25,7 +25,7 @@ public final class FlagHelper {
             if (countryCode == null) {
                 return LanguageMapper.getFlagFromName(code2); //fallback
             }
-            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
+            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(Locale.ROOT), "drawable",
                     context.getPackageName());
         } else if (codeType.equals("country")) {
             int resId = getFlagResIdForCountry(code2);

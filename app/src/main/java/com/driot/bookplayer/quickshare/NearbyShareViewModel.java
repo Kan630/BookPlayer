@@ -1,5 +1,6 @@
 package com.driot.bookplayer.quickshare;
 
+import java.util.Locale;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -515,7 +516,7 @@ public class NearbyShareViewModel extends LoggingAndroidViewModel {
         nearbyHelper.cleanup();
         nearbyHelper.clearPreparedData();
 
-        boolean complete = !isError && message != null && message.toLowerCase().contains("complete");
+        boolean complete = !isError && message != null && message.toLowerCase(Locale.ROOT).contains("complete");
 
         if (isActive.getValue() != null && isActive.getValue()) {
             isActive.postValue(false);

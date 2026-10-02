@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -60,7 +61,7 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
 
                     if (!vr.ok) {
                         // server says vote failed (rate limit etc)
-                        if (vr.message != null && vr.message.toLowerCase().contains("same station")) {
+                        if (vr.message != null && vr.message.toLowerCase(Locale.ROOT).contains("same station")) {
                             myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_too_many));
                         } else {
                             myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_rejected)

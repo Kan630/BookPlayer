@@ -1075,6 +1075,29 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         });
     }
 
+    // The media session asks for the same cover two or three times per track start, on the main thread, and a
+    // big cover file takes a while to decode: decoded once per cover file (path + modification time).
+    private String sessionCoverKey;
+    private android.graphics.Bitmap sessionCoverBitmap;
+
+    private android.graphics.Bitmap sessionCover(String cover) {
+        if (cover == null || cover.isEmpty())
+            return ImageHelper.decodeBitmapFromStringUri(this, cover, 512);
+        String key = cover;
+        try {
+            String path = cover.startsWith("file://") ? android.net.Uri.parse(cover).getPath() : cover;
+            if (path != null && path.startsWith("/"))
+                key = cover + "|" + new java.io.File(path).lastModified();
+        } catch (Exception ignored) {
+        }
+        if (key.equals(sessionCoverKey) && sessionCoverBitmap != null && !sessionCoverBitmap.isRecycled())
+            return sessionCoverBitmap;
+        android.graphics.Bitmap bmp = ImageHelper.decodeBitmapFromStringUri(this, cover, 512);
+        sessionCoverKey = key;
+        sessionCoverBitmap = bmp;
+        return bmp;
+    }
+
     // Re-applies the (now-resolved) episode cover to the media session metadata + notification,
     // without touching playback state - alertNewTrack()/onEnginePrepared() already did that.
     private void refreshMetadataAndNotificationCover() {
@@ -1084,7 +1107,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return;
         String cover = episodeCover.resolve(pl.getFolder());
         media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(),
-                (engine != null ? engine.getDuration() : 0L), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+                (engine != null ? engine.getDuration() : 0L), sessionCover(cover));
         showForegroundNotification(isPlaying());
     }
 
@@ -1114,7 +1137,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
             media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L,
-                    ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+                    sessionCover(cover));
             if (!showForegroundNotification(isPlaying())) {
                 myLogEE(null, "alertNewTrack: failed to show foreground notification");
             }
@@ -2235,7 +2258,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     if (zf != null) {
                         String cover = episodeCover.resolve(pl.getFolder());
                         media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(),
-                                engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+                                engine.getDuration(), sessionCover(cover));
                     } else {
                         myLogE("onEnginePrepared zikFile null");
                     }

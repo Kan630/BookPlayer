@@ -1,5 +1,6 @@
 package com.driot.bookplayer.helpers;
 
+import java.util.Locale;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -80,9 +81,9 @@ public class StorageHelper {
     public static boolean isInInternalMemory(String path) {
         if (path == null)
             return false;
-        String pathLower = path.toLowerCase();
+        String pathLower = path.toLowerCase(Locale.ROOT);
         for (String s : Var.PATH_CHECK_AUDIO_FILE_INTERNAL) {
-            if (pathLower.contains(s.toLowerCase())) {
+            if (pathLower.contains(s.toLowerCase(Locale.ROOT))) {
                 return true;
             }
         }
@@ -102,19 +103,19 @@ public class StorageHelper {
             myLogEE(e1, "MemoryLocationType Uri.parse KO");
         }
         try {
-            String pathLower = path.toLowerCase();
+            String pathLower = path.toLowerCase(Locale.ROOT);
             String reservedInternal = context.getFilesDir().getAbsolutePath();
             File sdBase = getPreferredBaseDir(context, true);
             String reservedSD = sdBase != null ? sdBase.getAbsolutePath() : "";
 
-            if (pathLower.startsWith(reservedInternal.toLowerCase())) {
+            if (pathLower.startsWith(reservedInternal.toLowerCase(Locale.ROOT))) {
                 return MemoryLocationType.INTERNAL_RESERVED;
             } else if (onSDcard && isInInternalMemory(pathLower)) {
                 return MemoryLocationType.SDCARD_RESERVED;
             } else if (onSDcard && !isInInternalMemory(pathLower)) {
                 return MemoryLocationType.SDCARD_SHARED;
-            } else if (!reservedSD.isEmpty() && pathLower.startsWith(reservedSD.toLowerCase())) {
-                if (pathLower.contains("/android/data/" + context.getPackageName().toLowerCase())) {
+            } else if (!reservedSD.isEmpty() && pathLower.startsWith(reservedSD.toLowerCase(Locale.ROOT))) {
+                if (pathLower.contains("/android/data/" + context.getPackageName().toLowerCase(Locale.ROOT))) {
                     return MemoryLocationType.SDCARD_RESERVED;
                 } else {
                     return MemoryLocationType.SDCARD_SHARED;
@@ -214,8 +215,43 @@ public class StorageHelper {
         return SdCardChecker.isExternalSDCardAvailable(context);
     }
 
+    // The lookup below costs several binder calls and file-system checks, and screens ask for it on the main
+    // thread for every row they draw (StrictMode: 160 disk reads in one short session; production ANR in
+    // getRemovableSDCardPath). Same policy as SdCardChecker: a value younger than 10 s is reused; an older one
+    // is still returned on the main thread while a background refresh runs.
+    private static final long SD_PATH_CACHE_MS = 10_000;
+    private static final java.util.concurrent.Executor SD_PATH_EXECUTOR =
+            java.util.concurrent.Executors.newSingleThreadExecutor();
+    private static volatile boolean sdPathKnown;
+    private static volatile File sdPathCached;
+    private static volatile long sdPathCheckedAt;
+
     @Nullable
     private static File getRemovableSDCardPath(Context context) {
+        long now = android.os.SystemClock.uptimeMillis();
+        if (sdPathKnown && now - sdPathCheckedAt < SD_PATH_CACHE_MS)
+            return sdPathCached;
+        File last = sdPathCached;
+        if (sdPathKnown && last != null && android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            sdPathCheckedAt = now; // one refresh at a time
+            final Context app = context.getApplicationContext();
+            SD_PATH_EXECUTOR.execute(() -> probeRemovableSDCardPath(app));
+            return last;
+        }
+        return probeRemovableSDCardPath(context);
+    }
+
+    @Nullable
+    private static File probeRemovableSDCardPath(Context context) {
+        File found = findRemovableSDCardPath(context);
+        sdPathCached = found;
+        sdPathCheckedAt = android.os.SystemClock.uptimeMillis();
+        sdPathKnown = true;
+        return found;
+    }
+
+    @Nullable
+    private static File findRemovableSDCardPath(Context context) {
         try {
             File[] dirs = androidx.core.content.ContextCompat.getExternalFilesDirs(context, null);
             if (dirs == null || dirs.length == 0)

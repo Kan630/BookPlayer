@@ -20,6 +20,7 @@ import androidx.work.WorkManager;
 
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -114,12 +115,17 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         return -1;
     }
 
-    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel,
-            EpisodeClickHandler handler) {
+    /**
+     * @param lifecycleOwner the screen's view lifecycle (getViewLifecycleOwner()), NOT the Activity: with the
+     *                       single-activity navigation the Activity outlives every screen, and the observers of
+     *                       each visited podcast stayed alive until the app was closed.
+     */
+    public PodcastEpisodeRVAdapter(Context context, LifecycleOwner lifecycleOwner, PodcastFeed podcastFeed,
+            PodcastEpisodeViewModel viewModel, EpisodeClickHandler handler) {
         this.context = context;
         this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
-        this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
+        this.lifecycleOwner = lifecycleOwner;
         this.handler = handler;
         if (podcastFeed == null) {
             myLogEE(null, "podcastFeed == null");
@@ -218,7 +224,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         // myLog(episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
 
-        holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
+        holder.tvDate.setText(episode.datePublishedForDisplay(
+                com.driot.bookplayer.helpers.LocaleHelper.getLocale(holder.itemView.getContext())));
         String stats = Tonio.formatTime(episode.duration * 1000)
                 + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
@@ -274,13 +281,15 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title),
                 episodeFileName);
-        liveZikFile.removeObservers(lifecycleOwner);
+        // one pair of observers per row: the ones of the episode this row showed before go away first
+        // (a new download-progress observer used to be added at every bind and never removed)
+        holder.clearObservers();
 
         holder.icon_download.setTag(episodeFileName);
         holder.icon_download.setVisibility(View.GONE);
         disableDownloadZone(holder);
 
-        liveZikFile.observe(lifecycleOwner, zikFile -> {
+        Observer<ZikFile> zikObserver = zikFile -> {
             if (!holder.icon_download.getTag().equals(episodeFileName))
                 return; // ---- avoid stop flickers on another completion --
 
@@ -358,20 +367,25 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         PodcastHelper.addPodcastToDB(this.context, podcastFeed);
                     });
                     NetworkHelper.logCurrentNetworkState(this.context);
-                    handler.onDownloadEpisode(episode);
+                    // pulse first: the handler stops it again when the download is refused (stopDownloadFlicker)
                     if (holder.flickerAnim == null) {
                         holder.flickerRunning = true;
                         holder.flickerAnim = createFlickerAnimation(holder.icon_download, holder);
                         holder.flickerAnim.start();
                     }
+                    handler.onDownloadEpisode(episode);
                 });
             }
-        });
+        };
+        holder.zikLive = liveZikFile;
+        holder.zikObserver = zikObserver;
+        liveZikFile.observe(lifecycleOwner, zikObserver);
 
         // --- Progress Bar Observation ---
         holder.pbDownload.setVisibility(View.GONE);
         String workTag = "DOWNLOAD_EPISODE_" + episode.idEpisode;
-        WorkManager.getInstance(context).getWorkInfosByTagLiveData(workTag).observe(lifecycleOwner, workInfos -> {
+        LiveData<List<WorkInfo>> workLive = WorkManager.getInstance(context).getWorkInfosByTagLiveData(workTag);
+        Observer<List<WorkInfo>> workObserver = workInfos -> {
             if (!holder.icon_download.getTag().equals(episodeFileName))
                 return; // ---- avoid showing progress on recycled views --
 
@@ -393,7 +407,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             } else {
                 holder.pbDownload.setVisibility(View.GONE);
             }
-        });
+        };
+        holder.workLive = workLive;
+        holder.workObserver = workObserver;
+        workLive.observe(lifecycleOwner, workObserver);
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.clearObservers();
     }
 
     @Override
@@ -409,6 +432,22 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
         ZikFile zikFile;
+        // what this row currently observes (see onBindViewHolder / onViewRecycled)
+        LiveData<ZikFile> zikLive;
+        Observer<ZikFile> zikObserver;
+        LiveData<List<WorkInfo>> workLive;
+        Observer<List<WorkInfo>> workObserver;
+
+        void clearObservers() {
+            if (zikLive != null && zikObserver != null)
+                zikLive.removeObserver(zikObserver);
+            if (workLive != null && workObserver != null)
+                workLive.removeObserver(workObserver);
+            zikLive = null;
+            zikObserver = null;
+            workLive = null;
+            workObserver = null;
+        }
         LinearLayout llMain;
         ProgressBar pbDownload;
 
@@ -431,6 +470,25 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private static void disableDownloadZone(ViewHolder holder) {
         holder.downloadZone.setOnClickListener(null);
         holder.downloadZone.setClickable(false);
+    }
+
+    /** Stops the "download requested" pulse of an episode's icon when its download did not start after all. */
+    public void stopDownloadFlicker(RecyclerView recyclerView, long idEpisode) {
+        if (items == null)
+            return;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).idEpisode != idEpisode)
+                continue;
+            if (recyclerView.findViewHolderForAdapterPosition(i) instanceof ViewHolder holder) {
+                holder.flickerRunning = false;
+                if (holder.flickerAnim != null)
+                    holder.flickerAnim.cancel();
+                holder.flickerAnim = null;
+                holder.icon_download.setScaleX(1f);
+                holder.icon_download.setScaleY(1f);
+            }
+            return;
+        }
     }
 
     private AnimatorSet createFlickerAnimation(View view, ViewHolder holder) {

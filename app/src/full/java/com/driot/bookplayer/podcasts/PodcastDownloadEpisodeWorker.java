@@ -63,6 +63,11 @@ public class PodcastDownloadEpisodeWorker extends Worker {
         }
 
         File tempFile = new File(destPath + ".part");
+        // The podcast folder may not exist (yet, or any more: emptied by a cleanup): without it every attempt
+        // failed with ENOENT until the episode was given up.
+        File folder = tempFile.getParentFile();
+        if (folder != null && !folder.exists() && !folder.mkdirs())
+            myLogW("could not create the podcast folder " + folder);
         String httpsUrl = urlStr.replace("http://", "https://");
         try {
             try {

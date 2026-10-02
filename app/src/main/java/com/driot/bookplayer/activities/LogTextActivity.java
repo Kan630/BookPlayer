@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import java.util.Locale;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -237,7 +238,7 @@ public class LogTextActivity extends BaseActivity {
     private void filterList() {
         if (originalTextChunkArrayList == null)
             return;
-        String searchText = etSearch.getText().toString().toLowerCase();
+        String searchText = etSearch.getText().toString().toLowerCase(Locale.ROOT);
         boolean filterWAR = switchWAR.isChecked();
         boolean filterERR = switchERR.isChecked();
         boolean filterVER = switchVER.isChecked();
@@ -251,7 +252,7 @@ public class LogTextActivity extends BaseActivity {
             boolean matches = true;
 
             // Apply search filter (case-insensitive)
-            if (!searchText.isEmpty() && !text.toLowerCase().contains(searchText)) {
+            if (!searchText.isEmpty() && !text.toLowerCase(Locale.ROOT).contains(searchText)) {
                 matches = false;
             }
 

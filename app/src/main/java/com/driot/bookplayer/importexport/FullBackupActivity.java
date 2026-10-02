@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
@@ -45,7 +46,7 @@ public class FullBackupActivity extends BaseActivity {
     private View llProgress;
     private MaterialButton btnStart, btnStartRestore;
     private ProgressBar progressBar;
-    private MaterialButton btnCancelOperation;
+    private Button btnCancelOperation;
 
     private View llRestoreReading, llRestorePreview;
     private TextView tvPreviewDate, tvPreviewSize, tvPreviewDuration, tvPreviewContents;

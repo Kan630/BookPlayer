@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import java.util.Locale;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -163,7 +164,7 @@ public class SupportedExtensionsActivity extends BaseActivity {
             s = s.trim();
             if (s.isEmpty()) continue;
             // show as ".mp3"
-            list.add("." + s.toLowerCase());
+            list.add("." + s.toLowerCase(Locale.ROOT));
         }
         Collections.sort(list);
         return list;

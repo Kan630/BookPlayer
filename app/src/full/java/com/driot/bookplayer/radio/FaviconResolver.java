@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -53,7 +54,7 @@ public class FaviconResolver {
 
     private static boolean isStreamUrl(String url) {
         if (url == null) return false;
-        String lower = url.toLowerCase().split("\\?")[0]; // strip query params before checking
+        String lower = url.toLowerCase(Locale.ROOT).split("\\?")[0]; // strip query params before checking
         for (String ext : STREAM_EXTENSIONS) {
             if (lower.endsWith(ext)) return true;
         }

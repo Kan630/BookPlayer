@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import static com.driot.bookplayer.helpers.FlagHelper.getFlagResId;
 
 import android.view.LayoutInflater;
@@ -122,7 +123,7 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
     private void bindTagItem(@NonNull VH h, TagItem t) {
         String name = (t.name != null && !t.name.isEmpty())
-                ? t.name.substring(0, 1).toUpperCase() + t.name.substring(1) : "---";
+                ? t.name.substring(0, 1).toUpperCase(Locale.getDefault()) + t.name.substring(1) : "---";
         h.tvName.setText(name);
         h.tvCount.setText(String.valueOf(t.stationcount));
 
@@ -144,7 +145,7 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
     private void bindLanguageCard(@NonNull VH h, LanguageMapper.RadioLanguageCardItem card) {
         String name = (card.label != null && !card.label.isEmpty())
-                ? card.label.substring(0, 1).toUpperCase() + card.label.substring(1) : "---";
+                ? card.label.substring(0, 1).toUpperCase(Locale.getDefault()) + card.label.substring(1) : "---";
         h.tvName.setText(name);
         h.tvCount.setText(String.valueOf(card.stationcount));
 

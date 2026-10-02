@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import java.util.Locale;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -198,7 +199,7 @@ public class GetLibrivoxFragment extends LoggingFragment {
             myToastEE(null, getString(R.string.selected_language_error));
             return false;
         }
-        String lang = selectedLanguageItem.code3.toLowerCase();
+        String lang = selectedLanguageItem.code3.toLowerCase(Locale.ROOT);
         if (lang.isEmpty()) {
             myLogE(selectedLanguageItem.toString());
             String errStr = getString(R.string.unsupported_language) + " : [" + selectedLanguageItem.name + "]";

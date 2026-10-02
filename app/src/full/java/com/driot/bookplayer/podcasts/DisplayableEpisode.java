@@ -80,6 +80,20 @@ public class DisplayableEpisode {
         return de;
     }
 
+    /**
+     * Publication date for the screen, in the given (app) language. datePublishedPretty is the feed's English
+     * text and stays as it is: episode names are built from it.
+     */
+    public String datePublishedForDisplay(Locale locale) {
+        try {
+            long millis = Long.parseLong(datePublished) * 1000L;
+            return java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.LONG, java.text.DateFormat.SHORT,
+                    locale).format(new Date(millis));
+        } catch (Exception e) {
+            return datePublishedPretty != null ? datePublishedPretty : "";
+        }
+    }
+
     public static String prettyPrintDate(String datePublished) {
         if (datePublished == null) return "";
         try {
@@ -87,7 +101,7 @@ public class DisplayableEpisode {
             Date parsedDate = new Date(millis);
             SimpleDateFormat prettyFormat = new SimpleDateFormat("MMMM dd, yyyy h:mma", Locale.US);
             prettyFormat.setTimeZone(TimeZone.getDefault());
-            return prettyFormat.format(parsedDate).toLowerCase();
+            return prettyFormat.format(parsedDate).toLowerCase(Locale.getDefault());
         } catch (Exception ex) {
             return "";
         }

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.redownload;
 
+import java.util.Locale;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -124,7 +125,7 @@ public class RedownloadBookWorker extends Worker {
 
     /** Import may have cleaned up file names, so compare on letters and digits only. */
     private static String norm(String name) {
-        return name.toLowerCase().replaceAll("[^\\p{L}\\p{N}]", "");
+        return name.toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{N}]", "");
     }
 
     private int extractFromZip(File zipFile, List<RedownloadHelper.MissingTrack> missing) throws Exception {

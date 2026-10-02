@@ -1,5 +1,6 @@
 package com.driot.bookplayer.player;
 
+import java.util.Locale;
 import android.content.Context;
 import android.net.Uri;
 
@@ -271,7 +272,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         // If the real stream URL is buried in a proxy query param, or the URI
         // itself ends in .m3u8, force HLS so ExoPlayer doesn't try progressive
         // extractors and fail with ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED.
-        String uriStr = uri.toString().toLowerCase();
+        String uriStr = uri.toString().toLowerCase(Locale.ROOT);
         if (isHlsUrl(uriStr)) {
             builder.setMimeType(androidx.media3.common.MimeTypes.APPLICATION_M3U8);
             myLogD("setDataSource: forcing HLS mime type for " + uri);

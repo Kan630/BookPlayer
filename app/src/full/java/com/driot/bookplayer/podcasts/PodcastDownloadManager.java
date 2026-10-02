@@ -24,7 +24,8 @@ public class PodcastDownloadManager {
      *  (Settings > Download - separate for internal vs SD card) - PodcastDownloadEpisodeWorker
      *  itself has no free-space awareness, so without this a low-storage device would just retry
      *  a doomed download forever. */
-    public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes,
+    /** @return false when nothing was queued (not enough free storage, or no episode) */
+    public static boolean enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes,
             File targetFolder, Runnable onComplete) {
         long freeBytes = StorageHelper.getUsableSpaceForPath(targetFolder.getPath());
         int minFreeMb = StorageHelper.getMinFreeStorageMbForPath(context, targetFolder.getPath());
@@ -33,11 +34,11 @@ public class PodcastDownloadManager {
             long freeMB = freeBytes / (1024 * 1024);
             myLogW("enqueueDownloads: skipped, low storage (" + freeMB + "MB free, need " + minFreeMb + "MB)");
             myToastE(context.getString(R.string.podcast_download_skipped_low_storage, freeMB, minFreeMb));
-            return;
+            return false;
         }
 
         if (episodes == null || episodes.isEmpty())
-            return;
+            return false;
 
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
@@ -79,6 +80,7 @@ public class PodcastDownloadManager {
         }
 
         continuation.enqueue();
+        return true;
     }
 
 }

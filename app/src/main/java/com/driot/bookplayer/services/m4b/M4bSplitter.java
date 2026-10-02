@@ -220,7 +220,7 @@ public final class M4bSplitter {
     }
 
     /** The historical title extraction (M4bSplitWorker.extractCleanChapterTitle), kept for identical names. */
-    static String legacyTitle(Sample sample) {
+    public static String legacyTitle(Sample sample) {
         ByteBuffer buffer = sample.asByteBuffer();
         byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
@@ -229,7 +229,7 @@ public final class M4bSplitter {
         String raw = new String(Arrays.copyOfRange(data, 2, data.length), StandardCharsets.UTF_8);
         raw = raw.replaceAll("encd.*$", "")
                 .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
-                .replace("﻿", "")
+                .replace("\uFEFF", "")
                 .trim();
         return raw.isEmpty() ? "chapter" : raw;
     }

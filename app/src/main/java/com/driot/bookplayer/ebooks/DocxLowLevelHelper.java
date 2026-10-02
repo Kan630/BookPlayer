@@ -218,7 +218,7 @@ public final class DocxLowLevelHelper {
         current.title = "";
 
         for (Element el : elements) {
-            String tag = el.tagName().toLowerCase();
+            String tag = el.tagName().toLowerCase(Locale.ROOT);
             String text = el.text().trim();
             if (text.isEmpty())
                 continue;

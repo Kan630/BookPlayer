@@ -299,10 +299,10 @@ public class PodcastEpisodeFragment extends LoggingFragment
         recyclerEpisodes
                 .addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(requireContext(), Var.GRID_LAYOUT_SPACER)));
 
-        // Adapter needs a Context that is also a LifecycleOwner (it casts internally) -
-        // requireActivity() satisfies both; requireContext() would be a Hilt ContextWrapper here
-        // and fail that cast.
-        adapter = new PodcastEpisodeRVAdapter(requireActivity(), podcastFeed, podcastEpisodeViewModel, this);
+        // The Activity as Context (the adapter checks it is alive before late image loads; requireContext()
+        // would be a Hilt ContextWrapper here), the view lifecycle for its observers.
+        adapter = new PodcastEpisodeRVAdapter(requireActivity(), getViewLifecycleOwner(), podcastFeed,
+                podcastEpisodeViewModel, this);
         recyclerEpisodes.setAdapter(adapter);
 
         boolean isFavorite = podcast != null && podcast.isFavorite;
@@ -732,7 +732,8 @@ public class PodcastEpisodeFragment extends LoggingFragment
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         proceedWithDownload(podcastFeed.title, ep, podcastFeed.id);
                     })
-                    .setNegativeButton(android.R.string.cancel, null)
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> downloadNotStarted(ep))
+                    .setOnCancelListener(dialog -> downloadNotStarted(ep))
                     .show();
         } else {
             final android.content.Context appCtx = appContext();
@@ -750,7 +751,15 @@ public class PodcastEpisodeFragment extends LoggingFragment
             targetFolder.mkdirs();
         List<PodcastEpisode> singleList = new ArrayList<>();
         singleList.add(displayableEpisode.toPodcastEpisode());
-        PodcastDownloadManager.enqueueDownloads(requireContext(), feedId, singleList, targetFolder, null);
+        if (!PodcastDownloadManager.enqueueDownloads(requireContext(), feedId, singleList, targetFolder, null))
+            downloadNotStarted(displayableEpisode);
+    }
+
+    /** Refused (low storage) or declined by the user: the episode can be tapped again, its icon stops pulsing. */
+    private void downloadNotStarted(DisplayableEpisode ep) {
+        enqueuedEpisodeIds.remove(ep.idEpisode);
+        if (adapter != null && recyclerEpisodes != null)
+            adapter.stopDownloadFlicker(recyclerEpisodes, ep.idEpisode);
     }
 
     private void updateCollapseIcon() {

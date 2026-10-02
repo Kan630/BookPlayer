@@ -763,7 +763,7 @@ public class BookCandidate implements Parcelable {
                                 durationMs = (sampleDurations[i] * 1000) / timescale;
                             }
 
-                            String title = extractCleanChapterTitle(samples.get(i));
+                            String title = com.driot.bookplayer.services.m4b.M4bSplitter.legacyTitle(samples.get(i));
                             String tName = (i + 1) + ". " + title;
                             // trackList.add(tName);
                             AudioFileInfo afi = new AudioFileInfo(tName, tName, durationMs, 0, file.getUri().toString(), null);
@@ -849,7 +849,7 @@ public class BookCandidate implements Parcelable {
         long startTime = System.currentTimeMillis();
         myLogD("scanArchiveCombined() START for: " + name);
 
-        String fileName = safeName(archiveFile).toLowerCase();
+        String fileName = safeName(archiveFile).toLowerCase(Locale.ROOT);
         String ext = getExt(fileName);
 
         if (ext.equals("7z")) {
@@ -1303,7 +1303,7 @@ public class BookCandidate implements Parcelable {
             return;
         String[] prefixes = { "download/", "audiobooks/", "unzipped/" };
         for (String prefix : prefixes) {
-            if (audioBookName.toLowerCase().startsWith(prefix)) {
+            if (audioBookName.toLowerCase(Locale.ROOT).startsWith(prefix)) {
                 audioBookName = audioBookName.substring(prefix.length());
                 break; // Stop after the first match
             }
@@ -1390,7 +1390,7 @@ public class BookCandidate implements Parcelable {
 
                 while ((entry = zis.getNextEntry()) != null) {
                     if (!entry.isDirectory()) {
-                        String entryName = entry.getName().toLowerCase();
+                        String entryName = entry.getName().toLowerCase(Locale.ROOT);
                         myLogD("detectCoverForZip : " + entryName);
                         if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
                                 entryName.endsWith(".png") || entryName.endsWith(".webp")) {
@@ -1552,7 +1552,7 @@ public class BookCandidate implements Parcelable {
         }
 
         if ("Ebook".equals(type)) {
-            String fileName = safeName(file).toLowerCase();
+            String fileName = safeName(file).toLowerCase(Locale.ROOT);
             if (fileName.endsWith(".epub")) {
                 try {
                     java.util.Map<String, byte[]> zip = EpubCommonHelper.readZip(
@@ -1706,18 +1706,4 @@ public class BookCandidate implements Parcelable {
             myLogD(txt);
     }
 
-    private String extractCleanChapterTitle(Sample sample) {
-        java.nio.ByteBuffer buffer = sample.asByteBuffer();
-        byte[] data = new byte[buffer.remaining()];
-        buffer.get(data);
-        if (data.length < 2)
-            return "chapter";
-        String raw = new String(Arrays.copyOfRange(data, 2, data.length),
-                java.nio.charset.StandardCharsets.UTF_8);
-        raw = raw.replaceAll("encd.*$", "")
-                .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
-                .replace("\uFEFF", "")
-                .trim();
-        return raw.isEmpty() ? "chapter" : raw;
-    }
 }

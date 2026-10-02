@@ -563,7 +563,7 @@ public class ImportBookSingleActivity extends FullActivity {
                 if (audioBookTitle.isEmpty())
                     audioBookTitle = bookCandidate.audioBookName;
 
-                                FirebaseAnalyticsHelper.tellAnalyticsManualLoad(
+                FirebaseAnalyticsHelper.tellAnalyticsManualLoad(
                         bookCandidate.sourceType,
                         bookCandidate.fileExtension,
                         bookCandidate.sourceLocation,

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.services;
 
+import java.util.Locale;
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -1042,8 +1043,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private static boolean isHtmlLike(@Nullable String fileName, @Nullable String mimeType) {
-        String fn = fileName == null ? "" : fileName.toLowerCase();
-        String mt = mimeType == null ? "" : mimeType.toLowerCase();
+        String fn = fileName == null ? "" : fileName.toLowerCase(Locale.ROOT);
+        String mt = mimeType == null ? "" : mimeType.toLowerCase(Locale.ROOT);
         if (mt.contains("html") || mt.contains("xhtml") || mt.contains("xml") || mt.contains("application/xhtml"))
             return true;
         return fn.endsWith(".html") || fn.endsWith(".htm") || fn.endsWith(".xhtml") || fn.endsWith(".xml");

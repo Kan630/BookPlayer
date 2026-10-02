@@ -1,5 +1,6 @@
 package com.driot.bookplayer.librivox;
 
+import java.util.Locale;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
@@ -68,7 +69,7 @@ public class LibrivoxRepository {
 
         String fullQuery = "collection:librivoxaudio AND language:(" + lang + ")";
         if (!query.isEmpty()) {
-            String normalizedQuery = query.toLowerCase().replace(",", "");
+            String normalizedQuery = query.toLowerCase(Locale.ROOT).replace(",", "");
             fullQuery += " AND (title:(" + normalizedQuery + ") OR creator:("
                     + normalizedQuery + "))";
         }
@@ -231,7 +232,7 @@ public class LibrivoxRepository {
         }
 
         // Map ISO codes
-        switch (s.toLowerCase()) {
+        switch (s.toLowerCase(Locale.ROOT)) {
             case "eng": return "English";
             case "fre":
             case "fra": return "French";

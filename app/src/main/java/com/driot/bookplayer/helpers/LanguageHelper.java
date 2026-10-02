@@ -1,5 +1,6 @@
 package com.driot.bookplayer.helpers;
 
+import java.util.Locale;
 import android.content.Context;
 import android.view.View;
 import android.widget.AdapterView;
@@ -144,7 +145,7 @@ public class LanguageHelper {
      */
     public static String getCountryForLanguage(String languageCode) {
         if (languageCode == null) return null;
-        switch (languageCode.toLowerCase()) {
+        switch (languageCode.toLowerCase(Locale.ROOT)) {
             case "en": return "US";  // English
             case "fr": return "FR";  // French
             case "es": return "ES";  // Spanish

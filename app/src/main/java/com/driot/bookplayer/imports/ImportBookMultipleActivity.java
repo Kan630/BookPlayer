@@ -579,8 +579,8 @@ public class ImportBookMultipleActivity extends FullActivity {
                     }
                 }
                 if (importableCount > 0) {
-                    myToast(getString(R.string.import_started_for) + " " + importableCount + " book"
-                            + (importableCount > 1 ? "s" : ""));
+                    myToast(getString(R.string.import_started_for) + " "
+                            + getString(R.string.full_restore_preview_count_books, importableCount));
                 } else {
                     myToast(getString(R.string.massimport_all_aready_imported));
                 }

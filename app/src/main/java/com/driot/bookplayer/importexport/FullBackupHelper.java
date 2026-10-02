@@ -1,5 +1,6 @@
 package com.driot.bookplayer.importexport;
 
+import java.util.Locale;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -197,11 +198,11 @@ public class FullBackupHelper {
             if (!StorageHelper.isOnSdCard(context, Uri.parse(path))) {
                 return false;
             }
-            String lower = Uri.decode(path).toLowerCase();
+            String lower = Uri.decode(path).toLowerCase(Locale.ROOT);
             if (lower.contains("/android/") || lower.contains(":android/")) {
                 return false;
             }
-            return !lower.startsWith(context.getFilesDir().getAbsolutePath().toLowerCase());
+            return !lower.startsWith(context.getFilesDir().getAbsolutePath().toLowerCase(Locale.ROOT));
         } catch (Exception e) {
             return false;
         }

@@ -476,7 +476,7 @@ public final class Mp4ChapterReader {
     }
 
     static String cleanTitle(String s) {
-        return s.replace("﻿", "").replaceAll("\\p{Cntrl}", " ").trim();
+        return s.replace("\uFEFF", "").replaceAll("\\p{Cntrl}", " ").trim();
     }
 
     /**

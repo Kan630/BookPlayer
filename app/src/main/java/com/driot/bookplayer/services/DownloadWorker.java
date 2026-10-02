@@ -266,6 +266,9 @@ public class DownloadWorker extends ImportWorker {
         String localUri;
     }
 
+    // getStopReason() is a plain getter in WorkManager (the reason is set on every API level); lint only sees
+    // its @RequiresApi(31). Below Android 12 a system stop reads as "unknown", an app cancel as cancelled.
+    @android.annotation.SuppressLint("NewApi")
     private Result pollUntilDone(DownloadManager dm, long dmId, String destFolder) {
         int lastStatus = -1;
         int lastPercent = -1;

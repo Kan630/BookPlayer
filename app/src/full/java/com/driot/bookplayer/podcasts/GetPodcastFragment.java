@@ -1,5 +1,6 @@
 package com.driot.bookplayer.podcasts;
 
+import java.util.Locale;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,7 +99,7 @@ public class GetPodcastFragment extends LoggingFragment {
             }
             query = "";
             LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
-            lang = selectedLang.getTwoLetterCode().toLowerCase();
+            lang = selectedLang.getTwoLetterCode().toLowerCase(Locale.ROOT);
 
             Bundle args = new Bundle();
             args.putString("query", query);
@@ -146,7 +147,7 @@ public class GetPodcastFragment extends LoggingFragment {
             return;
         }
         query = Tonio.cleanSearchString(editTextPodcast.getText());
-        lang = spinnerLang.getSelectedItem().toString().toLowerCase();
+        lang = spinnerLang.getSelectedItem().toString().toLowerCase(Locale.ROOT);
 
         if (lang.isEmpty()) {
             myToast(getString(R.string.selected_language_error));

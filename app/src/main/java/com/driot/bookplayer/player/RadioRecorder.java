@@ -1,5 +1,6 @@
 package com.driot.bookplayer.player;
 
+import java.util.Locale;
 import android.content.Context;
 
 import com.driot.bookplayer.global.Option;
@@ -80,7 +81,7 @@ public class RadioRecorder extends LoggerHelper {
     }
 
     public static boolean canRecord(String url) {
-        return url != null && !url.isEmpty() && !ExoRadioPlayerEngine.isHlsUrl(url.toLowerCase());
+        return url != null && !url.isEmpty() && !ExoRadioPlayerEngine.isHlsUrl(url.toLowerCase(Locale.ROOT));
     }
 
     public boolean isRecording() {

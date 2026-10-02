@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import android.app.Application;
 import android.content.Context;
 
@@ -290,7 +291,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
         while (it.hasNext()) {
             ApiStation s = it.next();
             if (s.name == null) continue;
-            String trimmed = s.name.toLowerCase().replaceAll("[^a-z0-9]", "");
+            String trimmed = s.name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
 
             if (LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmed, censoredRadios)) {
                 myLogW("[" + s.name + "] is censored. trimmedName=" + trimmed);

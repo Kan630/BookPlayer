@@ -1,5 +1,6 @@
 package com.driot.bookplayer.quickshare;
 
+import java.util.Locale;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -324,8 +325,8 @@ public class NearbyShareReceiverHelper {
 
             // Check for cover image name to separate UI callback if needed, or just let it
             // pass
-            if (destFile.getName().toLowerCase().contains("cover") || destFile.getName().toLowerCase().endsWith(".jpg")
-                    || destFile.getName().toLowerCase().endsWith(".png")) {
+            if (destFile.getName().toLowerCase(Locale.ROOT).contains("cover") || destFile.getName().toLowerCase(Locale.ROOT).endsWith(".jpg")
+                    || destFile.getName().toLowerCase(Locale.ROOT).endsWith(".png")) {
                 if (progressCallback != null) {
                     progressCallback.onCoverReceived(destFile.getAbsolutePath());
                 }

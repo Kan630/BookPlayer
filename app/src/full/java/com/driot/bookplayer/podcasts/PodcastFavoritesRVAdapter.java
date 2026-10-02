@@ -157,24 +157,32 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             autoDownloadContainer.setVisibility(podcast.autoDownload ? View.VISIBLE : View.GONE);
 
             /// STATS
+            final long boundPodcastId = podcast.getId();
+            itemView.setTag(boundPodcastId);
+            final android.content.Context appContext = itemView.getContext().getApplicationContext();
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 Folder folder = (podcast.idFolder != null && podcast.idFolder > 0)
-                        ? AppDatabase.getDatabase(itemView.getContext()).folderDao().getById(podcast.idFolder)
+                        ? AppDatabase.getDatabase(appContext).folderDao().getById(podcast.idFolder)
                         : null;
-                long timeListenedSec = AppDatabase.getDatabase(itemView.getContext()).podcastDao()
+                long timeListenedSec = AppDatabase.getDatabase(appContext).podcastDao()
                         .getTotalTimeListenedForPodcast(podcast.getId());
 
                 new Handler(Looper.getMainLooper()).post(() -> {
+                    // the row was reused for another podcast while the stats were read
+                    if (!Long.valueOf(boundPodcastId).equals(itemView.getTag()))
+                        return;
                     String listenedFor = timeListenedSec > 0
                             ? itemView.getContext().getString(R.string.podcast_listened_for,
                                     Tonio.formatTime(timeListenedSec * 1000))
                             : null;
 
                     if (folder != null) {
-                        String nbFile = folder.nbZikFile + " tracks";
+                        String nbFile = itemView.getResources().getQuantityString(R.plurals.tracks_count,
+                                (int) folder.nbZikFile, (int) folder.nbZikFile);
                         String duration = Tonio.formatTime(folder.getDuration());
                         String percentDone = String.format(Locale.US, "%.0f", folder.getPercentdone());
-                        String line1 = nbFile + " · " + duration + " · " + percentDone + "% done";
+                        String line1 = nbFile + " · " + duration + " · " + percentDone + "% "
+                                + itemView.getContext().getString(R.string.listened);
                         setStatsText(folderStats, line1, listenedFor);
                     } else if (listenedFor != null) {
                         setStatsText(folderStats, null, listenedFor);

@@ -273,7 +273,7 @@ public class StatsFragment extends LoggingFragment {
     private static String getCountryFromTelephonyManager(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
-        return countryIso != null ? countryIso.toUpperCase() : null;
+        return countryIso != null ? countryIso.toUpperCase(Locale.ROOT) : null;
     }
 
     private String getKindOfTheme() {

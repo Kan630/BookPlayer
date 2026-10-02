@@ -871,7 +871,7 @@ public class ImageHelper {
         if (s.isEmpty())
             return "";
         int cp = s.codePointAt(0);
-        return Character.isLetterOrDigit(cp) ? new String(Character.toChars(cp)).toUpperCase() : "";
+        return Character.isLetterOrDigit(cp) ? new String(Character.toChars(cp)).toUpperCase(Locale.getDefault()) : "";
     }
 
     private static boolean isCJK(int codePoint) {

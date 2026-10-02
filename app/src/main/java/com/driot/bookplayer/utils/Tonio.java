@@ -387,7 +387,7 @@ public class Tonio {
         } else {
             s = "";
         }
-        return s.toLowerCase();
+        return s.toLowerCase(Locale.ROOT);
     }
 
     public static String getSubFolders(String strFrom, String strPath) {
@@ -430,7 +430,7 @@ public class Tonio {
         // DocumentFile.fromSingleUri(this, uri_given).getType;
         String type;
         final String extension = getExtension(fileName);
-        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
         if (type == null)
             type = "*/*";
         return type;
@@ -490,7 +490,7 @@ public class Tonio {
                                 String fileName = cursor.getString(nameIndex);
                                 int dotIndex = fileName.lastIndexOf('.');
                                 if (dotIndex >= 0) {
-                                    extension = fileName.substring(dotIndex + 1).toLowerCase();
+                                    extension = fileName.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
                                 }
                             }
                         } finally {
@@ -502,7 +502,7 @@ public class Tonio {
                     if (path != null) {
                         int dotIndex = path.lastIndexOf('.');
                         if (dotIndex >= 0) {
-                            extension = path.substring(dotIndex + 1).toLowerCase();
+                            extension = path.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
                         }
                     }
                 }

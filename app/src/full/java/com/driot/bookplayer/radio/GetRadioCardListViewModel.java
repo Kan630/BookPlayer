@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import java.util.Locale;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -182,16 +183,16 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
         if (query == null || query.trim().isEmpty()) {
             result = new ArrayList<>(all);
         } else {
-            String q = query.trim().toLowerCase();
+            String q = query.trim().toLowerCase(Locale.ROOT);
             result = new ArrayList<>();
             for (TagItem item : all) {
-                if (item.name != null && item.name.toLowerCase().contains(q)) result.add(item);
+                if (item.name != null && item.name.toLowerCase(Locale.ROOT).contains(q)) result.add(item);
             }
         }
 
         Comparator<TagItem> comp;
         if ("alpha".equals(tagSortMode)) {
-            comp = Comparator.comparing(i -> i.name != null ? i.name.toLowerCase() : "");
+            comp = Comparator.comparing(i -> i.name != null ? i.name.toLowerCase(Locale.ROOT) : "");
             if ("desc".equals(tagSortDir)) comp = comp.reversed();
         } else {
             comp = Comparator.comparingInt(i -> i.stationcount);
@@ -210,16 +211,16 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
         if (query == null || query.trim().isEmpty()) {
             result = new ArrayList<>(all);
         } else {
-            String q = query.trim().toLowerCase();
+            String q = query.trim().toLowerCase(Locale.ROOT);
             result = new ArrayList<>();
             for (LanguageMapper.RadioLanguageCardItem card : all) {
-                if (card.label != null && card.label.toLowerCase().contains(q)) result.add(card);
+                if (card.label != null && card.label.toLowerCase(Locale.ROOT).contains(q)) result.add(card);
             }
         }
 
         Comparator<LanguageMapper.RadioLanguageCardItem> comp;
         if ("alpha".equals(tagSortMode)) {
-            comp = Comparator.comparing(c -> c.label != null ? c.label.toLowerCase() : "");
+            comp = Comparator.comparing(c -> c.label != null ? c.label.toLowerCase(Locale.ROOT) : "");
             if ("desc".equals(tagSortDir)) comp = comp.reversed();
         } else {
             comp = Comparator.comparingInt(c -> c.stationcount);
@@ -255,7 +256,7 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
                 }
             } else {
                 // Unknown language (not in MAP) — solo card
-                String soloKey = "unknown:" + item.name.toLowerCase();
+                String soloKey = "unknown:" + item.name.toLowerCase(Locale.ROOT);
                 if (!groups.containsKey(soloKey)) {
                     LanguageMapper.Mapping solo = new LanguageMapper.Mapping("", "", 0);
                     groups.put(soloKey, new LanguageMapper.RadioLanguageCardItem(

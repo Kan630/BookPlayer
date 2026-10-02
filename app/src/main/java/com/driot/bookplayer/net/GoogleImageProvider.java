@@ -1,5 +1,6 @@
 package com.driot.bookplayer.net;
 
+import java.util.Locale;
 import android.content.Context;
 
 import com.driot.bookplayer.global.Var;
@@ -59,9 +60,9 @@ public class GoogleImageProvider implements CoverSearchProvider {
                 }
 
                 // Skip common Google UI/tracking images and social media icons
-                String srcLower = src.toLowerCase();
+                String srcLower = src.toLowerCase(Locale.ROOT);
                 String alt = img.attr("alt");
-                String altLower = alt.toLowerCase();
+                String altLower = alt.toLowerCase(Locale.ROOT);
 
                 if (srcLower.contains("googlelogo") || srcLower.contains("clear.png")
                         || srcLower.contains("/images/branding/")
