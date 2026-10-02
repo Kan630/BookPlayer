@@ -581,6 +581,9 @@ public class PermissionHandlingTest implements LogSupport {
                         out.add(p);
                 }
             }
+        } catch (SecurityException noStoragePermission) {
+            // Before Android 13 MediaStore can't be read without the storage permission, and this class runs
+            // with it revoked on purpose: no fixture list then, the caller skips (Assume) instead of failing.
         }
         return out;
     }

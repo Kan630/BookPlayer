@@ -233,6 +233,19 @@ public class LoadManyBookTest implements LogSupport {
                     + "Open Folder (or Mass Import), pick the 'fixtures' folder once, then cancel out of "
                     + "the import screen that follows - that persists a grant this test will reuse from "
                     + "then on.");
+            // Without the grant the files are found through MediaStore / the file system: before Android 13 that
+            // needs the storage permission, which the ordered suite revokes for PermissionHandlingTest.
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+                for (String perm : new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE }) {
+                    try {
+                        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                                .grantRuntimePermission(appContext.getPackageName(), perm);
+                    } catch (Exception e) {
+                        myLogW("could not grant " + perm + " : " + e);
+                    }
+                }
+            }
             fixturesRootFile = findFixturesRoot(appContext);
             if (fixturesRootFile == null) {
                 throw new AssertionError("No 'fixtures' directory found on any mounted storage volume "

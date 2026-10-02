@@ -132,6 +132,17 @@ public final class PlaybackCommands {
     }
 
     public static void stop(Context ctx) {
+        // Through the media session when it is connected: no service start involved, so no foreground-service
+        // promise to keep (the intent below was the top ANR when the service was idle).
+        MediaControllerCompat mc = mcOrNull(ctx);
+        if (mc != null) {
+            try {
+                mc.getTransportControls().sendCustomAction("CMD_STOP", null);
+                return;
+            } catch (Throwable t) {
+                myLogW("stop via media session failed, falling back to the intent : " + t);
+            }
+        }
         // Hard stop via intent keeps working even if controller is not attached
         try {
             ContextCompat.startForegroundService(ctx,

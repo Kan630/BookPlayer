@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -223,13 +222,21 @@ public class PodcastSyncWorker extends LoggingWorker {
                         }
                         
                         // Notify MediaService that this episode finished downloading so it can seamlessly switch to the local file
-                        Intent downloadIntent = new Intent(getApplicationContext(), MediaService.class)
-                                .setAction(Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED)
-                                .putExtra(Intents.EXTRA_EPISODE_ID, episode.id)
-                                .putExtra(Intents.EXTRA_ZIKFILE_ID, newZikFileId)
-                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                .putExtra(Intents.EXTRA_CALLER, "PodcastSyncWorker");
-                        ContextCompat.startForegroundService(getApplicationContext(), downloadIntent);
+                        // Only a running service cares (it may be streaming this very episode). A plain start, never
+                        // a foreground-service start: from this background worker Android 12+ refuses that one
+                        // (ForegroundServiceStartNotAllowedException), and the exception ended the sync after the
+                        // first new file - the other downloaded episodes waited for a later sync.
+                        if (MediaService.isRunning) {
+                            try {
+                                getApplicationContext().startService(new Intent(getApplicationContext(), MediaService.class)
+                                        .setAction(Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED)
+                                        .putExtra(Intents.EXTRA_EPISODE_ID, episode.id)
+                                        .putExtra(Intents.EXTRA_ZIKFILE_ID, newZikFileId)
+                                        .putExtra(Intents.EXTRA_CALLER, "PodcastSyncWorker"));
+                            } catch (Exception e) {
+                                myLogW("could not tell MediaService about the downloaded episode : " + e);
+                            }
+                        }
                     } else {
                         myLogEE(null, "duration == 0 " + file.getName());
                     }

@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -454,8 +453,12 @@ public class EbookDetailFragment extends LoggingFragment {
 
         List<VoiceItem> matches = new ArrayList<>();
         try {
-            for (Voice v : ttsManager.getVoices()) {
-                VoiceItem vi = new VoiceItem(v);
+            // The list AppTtsManager already built off the main thread: building a VoiceItem per voice here
+            // (ICU display-name lookups for hundreds of voices, on the main thread) is the VoiceItem.prettyLocale ANR
+            List<VoiceItem> all = ttsManager.getVoicesLiveData().getValue();
+            if (all == null)
+                return null;
+            for (VoiceItem vi : all) {
                 if (lang2.equalsIgnoreCase(vi.twoLetterCodeLanguage)) {
                     matches.add(vi);
                 }

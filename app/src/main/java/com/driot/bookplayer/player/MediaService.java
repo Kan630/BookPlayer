@@ -486,6 +486,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         public void onCustomAction(@NonNull String action, Bundle extras) {
             myLog("MediaSessionCompat.Callback - onCustomAction : " + action);
             switch (action) {
+                case "CMD_STOP": {
+                    // same as the intent command, without a service start (see PlaybackCommands.stop)
+                    shutdown(false);
+                    break;
+                }
                 case Intents.CMD_SET_SPEED: {
                     double s = extras != null ? extras.getDouble(Intents.EXTRA_SPEED, 1.0) : 1.0;
                     setSpeed(s); // your engine.setSpeed(...)
@@ -1175,8 +1180,66 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
     // ------ START COMMAND
     // ----------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Foreground contract. Every Context.startForegroundService() call must be answered by startForeground(),
+    // also when the command ends in a shutdown or shows nothing: otherwise Android reports an ANR 10-40 s later
+    // ("did not then call Service.startForeground()"), with an idle main thread - the top ANR in production
+    // (stop from the mini player when the service was idle). Commands can't tell how they were started, so
+    // onStartCommand() checks after each one: not in foreground and nothing shown -> show and remove at once.
+    private boolean inForeground;
+    private boolean fgStartedThisCommand;
+    // set when a one-off command (sleep timer, speed, "user did something"...) only got the generic "Please wait"
+    // placeholder: with nothing loaded, nothing ever replaced it and it stayed in the notification shade
+    private boolean genericPlaceholderShown;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        fgStartedThisCommand = false;
+        genericPlaceholderShown = false;
+        final boolean wasForeground = inForeground; // already in foreground: the start asked for nothing more
+        int result = handleStartCommand(intent, flags, startId);
+        if (intent != null && !wasForeground) {
+            if (!fgStartedThisCommand)
+                answerForegroundStartAndRelease(intent.getAction());
+            else if (genericPlaceholderShown && state.get() != ServiceState.STOPPED && nothingLoaded())
+                releasePlaceholder(intent.getAction());
+        }
+        return result;
+    }
+
+    private void answerForegroundStartAndRelease(String action) {
+        try {
+            Notification n = notif.buildPreparing(getString(R.string.app_name), "", NavHelper.navigateToMain(this));
+            if (startForegroundWithBuildCheck(n)) {
+                stopForeground(true);
+                inForeground = false;
+                notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+                myLogD("foreground start answered and released for command [" + action + "]");
+            }
+        } catch (Throwable t) {
+            myLogW("answerForegroundStartAndRelease(" + action + ") : " + t);
+        }
+    }
+
+    private boolean nothingLoaded() {
+        return engine == null || !(engine.isReady() || engine.isPlaying());
+    }
+
+    private void releasePlaceholder(String action) {
+        try {
+            stopForeground(true);
+            inForeground = false;
+            notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+            media.session().setPlaybackState(new PlaybackStateCompat.Builder()
+                    .setActions(currentActions())
+                    .setState(PlaybackStateCompat.STATE_NONE, 0L, 0f, System.currentTimeMillis())
+                    .build());
+            myLogD("nothing loaded: placeholder notification released after command [" + action + "]");
+        } catch (Throwable t) {
+            myLogW("releasePlaceholder(" + action + ") : " + t);
+        }
+    }
+
+    private int handleStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()");
         if (intent != null) {
             String strCallLog = "intent = " + intent +
@@ -1237,6 +1300,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 default:
                     myLogI("onStartCommand: promoting to foreground for action: " + action);
                     goForegroundPreparing("BookPlayer", null);
+                    genericPlaceholderShown = true;
                     diagnostics.logActiveNotification("generic-promote:" + action);
                     break;
             }
@@ -1329,7 +1393,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             default:
                 // Unknown action — keep service alive and ensure we have a notif if needed
                 myLogEE(null, "onStartCommand() - unknown action : [" + action + "]");
-                if (!showForegroundNotification(isPlaying())) {
+                if (nothingLoaded()) {
+                    // idle: onStartCommand() answers the start and leaves no notification
+                } else if (!showForegroundNotification(isPlaying())) {
                     myLogEE(null, "onStartCommand default: failed to show foreground notification");
                 }
                 return START_STICKY;
@@ -1400,7 +1466,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // Optional: if handling didn’t start playback, keep or drop FG deliberately
         main.postDelayed(() -> {
             boolean playing = (engine != null && engine.isPlaying());
-            if (!playing) {
+            if (!playing && PlayList.getInstance() == null && nothingLoaded()) {
+                // the button found nothing to play: no empty notification left behind
+                releasePlaceholder(Intent.ACTION_MEDIA_BUTTON);
+            } else if (!playing) {
                 // either keep a paused notif…
                 showForegroundNotification(false);
                 // …or drop foreground if you prefer:
@@ -1491,7 +1560,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         final ZikFile zf = (pl != null && pl.isZikFile()) ? pl.getZikFile() : null;
         if (zf == null) {
             myLogWA(null, "CMD_PREPARE_RESTORED: no restored ZikFile to prepare");
-            showForegroundNotification(false);
+            releasePlaceholder(Intents.CMD_PREPARE_RESTORED); // nothing to show: no empty notification left behind
             return START_STICKY;
         }
         // loadAndPlayTrack hits the DB: never on main
@@ -1674,6 +1743,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             stopForeground(true);
         } catch (Throwable ignored) {
         }
+        inForeground = false;
         try {
             if (notif != null)
                 notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
@@ -2773,6 +2843,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             } else {
                 startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
             }
+            inForeground = true;
+            fgStartedThisCommand = true;
             return true;
         } catch (Exception e) {
             myLogEE(e, "startForegroundWithBuildCheck failed - FGS restriction?");

@@ -111,6 +111,8 @@ public class MainActivity extends FullActivity {
     public static final String EXTRA_NAV_DEST_ID = "EXTRA_NAV_DEST_ID";
     public static final String EXTRA_NAV_ARGS = "EXTRA_NAV_ARGS";
     public static final String EXTRA_NAV_DIRECT_LINK = "EXTRA_NAV_DIRECT_LINK";
+    /** Direct link opened from ANOTHER activity (player, import screen): see finishOnDirectLinkReturn. */
+    public static final String EXTRA_NAV_FINISH_ON_RETURN = "EXTRA_NAV_FINISH_ON_RETURN";
 
     /** Fragment-argument key some Settings screens read to decide whether to show their own
      * local title bar - preserved from the old SettingsHostActivity for compatibility. */
@@ -165,6 +167,16 @@ public class MainActivity extends FullActivity {
      * link) tab selection, since that supersedes any pending "return to caller" expectation. */
     private final Deque<DirectLink> directLinkReturnStack = new ArrayDeque<>();
 
+    /**
+     * True for an instance that only exists to show one direct-linked screen on top of another activity: the
+     * player's or the import screen's settings shortcut starts MainActivity while that activity is in front, so
+     * launchMode singleTop creates a second instance above it. Going back from the shortcut used to land on this
+     * second instance's Library - not on the player or the import in progress - and each use stacked one more
+     * MainActivity in the task. With this flag the instance finishes instead, revealing the screen it came from.
+     * Cleared as soon as the user picks a tab here (the instance is then used as a normal one).
+     */
+    private boolean finishOnDirectLinkReturn;
+
     /** One pending cross-tab jump: back-press on {@code destId} (while showing {@code targetTab})
      * dismisses that screen and reveals {@code originTab} again. */
     private static final class DirectLink {
@@ -200,6 +212,7 @@ public class MainActivity extends FullActivity {
             returnStack[i++] = dl.destId;
         }
         outState.putIntArray("directLinkReturnStack", returnStack);
+        outState.putBoolean("finishOnDirectLinkReturn", finishOnDirectLinkReturn);
     }
 
     @Override
@@ -207,6 +220,7 @@ public class MainActivity extends FullActivity {
         super.onRestoreInstanceState(savedInstanceState);
         HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
         currentNavSectionId = savedInstanceState.getInt("currentNavSectionId", R.id.nav_library);
+        finishOnDirectLinkReturn = savedInstanceState.getBoolean("finishOnDirectLinkReturn", false);
         int[] returnStack = savedInstanceState.getIntArray("directLinkReturnStack");
         directLinkReturnStack.clear();
         if (returnStack != null) {
@@ -283,7 +297,7 @@ public class MainActivity extends FullActivity {
                     myLogI("--- user press BACK --- from direct-linked screen -> return to tab " + pending.originTab);
                     directLinkReturnStack.pop();
                     dismissDirectLinkedScreen(navController, pending);
-                    selectTab(pending.originTab, true);
+                    returnFromDirectLink(pending);
                     return;
                 }
                 if (navController != null && navController.popBackStack()) {
@@ -335,6 +349,9 @@ public class MainActivity extends FullActivity {
             Pref.incrementAppLaunchCount();
             ShareHelper.handleDeepLink(this, getIntent());
             handleMediaSearchIntentIfAny(getIntent());
+            finishOnDirectLinkReturn = getIntent() != null
+                    && getIntent().getBooleanExtra(EXTRA_NAV_DIRECT_LINK, false)
+                    && getIntent().getBooleanExtra(EXTRA_NAV_FINISH_ON_RETURN, false);
             handleIntentNavigation(getIntent());
         }
 
@@ -466,9 +483,9 @@ public class MainActivity extends FullActivity {
                 // dismissed
             }
             directLinkReturnStack.pop();
-            myLogI("direct-linked screen dismissed -> return to tab " + pending.originTab);
+            myLogI("direct-linked screen dismissed (opened from tab " + pending.originTab + ")");
             // Not from inside the NavController's own dispatch: switching tabs detaches this host.
-            new Handler(Looper.getMainLooper()).post(() -> selectTab(pending.originTab, true));
+            new Handler(Looper.getMainLooper()).post(() -> returnFromDirectLink(pending));
         });
     }
 
@@ -539,9 +556,21 @@ public class MainActivity extends FullActivity {
     /** Ordinary tab selection (bottom nav bar tap, or an external Intent naming a tab with no
      * direct-link destination). Same-tab reselect resets that tab's graph to its own start,
      * matching every Host Activity's old navigateToRoot() behavior. */
+    /** A direct-linked screen was dismissed: back to the tab it was opened from, or close this instance when
+     * it was only opened on top of another activity to show that screen (finishOnDirectLinkReturn). */
+    private void returnFromDirectLink(DirectLink pending) {
+        if (finishOnDirectLinkReturn && directLinkReturnStack.isEmpty() && !isFinishing()) {
+            myLogI("direct-linked screen dismissed -> closing this instance, back to the screen it was opened from");
+            finish();
+            return;
+        }
+        selectTab(pending.originTab, true);
+    }
+
     public void selectTab(int tabId, boolean isDirectLinkReturn) {
         if (!isDirectLinkReturn) {
             directLinkReturnStack.clear();
+            finishOnDirectLinkReturn = false;
         }
         if (tabId == currentNavSectionId) {
             NavHostFragment host = getTabHost(tabId);
@@ -731,7 +760,19 @@ public class MainActivity extends FullActivity {
         i.putExtra(EXTRA_NAV_DEST_ID, destId);
         i.putExtra(EXTRA_NAV_ARGS, args);
         i.putExtra(EXTRA_NAV_DIRECT_LINK, true);
+        // From another activity (player, import screen) this creates a second MainActivity above it:
+        // that one closes when the settings screen is dismissed (see finishOnDirectLinkReturn).
+        android.app.Activity caller = activityOf(ctx);
+        if (caller != null && !(caller instanceof MainActivity))
+            i.putExtra(EXTRA_NAV_FINISH_ON_RETURN, true);
         ctx.startActivity(i);
+    }
+
+    @Nullable
+    private static android.app.Activity activityOf(Context ctx) {
+        while (ctx instanceof android.content.ContextWrapper wrapper && !(ctx instanceof android.app.Activity))
+            ctx = wrapper.getBaseContext();
+        return ctx instanceof android.app.Activity activity ? activity : null;
     }
 
     // Voice search ("Hey Google, play <query> on BookPlayer") launched as a plain activity
