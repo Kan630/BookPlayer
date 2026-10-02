@@ -81,6 +81,12 @@ public class FileHelper {
                 if (id != null && id.startsWith("raw:/")) {
                     Uri rawuri = Uri.parse(id);
                     path = rawuri.getPath();
+                } else if (id != null && id.startsWith("msf:")) {
+                    // Android 10+: "msf:<MediaStore row id>" (not a download row id, Long.valueOf threw)
+                    path = getDataColumn(context, MediaStore.Files.getContentUri("external"), "_id=?",
+                            new String[] { id.substring("msf:".length()) });
+                } else if (id == null || !TextUtils.isDigitsOnly(id)) {
+                    myLogW("processUri DownloadsProvider: unsupported document id [" + id + "]");
                 } else {
                     String[] contentUriPrefixesToTry = new String[] {
                             "content://downloads/public_downloads",

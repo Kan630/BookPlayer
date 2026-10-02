@@ -289,10 +289,10 @@ public class RadioResultsFragment extends LoggingFragment {
             if (Var.PLAY_MODE_RADIO.equals(state.playMode) && state.trackId > 0) {
                 resumeGlideAfterPlay();
                 AppDatabase.databaseWriteExecutor.execute(() -> {
-                    RadioStation rs = AppDatabase.getDatabase(requireContext().getApplicationContext())
+                    RadioStation rs = AppDatabase.getDatabase(appContext())
                             .radioStationDao().findById(state.trackId);
                     String uuid = (rs != null) ? rs.stationuuid : null;
-                    requireActivity().runOnUiThread(() -> adapter.setPlayingRadioStation(state.trackId, uuid));
+                    runOnUiIfAdded(() -> adapter.setPlayingRadioStation(state.trackId, uuid));
                 });
             } else {
                 adapter.setPlayingRadioStation(-1, null);

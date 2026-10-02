@@ -1,6 +1,9 @@
 package com.driot.bookplayer.utils.log;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -107,6 +110,34 @@ public abstract class LoggingFragment extends Fragment {
     private void myInsideLogDEE(Throwable t, String str) {
         if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLogEE(t, "Lifecycle", TAG_FROM_BRACKET + str);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    // BACKGROUND WORK HELPERS
+    // requireContext() / requireActivity() throw IllegalStateException once the user has left the screen:
+    // on an executor thread that is a crash. Background code uses these two instead.
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    private static final Handler UI_HANDLER = new Handler(Looper.getMainLooper());
+    private Context applicationContext;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        applicationContext = context.getApplicationContext();
+    }
+
+    /** Application context, valid on any thread from the first attach on (DB, files, workers - not for UI). */
+    protected Context appContext() {
+        return applicationContext;
+    }
+
+    /** Posts to the main thread; the action is dropped when this screen is gone by then. */
+    protected void runOnUiIfAdded(@NonNull Runnable action) {
+        UI_HANDLER.post(() -> {
+            if (isAdded() && getView() != null)
+                action.run();
+        });
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.settings.ui;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,6 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.TipHelper;
-import android.widget.Toast;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.HelpActivity;
@@ -145,7 +145,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         root.findViewById(R.id.btn_show_tips_again).setOnClickListener(v -> {
             myLogI("--- USER clicks SHOW TIPS AGAIN ---");
             TipHelper.resetAll();
-            Toast.makeText(requireContext(), R.string.utilities_tips_reset_done, Toast.LENGTH_SHORT).show();
+            myToast(getString(R.string.utilities_tips_reset_done));
         });
         root.findViewById(R.id.btn_delete_cache).setOnClickListener(v -> deleteCacheClick());
         root.findViewById(R.id.btn_delete_system_cache).setOnClickListener(v -> deleteSystemCacheClick());

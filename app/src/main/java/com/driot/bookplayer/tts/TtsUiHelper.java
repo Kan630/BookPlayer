@@ -96,7 +96,7 @@ public final class TtsUiHelper {
 
         final ArrayList<VoiceItem> all = new ArrayList<>();
         android.speech.tts.TextToSpeech ttsRaw = mgr.raw();
-        VoiceItem system = ttsRaw != null ? VoiceItem.makeSystemDefault(ttsRaw) : null;
+        VoiceItem system = ttsRaw != null ? VoiceItem.makeSystemDefault(ui, ttsRaw) : null;
         if (system != null)
             all.add(system);
         all.addAll(voices);

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
@@ -85,6 +86,16 @@ public class DatabaseBackupHelper {
 
     private static void copyToDownloads(Context context, File src, String displayName, String mimeType)
             throws IOException {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // MediaStore.Downloads only exists from Android 10 (NoClassDefFoundError before): plain file copy
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    BACKUP_FOLDER_NAME);
+            if (!dir.exists() && !dir.mkdirs())
+                throw new IOException("cannot create " + dir);
+            java.nio.file.Files.copy(src.toPath(), new File(dir, displayName).toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return;
+        }
         ContentValues values = new ContentValues();
         values.put(MediaStore.Downloads.DISPLAY_NAME, displayName);
         values.put(MediaStore.Downloads.MIME_TYPE, mimeType);

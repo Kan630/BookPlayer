@@ -372,7 +372,7 @@ public class GetOtherFragment extends LoggingFragment {
         }
         new Thread(() -> {
             boolean canReach = NetworkHelper.canReachUrl("https://bookplayer.driot.com");
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfAdded(() -> {
                 if (!isAdded()) return;
                 if (canReach)
                     callback.onResult(true);

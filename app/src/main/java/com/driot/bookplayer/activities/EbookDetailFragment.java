@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_EBOOK_GUTENDEX;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
+import android.content.Context;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -32,6 +33,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -185,7 +187,7 @@ public class EbookDetailFragment extends LoggingFragment {
             myLog("candidates : " + String.join(", ", candidates));
             new Thread(() -> {
                 String workingUrl = findFirstWorkingUrl(candidates);
-                requireActivity().runOnUiThread(() -> {
+                runOnUiIfAdded(() -> {
                     if (!isAdded()) return;
                     if (workingUrl != null) {
                         tvStatus.setText("");
@@ -263,11 +265,12 @@ public class EbookDetailFragment extends LoggingFragment {
         }
 
         myLogD("onBookRefreshed: cover changed or missing, re-downloading id=" + gutendexId);
+        final Context appContext = requireContext().getApplicationContext(); // requireContext() throws off-thread once detached
         new Thread(() -> {
-            String path = ImageHelper.forceDownloadGutendexImage(requireContext(), gutendexId, newCoverUrl);
+            String path = ImageHelper.forceDownloadGutendexImage(appContext, gutendexId, newCoverUrl);
             if (path != null && isAdded()) {
                 coverView.post(() -> {
-                    if (!isAdded()) return;
+                    if (!isAdded() || !ViewHelper.isContextAlive(coverView.getContext())) return;
                     try {
                         Glide.with(coverView.getContext())
                                 .load(new java.io.File(path))
@@ -284,8 +287,8 @@ public class EbookDetailFragment extends LoggingFragment {
 
     private void updateGetButtonEnabled() {
         AppDatabase.databaseReadExecutor.execute(() -> {
-            boolean running = ImportHelper.isAnyImportActiveSync(requireContext());
-            requireActivity().runOnUiThread(() -> {
+            boolean running = ImportHelper.isAnyImportActiveSync(appContext());
+            runOnUiIfAdded(() -> {
                 if (!isAdded()) return;
                 bGet.setEnabled(!running);
                 if (running) {
@@ -303,15 +306,15 @@ public class EbookDetailFragment extends LoggingFragment {
                 + "/gutendex_" + gutendexId;
 
         AppDatabase.databaseReadExecutor.execute(() -> {
-            if (AppDatabase.getDatabase(requireContext()).folderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
-                requireActivity().runOnUiThread(() -> {
+            if (AppDatabase.getDatabase(appContext()).folderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
+                runOnUiIfAdded(() -> {
                     if (!isAdded()) return;
                     myToast(getString(R.string.error_media_already_loaded_samePath));
                     bGet.setEnabled(true);
                 });
             } else {
-                NetworkHelper.logCurrentNetworkState(requireContext());
-                requireActivity().runOnUiThread(() -> {
+                NetworkHelper.logCurrentNetworkState(appContext());
+                runOnUiIfAdded(() -> {
                     if (isAdded()) handleNetworkPolicyThenDownload(url, futurePath);
                 });
             }

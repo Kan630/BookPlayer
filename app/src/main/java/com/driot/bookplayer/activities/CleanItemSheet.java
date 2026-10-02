@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -150,7 +149,7 @@ public class CleanItemSheet extends BottomSheetDialogFragment {
                     null, getString(R.string.clean_item_download_button), R.drawable.ic_download_action_24, v -> {
                         myLogI("--- USER downloads again folder " + folderId + " (Clean quick actions) ---");
                         RedownloadHelper.start(requireContext(), folderId);
-                        Toast.makeText(requireContext(), R.string.redownload_started, Toast.LENGTH_LONG).show();
+                        myToastLong(getString(R.string.redownload_started));
                         dismiss();
                     });
         }
@@ -261,8 +260,8 @@ public class CleanItemSheet extends BottomSheetDialogFragment {
                 sizeBytes = Math.max(0, sizeBytes - r.freedBytes);
                 if (!isAdded())
                     return;
-                Toast.makeText(app, getResources().getQuantityString(R.plurals.clean_item_done, r.deleted,
-                        r.deleted, Tonio.getReadableSize(r.freedBytes)), Toast.LENGTH_LONG).show();
+                myToastLong(getResources().getQuantityString(R.plurals.clean_item_done, r.deleted,
+                        r.deleted, Tonio.getReadableSize(r.freedBytes)));
                 getParentFragmentManager().setFragmentResult(PodcastHelper.EPISODE_CLEANUP_RESULT_KEY, new Bundle());
                 load();
             });

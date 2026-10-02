@@ -79,8 +79,10 @@ public class SettingsActivitySmokeTest implements LogSupport {
         int found = 0;
         for (int vid : expectedControlIds) {
             try {
-                // Make sure we scrolled near that section before checking its children.
-                onView(withId(vid)).check(matches(isDisplayed()));
+                // The control can be anywhere down the category's page (and off screen with a big font):
+                // being in the opened page and not hidden is what this smoke test is about
+                onView(withId(vid)).check(matches(androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility(
+                        androidx.test.espresso.matcher.ViewMatchers.Visibility.VISIBLE)));
                 found++;
             } catch (Throwable ignored) {
                 // keep scanning the rest; we just need at least one
@@ -132,7 +134,7 @@ public class SettingsActivitySmokeTest implements LogSupport {
                 R.id.spinner_download_user            // <-- replace
         });
         plan.put(R.id.section_utilities, new int[] {
-                R.id.chk_tech_log_file          // <-- replace
+                R.id.btn_reset_settings_values_to_default
         });
 
         // Run the loop: click -> bottom -> top -> check controls -> (optionally click again to collapse)
@@ -147,18 +149,50 @@ public class SettingsActivitySmokeTest implements LogSupport {
                 continue;
             }
 
-            // Bring the section into view then click its header (SettingsSectionView itself is clickable)
+            // Each category opens its own screen: the list has to be back before the next one is clicked
+            TestNavUtils.waitForViewVisible(R.id.section_play_behaviour, 5_000,
+                    "Settings category list did not come back before section " + sectionId);
             onView(withId(sectionId)).perform(scrollTo(), click());
+            // the category screen is up once the list is gone (single pane) - give the navigation a moment
+            for (int i = 0; i < 30 && !existsNow(expectedIds); i++)
+                android.os.SystemClock.sleep(100);
 
-            // Scroll the whole page to bottom and back to top
-            onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-            onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+            // Scroll the whole page to bottom and back to top (two-pane layouts have two scroll views: skipped)
+            try {
+                onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+                onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+            } catch (androidx.test.espresso.AmbiguousViewMatcherException twoPane) {
+                // list + detail side by side
+            }
 
             // Assert at least one of the expected controls for that section is visible
             assertAnyControlVisible(sectionId, expectedIds);
 
-            // Move on to the next section. If you want to collapse, uncomment the next line:
-            // onView(withId(sectionId)).perform(click());
+            // Single pane: back to the category list
+            if (!isDisplayedNow(R.id.section_play_behaviour))
+                androidx.test.espresso.Espresso.pressBack();
+        }
+    }
+
+    private static boolean existsNow(int[] viewIds) {
+        for (int viewId : viewIds) {
+            try {
+                onView(withId(viewId)).check(matches(androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility(
+                        androidx.test.espresso.matcher.ViewMatchers.Visibility.VISIBLE)));
+                return true;
+            } catch (Throwable notThere) {
+                // next one
+            }
+        }
+        return false;
+    }
+
+    private static boolean isDisplayedNow(int viewId) {
+        try {
+            onView(withId(viewId)).check(matches(isDisplayed()));
+            return true;
+        } catch (Throwable notDisplayed) {
+            return false;
         }
     }
 

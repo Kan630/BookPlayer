@@ -3,15 +3,18 @@ package com.driot.bookplayer.tts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FlagHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -90,25 +93,32 @@ public class VoiceItem {
         this.flagResIdCountry = flagResIdCountry;
     }
 
-    // --- ADD this factory to create the "system/default" VoiceItem ---
-    public static @Nullable VoiceItem makeSystemDefault(@NonNull TextToSpeech tts) {
+    /** The "system" entry of a voice list: no voice forced, the engine's default voice speaks. */
+    public static @Nullable VoiceItem makeSystemDefault(@NonNull Context ctx, @NonNull TextToSpeech tts) {
+        final String plain = ctx.getString(R.string.tts_voice_system_default);
         try {
             Locale loc;
-            Voice def = tts.getVoice();
+            // getDefaultVoice, not getVoice: getVoice is the voice in use, i.e. whatever another book last applied
+            Voice def = null;
+            try {
+                def = tts.getDefaultVoice();
+            } catch (Throwable ignored) {
+            }
+            if (def == null) def = tts.getVoice();
             if (def != null)  {
                 loc = def.getLocale();
-                myLogD("tts.getVoice(): " + def.getName());
+                myLogD("default voice: " + def.getName());
             } else {
                 loc = tts.getLanguage();
-                myLogW("tts.getLanguage(): " + loc.getCountry());
+                myLogW("no default voice, tts.getLanguage(): " + loc);
             }
 
             String lang = normalizeToTwoLetterLanguage(loc);
             String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
 
             String display = prettyLoc.isEmpty()
-                    ? "System (default)"
-                    : "System (default: " + prettyLoc + ")";
+                    ? plain
+                    : ctx.getString(R.string.tts_voice_system_default_with, prettyLoc);
             myLogD("makeSystemDefault (spinner entry) : [" + display + "]");
 
             int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang);
@@ -141,11 +151,30 @@ public class VoiceItem {
                     0, 0, false, false,
                     Collections.emptySet(),
                     "und",
-                    "System (default)",
-                    "System (default)",
+                    plain,
+                    plain,
                     0, 0
             );
         }
+    }
+
+    /**
+     * The "system" entry of a per-book voice list. A book left on "system" is read with the app-wide voice
+     * (Settings) when one is chosen there, and only otherwise with the engine default: the entry says which.
+     */
+    public static @Nullable VoiceItem makeBookDefault(@NonNull Context ctx, @NonNull TextToSpeech tts,
+                                                      @NonNull List<VoiceItem> voices) {
+        String appWide = Option.getTtsVoice();
+        if (appWide != null && !appWide.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(appWide)) {
+            for (VoiceItem v : voices) {
+                if (v == null || !appWide.equals(v.name)) continue;
+                String display = ctx.getString(R.string.tts_voice_app_default_with, v.displayName);
+                return new VoiceItem(Option.DEFAULT_VOICE, null, v.locale, v.quality, v.latency,
+                        v.requiresNetwork, v.embedded, Collections.emptySet(), v.twoLetterCodeLanguage,
+                        display, display, v.flagResIdLanguage, v.flagResIdCountry);
+            }
+        }
+        return makeSystemDefault(ctx, tts);
     }
 
 

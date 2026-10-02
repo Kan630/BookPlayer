@@ -141,18 +141,31 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 myLogI("---- user clicks on mini player root ----");
                 PlaybackCommands.resetLastUserAction(requireContext());
                 if (vm.getState() != null && vm.getState().getValue() != null) {
-                    long idPodcast = vm.getState().getValue().trackId;
-                    myLogD("idPodcast = " + idPodcast);
+                    // while an episode is streamed, the state's trackId is the Episode row id (not a Podcast id)
+                    long idEpisode = vm.getState().getValue().trackId;
+                    myLogD("idEpisode = " + idEpisode);
+                    // requireContext() off the main thread throws once the fragment is detached
+                    final android.content.Context ctx = requireContext().getApplicationContext();
                     AppDatabase.databaseReadExecutor.execute(() -> {
-                        Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
-                                .getById(idPodcast);
-                        Bundle args = new Bundle();
-                        args.putParcelable("podcast", podcast);
-                        startActivity(new Intent(requireContext(), com.driot.bookplayer.activities.MainActivity.class)
+                        com.driot.bookplayer.db.Episode episode = AppDatabase.getDatabase(ctx).episodeDao().getById(idEpisode);
+                        Podcast podcast = episode == null ? null
+                                : AppDatabase.getDatabase(ctx).podcastDao().getById(episode.idPodcast);
+                        Intent intent = new Intent(ctx, com.driot.bookplayer.activities.MainActivity.class)
                                 .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_TAB_ID, R.id.nav_podcast)
-                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
-                                .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args)
-                                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        if (podcast != null) {
+                            Bundle args = new Bundle();
+                            args.putParcelable("podcast", podcast);
+                            intent.putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_DEST_ID, R.id.podcastEpisodeFragment)
+                                    .putExtra(com.driot.bookplayer.activities.MainActivity.EXTRA_NAV_ARGS, args);
+                        } else {
+                            // no row to open: the Podcasts tab still shows the list the episode was played from
+                            myLogD("no podcast found for episode " + idEpisode + " -> Podcasts tab as it is");
+                        }
+                        v.post(() -> {
+                            if (isAdded())
+                                startActivity(intent);
+                        });
                     });
                 }
             });

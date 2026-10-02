@@ -272,8 +272,8 @@ public class LibrivoxDetailFragment extends LoggingFragment {
         String futurePath = getUnzipFolder(requireContext()).getAbsolutePath() + "/" + viewModel.identifier;
 
         AppDatabase.databaseReadExecutor.execute(() -> {
-            Folder folder = AppDatabase.getDatabase(requireContext()).folderDao().getFolderByPath(futurePath);
-            requireActivity().runOnUiThread(() -> {
+            Folder folder = AppDatabase.getDatabase(appContext()).folderDao().getFolderByPath(futurePath);
+            runOnUiIfAdded(() -> {
                 if (isAdded()) viewModel.existingFolder.setValue(folder);
             });
         });
@@ -312,8 +312,8 @@ public class LibrivoxDetailFragment extends LoggingFragment {
 
         // For new downloads, check if workflow is running
         AppDatabase.databaseReadExecutor.execute(() -> {
-            boolean running = ImportHelper.isAnyImportActiveSync(requireContext());
-            requireActivity().runOnUiThread(() -> {
+            boolean running = ImportHelper.isAnyImportActiveSync(appContext());
+            runOnUiIfAdded(() -> {
                 if (!isAdded()) return;
                 bGet.setEnabled(!running && viewModel.download_link.getValue() != null
                         && !viewModel.download_link.getValue().isEmpty());
@@ -537,7 +537,7 @@ public class LibrivoxDetailFragment extends LoggingFragment {
             }
 
             if (!isAdded()) return;
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfAdded(() -> {
                 if (!isAdded()) return;
                 if (!isCurrentlyOnline) {
                     return; // Prevent overwriting offline UI
@@ -559,13 +559,13 @@ public class LibrivoxDetailFragment extends LoggingFragment {
     private void checkThenDownload(String url) {
         String futurePath = getUnzipFolder(requireContext()).getAbsolutePath() + "/" + viewModel.identifier;
         AppDatabase.databaseReadExecutor.execute(() -> {
-            if (AppDatabase.getDatabase(requireContext()).folderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
-                requireActivity().runOnUiThread(() -> {
+            if (AppDatabase.getDatabase(appContext()).folderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
+                runOnUiIfAdded(() -> {
                     if (isAdded()) myToast(getString(R.string.error_media_already_loaded_samePath));
                 });
             } else {
-                NetworkHelper.logCurrentNetworkState(requireContext());
-                requireActivity().runOnUiThread(() -> {
+                NetworkHelper.logCurrentNetworkState(appContext());
+                runOnUiIfAdded(() -> {
                     if (!isAdded()) return;
                     if (!NetworkHelper.isConnected(requireContext())) {
                         myToast(getString(R.string.no_internet_connection));

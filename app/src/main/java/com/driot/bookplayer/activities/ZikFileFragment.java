@@ -424,7 +424,7 @@ public class ZikFileFragment extends LoggingFragment {
 
     private void persistAndRefresh(java.util.List<ZikFile> sorted) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase db = AppDatabase.getDatabase(requireContext().getApplicationContext());
+            AppDatabase db = AppDatabase.getDatabase(appContext());
             db.zikFileDao().persistOrder(sorted);
             // The LiveData observer in ZikFileFragment will automatically refresh the list
             // because persistOrder updates the DB, and getZikFilesLive(folderId) is observed.

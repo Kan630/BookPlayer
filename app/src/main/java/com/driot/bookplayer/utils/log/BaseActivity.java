@@ -124,6 +124,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState); //Hilt injection here
+        LocaleHelper.syncSystemAppLocaleOnce();
 
         int navId = getNavSectionId();
         if (navId > 0) {

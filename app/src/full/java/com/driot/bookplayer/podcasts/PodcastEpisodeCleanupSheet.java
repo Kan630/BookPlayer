@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -234,9 +233,9 @@ public class PodcastEpisodeCleanupSheet extends BottomSheetDialogFragment {
                 deleting = false;
                 if (!isAdded())
                     return;
-                Toast.makeText(app, getResources().getQuantityString(
+                myToastLong(getResources().getQuantityString(
                         recordings ? R.plurals.recording_cleanup_done : R.plurals.podcast_cleanup_done, r.removed,
-                        r.removed, Tonio.getReadableSize(r.freedBytes)), Toast.LENGTH_LONG).show();
+                        r.removed, Tonio.getReadableSize(r.freedBytes)));
                 getParentFragmentManager().setFragmentResult(PodcastHelper.EPISODE_CLEANUP_RESULT_KEY, new Bundle());
                 loadPreview();
             });

@@ -1,13 +1,14 @@
 package com.driot.bookplayer.helpers;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,21 @@ import com.driot.bookplayer.utils.MsgBox;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class ViewHelper {
+
+    /**
+     * False once the Activity behind this context is finishing or destroyed. To check before Glide.with(...)
+     * in anything that runs later (posted runnable, download callback): Glide throws "You cannot start a load
+     * for a destroyed activity". A view inside a Hilt fragment has a FragmentContextWrapper, hence the unwrapping.
+     */
+    public static boolean isContextAlive(Context context) {
+        while (context instanceof ContextWrapper wrapper && !(context instanceof Activity)) {
+            context = wrapper.getBaseContext();
+        }
+        if (context instanceof Activity activity) {
+            return !activity.isDestroyed() && !activity.isFinishing();
+        }
+        return context != null; // application context is always alive
+    }
 
     public static void showAlertDialogText(Context context, CharSequence text, CharSequence title) {
         MsgBox.info(context, title != null ? title : "", text != null ? text : "");
@@ -80,7 +96,7 @@ public class ViewHelper {
                     }
                 }
             } else {
-                Toast.makeText(context, context.getString(R.string.Clipboard_is_empty), Toast.LENGTH_SHORT).show();
+                myToast(context.getString(R.string.Clipboard_is_empty));
             }
         } catch (Exception e) {
             myToastEE(e, context.getString(R.string.error) + " : " + e.getMessage());

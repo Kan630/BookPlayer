@@ -3,6 +3,7 @@ package com.driot.bookplayer.helpers;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
 
@@ -27,6 +28,36 @@ public class LocaleHelper {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList());
         } else {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tagOrSystem));
+        }
+    }
+
+    private static boolean systemAppLocaleChecked;
+
+    /**
+     * Android 13+: makes the system per-app language follow the app's own language setting, once per process,
+     * from the first activity. There AppCompat can only reach the system once an activity exists, so the call in
+     * MyApp.onCreate does nothing, and a setting that changed without going through the language screen (settings
+     * restored from a backup) left the two apart: screens in one language, texts built with the application
+     * context (import summary, workers, notifications) in the other.
+     */
+    public static void syncSystemAppLocaleOnce() {
+        if (systemAppLocaleChecked || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            return;
+        systemAppLocaleChecked = true;
+        try {
+            String tag = Option.getAppLanguage();
+            boolean wantSystem = TextUtils.isEmpty(tag) || Option.DEFAULT_LANGUAGE.equals(tag);
+            LocaleListCompat current = AppCompatDelegate.getApplicationLocales();
+            boolean same = wantSystem
+                    ? current.isEmpty()
+                    : !current.isEmpty() && Locale.forLanguageTag(tag).equals(current.get(0));
+            if (!same) {
+                KanLogger.myLogW("LocaleHelper", "system app language [" + current.toLanguageTags()
+                        + "] differs from the app setting [" + tag + "] -> applying the setting");
+                applyAppLocale(tag);
+            }
+        } catch (Exception e) {
+            KanLogger.myLogW("LocaleHelper", "syncSystemAppLocaleOnce failed : " + e);
         }
     }
 

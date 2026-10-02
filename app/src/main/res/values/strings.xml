@@ -1209,6 +1209,9 @@
     <string name="tts_engine_still_warming_up">The TTS engine is still starting up - this can take longer right after switching engines. Please wait a moment and try again.</string>
     <string name="tts_error_voice_set_failed">Failed to apply voice</string>
     <string name="tts_voice_unavailable_using_default">Voice %1$s is not available right now (not downloaded, or it needs a connection). Using the default voice.</string>
+    <string name="tts_voice_system_default">System (default)</string>
+    <string name="tts_voice_system_default_with">System (default: %1$s)</string>
+    <string name="tts_voice_app_default_with">App voice (%1$s)</string>
     <string name="tts_error_synth_failed">Warm-up synthesis failed</string>
     <string name="source_flag">source flag</string>
     <string name="voice_name">voice name</string>

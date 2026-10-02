@@ -45,6 +45,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.helpers.CoverPickerHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -229,6 +230,10 @@ public class ImportBookSingleActivity extends FullActivity {
         TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnCancel = findViewById(R.id.btnCancel);
+        // The layout texts are plain English (IDE preview): put the translated ones
+        btnCancel.setText(android.R.string.cancel);
+        String confirm = getString(R.string.confirm);
+        btnConfirm.setText(confirm.isEmpty() ? confirm : confirm.substring(0, 1).toUpperCase(LocaleHelper.getLocale(this)) + confirm.substring(1));
         btnGoToExistingBook = findViewById(R.id.btnGoToExistingBook);
 
         findViewById(R.id.cvCover).setOnClickListener(this::openCoverPickerMenu);

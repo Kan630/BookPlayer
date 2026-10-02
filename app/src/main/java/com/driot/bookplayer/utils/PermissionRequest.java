@@ -1,5 +1,6 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,7 +19,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -200,7 +200,7 @@ public class PermissionRequest {
             Snackbar.make(
                     mLayout, id, Snackbar.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(mActivity, id, Toast.LENGTH_SHORT).show();
+            myToast(mActivity.getString(id));
         }
     }
 

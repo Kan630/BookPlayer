@@ -21,6 +21,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
 import com.driot.bookplayer.player.heatmaps.PlayTickDao;
@@ -261,6 +262,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
                     ZikFile current = ZikFilesRVAdapter.this.getItem(pos);
                     if (current == null || current.getId() != zikFileId) return;
+                    // screen closed while the cover was looked up: Glide.with would throw
+                    if (!ViewHelper.isContextAlive(ivZikFileCover.getContext())) return;
 
                     if (cover != null && !cover.isEmpty()) {
                         ivZikFileCover.setVisibility(View.VISIBLE);

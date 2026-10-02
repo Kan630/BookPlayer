@@ -204,11 +204,11 @@ public class NearbyShareFragment extends LoggingFragment {
 
     private void loadBookFiles() {
         new Thread(() -> {
-            List<ZikFile> files = AppDatabase.getDatabase(requireContext())
+            List<ZikFile> files = AppDatabase.getDatabase(appContext())
                     .zikFileDao()
                     .getZikFilesForFolder(folder.getId());
 
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfAdded(() -> {
                 if (!isAdded()) return;
                 long totalSize = 0;
                 for (ZikFile zikFile : files) {

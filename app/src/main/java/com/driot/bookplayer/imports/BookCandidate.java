@@ -710,7 +710,15 @@ public class BookCandidate implements Parcelable {
                     myLogW("Could not seek FD back to offset " + offset + " : " + e.getMessage());
                 }
 
-                // 2. Track Count
+                // 2. Track Count. The app's own reader first: it only walks the chapter boxes (a few ms, no heap),
+                // while mp4parser builds every sample table (40 MB of heap for an 18 h book, measured): scanning a
+                // big M4B a few times in a row ended in OutOfMemoryError (Crashlytics). mp4parser stays as the
+                // fallback for the files the own reader finds no usable chapters in.
+                if (previewChaptersWithOwnReader(context, file, listener, true)) {
+                    myLogD("scanM4BCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks="
+                            + tracksCount);
+                    return;
+                }
                 try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(fd).getChannel()) {
                     // Try refreshing path if possible to use FileDataSourceViaHeapImpl as it was
                     // working before. FileHelper.processUri() is side-effect-free (unlike
@@ -781,12 +789,14 @@ public class BookCandidate implements Parcelable {
             if (e instanceof java.nio.channels.ClosedByInterruptException || Thread.currentThread().isInterrupted()) {
                 myLogD("scanM4BCombined() interrupted (preview cancelled)");
             } else {
-                // mp4parser gives up on some files (malformed extra track, box it refuses): same fallback reader as
-                // M4bSplitter, so the preview shows the chapters the split will really produce
-                myLogWA(e, "mp4parser can't read the M4B, trying the fallback chapter reader");
-                if (audioFileInfoArrayList.isEmpty())
-                    previewChaptersWithFallbackReader(context, file, listener);
+                // mp4parser gives up on some files (malformed extra track, box it refuses), and the own reader
+                // found no usable chapters before it: the book is offered as a single track
+                myLogWA(e, "mp4parser can't read the M4B either");
             }
+        } catch (OutOfMemoryError oom) {
+            this.tracksCount = 1;
+            dataSource = null;
+            myLogWA(oom, "M4B too big for mp4parser, shown as a single track");
         }
 
         myLogD("scanM4BCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks=" + tracksCount);
@@ -794,19 +804,26 @@ public class BookCandidate implements Parcelable {
 
     private DataSource dataSource; // Temporary helper for scanM4BCombined
 
-    /** Chapters via Mp4ChapterReader + ChapterPlan: shown only when the split would accept them. */
-    private void previewChaptersWithFallbackReader(Context context, DocumentFile file, OnMetadataListener listener) {
+    /**
+     * Chapters via Mp4ChapterReader + ChapterPlan: shown only when the split would accept them.
+     * @return true when the chapters were found and listed
+     */
+    private boolean previewChaptersWithOwnReader(Context context, DocumentFile file, OnMetadataListener listener,
+                                                 boolean quiet) {
         try (android.content.res.AssetFileDescriptor afd = context.getContentResolver()
                 .openAssetFileDescriptor(file.getUri(), "r")) {
             if (afd == null)
-                return;
+                return false;
             try (java.io.FileInputStream in = new java.io.FileInputStream(afd.getFileDescriptor())) {
                 Mp4ChapterReader.Result r = Mp4ChapterReader.read(in.getChannel(), afd.getStartOffset(),
                         afd.getLength());
                 ChapterPlan plan = ChapterPlan.of(r.chapters, r.audioDurationMs);
                 if (!plan.ok()) {
-                    myLogWA(null, "M4B preview: no usable chapters (" + plan.rejectReason + ") | " + r.boxMap);
-                    return;
+                    if (quiet)
+                        myLogD("M4B preview: own reader has no usable chapters (" + plan.rejectReason + ")");
+                    else
+                        myLogWA(null, "M4B preview: no usable chapters (" + plan.rejectReason + ") | " + r.boxMap);
+                    return false;
                 }
                 this.tracksCount = plan.segments.size();
                 for (int i = 0; i < plan.segments.size(); i++) {
@@ -818,10 +835,13 @@ public class BookCandidate implements Parcelable {
                     if (listener != null)
                         listener.onTrackFound(afi);
                 }
-                myLogI("M4B preview from the fallback reader (" + r.source + "): " + tracksCount + " chapters");
+                myLogI("M4B preview from the own reader (" + r.source + "): " + tracksCount + " chapters");
+                return true;
             }
         } catch (Exception e) {
-            myLogWA(e, "M4B preview: fallback chapter reader failed");
+            if (!quiet)
+                myLogWA(e, "M4B preview: own chapter reader failed");
+            return false;
         }
     }
 
@@ -1129,7 +1149,7 @@ public class BookCandidate implements Parcelable {
         this.multipleBooksCount = state.ebookCount + state.bundleCount;
 
         if (state.pureEbookCount > 1) {
-            this.notSupportedReason = state.pureEbookCount + " ebooks found in folder, you could use MassImport instead";
+            this.notSupportedReason = context.getString(R.string.error_folder_multiple_books);
             return;
         }
 

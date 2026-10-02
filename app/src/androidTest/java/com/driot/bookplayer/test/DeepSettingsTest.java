@@ -175,6 +175,9 @@ public class DeepSettingsTest implements LogSupport {
         }
         editor.commit();
         com.driot.bookplayer.helpers.LocaleHelper.applyToApplicationResources(appContext);
+        // the language screen also sets the system per-app language (Android 13+): put that one back too
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> com.driot.bookplayer.helpers.LocaleHelper.applyAppLocale(Option.getAppLanguage()));
         myLogI("restored after the settings stress : " + savedSettings);
     }
 

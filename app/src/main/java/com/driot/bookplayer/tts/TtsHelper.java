@@ -387,7 +387,8 @@ public class TtsHelper {
 
         final ArrayList<VoiceItem> all = new ArrayList<>();
         final android.speech.tts.TextToSpeech ttsRaw = mgr.raw();
-        VoiceItem system = ttsRaw != null ? VoiceItem.makeSystemDefault(ttsRaw) : null;
+        // per-book list: "system" = the app-wide voice when one is set
+        VoiceItem system = ttsRaw != null ? VoiceItem.makeBookDefault(ui, ttsRaw, voices) : null;
         if (system != null)
             all.add(system);
         all.addAll(voices);

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.imports;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,7 +10,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -579,10 +579,10 @@ public class ImportBookMultipleActivity extends FullActivity {
                     }
                 }
                 if (importableCount > 0) {
-                    Toast.makeText(this, getString(R.string.import_started_for) + " " + importableCount + " book"
-                            + (importableCount > 1 ? "s" : ""), Toast.LENGTH_SHORT).show();
+                    myToast(getString(R.string.import_started_for) + " " + importableCount + " book"
+                            + (importableCount > 1 ? "s" : ""));
                 } else {
-                    Toast.makeText(this, getString(R.string.massimport_all_aready_imported), Toast.LENGTH_SHORT).show();
+                    myToast(getString(R.string.massimport_all_aready_imported));
                 }
                 finish();
             });

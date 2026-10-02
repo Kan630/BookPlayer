@@ -124,14 +124,14 @@ public class PodcastSearchResultsFragment extends LoggingFragment {
 
         adapter = new PodcastSearchResultsRVAdapter(podcastFeed -> {
             AppDatabase.databaseWriteExecutor.execute(() -> {
-                PodcastDao dao = AppDatabase.getDatabase(requireContext()).podcastDao();
+                PodcastDao dao = AppDatabase.getDatabase(appContext()).podcastDao();
                 podcast = dao.getPodcastByFeedId(podcastFeed.id);
                 if (podcast == null) {
                     podcast = PodcastHelper.fromPodcastFeed(podcastFeed);
                     dao.insert(podcast);
                 }
 
-                requireActivity().runOnUiThread(() -> {
+                runOnUiIfAdded(() -> {
                     Bundle args = new Bundle();
                     args.putParcelable("podcast", podcast);
                     Navigation.findNavController(rootView).navigate(R.id.podcastEpisodeFragment, args);

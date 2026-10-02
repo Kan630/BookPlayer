@@ -1,8 +1,8 @@
 package com.driot.bookplayer.redownload;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.driot.bookplayer.R;
 
@@ -16,7 +16,7 @@ public class RedownloadBookActivity extends Activity {
         long folderId = getIntent().getLongExtra(RedownloadHelper.KEY_FOLDER_ID, -1);
         if (folderId >= 0) {
             RedownloadHelper.start(this, folderId);
-            Toast.makeText(this, R.string.redownload_started, Toast.LENGTH_LONG).show();
+            myToastLong(getString(R.string.redownload_started));
         }
         finish();
     }

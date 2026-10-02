@@ -1192,7 +1192,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
 
     <string name="last_click">derniers clics</string>
 
-    <string name="last_change">dernier modifiés.</string>
+    <string name="last_change">derniers modifiés</string>
 
 
     <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>

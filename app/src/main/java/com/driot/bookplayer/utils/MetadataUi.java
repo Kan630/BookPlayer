@@ -1,5 +1,6 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -25,7 +26,7 @@ public final class MetadataUi {
     public static void showMetadataDialog(Context ctx, ZikFile z) {
         CharSequence body = buildPretty(ctx, z);
         if (body == null || body.length() == 0) {
-            android.widget.Toast.makeText(ctx, R.string.no_metadata_available, android.widget.Toast.LENGTH_SHORT).show();
+            myToast(ctx.getString(R.string.no_metadata_available));
             return;
         }
 

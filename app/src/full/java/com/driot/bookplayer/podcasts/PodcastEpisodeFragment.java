@@ -474,13 +474,13 @@ public class PodcastEpisodeFragment extends LoggingFragment
             Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
 
             if (podcast == null) {
-                PodcastHelper.addPodcastToDB(requireContext(), podcastFeed);
-                podcast = AppDatabase.getDatabase(requireContext()).podcastDao().getPodcastByFeedId(podcastFeed.id);
+                PodcastHelper.addPodcastToDB(appContext(), podcastFeed);
+                podcast = AppDatabase.getDatabase(appContext()).podcastDao().getPodcastByFeedId(podcastFeed.id);
             }
 
             podcast.isFavorite = !podcast.isFavorite;
             if (podcast.isFavorite) {
-                myToast(getString(R.string.podcast_favorite_add));
+                myToast(appContext().getString(R.string.podcast_favorite_add));
             }
             // Auto-download no longer requires favoriting first (and isn't reset by
             // unfavoriting) - the two are only linked the other way, in setAutoDownload().
@@ -488,8 +488,8 @@ public class PodcastEpisodeFragment extends LoggingFragment
 
             boolean favoriteState = podcast.isFavorite;
 
-            requireActivity().runOnUiThread(() -> updateFavoriteIconColor(favoriteState));
-            ImageHelper.processPendingImages(requireContext(), System.currentTimeMillis(), "podcast episode activity toggle favorites");
+            runOnUiIfAdded(() -> updateFavoriteIconColor(favoriteState));
+            ImageHelper.processPendingImages(appContext(), System.currentTimeMillis(), "podcast episode activity toggle favorites");
             FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(podcast.title, podcast.language);
         });
     }
@@ -506,7 +506,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
             List<DisplayableEpisode> refreshed = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-            requireActivity().runOnUiThread(() -> updateAdapter(refreshed));
+            runOnUiIfAdded(() -> updateAdapter(refreshed));
         });
     }
 
@@ -517,7 +517,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Episode> dbEpisodes = podcastEpisodeViewModel.toggleSortAndGetEpisodesFromDB(podcast.getId());
             List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfAdded(() -> {
                 updateAdapter(sortedList);
             });
         });
@@ -567,7 +567,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
         if (podcast == null) {
             myLogEE(null, "goToPlaySection() - podcast is null");
             AppDatabase.databaseReadExecutor.execute(() -> {
-                podcast = AppDatabase.getDatabase(requireContext()).podcastDao().getPodcastByFeedId(podcastFeed.id);
+                podcast = AppDatabase.getDatabase(appContext()).podcastDao().getPodcastByFeedId(podcastFeed.id);
                 if (podcast == null) {
                     myLog("podcast == null");
                 } else {
@@ -593,7 +593,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
 
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
-                Folder folder = AppDatabase.getDatabase(requireContext().getApplicationContext()).folderDao().getById(podcast.idFolder);
+                Folder folder = AppDatabase.getDatabase(appContext()).folderDao().getById(podcast.idFolder);
                 if (folder == null)
                     return;
 
@@ -601,18 +601,18 @@ public class PodcastEpisodeFragment extends LoggingFragment
                 if (MediaService.isRunning && PlayList.getInstance() != null
                         && PlayList.getInstance().getZikFile() != null
                         && PlayList.getInstance().getZikFile().getIdFolder() == podcast.idFolder) {
-                    startActivity(new Intent(requireContext(), MainActivity.class)
+                    runOnUiIfAdded(() -> startActivity(new Intent(requireContext(), MainActivity.class)
                             .putExtra(Intents.EXTRA_FOLDER, folder)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)));
                 } else {
-                    List<ZikFile> zikFilesList = AppDatabase.getDatabase(requireContext().getApplicationContext())
+                    List<ZikFile> zikFilesList = AppDatabase.getDatabase(appContext())
                             .zikFileDao().getZikFiles(podcast.idFolder);
 
                     myLogI("nb ZikFiles in that Podcast Book : " + zikFilesList.size() + " - [" + folder.getName()
                             + "]");
 
                     // Switch to main thread for any UI / navigation
-                    requireActivity().runOnUiThread(() -> {
+                    runOnUiIfAdded(() -> {
                         if (getActivity() == null || requireActivity().isFinishing() || requireActivity().isDestroyed())
                             return;
 
@@ -629,7 +629,7 @@ public class PodcastEpisodeFragment extends LoggingFragment
                 }
             } catch (Exception e) {
                 myLogEE(e, "goToPlaySection2()");
-                requireActivity().runOnUiThread(() -> myToastEE(null, getString(R.string.ErrorCouldNotLoadAudios)));
+                runOnUiIfAdded(() -> myToastEE(null, getString(R.string.ErrorCouldNotLoadAudios)));
             }
         });
     }
@@ -735,8 +735,9 @@ public class PodcastEpisodeFragment extends LoggingFragment
                     .setNegativeButton(android.R.string.cancel, null)
                     .show();
         } else {
+            final android.content.Context appCtx = appContext();
             AppDatabase.databaseWriteExecutor.execute(() -> {
-                PodcastHelper.addPodcastToDB(requireContext(), podcastFeed);
+                PodcastHelper.addPodcastToDB(appCtx, podcastFeed);
             });
             proceedWithDownload(podcastFeed.title, ep, podcastFeed.id);
 

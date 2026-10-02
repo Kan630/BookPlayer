@@ -358,9 +358,11 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
         String pkg = appContext.getPackageName();
 
         // Step 1: back out of anything that isn't even our app (SAF picker, share sheet, ...).
-        for (int i = 0; i < MAX_BACK_PRESSES_TO_RECOVER && !pkg.equals(device.getCurrentPackageName()); i++) {
+        // Until one of our activities is RESUMED again, and waiting for it after each press: the picker or the
+        // permission dialog is still animating away right after a back press, and one press too many lands on
+        // our own screen and closes the app (seen on API 28 with the storage permission dialog).
+        for (int i = 0; i < MAX_BACK_PRESSES_TO_RECOVER && !waitForOwnActivityResumed(1_500); i++) {
             device.pressBack();
-            SystemClock.sleep(300);
         }
 
         // Step 2: a button may have switched tab (e.g. ibSettings opens the Settings tab) - pressing
@@ -386,6 +388,16 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
         }
 
         failWithLivenessCheck(screenName, causeWidget);
+    }
+
+    private static boolean waitForOwnActivityResumed(long timeoutMs) {
+        long end = SystemClock.uptimeMillis() + timeoutMs;
+        do {
+            if (TestNavUtils.getCurrentResumedActivity() != null)
+                return true;
+            SystemClock.sleep(100);
+        } while (SystemClock.uptimeMillis() < end);
+        return false;
     }
 
     /** Selected bottom-nav item id, or 0 if the bottom nav isn't reachable right now. */
@@ -537,6 +549,10 @@ public class InputScreensCrashSurfaceTest implements LogSupport {
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.NEARBY_WIFI_DEVICES,
             Manifest.permission.READ_MEDIA_AUDIO,
+            // before Android 13 the file buttons ask for these, and the Android 9 permission dialog can't be
+            // dismissed with Back: recoverToScreen() never got the screen back
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
 
     private void grantAllDangerousPermissionsIfPossible() {
