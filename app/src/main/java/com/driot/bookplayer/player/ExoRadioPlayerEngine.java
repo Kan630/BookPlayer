@@ -3,6 +3,7 @@ package com.driot.bookplayer.player;
 import java.util.Locale;
 import android.content.Context;
 import android.net.Uri;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,6 +75,20 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     private float volume = 1f;
 
     private MediaItem currentItem;
+
+    /** How much lost audio a resume tolerates before reconnecting instead (see start()). Only a
+     *  jitter margin: buffered-ahead is sampled in media time and can lag the pause clock by a
+     *  beat, and reconnecting over a sub-second hole would cost more than the hole. */
+    private static final long CONTINUITY_MARGIN_MS = 2_000;
+
+    /** elapsedRealtime of the last pause(), 0 when not paused by us. */
+    private long pausedAtElapsedMs = 0;
+
+    /** How far behind the live edge playback has fallen on this connection: every paused second
+     *  is a second the station aired and playback did not, and a live stream never catches up
+     *  (it is consumed at exactly the rate it is delivered). Summed over pauses, reset on each
+     *  reconnect - see start(), which needs the total, not just the last pause. */
+    private long liveDriftMs = 0;
 
     // -------------------------------------------------------------------------
     // Construction
@@ -304,6 +319,8 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     public void prepareAsync() {
         prepared  = false;
         preparing = true;
+        pausedAtElapsedMs = 0;
+        liveDriftMs = 0;       // fresh connection = at the live edge again
 
         try { player.stop();            } catch (Throwable ignored) {}
         try { player.clearMediaItems(); } catch (Throwable ignored) {}
@@ -316,17 +333,76 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
 
     @Override
     public void start() {
+        long pausedForMs = (pausedAtElapsedMs == 0)
+                ? 0
+                : SystemClock.elapsedRealtime() - pausedAtElapsedMs;
+        pausedAtElapsedMs = 0;
+
+        // ExoPlayer keeps downloading while paused, so the buffer fills with audio that is
+        // *continuous* with what was last heard - exactly what the user would otherwise miss. So
+        // the question is never "how long was the pause", it is "does my buffer still reach the
+        // live edge?". Playback sits liveDriftMs behind that edge, so:
+        //
+        //   drift <= buffered : the buffer holds everything that aired since - play it and miss
+        //                       nothing (just stay that far behind live, which is the point: a
+        //                       10s pause mid-sentence must not skip the sentence).
+        //   drift >  buffered : the buffer no longer reaches the live edge, so resuming would
+        //                       serve old audio AND still leave a hole after it - reconnect.
+        //                       This is the "played again the next day" case (a day-old buffer,
+        //                       and on HLS a long-gone live window), and it is also what catches
+        //                       many short pauses adding up, which no per-pause test can see.
+        //
+        // Using the real buffered-ahead value rather than a fixed delay also self-calibrates:
+        // the window is whatever this stream's bitrate and ExoPlayer's loader actually give
+        // (for a progressive stream the binding limit is ProgressiveMediaSource's 1MiB
+        // CONTINUE_LOADING_CHECK_INTERVAL_BYTES, ~1m20s at 100kbps, not the 50s buffer target),
+        // and a stream that stopped feeding during the pause buffers nothing, so there is
+        // nothing to lose by reconnecting whatever the pause was.
+        long bufferedMs = getBufferedDurationMs();
+        long driftAfterResumeMs = liveDriftMs + pausedForMs;
+        boolean bufferReachesLiveEdge = driftAfterResumeMs <= bufferedMs + CONTINUITY_MARGIN_MS;
+
+        // Recording taps the very bytes ExoPlayer reads, so reconnecting would splice the file
+        // and drop the audio that kept being buffered during the pause: while recording, resume
+        // the old way (that buffered audio is continuous with what was already written).
+        boolean recording = radioRecorder != null && radioRecorder.isRecording();
+
+        if (prepared && !bufferReachesLiveEdge && !recording) {
+            myLogI("start(): paused " + (pausedForMs / 1000) + "s -> " + (driftAfterResumeMs / 1000)
+                    + "s behind live but only " + (bufferedMs / 1000) + "s buffered"
+                    + " -> buffer no longer reaches the live edge, reconnecting instead of"
+                    + " playing stale audio");
+            prepareAsync();                 // stop + clearMediaItems + setMediaItem + prepare
+            setVolume(volume);
+            // Auto-start when ready: MediaService.onEnginePrepared() ignores a second onPrepared
+            // for the same engine generation, so nothing else is going to call start() again.
+            try { player.setPlayWhenReady(true); } catch (Throwable ignored) {}
+            return;
+        }
+
+        if (prepared) {
+            liveDriftMs = driftAfterResumeMs;
+            if (pausedForMs > CONTINUITY_MARGIN_MS)
+                myLogI("start(): paused " + (pausedForMs / 1000) + "s, " + (bufferedMs / 1000)
+                        + "s buffered covers the " + (liveDriftMs / 1000) + "s behind live"
+                        + (recording ? " (recording)" : "")
+                        + " -> resuming the buffered audio, nothing missed");
+        }
+
         try { player.play();       } catch (Throwable ignored) {}
         setVolume(volume);
     }
 
     @Override
     public void pause() {
+        pausedAtElapsedMs = SystemClock.elapsedRealtime();
         try { player.pause(); } catch (Throwable ignored) {}
     }
 
     @Override
     public void stop() {
+        pausedAtElapsedMs = 0;
+        liveDriftMs = 0;
         try { player.stop(); } catch (Throwable ignored) {}
     }
 
@@ -334,6 +410,8 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     public void reset() {
         prepared  = false;
         preparing = false;
+        pausedAtElapsedMs = 0;
+        liveDriftMs = 0;
         try { player.stop();            } catch (Throwable ignored) {}
         try { player.clearMediaItems(); } catch (Throwable ignored) {}
     }
@@ -354,7 +432,21 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     // PlayerEngine — state queries
     // -------------------------------------------------------------------------
 
-    @Override public boolean isPlaying() { return player != null && player.isPlaying(); }
+    /** True while audio is coming out *or* about to: a reconnect (see start()) and any mid-stream
+     *  rebuffer are buffering states with playWhenReady set, and reporting those as paused made
+     *  the mini player and the notification flip to a paused look for a second or two. */
+    @Override
+    public boolean isPlaying() {
+        if (player == null)
+            return false;
+        try {
+            return player.isPlaying()
+                    || (player.getPlayWhenReady()
+                        && player.getPlaybackState() == androidx.media3.common.Player.STATE_BUFFERING);
+        } catch (Throwable e) {
+            return false;
+        }
+    }
     @Override public boolean isReady()   { return prepared && !preparing; }
 
     /** How much audio ExoPlayer already has downloaded ahead of the current playback position -
