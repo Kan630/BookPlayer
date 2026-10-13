@@ -8,13 +8,31 @@
     android:padding="2dp"
     android:background="?attr/colorPrimary">
 
-    <ImageView
-        android:id="@+id/ivCover"
+    <FrameLayout
+        android:id="@+id/flCover"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/cover_preview"
-        android:src="@drawable/ic_radio_24px" />
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ivCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/cover_preview"
+            android:src="@drawable/ic_radio_24px" />
+
+        <!-- Tap to watch: shown in code only while the station streams a picture -->
+        <ImageView
+            android:id="@+id/ivVideoBadge"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="bottom|end"
+            android:background="@drawable/bg_video_badge"
+            android:padding="3dp"
+            android:contentDescription="@string/radio_video_watch"
+            android:src="@drawable/ic_live_tv_24px" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"

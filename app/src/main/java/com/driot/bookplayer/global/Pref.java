@@ -8,6 +8,8 @@ import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.Nullable;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -180,6 +182,54 @@ public class Pref {
 
     public static void setAutoBackupRecoveryPrompted(boolean value) {
         admin.edit().putBoolean("AUTO_BACKUP_RECOVERY_PROMPTED", value).apply();
+    }
+
+    /////////////////// STREAM HEALTH ///////////////////
+
+    /** Streams that failed to play on this device (see StreamHealth), by url. */
+    public static java.util.Set<String> getFailingStreams() {
+        return prefs.getStringSet("FAILING_STREAMS", java.util.Collections.emptySet());
+    }
+
+    public static void setFailingStreams(java.util.Set<String> urls) {
+        // the stored Set must never be handed back to SharedPreferences as-is
+        prefs.edit().putStringSet("FAILING_STREAMS", new java.util.HashSet<>(urls)).apply();
+    }
+
+    /////////////////// RADIO VIDEO ///////////////////
+
+    /** Watching a video stream costs much more data than listening to it, so the video screen
+     * asks once before doing it on a metered connection, and remembers a yes. */
+    public static boolean getRadioVideoOnMobileDataAllowed() {
+        return prefs.getBoolean("RADIO_VIDEO_MOBILE_DATA_ALLOWED", false);
+    }
+
+    public static void setRadioVideoOnMobileDataAllowed(boolean allowed) {
+        prefs.edit().putBoolean("RADIO_VIDEO_MOBILE_DATA_ALLOWED", allowed).apply();
+    }
+
+    /** Stations a video track was really seen on. Playing a station is the only sure way to know
+     * it has a picture (its codec field is a hint at best), so what we learn is kept here - a
+     * Set of station uuids, rather than a RadioStation column needing a Room migration. */
+    public static boolean isRadioStationWithVideo(@Nullable String stationUuid) {
+        if (stationUuid == null || stationUuid.isEmpty())
+            return false;
+        return prefs.getStringSet("RADIO_STATIONS_WITH_VIDEO", java.util.Collections.emptySet())
+                .contains(stationUuid);
+    }
+
+    public static void addRadioStationWithVideo(@Nullable String stationUuid) {
+        if (stationUuid == null || stationUuid.isEmpty())
+            return;
+        java.util.Set<String> current = prefs.getStringSet("RADIO_STATIONS_WITH_VIDEO",
+                java.util.Collections.emptySet());
+        if (current.contains(stationUuid))
+            return;
+        // the stored Set must never be mutated in place (SharedPreferences hands back its own)
+        java.util.Set<String> next = new java.util.HashSet<>(current);
+        next.add(stationUuid);
+        prefs.edit().putStringSet("RADIO_STATIONS_WITH_VIDEO", next).apply();
+        myLogD("station remembered as having video: " + stationUuid);
     }
 
     public static String get_radio_mirror(Context context) {

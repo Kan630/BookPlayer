@@ -65,6 +65,17 @@
             </intent-filter>
 
         </activity>
+
+        <!-- Watch screen for a stream that carries a picture: a TV-style radio station or a
+             video podcast episode (full variant only).
+             configChanges: rotating must not recreate it, or the video surface would be torn
+             down and rebuilt on every turn of the phone. -->
+        <activity
+            android:name=".video.StreamVideoActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
     </application>
 
 </manifest>

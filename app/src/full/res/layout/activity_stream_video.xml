@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Watch" screen: the picture of a stream that carries one - a TV-style radio station or a
+     video podcast episode - with its own chrome over a black canvas. One layout for both orientations - the video is centered and letterboxed by
+     AspectRatioFrameLayout, the chrome hugs the top and bottom edges. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/videoRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <com.driot.bookplayer.views.AspectRatioFrameLayout
+        android:id="@+id/videoFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <SurfaceView
+            android:id="@+id/videoSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.driot.bookplayer.views.AspectRatioFrameLayout>
+
+    <ProgressBar
+        android:id="@+id/pbBuffering"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center" />
+
+    <!-- "waiting for the picture" / "this station is sound only" -->
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="32dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:text="@string/radio_video_waiting" />
+
+    <!-- TOP CHROME: back, station, live state -->
+    <LinearLayout
+        android:id="@+id/topChrome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="@drawable/bg_video_chrome_top"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="24dp">
+
+        <ImageButton
+            android:id="@+id/ibBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_arrow_back_24"
+            app:tint="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/ivStationLogo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/cover_preview"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_radio_24px" />
+
+        <TextView
+            android:id="@+id/tvStationName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="@string/live_radio" />
+
+        <TextView
+            android:id="@+id/tvLive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_live_pill"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:text="@string/radio_video_live" />
+    </LinearLayout>
+
+    <!-- BOTTOM CHROME: progress (podcast only), then play/pause, recording, fullscreen -->
+    <LinearLayout
+        android:id="@+id/bottomChrome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_video_chrome_bottom"
+        android:orientation="vertical"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp">
+
+        <!-- A podcast episode is a file: it has a position worth showing and seeking in. A live
+             radio stream has neither, so this row is hidden in code for radio. -->
+        <LinearLayout
+            android:id="@+id/llProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sbSeek"
+                style="@style/Widget.Material3.Slider.Legacy"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:layout_weight="1"
+                android:valueFrom="0"
+                android:valueTo="1000"
+                app:labelBehavior="floating"
+                app:thumbRadius="10dp"
+                app:trackHeight="3dp" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="12:34 / 56:78" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/controlsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/ibPlayPause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/play_pause"
+            android:src="@drawable/ic_media_play_24"
+            app:tint="@android:color/white" />
+
+        <LinearLayout
+            android:id="@+id/llRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:id="@+id/ivRecordDot"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/radio_recording"
+                android:src="@drawable/ic_disk_24px"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tvRecordInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/ibFullscreen"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/radio_video_fullscreen"
+            android:src="@drawable/ic_fullscreen_24px"
+            app:tint="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

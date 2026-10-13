@@ -291,6 +291,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     ? ((ExoRadioPlayerEngine) engine).getBufferedDurationMs()
                     : 0;
             extras.putLong(Intents.EXTRA_RADIO_BUFFERED_MS, bufferedMs);
+            // The engine learns this a moment after the stream opens; this state is rebroadcast
+            // about every second, so the "watch" entry points light up on their own.
+            extras.putBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE,
+                    (engine instanceof ExoRadioPlayerEngine)
+                            && ((ExoRadioPlayerEngine) engine).hasVideoTrack());
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
@@ -300,6 +305,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     /* folderId */ 0,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, extras);
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
+            // A video podcast episode is an mp4 in the feed: same flag as radio, same badge.
+            extras.putBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE,
+                    (engine instanceof ExoStreamPlayerEngine)
+                            && ((ExoStreamPlayerEngine) engine).hasVideoTrack());
             PlayList pl = PlayList.getInstance();
             String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_podcast);
             String text = getString(R.string.live_podcast);
@@ -2316,6 +2325,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         lastPreparedGen = gen;
         myLogD("onEnginePrepared() gen=" + gen);
 
+        if (Var.PLAY_MODE_RADIO.equals(getPlayMode())) {
+            // It plays: drop any failure mark this stream carried (red border in the results).
+            PlayList preparedPl = PlayList.getInstance();
+            StreamHealth.markOk(preparedPl != null ? preparedPl.getUrl() : null);
+        }
+
         setUiPhase(Intents.PHASE_ENGINE_PREPARED, null);
 
         if (!isStream()) {
@@ -2434,11 +2449,31 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void onEngineFatal(String msg, int what, int extra) {
         myLogEE(null, "onEngineFatal: " + msg + " (" + what + "," + extra + ")");
         emitUiTick("onEngineFatal");
+
+        // Read BEFORE shutdown(): it releases the engine, and the play mode is derived from which
+        // engine is loaded, so afterwards getPlayMode() is plainly null - which is why no message
+        // about what went wrong ever reached anyone (the podcast one below never fired either).
+        final String failedMode = getPlayMode();
+        final PlayList failedPl = PlayList.getInstance();
+        final String failedName = (failedPl != null && failedPl.getTitle() != null)
+                ? failedPl.getTitle() : getString(R.string.live_radio);
+        final String failedUrl = (failedPl != null) ? failedPl.getUrl() : null;
+        if (Var.PLAY_MODE_RADIO.equals(failedMode)) {
+            // The mini player just vanishes otherwise, leaving the listener with nothing but a
+            // station that went quiet. The stream is also remembered as failing, which is what
+            // marks it in the lists until it plays again (StreamHealth).
+            // Marked BEFORE alertError(): that broadcast is what makes the lists repaint, and a
+            // local broadcast is delivered on the spot - a mark written after it would be missed.
+            StreamHealth.markFailed(failedUrl, msg);
+            myToastE(getString(R.string.radio_stream_failed, failedName,
+                    ErrorUi.streamErrorReason(this, what, msg)));
+        }
+
         ErrorLoadingFile = true;
         playTimer.stop();
         alertError("onEngineFatal", msg);
         shutdown(false);
-        if ("podcast".equals(getPlayMode())) {
+        if (Var.PLAY_MODE_PODCAST.equals(failedMode)) {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
                 myToastEE(null, getString(R.string.Podcast_source_error));
             } else {

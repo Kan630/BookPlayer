@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,7 +20,9 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.StreamHealth;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -148,6 +151,8 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     static class ItemVH extends RecyclerView.ViewHolder {
         ImageView favicon, ivDefaultIcon, ivFlag;
+        ImageView ivTv;
+        View borderFailed;
         TextView title, info;
         ImageButton ibFavorite;
         ProgressBar pbLoading;
@@ -155,6 +160,8 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         ItemVH(@NonNull View itemView) {
             super(itemView);
             favicon = itemView.findViewById(R.id.radio_favicon);
+            ivTv = itemView.findViewById(R.id.iv_radio_tv);
+            borderFailed = itemView.findViewById(R.id.radio_border_failed);
             title = itemView.findViewById(R.id.radio_title);
             info = itemView.findViewById(R.id.radio_info_txt); // country • language • tags
             ibFavorite = itemView.findViewById(R.id.ibFavorite);
@@ -233,7 +240,16 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
                         .into(holder.ivFlag);
             }
 
-            holder.info.setText(RadioHelper.buildShortInfoString(rs));
+            holder.info.setText(RadioHelper.buildResultInfoString(rs, s.mergedCount));
+
+            // A station known to stream a picture (seen while playing it, or its codec says so)
+            boolean hasVideo = Pref.isRadioStationWithVideo(s.stationuuid)
+                    || RadioHelper.codecLooksLikeVideo(s.codec);
+            holder.ivTv.setVisibility(hasVideo ? View.VISIBLE : View.GONE);
+
+            // Failed here last time: marked until it plays again (StreamHealth)
+            String streamUrl = (s.url_resolved != null && !s.url_resolved.isEmpty()) ? s.url_resolved : s.url;
+            holder.borderFailed.setVisibility(StreamHealth.isFailing(streamUrl) ? View.VISIBLE : View.GONE);
 
             RadioFaviconHelper.loadRadioFavicon(rs, holder.favicon, 0, faviconCache);
 
@@ -312,6 +328,27 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             if (clickedPos != RecyclerView.NO_POSITION && clickedPos != newPlayingPos) {
                 notifyItemChanged(clickedPos);
             }
+        }
+    }
+
+    /** Re-binds one station's row (something we learned about it changed). */
+    public void refreshStation(@Nullable String stationUuid) {
+        int pos = findPositionByUuid(stationUuid);
+        if (pos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(pos);
+        }
+    }
+
+    /** The station being started failed: its spinner has nothing left to wait for, and the row
+     * now carries a failure mark to show. */
+    public void onStreamFailed() {
+        String uuid = clickedRadioStationUuid;
+        clickedRadioStationUuid = null;
+        int pos = findPositionByUuid(uuid);
+        if (pos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(pos);
+        } else {
+            notifyDataSetChanged(); // started from somewhere else: no idea which row
         }
     }
 

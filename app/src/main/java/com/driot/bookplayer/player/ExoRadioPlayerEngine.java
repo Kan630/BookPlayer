@@ -60,7 +60,7 @@ import okhttp3.OkHttpClient;
  *    URL embedded in the certificate, exactly like Chrome does automatically.
  */
 @androidx.annotation.OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
-public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEngine {
+public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEngine, VideoCapableEngine {
 
     private final EngineListener listener;
     private final long gen;
@@ -84,6 +84,9 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     /** elapsedRealtime of the last pause(), 0 when not paused by us. */
     private long pausedAtElapsedMs = 0;
 
+    /** Video is the same job for every Exo engine - see ExoVideoSupport. */
+    private ExoVideoSupport video;
+
     /** How far behind the live edge playback has fallen on this connection: every paused second
      *  is a second the station aired and playback did not, and a live stream never catches up
      *  (it is consumed at exactly the rate it is delivered). Summed over pauses, reset on each
@@ -104,6 +107,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         this.gen      = generationToken;
         this.radioRecorder = radioRecorder;
         initPlayer();
+        StreamVideo.register(this);
     }
 
     // -------------------------------------------------------------------------
@@ -201,6 +205,9 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                 /* handleAudioFocus= */ false
         );
 
+        // Radio is sound until someone asks to watch: the video track is left unselected here.
+        video = new ExoVideoSupport(player);
+
         player.addListener(new androidx.media3.common.Player.Listener() {
 
             @Override
@@ -234,6 +241,16 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
             }
 
             @Override
+            public void onTracksChanged(@NonNull androidx.media3.common.Tracks tracks) {
+                video.onTracksChanged(tracks);
+            }
+
+            @Override
+            public void onVideoSizeChanged(@NonNull androidx.media3.common.VideoSize size) {
+                video.onVideoSizeChanged(size);
+            }
+
+            @Override
             public void onPlayerError(@NonNull PlaybackException error) {
                 prepared  = false;
                 preparing = false;
@@ -250,9 +267,23 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                     t = t.getCause();
                 }
 
+                // The HTTP status is the whole story for a dead stream (France 24's playlists
+                // point at retired Akamai hosts answering 400), and it only lives on the cause.
+                String httpStatus = "";
+                Throwable h = error.getCause();
+                while (h != null) {
+                    if (h instanceof androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException) {
+                        httpStatus = " [HTTP " + ((androidx.media3.datasource.HttpDataSource
+                                .InvalidResponseCodeException) h).responseCode + "]";
+                        break;
+                    }
+                    h = h.getCause();
+                }
+
                 final String msg = "Exo Error: " + name + " (" + code + ") "
                         + (sslCause.isEmpty() ? "" : "[" + sslCause + "] ")
-                        + (error.getMessage() != null ? error.getMessage() : "");
+                        + (error.getMessage() != null ? error.getMessage() : "")
+                        + httpStatus;
 
                 myLogE("onPlayerError code=" + code
                         + " name=" + name
@@ -312,6 +343,30 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     }
 
     // -------------------------------------------------------------------------
+    // Video (radio streams that carry a picture) - see RadioVideo
+    // -------------------------------------------------------------------------
+
+    @Override
+    public boolean hasVideoTrack() {
+        return video.hasVideoTrack();
+    }
+
+    @Override
+    public void setVideoSizeListener(@Nullable VideoSizeListener l) {
+        video.setVideoSizeListener(l);
+    }
+
+    @Override
+    public void bindVideoSurface(@NonNull android.view.SurfaceView view) {
+        video.bind(view);
+    }
+
+    @Override
+    public void unbindVideoSurface() {
+        video.unbind();
+    }
+
+    // -------------------------------------------------------------------------
     // PlayerEngine — lifecycle
     // -------------------------------------------------------------------------
 
@@ -321,6 +376,9 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         preparing = true;
         pausedAtElapsedMs = 0;
         liveDriftMs = 0;       // fresh connection = at the live edge again
+        // Another stream: what the last one carried says nothing about this one, and the UI must
+        // not keep offering a picture that belonged to the station before.
+        video.onNewStream();
 
         try { player.stop();            } catch (Throwable ignored) {}
         try { player.clearMediaItems(); } catch (Throwable ignored) {}
@@ -420,6 +478,8 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     public void release() {
         prepared  = false;
         preparing = false;
+        StreamVideo.unregister(this);
+        video.dispose();
         if (player != null) {
             try { if (player.isPlaying()) player.stop(); } catch (Throwable ignored) {}
             try { player.clearMediaItems(); }              catch (Throwable ignored) {}

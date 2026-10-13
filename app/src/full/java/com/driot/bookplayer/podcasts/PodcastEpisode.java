@@ -13,6 +13,7 @@ public class PodcastEpisode {
     public String description;
     public String image;
     public String enclosureUrl; // download URL
+    public String enclosureType; // "audio/mpeg", "video/mp4"... - a video podcast says so here
     public String datePublishedPretty;
     public String datePublished;
     public Integer duration; // in seconds

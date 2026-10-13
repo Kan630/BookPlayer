@@ -19,7 +19,9 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ItemTouchHelperAdapter;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FlagHelper;
+import com.driot.bookplayer.player.StreamHealth;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -170,6 +172,17 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.info.setText(RadioHelper.buildShortInfoString(f));
 
+            // Both live in the shared result row layout (recyclerview_radio_result.xml) and are
+            // visible by default there, so they have to be decided here on every bind.
+            boolean hasVideo = Pref.isRadioStationWithVideo(f.stationuuid)
+                    || RadioHelper.codecLooksLikeVideo(f.codec);
+            holder.ivTv.setVisibility(hasVideo ? View.VISIBLE : View.GONE);
+
+            String streamUrl = (f.url_resolved != null && !f.url_resolved.isEmpty())
+                    ? f.url_resolved : f.url;
+            holder.borderFailed.setVisibility(StreamHealth.isFailing(streamUrl)
+                    ? View.VISIBLE : View.GONE);
+
             holder.ibFavorite.setVisibility(View.GONE);
 
             RadioFaviconHelper.loadRadioFavicon(f, holder.favicon, 0, faviconCache);
@@ -298,9 +311,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon, ivDefaultIcon, ivFlag;
+        ImageView favicon, ivDefaultIcon, ivFlag, ivTv;
         TextView title, info;
         ImageButton ibFavorite;
+        View borderFailed;
 
         ItemVH(@NonNull View v) {
             super(v);
@@ -309,7 +323,20 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             info = v.findViewById(R.id.radio_info_txt);
             ibFavorite = v.findViewById(R.id.ibFavorite);
             ivFlag = v.findViewById(R.id.iv_radio_flag);
+            ivTv = v.findViewById(R.id.iv_radio_tv);
+            borderFailed = v.findViewById(R.id.radio_border_failed);
         }
+    }
+
+    /** Station uuid of a row by its DB id (what the playback state carries), null if not here. */
+    @androidx.annotation.Nullable
+    public String uuidOfStation(long stationId) {
+        for (RadioStation s : items) {
+            if (s.id == stationId) {
+                return s.stationuuid;
+            }
+        }
+        return null;
     }
 
     public void setHistoryMode(boolean history) {

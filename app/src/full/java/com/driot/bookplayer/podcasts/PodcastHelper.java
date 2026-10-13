@@ -973,6 +973,36 @@ public class PodcastHelper {
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
+    /**
+     * Whether an episode is a video one. A "video podcast" is nothing exotic: the feed's enclosure
+     * is a video file instead of an audio one, and the API says so in enclosureType. Episodes read
+     * back from our database have no type stored, so the url extension is the fallback - an mp4,
+     * m4v, mov or webm enclosure is video, while m4a (same container family) is audio.
+     *
+     * Only a hint for the lists: what really decides is the video track the engine reports once
+     * the episode is playing.
+     */
+    public static boolean isVideoEnclosure(@androidx.annotation.Nullable String enclosureType,
+            @androidx.annotation.Nullable String enclosureUrl) {
+        if (enclosureType != null && !enclosureType.isEmpty()) {
+            return enclosureType.toLowerCase(java.util.Locale.ROOT).startsWith("video");
+        }
+        if (enclosureUrl == null || enclosureUrl.isEmpty()) {
+            return false;
+        }
+        String path = enclosureUrl.toLowerCase(java.util.Locale.ROOT);
+        int cut = path.indexOf('?');          // ...episode.mp4?source=rss
+        if (cut >= 0) {
+            path = path.substring(0, cut);
+        }
+        cut = path.indexOf('#');
+        if (cut >= 0) {
+            path = path.substring(0, cut);
+        }
+        return path.endsWith(".mp4") || path.endsWith(".m4v") || path.endsWith(".mov")
+                || path.endsWith(".webm") || path.endsWith(".mkv");
+    }
+
     // ---- Sharing an episode (mirror of RadioHelper.shareRadioStation / handleDeepLink) ----
 
     /** Shares a link (plus the podcast cover when available) that opens this podcast on the

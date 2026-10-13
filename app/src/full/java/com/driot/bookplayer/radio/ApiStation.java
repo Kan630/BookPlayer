@@ -30,6 +30,26 @@ public class ApiStation {
     @SerializedName("votes") public String votes;
     @SerializedName("homepage") public String homepage;
 
+    // ---- Not in the JSON: filled in by RadioResultsViewModel ----
+
+    /** How many registrations of this very stream the results held (1 = only this one).
+     * radio-browser lets anyone add a station, so a popular stream is in there many times over;
+     * those rows are merged into one, and this is how many were folded in. A high count is the
+     * best "this is the canonical stream" signal the API gives. */
+    public transient int mergedCount = 1;
+
+    /** Votes of all the merged registrations added up. */
+    public transient int mergedVotes = 0;
+
+    /** radio-browser sends votes as a number but it arrives here as text. */
+    public int votesAsInt() {
+        try {
+            return votes == null || votes.isEmpty() ? 0 : Integer.parseInt(votes.trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
 
     @Override
     public String toString() {

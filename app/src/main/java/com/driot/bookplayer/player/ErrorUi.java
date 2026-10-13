@@ -14,9 +14,75 @@ import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 public class ErrorUi {
+
+    /**
+     * A line a listener can act on, out of an ExoPlayer error code: "the server refused the
+     * stream (HTTP 400)" rather than ERROR_CODE_IO_BAD_HTTP_STATUS. The technical code is kept
+     * for anything we have no wording for - it is still better than nothing in a toast, and it
+     * is what ends up in the log next to it.
+     *
+     * @param errMsg the engine's message, which carries "[HTTP nnn]" when the server answered.
+     */
+    public static String streamErrorReason(Context context, int code, @Nullable String errMsg) {
+        String reason;
+        switch (code) {
+            case androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT:
+                reason = context.getString(R.string.stream_error_no_connection);
+                break;
+            case androidx.media3.common.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS:
+                reason = context.getString(R.string.stream_error_server_refused);
+                break;
+            case androidx.media3.common.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND:
+                reason = context.getString(R.string.stream_error_not_found);
+                break;
+            case androidx.media3.common.PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED:
+                reason = context.getString(R.string.stream_error_format);
+                break;
+            case androidx.media3.common.PlaybackException.ERROR_CODE_DECODER_INIT_FAILED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_DECODING_FAILED:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:
+            case androidx.media3.common.PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
+                reason = context.getString(R.string.stream_error_decoder);
+                break;
+            default:
+                reason = androidx.media3.common.PlaybackException.getErrorCodeName(code);
+                break;
+        }
+        String http = httpStatusToken(errMsg);
+        return http == null ? reason : reason + " (" + http + ")";
+    }
+
+    /**
+     * Picks the "HTTP 400" out of an engine error message. ExoRadioPlayerEngine writes the status
+     * into its message as "[HTTP nnn]" because it only exists on the exception's cause; this is
+     * the other end of that agreement, so it is covered by a unit test.
+     *
+     * @return e.g. "HTTP 400", or null when the message carries no status.
+     */
+    @Nullable
+    public static String httpStatusToken(@Nullable String errMsg) {
+        if (errMsg == null) {
+            return null;
+        }
+        int at = errMsg.indexOf("[HTTP ");
+        if (at < 0) {
+            return null;
+        }
+        int close = errMsg.indexOf(']', at);
+        if (close <= at + 1) {
+            return null;
+        }
+        return errMsg.substring(at + 1, close);
+    }
 
     public static void showPlayAudioErrorMessage(Context context, String errMessage, String zikFilePath) {
         myLogW("showPlayAudioErrorMessage(" + errMessage + ", " + zikFilePath + ")");

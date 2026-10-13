@@ -160,15 +160,24 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     // Caches the image on first display: temp cache while the episode isn't downloaded yet,
     // persistent once it is (PodcastSyncWorker promotes it the moment a download completes) -
     // same "get or download, off the UI thread" shape as the existing Librivox cover adapters.
+    /** A video episode says so on its row: over the episode art when the feed has any, and on its
+     * own next to the title when it has not (which is most feeds). */
+    private void bindVideoMarker(ViewHolder holder, DisplayableEpisode episode) {
+        boolean video = episode.isVideo();
+        boolean coverShown = holder.flEpisodeCover.getVisibility() == View.VISIBLE;
+        holder.ivEpisodeVideoBadge.setVisibility(video && coverShown ? View.VISIBLE : View.GONE);
+        holder.ivEpisodeVideoInline.setVisibility(video && !coverShown ? View.VISIBLE : View.GONE);
+    }
+
     private void bindEpisodeCover(ViewHolder holder, DisplayableEpisode episode, boolean isDownloaded) {
         String image = episode.image;
         if (episodeCoverStatus != Podcast.EPISODE_COVER_STATUS_DISTINCT || image == null || image.isEmpty()) {
-            holder.ivEpisodeCover.setVisibility(View.GONE);
+            holder.flEpisodeCover.setVisibility(View.GONE);
             holder.ivEpisodeCover.setTag(null);
             return;
         }
 
-        holder.ivEpisodeCover.setVisibility(View.VISIBLE);
+        holder.flEpisodeCover.setVisibility(View.VISIBLE);
         holder.ivEpisodeCover.setTag(episode.idEpisode);
 
         if (!image.startsWith("http")) {
@@ -271,6 +280,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
 
         bindEpisodeCover(holder, episode, isDownloaded);
+        bindVideoMarker(holder, episode);
 
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title),
                 episodeFileName);
@@ -420,6 +430,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats, tvEpisodeDesc;
         ImageView ivEpisodeCover;
+        View flEpisodeCover, ivEpisodeVideoBadge, ivEpisodeVideoInline;
         ImageButton icon_download;
         View downloadZone;
         AnimatorSet flickerAnim;
@@ -449,6 +460,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             tvEpisodeDesc = itemView.findViewById(R.id.tvEpisodeDesc);
             tvTitle = itemView.findViewById(R.id.tvEpisodeTitle);
             ivEpisodeCover = itemView.findViewById(R.id.ivEpisodeCover);
+            flEpisodeCover = itemView.findViewById(R.id.flEpisodeCover);
+            ivEpisodeVideoBadge = itemView.findViewById(R.id.ivEpisodeVideoBadge);
+            ivEpisodeVideoInline = itemView.findViewById(R.id.ivEpisodeVideoInline);
             tvDate = itemView.findViewById(R.id.tvEpisodeDate);
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);

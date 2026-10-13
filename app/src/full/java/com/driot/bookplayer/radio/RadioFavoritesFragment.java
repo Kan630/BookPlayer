@@ -1,5 +1,9 @@
 package com.driot.bookplayer.radio;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -22,6 +27,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.GridScaleGestureHelper;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
@@ -58,6 +64,18 @@ public class RadioFavoritesFragment extends LoggingFragment {
     private ProgressBar progressBar;
     private TextView tvProgressMessage;
     private RadioFavoritesRVAdapter adapter;
+
+    /** A station started from this list would not play: repaint it, it now carries a failure
+     * mark (MediaService says why in a toast). */
+    private final BroadcastReceiver streamErrorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            myLogW("radio stream error received by the favorites screen");
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+        }
+    };
     private RadioBrowserRepository repo; // for resolveUrl on play()
     private View dropZone;
     private ItemTouchHelper touchHelper;
@@ -290,8 +308,19 @@ public class RadioFavoritesFragment extends LoggingFragment {
 
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         playbackVm.getState().observe(getViewLifecycleOwner(), state -> {
-            if (state != null)
-                adapter.setPlayingRadioStation(state.trackId);
+            if (state == null)
+                return;
+            adapter.setPlayingRadioStation(state.trackId);
+            // Playing a station is how we learn it streams a picture, which is what puts the TV
+            // icon on its row from then on.
+            if (Var.PLAY_MODE_RADIO.equals(state.playMode) && state.extras != null
+                    && state.extras.getBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE, false)) {
+                String uuid = adapter.uuidOfStation(state.trackId);
+                if (uuid != null && !Pref.isRadioStationWithVideo(uuid)) {
+                    Pref.addRadioStationWithVideo(uuid);
+                    adapter.notifyDataSetChanged();
+                }
+            }
         });
 
         // initMode() picks favorites-vs-history itself (asynchronously, based on which has rows)
@@ -374,6 +403,19 @@ public class RadioFavoritesFragment extends LoggingFragment {
             }
         });
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(streamErrorReceiver,
+                new IntentFilter(com.driot.bookplayer.player.MediaService.NOTIFICATION_ERROR));
+    }
+
+    @Override
+    public void onStop() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(streamErrorReceiver);
+        super.onStop();
     }
 
     @Override

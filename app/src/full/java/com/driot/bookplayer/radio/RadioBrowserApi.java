@@ -34,6 +34,7 @@ public interface RadioBrowserApi {
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("order") String order,
+            @Query("reverse") boolean reverse,
             @Query("hidebroken") boolean hideBroken
     );
 
@@ -87,6 +88,7 @@ public interface RadioBrowserApi {
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("order") String order,
+            @Query("reverse") boolean reverse,
             @Query("hidebroken") boolean hideBroken
     );
     @GET("json/stations/bycountry/{country}")
@@ -95,6 +97,7 @@ public interface RadioBrowserApi {
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("order") String order,
+            @Query("reverse") boolean reverse,
             @Query("hidebroken") boolean hideBroken
     );
     @GET("json/stations/bylanguage/{language}")
@@ -103,6 +106,7 @@ public interface RadioBrowserApi {
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("order") String order,
+            @Query("reverse") boolean reverse,
             @Query("hidebroken") boolean hideBroken
     );
 
@@ -112,6 +116,7 @@ public interface RadioBrowserApi {
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("order") String order,
+            @Query("reverse") boolean reverse,
             @Query("hidebroken") boolean hideBroken
     );
 

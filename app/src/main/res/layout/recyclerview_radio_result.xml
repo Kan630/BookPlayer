@@ -74,6 +74,15 @@
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/no_flag"
                     />
+                <!-- Shown in code only for a station known to stream a picture -->
+                <ImageView
+                    android:id="@+id/iv_radio_tv"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@string/radio_video_watch"
+                    android:src="@drawable/ic_live_tv_24px"
+                    />
             <TextView
                 android:id="@+id/radio_info_txt"
                 android:layout_width="wrap_content"
@@ -108,6 +117,18 @@
             android:layout_height="0dp"
             android:background="@drawable/bg_radio"
             android:duplicateParentState="true"
+            app:layout_constraintTop_toTopOf="@id/radio_favicon"
+            app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
+            app:layout_constraintStart_toStartOf="@id/radio_favicon"
+            app:layout_constraintEnd_toEndOf="@id/radio_favicon"
+            />
+
+        <!-- Failed-to-play marker; shown in code, cleared as soon as the stream plays -->
+        <View
+            android:id="@+id/radio_border_failed"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_radio_failed"
             app:layout_constraintTop_toTopOf="@id/radio_favicon"
             app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
             app:layout_constraintStart_toStartOf="@id/radio_favicon"

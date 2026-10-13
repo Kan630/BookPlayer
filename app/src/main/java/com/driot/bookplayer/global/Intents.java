@@ -77,6 +77,10 @@ public class Intents {
     public static final String EXTRA_RADIO_RECORDING_ELAPSED_MS = "EXTRA_RADIO_RECORDING_ELAPSED_MS";
     public static final String EXTRA_RADIO_RECORDING_BYTES = "EXTRA_RADIO_RECORDING_BYTES";
     public static final String EXTRA_RADIO_BUFFERED_MS = "EXTRA_RADIO_BUFFERED_MS";
+    /** Set while the station being played carries a video track (a TV-style HLS stream): what
+     * makes the "watch" entry points appear. The track itself stays unselected until the video
+     * screen attaches a surface - see RadioVideo. */
+    public static final String EXTRA_RADIO_VIDEO_AVAILABLE = "EXTRA_RADIO_VIDEO_AVAILABLE";
 
     public static final String CMD_TTS_SET_START = "CMD_TTS_SET_START";
     public static final String EXTRA_TTS_START_OFFSET = "EXTRA_TTS_START_OFFSET";

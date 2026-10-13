@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.video.StreamVideoActivity;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -31,7 +33,8 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
     private ProgressBar progressBar;
-    private ImageView ivCover, ivNoInternet;
+    private ImageView ivCover, ivNoInternet, ivVideoBadge;
+    private View flCover;
     // private TextView tvTitle, tvSubTitle;
     private TextView tvMiniTime;
     private Slider sbMiniSeek; // <- change type
@@ -62,6 +65,20 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         tvMiniTime = v.findViewById(R.id.tvMiniTime);
         ibClose = v.findViewById(R.id.ibClose);
         ivCover = v.findViewById(R.id.ivCover);
+        ivVideoBadge = v.findViewById(R.id.ivVideoBadge);
+        ivVideoBadge.setVisibility(View.GONE); // only for an episode that carries a picture
+        flCover = v.findViewById(R.id.flCover);
+        // The badge is a 20dp corner of a 40dp cover, and the rest of the mini player opens the
+        // episode list: aiming at it took two tries. So the whole cover is the target whenever
+        // the badge is showing, and lets the tap through to the mini player when it is not.
+        View.OnClickListener watch = _v -> {
+            myLogI("---- user press the cover to WATCH (podcast) ----");
+            PlaybackCommands.resetLastUserAction(requireContext());
+            StreamVideoActivity.startForPodcast(requireContext());
+        };
+        ivVideoBadge.setOnClickListener(watch);
+        flCover.setOnClickListener(watch);
+        flCover.setClickable(false);
         ivNoInternet = v.findViewById(R.id.ivNoInternet);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
@@ -104,6 +121,11 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             // myLogD(s.toString());
             lastState = vm.getState().getValue();
             refreshUi();
+            // A video podcast episode: the badge over the cover opens the watch screen.
+            boolean video = s.extras != null
+                    && s.extras.getBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE, false);
+            ivVideoBadge.setVisibility(video ? View.VISIBLE : View.GONE);
+            flCover.setClickable(video);
         });
 
         NetworkStatusViewModel netVm = new ViewModelProvider(requireActivity()).get(NetworkStatusViewModel.class);

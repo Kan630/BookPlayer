@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -28,7 +29,7 @@ import java.util.Map;
 // Media3 (Google may change them without notice) - this class knowingly depends on them, so the
 // whole class opts in rather than scattering the annotation over every call site.
 @OptIn(markerClass = UnstableApi.class)
-public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerEngine {
+public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerEngine, VideoCapableEngine {
 
     private final EngineListener listener;
     private final long gen;
@@ -43,6 +44,10 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
 
     private MediaItem currentItem;
 
+    /** A podcast episode can be a video file (an mp4 in the feed): same job as for radio, so the
+     *  same helper. The picture is not decoded until a screen asks for it. */
+    private ExoVideoSupport video;
+
     public ExoStreamPlayerEngine(@NonNull Context ctx,
                                  @NonNull EngineListener engineListener,
                                  long generationToken) {
@@ -51,6 +56,7 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
         this.listener = engineListener;
         this.gen      = generationToken;
         initPlayer();
+        StreamVideo.register(this);
     }
 
     private void initPlayer() {
@@ -91,7 +97,21 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
                 /* handleAudioFocus= */ false
         );
 
+        // A video podcast is sound until someone asks to watch it: leaving the video track out
+        // saves fetching and decoding a 1080p picture nobody is looking at.
+        video = new ExoVideoSupport(player);
+
         player.addListener(new androidx.media3.common.Player.Listener() {
+            @Override
+            public void onTracksChanged(@NonNull androidx.media3.common.Tracks tracks) {
+                video.onTracksChanged(tracks);
+            }
+
+            @Override
+            public void onVideoSizeChanged(@NonNull androidx.media3.common.VideoSize size) {
+                video.onVideoSizeChanged(size);
+            }
+
             @Override
             public void onPlaybackStateChanged(int state) {
                 switch (state) {
@@ -173,6 +193,7 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
     public void prepareAsync() {
         prepared = false;
         preparing = true;
+        video.onNewStream(); // another episode: it may or may not be a video one
 
         try {
             player.stop();
@@ -244,10 +265,32 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
         return volume;
     }
 
+    @Override
+    public boolean hasVideoTrack() {
+        return video.hasVideoTrack();
+    }
+
+    @Override
+    public void setVideoSizeListener(@Nullable VideoSizeListener l) {
+        video.setVideoSizeListener(l);
+    }
+
+    @Override
+    public void bindVideoSurface(@NonNull android.view.SurfaceView view) {
+        video.bind(view);
+    }
+
+    @Override
+    public void unbindVideoSurface() {
+        video.unbind();
+    }
+
     /** Call when done with this engine. */
     public void release() {
         prepared = false;
         preparing = false;
+        StreamVideo.unregister(this);
+        video.dispose();
         if (player != null) {
             try { if (player.isPlaying()) player.stop(); } catch (Throwable ignored) {}
             try { player.clearMediaItems(); } catch (Throwable ignored) {}

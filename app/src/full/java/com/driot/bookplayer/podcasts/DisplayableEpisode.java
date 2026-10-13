@@ -25,6 +25,9 @@ public class DisplayableEpisode {
     public String guid;
     public String podcastGuid;
     public String enclosureUrl;
+    /** From the API only ("video/mp4" for a video podcast); null for an episode read back from
+     *  the database, where the url extension is what is left to go on. */
+    public String enclosureType;
     public String datePublished;
     public String datePublishedPretty;
     public long enclosureLength;
@@ -48,6 +51,7 @@ public class DisplayableEpisode {
         de.guid = pe.guid;
         //de.podcastGuid = pe.podcastGuid;
         de.enclosureUrl = pe.enclosureUrl;
+        de.enclosureType = pe.enclosureType;
         de.datePublished = pe.datePublished;
         de.datePublishedPretty = pe.datePublishedPretty;
         de.enclosureLength = pe.enclosureLength;
@@ -78,6 +82,11 @@ public class DisplayableEpisode {
         de.enclosureLength = ep.enclosureLength;
 
         return de;
+    }
+
+    /** Whether this episode is a video one - see PodcastHelper.isVideoEnclosure(). */
+    public boolean isVideo() {
+        return PodcastHelper.isVideoEnclosure(enclosureType, enclosureUrl);
     }
 
     /**

@@ -29,16 +29,34 @@
         app:layout_constraintBottom_toTopOf="@+id/miniControlsRow2"
         >
 
-        <ImageView
-            android:id="@+id/ivCover"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/cover_preview"
-            android:src="@drawable/ic_podcast_24"
-            android:clickable="false"
+        <FrameLayout
+            android:id="@+id/flCover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            />
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/ivCover"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/cover_preview"
+                android:src="@drawable/ic_podcast_24"
+                android:clickable="false"
+                />
+
+            <!-- Tap to watch: shown in code only when the episode carries a picture -->
+            <ImageView
+                android:id="@+id/ivVideoBadge"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/bg_video_badge"
+                android:padding="3dp"
+                android:contentDescription="@string/radio_video_watch"
+                android:src="@drawable/ic_live_tv_24px" />
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/bMiniBackward"

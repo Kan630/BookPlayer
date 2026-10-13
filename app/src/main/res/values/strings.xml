@@ -759,6 +759,24 @@
     <string name="radio_recording_stopped_low_storage">Recording auto-stopped: storage full</string>
     <string name="radio_recording_info">%1$s · %2$s</string>
     <string name="radio_buffer_info">Buffer\n%1$s</string>
+
+    <!-- A stream that would not play -->
+    <string name="radio_stream_failed">%1$s could not be played: %2$s</string>
+    <string name="stream_error_no_connection">no connection to the server</string>
+    <string name="stream_error_server_refused">the server refused the stream</string>
+    <string name="stream_error_not_found">the stream is gone</string>
+    <string name="stream_error_format">stream format not supported</string>
+    <string name="stream_error_decoder">this device cannot decode this stream</string>
+
+    <!-- Radio video ("watch") screen -->
+    <string name="radio_video_watch">Watch</string>
+    <string name="radio_video_live">Live</string>
+    <string name="radio_video_fullscreen">Fullscreen</string>
+    <string name="radio_video_waiting">Waiting for the picture\u2026</string>
+    <string name="radio_video_sound_only">This station is sound only.</string>
+    <string name="radio_video_not_playing">Play the station first, then watch its video.</string>
+    <string name="radio_video_mobile_data_title">Watch on mobile data?</string>
+    <string name="radio_video_mobile_data_message">Video uses far more data than sound alone. Watch anyway?</string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>
@@ -1364,10 +1382,11 @@
 
     <string name="by_genre_all_languages">by genre (all languages)</string>
     <string name="unsupported_language">unsupported language</string>
+    <string name="duplicates_merged">duplicates merged</string>
     <string name="spam_fake_stations_removed">removed (spam?)</string>
     <string name="dubious_stations_removed">removed (dubious)</string>
     <string name="option_radio_remove_duplicates">remove duplicates</string>
-    <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
+    <string name="option_radio_remove_duplicates_subtitle">When browsing a tag, a country or a language, list only one stream per station, so the list is not cluttered by the same station over and over. Searching for a station by name always shows all of its streams.</string>
     <string name="option_radio_remove_dubious">Remove dubious stations</string>
     <string name="option_radio_remove_dubious_subtitle">Some stations were incorrectly added to every country or tag; hide them from results.</string>
     <string name="option_radio_landing_screen">When you tap Radio in the bottom bar, open:</string>

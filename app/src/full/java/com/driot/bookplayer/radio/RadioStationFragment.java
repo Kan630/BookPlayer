@@ -16,8 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.video.StreamVideoActivity;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
@@ -36,6 +41,13 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 @AndroidEntryPoint
 public class RadioStationFragment extends LoggingFragment {
+
+    private ImageButton ibWatch;
+    private ImageView ivVideoBadge;
+    /** Station row id of what is playing, so the watch screen knows which station to show. */
+    private long playingStationId = -1;
+    private PlaybackViewModel playbackVm;
+
 
     private ImageView ivCover;
     private TextView tvName;
@@ -78,6 +90,16 @@ public class RadioStationFragment extends LoggingFragment {
         tvStats = view.findViewById(R.id.tvStats);
         ibFavorite = view.findViewById(R.id.ibFavorite);
         ibVote = view.findViewById(R.id.ibVote);
+        ibWatch = view.findViewById(R.id.ibWatch);
+        ivVideoBadge = view.findViewById(R.id.ivVideoBadge);
+
+        // Both are for stations that stream a picture, so neither is there by default.
+        ibWatch.setVisibility(View.GONE);
+        ivVideoBadge.setVisibility(View.GONE);
+        ibWatch.setOnClickListener(v -> {
+            myLogI("--- user clicks WATCH ---  station id [" + playingStationId + "]");
+            StreamVideoActivity.start(requireContext(), playingStationId);
+        });
 
         // Load station
 
@@ -90,6 +112,11 @@ public class RadioStationFragment extends LoggingFragment {
         View networkRowView = view.findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         new NetworkStatusRowController(requireContext(), networkRowView, getViewLifecycleOwner(), netVm);
+
+        // The picture can only be watched on the station being played, and the engine is what
+        // tells us it is there: the playback state carries the flag about every second.
+        playbackVm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        playbackVm.getState().observe(getViewLifecycleOwner(), this::bindVideoAvailability);
 
         ImageButton ibShare = view.findViewById(R.id.ibShare);
         ibShare.setOnClickListener(v -> {
@@ -194,6 +221,9 @@ public class RadioStationFragment extends LoggingFragment {
         stats.append("\n");
         stats.append("\ncodec : " + radioStation.codec);
         stats.append("\nbitrate : " + (radioStation.bitrate == 0 ? "unknown" : radioStation.bitrate + " kbps"));
+        // HLS is what a picture can come in (and radio-browser reports codec UNKNOWN for those),
+        // so it is the only hint this screen can give before the stream is opened.
+        stats.append("\nhls : " + getString(radioStation.hls == 1 ? R.string.Yes : R.string.No));
 
         stats.append("\n");
         stats.append("\n"  + getString(R.string.listened) + " : " + Tonio.formatTime(radioStation.timeListened*1000));
@@ -209,6 +239,38 @@ public class RadioStationFragment extends LoggingFragment {
             tvStats.setVisibility(View.GONE);
         }
 
+        // The playback state usually arrives before the station row does.
+        bindVideoAvailability(playbackVm == null ? null : playbackVm.getState().getValue());
+    }
+
+    /** The watch button is only there while the station on this screen is the one playing and its
+     * stream really carries a picture - that is the only moment watching is possible. The badge is
+     * looser: it also lights up on what we already knew about the station, so you can tell a TV
+     * station from a radio one before pressing play. */
+    private void bindVideoAvailability(@Nullable PlaybackUiState s) {
+        if (ibWatch == null) {
+            return; // view destroyed
+        }
+        RadioStation station = vm == null ? null : vm.getStation().getValue();
+        boolean liveVideo = false;
+        if (s != null && station != null && Var.PLAY_MODE_RADIO.equals(s.playMode)
+                && s.trackId == station.id) {
+            playingStationId = s.trackId;
+            liveVideo = s.extras != null
+                    && s.extras.getBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE, false);
+            if (liveVideo) {
+                Pref.addRadioStationWithVideo(station.stationuuid);
+            }
+        }
+        ibWatch.setVisibility(liveVideo ? View.VISIBLE : View.GONE);
+        ivVideoBadge.setVisibility(liveVideo || knownToHaveVideo(station) ? View.VISIBLE : View.GONE);
+    }
+
+    /** What we know without playing a note: a video track seen on this station before, or a codec
+     * that only makes sense for a picture. */
+    private boolean knownToHaveVideo(@Nullable RadioStation station) {
+        return station != null && (Pref.isRadioStationWithVideo(station.stationuuid)
+                || RadioHelper.codecLooksLikeVideo(station.codec));
     }
 
     private static String safe(@Nullable String s) {

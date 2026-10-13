@@ -20,6 +20,7 @@ import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -178,7 +179,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                     boolean serverHasMorePages = rawSize >= Option.getRadioApiNbResults();
                     myLogD("serverHasMorePages: " + serverHasMorePages + " (rawSize=" + rawSize + ")");
 
-                    FilterResult fr = filterStations(body);
+                    FilterResult fr = filterStations(body, isPagination);
                     String headerExtra = buildFilterHeaderText(fr);
 
                     if (isPagination) {
@@ -249,6 +250,9 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                 List<ApiStation> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
                     int received = body.size();
+                    // Same treatment as any other page: censored and dubious stations used to
+                    // walk straight in through this door, and duplicates with them.
+                    filterStations(body, /* isPagination= */ true);
                     int dedupCount = appendResultsFromAlias(body); // does NOT touch currentOffset
                     int added = received - dedupCount;
                     boolean hitLimit = received >= Option.getRadioApiNbResults();
@@ -274,18 +278,77 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
     // =========================================================================
 
     private static class FilterResult {
+        /** Other registrations of a stream already shown: folded into it, nothing lost. */
+        int nbMergedStreams = 0;
+        /** Other streams of a station, left out of a browsing listing to keep it readable. */
         int nbRemovedDuplicates = 0;
         int nbRemovedDubious    = 0;
         final Set<String> removedNamesDuplicates = new HashSet<>();
     }
 
-    /** Filters {@code body} in-place (removes censored / dubious / spam stations). */
-    private FilterResult filterStations(List<ApiStation> body) {
+    /**
+     * Keyword search and browsing want opposite things from a result list.
+     *
+     * Typing a station's name is a request for *that* station, so every distinct stream it has
+     * should be on offer - the 192k AAC, the 32k mobile one, the HLS one - ranked best-first.
+     * Browsing a tag or a country is a request for *variety*, and there one row per station is
+     * plenty.
+     *
+     * Both drop what is the same stream twice over (see RadioHelper.streamKey): radio-browser
+     * holds the same url registered under many uuids - France Info comes back 15 times for 5
+     * real streams - and those merge into one row carrying the count.
+     */
+    private boolean isBrowsingMode() {
+        switch (lastSearchMode) {
+            case "MODE_TAG":
+            case "MODE_COUNTRY":
+            case "MODE_LANGUAGE":
+            case "MODE_TOP_VOTE":
+            case "MODE_TOP_CLICK":
+            case "MODE_LAST_CLICK":
+            case "MODE_LAST_CHANGE":
+                return true;
+            default: // MODE_SEARCH and anything new: show the station's streams
+                return false;
+        }
+    }
+
+    /** How good a stream looks, from what the API tells us. Best first. */
+    private static final Comparator<ApiStation> BY_QUALITY = (a, b) -> {
+        // a stream the checker could not play is worth nothing, whatever its votes
+        int cmp = Integer.compare(b.lastcheckok, a.lastcheckok);
+        if (cmp != 0) return cmp;
+        // the canonical stream of a station is the one many people registered and voted for
+        cmp = Integer.compare(b.mergedVotes, a.mergedVotes);
+        if (cmp != 0) return cmp;
+        cmp = Integer.compare(b.mergedCount, a.mergedCount);
+        if (cmp != 0) return cmp;
+        cmp = Integer.compare(b.clickcount, a.clickcount); // who is listening right now
+        if (cmp != 0) return cmp;
+        return Integer.compare(b.bitrate, a.bitrate);      // then simply the better sound
+    };
+
+    /** Filters {@code body} in-place (censored / dubious out, same-stream rows merged, and in a
+     * browsing listing one row per station). Paging is taken into account: the rows already on
+     * screen are what a new page is compared against. */
+    private FilterResult filterStations(List<ApiStation> body, boolean isPagination) {
         FilterResult fr = new FilterResult();
         Set<String> censoredRadios = LiveCensorshipManager.getCensoredRadios(getApplication());
         boolean removeDubious    = Option.getRadioRemoveDubiousStations();
-        boolean removeDuplicates = Option.getRadioRemoveSpamStations();
-        Map<String, Integer> countMap = new HashMap<>();
+        boolean collapseByName   = isBrowsingMode() && Option.getRadioRemoveSpamStations();
+
+        // State of what is already displayed, so page 2 does not bring back page 1's duplicates.
+        Map<String, ApiStation> keptByStream = new HashMap<>();
+        Map<String, Integer> nameCount = new HashMap<>();
+        Set<String> hlsKeptNames = new HashSet<>();
+        if (isPagination) {
+            List<ApiStation> shown = results.getValue();
+            if (shown != null) {
+                for (ApiStation s : shown) {
+                    seed(s, keptByStream, nameCount, hlsKeptNames);
+                }
+            }
+        }
 
         Iterator<ApiStation> it = body.iterator();
         while (it.hasNext()) {
@@ -303,23 +366,67 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                 fr.nbRemovedDubious++;
                 continue;
             }
-            if (removeDuplicates) {
-                Integer countObj = countMap.get(trimmed);
-                int count = countObj != null ? countObj : 0;
-                if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
+
+            // Same stream as a row we keep: fold it in (its votes count towards that row) and go.
+            String streamKey = RadioHelper.streamKey(s.url_resolved != null ? s.url_resolved : s.url);
+            ApiStation kept = keptByStream.get(streamKey);
+            if (kept != null) {
+                kept.mergedCount++;
+                kept.mergedVotes += s.votesAsInt();
+                fr.nbMergedStreams++;
+                it.remove();
+                continue;
+            }
+
+            if (collapseByName) {
+                int count = nameCount.getOrDefault(trimmed, 0);
+                boolean isHls = s.hls == 1 || RadioHelper.codecLooksLikeVideo(s.codec);
+                // One row per station, plus its HLS one when that is not already the row kept:
+                // a station that streams a picture must stay findable by tag or by country.
+                boolean firstHlsOfThisName = isHls && !hlsKeptNames.contains(trimmed);
+                if (count >= 1 && !firstHlsOfThisName) {
                     it.remove();
                     fr.nbRemovedDuplicates++;
                     fr.removedNamesDuplicates.add(s.name);
-                } else {
-                    countMap.put(trimmed, count + 1);
+                    continue;
                 }
             }
+
+            s.mergedCount = 1;
+            s.mergedVotes = s.votesAsInt();
+            keptByStream.put(streamKey, s);
+            nameCount.merge(trimmed, 1, Integer::sum);
+            if (s.hls == 1 || RadioHelper.codecLooksLikeVideo(s.codec)) {
+                hlsKeptNames.add(trimmed);
+            }
+        }
+
+        // Searching for a station: put its best stream at the top. Browsing keeps the server's
+        // order (votes, descending), which is already the right one for discovery.
+        if (!isBrowsingMode()) {
+            body.sort(BY_QUALITY);
         }
         return fr;
     }
 
+    /** Re-reads a row already on screen into the filter's state (paging). */
+    private void seed(ApiStation s, Map<String, ApiStation> keptByStream,
+            Map<String, Integer> nameCount, Set<String> hlsKeptNames) {
+        if (s.name == null) return;
+        String trimmed = s.name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+        keptByStream.put(RadioHelper.streamKey(s.url_resolved != null ? s.url_resolved : s.url), s);
+        nameCount.merge(trimmed, 1, Integer::sum);
+        if (s.hls == 1 || RadioHelper.codecLooksLikeVideo(s.codec)) {
+            hlsKeptNames.add(trimmed);
+        }
+    }
+
     private String buildFilterHeaderText(FilterResult fr) {
         String headerTxt = "";
+        if (fr.nbMergedStreams > 0) {
+            headerTxt += "    (" + fr.nbMergedStreams + " " + str(R.string.duplicates_merged) + ")";
+            myLog(fr.nbMergedStreams + " rows merged (same stream registered several times)");
+        }
         if (fr.nbRemovedDuplicates > 0) {
             headerTxt += "    (" + fr.nbRemovedDuplicates + " "
                     + str(R.string.spam_fake_stations_removed)

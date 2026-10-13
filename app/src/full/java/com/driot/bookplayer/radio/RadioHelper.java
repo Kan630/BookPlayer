@@ -10,6 +10,8 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 
@@ -261,6 +263,65 @@ public class RadioHelper {
 	public static void addSecondToTimeListened(Context context, long trackId) {
 		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 		db.radioStationDao().addSecondToTimeListened(trackId);
+	}
+
+	/** Whether a station's advertised codec suggests it streams a picture, not just sound. Only a
+	 *  hint for the UI before anything is played (radio-browser has no "is TV" field); what really
+	 *  decides is the video track the engine reports once the stream is open. */
+	/** Identity of the *stream* behind a station row. Anyone can add a station to radio-browser,
+	 *  so the same stream sits in there many times over, registered under different uuids and
+	 *  differing only by scheme, a trailing slash or a tracking query (France Info's HLS is in
+	 *  twice, once with "?id=radiofrance"). Those are one choice for the listener, not several.
+	 *  Returns an empty string when there is no url to speak of. */
+	public static String streamKey(@Nullable String url) {
+		if (url == null)
+			return "";
+		String s = url.trim();
+		if (s.isEmpty())
+			return "";
+		// Plain string work on purpose (no android.net.Uri): this is the heart of merging result
+		// rows, and it is covered by a JVM unit test - see RadioStreamKeyTest.
+		int scheme = s.indexOf("://");
+		if (scheme >= 0) {
+			s = s.substring(scheme + 3);
+		}
+		int cut = s.length();                       // the query and the fragment are not the stream
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c == '?' || c == '#') {
+				cut = i;
+				break;
+			}
+		}
+		s = s.substring(0, cut);
+		while (s.endsWith("/")) {
+			s = s.substring(0, s.length() - 1);
+		}
+		int slash = s.indexOf('/');
+		String host = slash < 0 ? s : s.substring(0, slash);
+		String path = slash < 0 ? "" : s.substring(slash);
+		// host is case-insensitive, a path is not
+		return host.toLowerCase(java.util.Locale.ROOT) + path;
+	}
+
+	/** The small grey line under a result's name: what kind of stream it is, plus how many
+	 *  registrations were merged into it when that says something ("x8"). */
+	public static String buildResultInfoString(RadioStation s, int mergedCount) {
+		String info = buildShortInfoString(s);
+		if (mergedCount > 1) {
+			info = info.isEmpty() ? "x" + mergedCount : info + " \u00b7 x" + mergedCount;
+		}
+		return info;
+	}
+
+	public static boolean codecLooksLikeVideo(@Nullable String codec) {
+		if (codec == null || codec.isEmpty())
+			return false;
+		String c = codec.toLowerCase(java.util.Locale.ROOT);
+		return c.contains("h.264") || c.contains("h264") || c.contains("avc")
+				|| c.contains("h.265") || c.contains("h265") || c.contains("hevc")
+				|| c.contains("mpeg4") || c.contains("mpeg-4") || c.contains("theora")
+				|| c.contains("vp8") || c.contains("vp9") || c.contains("av1");
 	}
 
 	public static void shareRadioStation(Context context, String uuid) {

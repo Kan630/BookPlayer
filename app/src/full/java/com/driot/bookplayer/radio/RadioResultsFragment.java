@@ -1,5 +1,9 @@
 package com.driot.bookplayer.radio;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -11,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +27,7 @@ import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.GridScaleGestureHelper;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
@@ -62,6 +68,18 @@ public class RadioResultsFragment extends LoggingFragment {
     private RadioResultsViewModel viewModel;
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
+
+    /** A stream that would not play: MediaService says so (and toasts), the row stops waiting
+     * and shows its failure mark. */
+    private final BroadcastReceiver streamErrorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            myLogW("radio stream error received by the results screen");
+            if (adapter != null) {
+                adapter.onStreamFailed();
+            }
+        }
+    };
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
@@ -288,11 +306,24 @@ public class RadioResultsFragment extends LoggingFragment {
             if (state == null) return;
             if (Var.PLAY_MODE_RADIO.equals(state.playMode) && state.trackId > 0) {
                 resumeGlideAfterPlay();
+                boolean hasVideo = state.extras != null
+                        && state.extras.getBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE, false);
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     RadioStation rs = AppDatabase.getDatabase(appContext())
                             .radioStationDao().findById(state.trackId);
                     String uuid = (rs != null) ? rs.stationuuid : null;
-                    runOnUiIfAdded(() -> adapter.setPlayingRadioStation(state.trackId, uuid));
+                    // Playing a station is how we find out it streams a picture; remembering it
+                    // here is what puts the TV icon on its row from then on.
+                    boolean learned = hasVideo && uuid != null && !Pref.isRadioStationWithVideo(uuid);
+                    if (learned) {
+                        Pref.addRadioStationWithVideo(uuid);
+                    }
+                    runOnUiIfAdded(() -> {
+                        adapter.setPlayingRadioStation(state.trackId, uuid);
+                        if (learned) {
+                            adapter.refreshStation(uuid);
+                        }
+                    });
                 });
             } else {
                 adapter.setPlayingRadioStation(-1, null);
@@ -427,6 +458,19 @@ public class RadioResultsFragment extends LoggingFragment {
         myLog("API CALL... [" + station_search_mode + "] q=" + q
                 + " lang=" + lang + " country=" + country + " tag=" + tag);
         viewModel.search(station_search_mode, q, lang, country, tag, langVariants);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(streamErrorReceiver,
+                new IntentFilter(com.driot.bookplayer.player.MediaService.NOTIFICATION_ERROR));
+    }
+
+    @Override
+    public void onStop() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(streamErrorReceiver);
+        super.onStop();
     }
 
     @Override

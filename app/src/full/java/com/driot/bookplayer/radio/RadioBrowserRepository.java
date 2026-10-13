@@ -95,20 +95,20 @@ public class RadioBrowserRepository {
     }
 
     public void byTag(String tag, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
-        api.byTag(tag, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
+        api.byTag(tag, limit, offset, "votes", /* reverse= */ true, true).enqueue(new LoggingCallback<>(cb, "byTag"));
     }
 
     public void byCountry(String country, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
-        api.byCountry(country, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
+        api.byCountry(country, limit, offset, "votes", /* reverse= */ true, true).enqueue(new LoggingCallback<>(cb, "byCountry"));
     }
 
     public void byLanguageExact(String language, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
-        api.byLanguageExact(language, limit, offset, "votes", true)
+        api.byLanguageExact(language, limit, offset, "votes", /* reverse= */ true, true)
                 .enqueue(new LoggingCallback<>(cb, "byLanguageExact"));
     }
 
     public void byName(String name, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
-        api.byName(name, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
+        api.byName(name, limit, offset, "votes", /* reverse= */ true, true).enqueue(new LoggingCallback<>(cb, "byName"));
     }
 
     // ---- LISTES (pays / tags / langues) → passent par Cloudflare si dispo ----

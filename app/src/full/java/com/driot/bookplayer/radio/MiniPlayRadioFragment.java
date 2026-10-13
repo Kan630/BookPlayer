@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.video.StreamVideoActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.nav.NavHelper;
@@ -27,7 +28,8 @@ import java.util.Objects;
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private ProgressBar progressBar;
-    private ImageView ivCover, ivNoInternet;
+    private ImageView ivCover, ivNoInternet, ivVideoBadge;
+    private View flCover;
     private TextView tvTitle, tvSubTitle;
     private ImageButton ibPlayPause, ibClose;
     private View llRecord;
@@ -47,6 +49,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         progressBar = v.findViewById(R.id.progress);
         ivCover = v.findViewById(R.id.ivCover);
+        ivVideoBadge = v.findViewById(R.id.ivVideoBadge);
+        ivVideoBadge.setVisibility(View.GONE); // only for a station that streams a picture
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSub);
         ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
@@ -86,7 +90,23 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             refreshUi();
 
             updateRecordingUi(s);
+            updateVideoBadge(s);
         });
+
+        // Same as the podcast one: the badge is a small corner, so the whole cover is the target
+        // while it is showing (and passes the tap on to the mini player when it is not).
+        View.OnClickListener watch = _v -> {
+            myLogI("---- user press the cover to WATCH (radio) ----");
+            PlaybackCommands.resetLastUserAction(requireContext());
+            long trackId = (vm.getState() != null && vm.getState().getValue() != null)
+                    ? vm.getState().getValue().trackId
+                    : -1;
+            StreamVideoActivity.start(requireContext(), trackId);
+        };
+        ivVideoBadge.setOnClickListener(watch);
+        flCover = v.findViewById(R.id.flCover);
+        flCover.setOnClickListener(watch);
+        flCover.setClickable(false);
 
         try {
             NetworkStatusViewModel netVm = new ViewModelProvider(requireActivity()).get(NetworkStatusViewModel.class);
@@ -136,6 +156,15 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             return;
         UiHelper.FillUiBasic(lastState, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null, ivNoInternet,
                 hasInternet);
+    }
+
+    /** The badge over the station logo is the "there is a picture to watch" hint, wherever the
+     * mini player is showing - tapping it opens the watch screen. */
+    private void updateVideoBadge(PlaybackUiState s) {
+        boolean video = s.extras != null
+                && s.extras.getBoolean(Intents.EXTRA_RADIO_VIDEO_AVAILABLE, false);
+        ivVideoBadge.setVisibility(video ? View.VISIBLE : View.GONE);
+        flCover.setClickable(video);
     }
 
     private void updateRecordingUi(PlaybackUiState s) {

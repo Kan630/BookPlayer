@@ -36,14 +36,40 @@
         android:gravity="center_vertical"
         android:layout_marginBottom="4dp">
 
-        <ImageView
-            android:id="@+id/ivEpisodeCover"
+        <FrameLayout
+            android:id="@+id/flEpisodeCover"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@null"
-            android:visibility="gone" />
+            android:layout_marginEnd="8dp">
+
+            <ImageView
+                android:id="@+id/ivEpisodeCover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null" />
+
+            <!-- "this episode is a video" - shown in code, over the episode art when there is any -->
+            <ImageView
+                android:id="@+id/ivEpisodeVideoBadge"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/bg_video_badge"
+                android:padding="3dp"
+                android:contentDescription="@string/radio_video_watch"
+                android:src="@drawable/ic_live_tv_24px" />
+        </FrameLayout>
+
+        <!-- Same marker for the rows that show no cover (most feeds have no per-episode art) -->
+        <ImageView
+            android:id="@+id/ivEpisodeVideoInline"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="6dp"
+            android:contentDescription="@string/radio_video_watch"
+            android:src="@drawable/ic_live_tv_24px"
+            app:tint="?colorPrimaryVariant" />
 
         <TextView
             android:id="@+id/tvEpisodeTitle"
