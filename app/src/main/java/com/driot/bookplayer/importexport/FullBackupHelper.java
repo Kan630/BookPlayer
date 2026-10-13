@@ -2,6 +2,8 @@ package com.driot.bookplayer.importexport;
 
 import java.util.Locale;
 import android.content.Context;
+
+import androidx.annotation.Nullable;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
@@ -27,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -105,8 +109,96 @@ public class FullBackupHelper {
         public long totalEbookDurationMs;
     }
 
+    /** Progress while book folders are being measured on disk - the one slow step of an
+     *  estimate: minutes rather than milliseconds on a library of several GB whose sizes are not
+     *  cached yet. Only folders that actually have to be read are counted, so a warm cache
+     *  reports nothing at all. */
+    public interface EstimateScanListener {
+        void onScanProgress(int foldersMeasured, int foldersToMeasure);
+    }
+
     public static Estimate computeEstimate(Context context) {
         return computeEstimate(context, false, false);
+    }
+
+    /** Every imported book folder, internal storage first then the SD card if there is one.
+     *  Pairs each folder with the storage it lives on, since the two have separate size caches. */
+    private static void collectBookDirs(Context context, boolean sdCard, List<File> dirs, List<Boolean> onSdCard) {
+        File unzipFolder = StorageHelper.getUnzipFolder(context, sdCard);
+        if (unzipFolder == null || !unzipFolder.exists())
+            return;
+        File[] children = unzipFolder.listFiles();
+        if (children == null)
+            return;
+        for (File f : children) {
+            if (f.isDirectory()) {
+                dirs.add(f);
+                onSdCard.add(sdCard);
+            }
+        }
+    }
+
+    /** On-disk size of every imported book, for the estimate.
+     *
+     *  BUG FIXED (2026-10-08): this used to simply add up StorageInfoCacheHelper's cached
+     *  per-book sizes. That cache is a preference-backed map refreshed in the background (at app
+     *  startup), so it describes the library as it was at the last refresh: a book imported since
+     *  then was missing from it, and a book deleted since then was still counted. Right after a
+     *  first import the backup screen therefore announced "Storage needed: 97.2 KB" for a backup
+     *  that came out at 12.6 MB - and the number only became right after an app restart.
+     *
+     *  The folders on disk are now the source of truth and the cache is just a shortcut: a folder
+     *  it already knows is taken from it (no disk access), any other folder is measured, and what
+     *  was measured is written back so the next estimate - and Clean Memory - read it instead of
+     *  scanning again. Measuring is the slow part on a large library, hence the listener. */
+    private static long sumBookFolderSizes(Context context, @Nullable EstimateScanListener listener) {
+        List<File> dirs = new ArrayList<>();
+        List<Boolean> onSdCard = new ArrayList<>();
+        collectBookDirs(context, false, dirs, onSdCard);
+        if (StorageHelper.isExternalSDCardAvailable(context))
+            collectBookDirs(context, true, dirs, onSdCard);
+
+        Map<String, Long> cachedInternal = StorageInfoCacheHelper.getCachedFolderSizes(true);
+        Map<String, Long> cachedSdCard = StorageInfoCacheHelper.getCachedFolderSizes(false);
+        // Rebuilt from the folders that exist now, so folders deleted since the last refresh drop
+        // out of the cache instead of inflating every later estimate.
+        Map<String, Long> freshInternal = new LinkedHashMap<>();
+        Map<String, Long> freshSdCard = new LinkedHashMap<>();
+
+        int toMeasure = 0;
+        for (int i = 0; i < dirs.size(); i++) {
+            Map<String, Long> cache = onSdCard.get(i) ? cachedSdCard : cachedInternal;
+            if (!cache.containsKey(dirs.get(i).getAbsolutePath()))
+                toMeasure++;
+        }
+
+        long total = 0;
+        int measured = 0;
+        for (int i = 0; i < dirs.size(); i++) {
+            File dir = dirs.get(i);
+            boolean sdCard = onSdCard.get(i);
+            Long cached = (sdCard ? cachedSdCard : cachedInternal).get(dir.getAbsolutePath());
+            long size;
+            if (cached != null) {
+                size = cached;
+            } else {
+                size = StorageHelper.getFolderSize(dir);
+                measured++;
+                if (listener != null)
+                    listener.onScanProgress(measured, toMeasure);
+            }
+            total += size;
+            (sdCard ? freshSdCard : freshInternal).put(dir.getAbsolutePath(), size);
+        }
+
+        if (!freshInternal.equals(cachedInternal))
+            StorageInfoCacheHelper.setCachedFolderSizes(true, freshInternal);
+        if (!freshSdCard.isEmpty() && !freshSdCard.equals(cachedSdCard))
+            StorageInfoCacheHelper.setCachedFolderSizes(false, freshSdCard);
+
+        KanLogger.myLogD(TAG, "sumBookFolderSizes: " + dirs.size() + " book folder(s), "
+                + measured + " measured on disk, total " + total + " bytes");
+        return total;
     }
 
     /** Every directory FULL backup zips wholesale (each BACKUP_SUBFOLDERS kind, internal and
@@ -209,20 +301,18 @@ public class FullBackupHelper {
     }
 
     public static Estimate computeEstimate(Context context, boolean skipRedownloadable, boolean skipSdCard) {
+        return computeEstimate(context, skipRedownloadable, skipSdCard, null);
+    }
+
+    public static Estimate computeEstimate(Context context, boolean skipRedownloadable, boolean skipSdCard,
+            @Nullable EstimateScanListener listener) {
         Estimate e = new Estimate();
 
         // "unzipped" (the actual audiobooks) dominates this total and is the slow part to
-        // measure fresh - reuse StorageInfoCacheHelper's pre-computed per-book cache (same one
-        // CleanMemoryFragment's ViewModel reads, refreshed in the background) instead of a live
-        // recursive scan here.
-        for (long size : StorageInfoCacheHelper.getCachedFolderSizes(true).values()) {
-            e.totalBytes += size;
-        }
-        if (StorageHelper.isExternalSDCardAvailable(context)) {
-            for (long size : StorageInfoCacheHelper.getCachedFolderSizes(false).values()) {
-                e.totalBytes += size;
-            }
-        }
+        // measure. StorageInfoCacheHelper's per-book cache (the same one CleanMemoryFragment
+        // reads) spares us most of that work - see sumBookFolderSizes for why it cannot be
+        // trusted on its own.
+        e.totalBytes += sumBookFolderSizes(context, listener);
 
         // The rest (download/linked/images/cached_images) are typically far smaller, so a live
         // scan here is fine - no equivalent cache exists for them.

@@ -68,6 +68,10 @@ public class FullBackupActivity extends BaseActivity {
     // exact values rather than guessing at whatever color the OutlinedButton style resolves to.
     private ColorStateList quickShareDefaultStroke, quickShareDefaultIconTint, quickShareDefaultTextColor;
     private long lastEstimatedBytes = 0;
+
+    // Scan-progress posts to the UI thread are rate-limited to this (see refreshEstimate).
+    private static final long SCAN_PROGRESS_POST_INTERVAL_MS = 150;
+    private volatile long lastScanProgressPostMs = 0;
     private TextView tvBackupScopeExplain;
     private View llPartialOptions;
     private CheckBox cbPreferences, cbRadios, cbPodcasts, cbLibrivox, cbBookProgress, cbPodcastHistory;
@@ -430,8 +434,24 @@ public class FullBackupActivity extends BaseActivity {
                     applyDestinationWarning(e.totalBytes);
                 });
             } else {
+                // Measuring book folders can take minutes on a library of several GB (only the
+                // ones missing from the size cache, so usually none) - show how far along it is
+                // instead of leaving the placeholder sitting there. Throttled: one folder can be
+                // measured in a millisecond and the UI thread does not need thousands of posts.
                 FullBackupHelper.Estimate e = FullBackupHelper.computeEstimate(getApplicationContext(),
-                        selection.skipRedownloadable, selection.skipSdCard);
+                        selection.skipRedownloadable, selection.skipSdCard,
+                        (done, toMeasure) -> {
+                            long now = System.currentTimeMillis();
+                            if (done < toMeasure && now - lastScanProgressPostMs < SCAN_PROGRESS_POST_INTERVAL_MS)
+                                return;
+                            lastScanProgressPostMs = now;
+                            runOnUiThread(() -> {
+                                if (requestId != estimateRequestId.get())
+                                    return; // superseded - its own progress will show instead
+                                tvSizeNeeded.setText(getString(R.string.full_backup_size_needed,
+                                        getString(R.string.calculating_storage) + " " + done + "/" + toMeasure));
+                            });
+                        });
                 runOnUiThread(() -> {
                     if (requestId != estimateRequestId.get()) {
                         return; // superseded by a newer request - don't overwrite its result
@@ -659,7 +679,11 @@ public class FullBackupActivity extends BaseActivity {
                 if (preview.bookCount > 0)
                     parts.add(getString(R.string.full_restore_preview_count_books, preview.bookCount));
                 if (preview.zikFileCount > 0)
-                    parts.add(getString(R.string.full_restore_preview_count_zikfiles, preview.zikFileCount));
+                    // Every ZikFile row in the backup - which is the books' own tracks, so the
+                    // old "%d other audio file(s)" read as if they were extra files beside the
+                    // books. plurals/tracks_count is the existing, already translated wording.
+                    parts.add(getResources().getQuantityString(R.plurals.tracks_count,
+                            preview.zikFileCount, preview.zikFileCount));
                 if (preview.librivoxSourceCount > 0)
                     parts.add(getString(R.string.full_restore_preview_count_librivox, preview.librivoxSourceCount));
                 if (preview.radioCount > 0)

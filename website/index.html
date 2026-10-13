@@ -59,6 +59,43 @@
             position: relative;
             bottom: 0;
         }
+        .app-name {
+            font-size: 24px;
+            font-weight: normal;
+            margin: 0;
+        }
+        .app-note {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.4;
+            margin: 8px 0 0;
+        }
+        /* An app box holds three distinct things - the store link, the apk download and the
+           screenshots. With only blank lines between them they read as one long ribbon, so each
+           gets its own block, separated by a hairline rule. */
+        .group {
+            margin-top: 18px;
+        }
+        .group + .group {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e8e8e8;
+        }
+        .group-title {
+            display: block;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        /* A footnote, not a fourth group: quieter than the section titles above it. */
+        .privacy {
+            margin: 20px 0 0;
+        }
+        .privacy a {
+            font-size: 14px;
+            color: #666;
+            margin-top: 0;
+        }
         .legacy {
             width: 300px;
             padding: 0 20px;
@@ -90,6 +127,70 @@
         .legacy a:hover, .legacy summary:hover {
             text-decoration: underline;
         }
+        /* Screenshots: a grid of thumbnails; a tap opens the full image over the page.
+           No JavaScript (the CSP forbids inline JS): each full image is shown by the :target of
+           its thumbnail's link, so the phone's Back button closes it too. Same pattern as the
+           HoldCoach page, in 3 columns to fit this 300px-wide layout. */
+        .shots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .links .shots a {
+            display: block;
+            margin: 0;
+        }
+        .shots img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .shots-anchor {
+            scroll-margin-top: 20px;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.88);
+            align-items: center;
+            justify-content: center;
+            overscroll-behavior: contain;
+        }
+        .lightbox:target {
+            display: flex;
+        }
+        .lightbox img {
+            position: relative;
+            z-index: 1;
+            max-width: 92vw;
+            max-height: 92vh;
+            width: auto;
+            height: auto;
+            border-radius: 10px;
+        }
+        .lightbox .lb-close { /* the dark area around the image: tap to close */
+            position: absolute;
+            inset: 0;
+        }
+        .lightbox .lb-btn {
+            position: absolute;
+            z-index: 2;
+            color: #fff;
+            text-decoration: none;
+            font-size: 44px;
+            line-height: 1;
+            padding: 12px 16px;
+            text-shadow: 0 0 6px #000;
+            user-select: none;
+        }
+        .lightbox .lb-prev { left: 0; top: 50%; transform: translateY(-50%); }
+        .lightbox .lb-next { right: 0; top: 50%; transform: translateY(-50%); }
+        .lightbox .lb-x { right: 4px; top: 0; font-size: 36px; }
     </style>
 </head>
 <body>
@@ -101,39 +202,63 @@
         
 
         <div class="links">
-            <p>
-                &nbsp;<br>
-                <span style="font-size: 24px">BookPlayer</span><br>
-		&nbsp;<br>
-		<a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerfull" target="_blank">
-			<img src="bookplayer.png" alt="Link to Google Play Store" width="100" height="100">
-		</a>
-		<br><a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerfull" target="_blank">View on Google Play Store</a></p>
-                <span style="font-size: 18px"><br>Direct Apk download</span><br>
-                &nbsp;<br>
-		<a href="BookPlayerFull_v326.apk">v326 - 2026, Sept. 27th</a><br>
+            <h2 class="app-name">BookPlayer</h2>
 
-            </p>
+            <div class="group">
+                <a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerfull" target="_blank">
+                    <img src="bookplayer.png" alt="BookPlayer icon, link to the Google Play Store" width="100" height="100">
+                </a>
+                <br><a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerfull" target="_blank">View on Google Play Store</a>
+            </div>
+
+            <div class="group">
+                <span class="group-title">Direct Apk download</span>
+                <a href="BookPlayerFull_v330.apk">v330 - 2026, Oct. 8th</a>
+            </div>
+
+            <div class="group">
+                <span class="group-title">Screenshots</span>
+                <div class="shots shots-anchor" id="fshots">
+                    <a href="#fshot1"><img src="screenshots/full/thumbs/1_library.png" alt="Library: your audiobooks, each with its cover, how long it runs and how far you are" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot2"><img src="screenshots/full/thumbs/2_settings.png" alt="Settings: language, play behaviour and design, with the font and colour theme pickers" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot3"><img src="screenshots/full/thumbs/3_radio.png" alt="Radio: live stations browsed by country, with favourites" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot4"><img src="screenshots/full/thumbs/4_podcasts.png" alt="Podcasts: searching through the trending shows" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot5"><img src="screenshots/full/thumbs/5_podcast_episodes.png" alt="A podcast's episodes, with their date, length and download" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot6"><img src="screenshots/full/thumbs/6_chapters.png" alt="A book's chapters, each with its length and how far it is played" width="216" height="480" loading="lazy"></a>
+                    <a href="#fshot7"><img src="screenshots/full/thumbs/7_ebook_read_aloud.png" alt="An ebook read aloud, the word being spoken highlighted as it goes" width="216" height="480" loading="lazy"></a>
+                </div>
+            </div>
+
+            <p class="privacy"><a href="privacy_policy_bookplayer_full.html">Privacy policy</a></p>
         </div>
         <div class="links">
-            <p>
-                &nbsp;<br>
-                <span style="font-size: 24px">BookPlayer Pure</span><br>
-                &nbsp;<br>
-                <span style="font-size: 14px">(lite version: no radios, no podcasts,</span><br>
-                <span style="font-size: 14px">no public archives, no cover web search)</span><br>
-                &nbsp;<br>
-                <span style="font-size: 14px">KID friendly - PEGI 3</span><br>
-		&nbsp;<br>
-		<a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerpure" target="_blank">
-			<img src="bookplayer.png" alt="Link to Google Play Store" width="100" height="100">
-		</a>
-		<br><a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerpure" target="_blank">View on Google Play Store</a></p>
-                <span style="font-size: 18px"><br>Direct Apk download</span><br>
-                &nbsp;<br>
-		<a href="BookPlayerPure_v285.apk">v285 - 2026, mar .20th</a><br>
+            <h2 class="app-name">BookPlayer Pure</h2>
+            <p class="app-note">(lite version: no radios, no podcasts,<br>no public archives, no cover web search)</p>
+            <p class="app-note">KID friendly - PEGI 3</p>
 
-            </p>
+            <div class="group">
+                <a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerpure" target="_blank">
+                    <img src="bookplayer.png" alt="BookPlayer Pure icon, link to the Google Play Store" width="100" height="100">
+                </a>
+                <br><a href="https://play.google.com/store/apps/details?id=com.driot.bookplayerpure" target="_blank">View on Google Play Store</a>
+            </div>
+
+            <div class="group">
+                <span class="group-title">Direct Apk download</span>
+                <a href="BookPlayerPure_v330.apk">v330 - 2026, Oct. 8th</a>
+            </div>
+
+            <div class="group">
+                <span class="group-title">Screenshots</span>
+                <div class="shots shots-anchor" id="pshots">
+                    <a href="#pshot1"><img src="screenshots/pure/thumbs/1_library.png" alt="Library: your audiobooks and ebooks with their progress" width="216" height="468" loading="lazy"></a>
+                    <a href="#pshot2"><img src="screenshots/pure/thumbs/2_chapters.png" alt="A book's chapters, each with its length and how far it is played" width="216" height="468" loading="lazy"></a>
+                    <a href="#pshot3"><img src="screenshots/pure/thumbs/3_settings.png" alt="Settings: language, play behaviour and design, with the font and colour theme pickers" width="216" height="468" loading="lazy"></a>
+                    <a href="#pshot4"><img src="screenshots/pure/thumbs/4_ebook_read_aloud.png" alt="An ebook read aloud, the word being spoken highlighted as it goes" width="216" height="468" loading="lazy"></a>
+                </div>
+            </div>
+
+            <p class="privacy"><a href="privacy_policy_bookplayer_pure.html">Privacy policy</a></p>
         </div>
         <details class="legacy">
             <summary>Legacy</summary>
@@ -172,6 +297,85 @@
         </div>
     </div>
 <br>&nbsp;
+    <!-- Full-size screenshots, one per thumbnail; shown only when targeted -->
+    <div class="lightbox" id="fshot1">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/1_library.png" alt="Library: your audiobooks, each with its cover, how long it runs and how far you are" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot7" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot2" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot2">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/2_settings.png" alt="Settings: language, play behaviour and design, with the font and colour theme pickers" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot1" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot3" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot3">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/3_radio.png" alt="Radio: live stations browsed by country, with favourites" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot2" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot4" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot4">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/4_podcasts.png" alt="Podcasts: searching through the trending shows" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot3" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot5" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot5">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/5_podcast_episodes.png" alt="A podcast's episodes, with their date, length and download" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot4" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot6" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot6">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/6_chapters.png" alt="A book's chapters, each with its length and how far it is played" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot5" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot7" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="fshot7">
+        <a class="lb-close" href="#fshots" aria-label="Close"></a>
+        <img src="screenshots/full/7_ebook_read_aloud.png" alt="An ebook read aloud, the word being spoken highlighted as it goes" loading="lazy">
+        <a class="lb-btn lb-prev" href="#fshot6" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#fshot1" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#fshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="pshot1">
+        <a class="lb-close" href="#pshots" aria-label="Close"></a>
+        <img src="screenshots/pure/1_library.png" alt="Library: your audiobooks and ebooks with their progress" loading="lazy">
+        <a class="lb-btn lb-prev" href="#pshot4" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#pshot2" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#pshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="pshot2">
+        <a class="lb-close" href="#pshots" aria-label="Close"></a>
+        <img src="screenshots/pure/2_chapters.png" alt="A book's chapters, each with its length and how far it is played" loading="lazy">
+        <a class="lb-btn lb-prev" href="#pshot1" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#pshot3" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#pshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="pshot3">
+        <a class="lb-close" href="#pshots" aria-label="Close"></a>
+        <img src="screenshots/pure/3_settings.png" alt="Settings: language, play behaviour and design, with the font and colour theme pickers" loading="lazy">
+        <a class="lb-btn lb-prev" href="#pshot2" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#pshot4" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#pshots" aria-label="Close">&times;</a>
+    </div>
+    <div class="lightbox" id="pshot4">
+        <a class="lb-close" href="#pshots" aria-label="Close"></a>
+        <img src="screenshots/pure/4_ebook_read_aloud.png" alt="An ebook read aloud, the word being spoken highlighted as it goes" loading="lazy">
+        <a class="lb-btn lb-prev" href="#pshot3" aria-label="Previous screenshot">&#8249;</a>
+        <a class="lb-btn lb-next" href="#pshot1" aria-label="Next screenshot">&#8250;</a>
+        <a class="lb-btn lb-x" href="#pshots" aria-label="Close">&times;</a>
+    </div>
+
     <div class="footer">
         © 2026 <a href="https://antoine.driot.com">Antoine Driot</a>. All rights reserved.
     </div>

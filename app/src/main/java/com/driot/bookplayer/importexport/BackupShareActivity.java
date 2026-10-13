@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+
+import com.driot.bookplayer.quickshare.NearbyPermissions;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -121,7 +123,8 @@ public class BackupShareActivity extends BaseActivity {
             if (!checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES))
                 missing.add(Manifest.permission.NEARBY_WIFI_DEVICES);
         }
-        if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+        if (NearbyPermissions.needsLocationPermission()
+                && !checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
             missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (missing.isEmpty()) {

@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+
+import com.driot.bookplayer.quickshare.NearbyPermissions;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -450,7 +452,8 @@ public class BackupQuickShareActivity extends BaseActivity {
                 missing.add(Manifest.permission.BLUETOOTH_CONNECT);
             if (!checkPermission(Manifest.permission.BLUETOOTH_SCAN))
                 missing.add(Manifest.permission.BLUETOOTH_SCAN);
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+            if (NearbyPermissions.needsLocationPermission()
+                    && !checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
                 missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                     && !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)) {

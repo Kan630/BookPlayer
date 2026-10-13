@@ -14,25 +14,48 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- to monitor online status -->
     
     <!-- Nearby Connections permissions -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- needed if sdk<=28, optional after (FINE introduced), but allow user to select coarse in permission dialog => nice -->
-    <uses-permission android:minSdkVersion="29" android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_ADVERTISE" />
-    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_SCAN" />
+    <!--
+      Quick Share (Nearby Connections) only. NOTE: <uses-permission> has no android:minSdkVersion
+      attribute - only maxSdkVersion and usesPermissionFlags - so the android:minSdkVersion="29"
+      / "31" / "32" written here before did NOTHING: every one of these was requested on every
+      device, location included. Play then reviews each release against its location policy,
+      which is why an update sat in review for days while apps without location go through in
+      minutes.
+      Nearby Connections needs location only up to Android 12L (API 32); from API 33 it uses
+      NEARBY_WIFI_DEVICES instead, so maxSdkVersion="32" is the real scoping - a modern phone is
+      never asked for location now. The permissions that only exist from API 31 (BLUETOOTH_*) are
+      simply never granted below it, so they need no bound.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="32" /> <!-- sdk<=28 uses coarse; also lets the user pick "approximate" in the dialog -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- neverForLocation: this scan looks for the other phone, it is not used to derive location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:ignore="UnusedAttribute" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:minSdkVersion="32" android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" tools:ignore="UnusedAttribute" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" tools:ignore="UnusedAttribute" />
 
     <!-- <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>Car stuff -->
 
     <!-- <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />  for books download -->
 
-    <meta-data android:name="google_analytics_adid_collection_enabled"
-        android:value="false" />
+    <!--
+      No advertising ID anywhere in this app. firebase-analytics declares both the old AD_ID
+      permission and the newer Privacy Sandbox one; only the old name was removed here, so every
+      build still shipped ACCESS_ADSERVICES_AD_ID (checked in the merged manifest). That matters
+      most for BookPlayer Pure, which is PEGI 3: Play's Families policy forbids transmitting the
+      advertising ID from an app whose audience includes children.
+      The google_analytics_adid_collection_enabled flag below used to sit here, outside
+      <application>, where it is ignored - it is now a child of <application>.
+    -->
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
         tools:node="remove" />
 
 
@@ -48,6 +71,10 @@
         android:name=".MyApp"
         android:usesCleartextTraffic="true"
         >
+
+        <!-- Belongs inside <application>; outside it, it is silently ignored. -->
+        <meta-data android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
 
 
         <activity

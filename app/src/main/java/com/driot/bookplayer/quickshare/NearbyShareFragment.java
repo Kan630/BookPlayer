@@ -303,7 +303,8 @@ public class NearbyShareFragment extends LoggingFragment {
                 missing.add(Manifest.permission.BLUETOOTH_CONNECT);
             if (!checkPermission(Manifest.permission.BLUETOOTH_SCAN))
                 missing.add(Manifest.permission.BLUETOOTH_SCAN);
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+            if (NearbyPermissions.needsLocationPermission()
+                    && !checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
                 missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
 
             // New permission for Android 13+ (SDK 33)

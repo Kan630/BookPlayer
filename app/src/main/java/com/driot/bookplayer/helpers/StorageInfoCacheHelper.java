@@ -562,6 +562,18 @@ public class StorageInfoCacheHelper {
      * Get cached per-folder sizes (path -> size in bytes) for Clean Memory list.
      * @param internal true for internal storage unzip subfolders, false for SD card
      */
+    /** Replaces the per-book size cache for one storage with sizes measured elsewhere (see
+     *  FullBackupHelper.sumBookFolderSizes): the caller passes the complete map for the folders
+     *  that exist now, so folders deleted since the last refresh stop being counted. Lets a scan
+     *  done for the backup estimate spare the next reader - this cache - the same work. */
+    public static void setCachedFolderSizes(boolean internal, Map<String, Long> sizes) {
+        String json = folderSizesMapToJson(sizes);
+        if (internal)
+            Pref.setStorageInternalFolderSizesJson(json);
+        else
+            Pref.setStorageSDCardFolderSizesJson(json);
+    }
+
     public static Map<String, Long> getCachedFolderSizes(boolean internal) {
         String json = internal ? Pref.getStorageInternalFolderSizesJson() : Pref.getStorageSDCardFolderSizesJson();
         return jsonToFolderSizesMap(json);
