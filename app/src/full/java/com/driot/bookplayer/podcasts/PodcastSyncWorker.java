@@ -241,7 +241,7 @@ public class PodcastSyncWorker extends LoggingWorker {
                         myLogEE(null, "duration == 0 " + file.getName());
                     }
                 } else {
-                    myLogW("already in DB : [" + file.getName() + "]");
+                    myLogD("already in DB : [" + file.getName() + "]"); // the normal case on a re-sync
                 }
             }
         }

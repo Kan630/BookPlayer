@@ -116,7 +116,7 @@ public final class PlayTimer extends LoggerHelper {
 
     public void resetLastUserAction() {
         if (running) {
-            myLogW("=> resetting LAST USER ACTION timer");
+            myLogD("=> resetting LAST USER ACTION timer"); // happens on every user action: not a warning
             this.msSinceLastUserAction = 0L;
             // NOTE: We do NOT reset elapsedMs or playedSinceLastMinuteMs
             // because we want stats to reflect the total continuous playback session.

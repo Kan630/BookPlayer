@@ -118,6 +118,12 @@ public class NavState {
     }
 
     public String getSectionName(Context ctx, int navId) {
+        // A screen outside the tabs (the player, the watch screen...) has no section at all, and
+        // printing a resource-not-found exception for it only put the word "error" in the log
+        // where there is nothing wrong.
+        if (navId == 0) {
+            return "none";
+        }
         try {
             return ctx.getResources().getResourceEntryName(navId);
         } catch (Exception e) {

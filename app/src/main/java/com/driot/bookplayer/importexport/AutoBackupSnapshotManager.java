@@ -44,12 +44,47 @@ public class AutoBackupSnapshotManager {
             }
             BackupManager backupManager = new BackupManager(context);
             String json = backupManager.exportToJson(true, true, true, true, true, true);
+            byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+
+            // This snapshot is ~3 MB and the periodic task comes round every 15 minutes: writing
+            // it unconditionally cost about 100 MB of flash writes a day on a real phone, for a
+            // file whose content usually had not changed at all. Write only what is new.
+            if (isSameAsOnDisk(file, bytes)) {
+                KanLogger.myLogD(TAG, "writeSnapshot: unchanged (" + bytes.length
+                        + " bytes), keeping the file as it is");
+                return;
+            }
+
             try (FileOutputStream out = new FileOutputStream(file)) {
-                out.write(json.getBytes(StandardCharsets.UTF_8));
+                out.write(bytes);
             }
             KanLogger.myLogD(TAG, "writeSnapshot: wrote " + json.length() + " chars to " + file.getAbsolutePath());
         } catch (Exception e) {
             KanLogger.myLogEE(e, TAG, "writeSnapshot failed");
+        }
+    }
+
+    /** Same length and same bytes as the snapshot already on disk? Reading 3 MB back is far
+     * cheaper than rewriting it, and the length check alone settles most calls. */
+    private static boolean isSameAsOnDisk(File file, byte[] fresh) {
+        if (!file.exists() || file.length() != fresh.length) {
+            return false;
+        }
+        try (FileInputStream in = new FileInputStream(file)) {
+            byte[] buf = new byte[8192];
+            int offset = 0;
+            int read;
+            while ((read = in.read(buf)) > 0) {
+                for (int i = 0; i < read; i++) {
+                    if (offset + i >= fresh.length || buf[i] != fresh[offset + i]) {
+                        return false;
+                    }
+                }
+                offset += read;
+            }
+            return offset == fresh.length;
+        } catch (Exception e) {
+            return false; // unreadable: just write it
         }
     }
 

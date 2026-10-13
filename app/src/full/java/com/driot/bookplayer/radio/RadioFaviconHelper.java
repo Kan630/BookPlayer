@@ -49,6 +49,16 @@ public class RadioFaviconHelper {
      */
     private static final Set<String> inProgressDownloads =
             Collections.synchronizedSet(new HashSet<>());
+
+    /**
+     * Stations whose favicon could not be fetched this session (dead url, unsupported format,
+     * a server that will not answer). Without this, nothing remembered the failure: a station
+     * that fails is neither on disk nor in progress, so every single rebind of its row started
+     * the download again - 21 stations failed in one day's log, each retried on every scroll
+     * past it. Session-scoped on purpose: a restart gives every station a fresh chance.
+     */
+    private static final Set<String> hopelessFavicons =
+            java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
     /** Favicons at or below this size are treated as "small" and centered on a padded canvas. */
     private static final int FAVICON_SMALL_THRESHOLD_PX = 64;
     private static final int FAVICON_SMALL_BOX_PX = 64; // inner box size inside the 256×256 canvas
@@ -224,6 +234,11 @@ public class RadioFaviconHelper {
         // concurrent jobs for the same UUID. All of them would receive the same
         // Glide-cached Bitmap; the first job to finish recycles it and the others
         // crash with "Error, cannot access an invalid/free'd bitmap here!".
+        if (hopelessFavicons.contains(uuid)) {
+            myLogDD("step D/skip: [" + stationName + "] failed already this session, not asking again");
+            return;
+        }
+
         if (!inProgressDownloads.add(uuid)) {
             myLogDD("step D/skip: [" + stationName + "] already in progress, skipping duplicate");
             return;
@@ -271,6 +286,7 @@ public class RadioFaviconHelper {
 
                 if (downloaded == null) {
                     myLogW("step D/fail: [" + stationName + "] Glide returned null — " + url);
+                    hopelessFavicons.add(uuid);
                     return;
                 }
 
@@ -310,6 +326,7 @@ public class RadioFaviconHelper {
                 // operations doesn't escape and crash the process silently.
                 Throwable cause = e.getCause() != null ? e.getCause() : e;
                 myLogW("step D/fail: [" + stationName + "] " + cause.getMessage() + " — " + url);
+                hopelessFavicons.add(uuid);
             } finally {
                 inProgressDownloads.remove(uuid);
                 // Recycle OUR bitmap (createScaledBitmap / centerOnGrayCanvas result).

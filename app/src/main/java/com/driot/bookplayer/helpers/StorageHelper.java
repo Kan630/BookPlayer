@@ -64,7 +64,9 @@ public class StorageHelper {
             myLogW("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
         }
         if (size == 0) {
-            myLogW("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
+            // A folder legitimately empties out (podcast auto-delete, a book whose files were
+            // removed), so this is worth knowing but is not a warning.
+            myLogD("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
         }
 
         return size;
