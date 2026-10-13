@@ -761,6 +761,11 @@
     <string name="radio_buffer_info">Buffer\n%1$s</string>
 
     <!-- A stream that would not play -->
+    <!-- Downloading a video episode -->
+    <string name="download_video_warning_title">This episode is a video</string>
+    <string name="download_video_warning_message">The picture is downloaded along with the sound, so it takes far more space, and the sound alone cannot be fetched from a single file. Many video podcasts also publish an audio-only feed.</string>
+    <string name="download_video_play_instead">Listen now</string>
+    <string name="download_with_size">Download (%1$s)</string>
     <string name="radio_stream_failed">%1$s could not be played: %2$s</string>
     <string name="stream_error_no_connection">no connection to the server</string>
     <string name="stream_error_server_refused">the server refused the stream</string>

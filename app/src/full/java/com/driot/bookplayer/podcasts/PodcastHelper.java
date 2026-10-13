@@ -26,6 +26,7 @@ import com.driot.bookplayer.helpers.ShareHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.player.StartPlayHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
 import java.io.File;
@@ -674,6 +675,17 @@ public class PodcastHelper {
                         String fileName = buildPodcastEpisodeFileName(episode);
                         File destFile = new File(podcastFolder, fileName);
 
+                        // A video episode is the whole picture as well as the sound - gigabytes
+                        // for an hour - and nothing asked for it here. Only a deliberate tap
+                        // downloads one (PodcastEpisodeFragment asks first).
+                        if (isVideoEnclosure(episode.enclosureType, episode.enclosureUrl)) {
+                            myLogI("Auto-download SKIPPED - video episode"
+                                    + (episode.enclosureLength > 0
+                                            ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "")
+                                    + " for [" + podcast.title + "] - [" + episodeLabel + "]");
+                            continue;
+                        }
+
                         if (destFile.exists()) {
                             myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title
                                     + "] - [" + episodeLabel + "] - [" + fileName + "]");
@@ -1139,6 +1151,9 @@ public class PodcastHelper {
             long trackId = resolveOrCreateRowId(appCtx, ep, podcast);
             StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, ep.title,
                     cover, caller);
+            // Worth a request for the episode actually being listened to: feeds that declare no
+            // length otherwise leave its row with no size, forever.
+            EnclosureSizeProbe.ensureKnown(appCtx, ep, null);
         });
     }
 

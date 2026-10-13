@@ -171,6 +171,10 @@ public class PodcastDownloadEpisodeWorker extends Worker {
                 throw new IOException("incomplete download: " + downloadedBytes + "/" + totalBytes + " bytes");
             if (downloadedBytes == 0)
                 throw new IOException("empty download");
+
+            // The server just told us the real length: keep it, so a feed that declares none
+            // (TED Talks and friends) still shows a size on its episodes afterwards.
+            EnclosureSizeProbe.remember(getApplicationContext(), urlStr, downloadedBytes);
         } finally {
             if (conn != null)
                 conn.disconnect();

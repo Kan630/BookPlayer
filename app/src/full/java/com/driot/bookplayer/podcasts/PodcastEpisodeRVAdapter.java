@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -40,8 +41,10 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
@@ -153,6 +156,38 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     public void setItems(List<DisplayableEpisode> episodes) {
         this.items = episodes;
+        newestWithoutSize = pickNewestMissingSize(episodes);
+    }
+
+    /** Episodes (by feed id) whose size is worth a request: the newest few of the list, and only
+     * those whose feed never declared a length. */
+    private Set<Long> newestWithoutSize = new HashSet<>();
+
+    private static Set<Long> pickNewestMissingSize(@Nullable List<DisplayableEpisode> episodes) {
+        Set<Long> picked = new HashSet<>();
+        if (episodes == null || episodes.isEmpty()) {
+            return picked;
+        }
+        // The list can be sorted either way, so go by publication date rather than by position.
+        List<DisplayableEpisode> byDate = new ArrayList<>(episodes);
+        byDate.sort((a, b) -> Long.compare(publishedSeconds(b), publishedSeconds(a)));
+        for (DisplayableEpisode e : byDate) {
+            if (e.enclosureLength <= 0) {
+                picked.add(e.idEpisode);
+            }
+            if (picked.size() >= EnclosureSizeProbe.NEWEST_TO_PROBE) {
+                break;
+            }
+        }
+        return picked;
+    }
+
+    private static long publishedSeconds(DisplayableEpisode e) {
+        try {
+            return e.datePublished == null ? 0 : Long.parseLong(e.datePublished.trim());
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
     }
 
     // Shows the episode's own cover next to its title, but only once this podcast has been
@@ -281,6 +316,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         bindEpisodeCover(holder, episode, isDownloaded);
         bindVideoMarker(holder, episode);
+
+        if (newestWithoutSize.contains(episode.idEpisode)) {
+            // Asked once per episode per session, and remembered on its row afterwards.
+            EnclosureSizeProbe.ensureKnown(context, episode, () -> {
+                int pos = items == null ? -1 : items.indexOf(episode);
+                if (pos >= 0) {
+                    notifyItemChanged(pos);
+                }
+            });
+        }
 
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title),
                 episodeFileName);

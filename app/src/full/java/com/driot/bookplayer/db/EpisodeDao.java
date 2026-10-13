@@ -78,6 +78,12 @@ public interface EpisodeDao {
     @Query("UPDATE Episode SET timeListened = timeListened + 1, lastAccess = :now WHERE id = :id")
     void addSecondToTimeListened(long id, long now);
 
+    // A feed that declares length="0" (TED Talks, among others) leaves the list with no size to
+    // show; EnclosureSizeProbe asks the server once and stores the answer here.
+    @Query("UPDATE Episode SET enclosureLength = :bytes "
+            + "WHERE enclosureUrl = :url AND (enclosureLength IS NULL OR enclosureLength <= 0)")
+    int setEnclosureLengthIfUnknown(String url, long bytes);
+
     /** Same stamp for a downloaded episode, whose listening time lives on its ZikFile row. */
     @Query("UPDATE Episode SET lastAccess = :now WHERE idZikFile = :zikFileId")
     int touchByZikFile(long zikFileId, long now);

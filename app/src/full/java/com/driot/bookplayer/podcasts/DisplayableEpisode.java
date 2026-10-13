@@ -126,6 +126,7 @@ public class DisplayableEpisode {
         pe.guid = de.guid;
         //pe.podcastGuid = de.podcastGuid;
         pe.enclosureUrl = de.enclosureUrl;
+        pe.enclosureType = de.enclosureType;
         pe.datePublished = de.datePublished;
         pe.datePublishedPretty = de.datePublishedPretty;
 

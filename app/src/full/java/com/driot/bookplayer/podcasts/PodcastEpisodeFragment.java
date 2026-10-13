@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.helpers.TipHelper;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -718,7 +719,71 @@ public class PodcastEpisodeFragment extends LoggingFragment
             return;
         }
 
-        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
+        // A video episode brings the picture down with the sound - gigabytes for an hour of it -
+        // and there is no way to fetch only the audio of a single file. So it is asked, never
+        // assumed (and auto-download leaves video episodes alone entirely).
+        if (ep.isVideo()) {
+            askAboutVideoDownload(ep);
+            return;
+        }
+        continueDownload(ep, false);
+    }
+
+    /**
+     * Tapping download on a video episode. Not a yes/no question: the buttons are the three things
+     * worth doing - take it (with what it will cost written on the button), listen to it right now
+     * without keeping it, or leave it - and when the feed never declared a size, the one that
+     * decides it is fetched and the button updates itself.
+     *
+     * A metered connection is folded into this same dialog rather than stacking a second one.
+     */
+    private void askAboutVideoDownload(DisplayableEpisode ep) {
+        final boolean metered = Option.getNetworkPolicyManualDownload()
+                .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
+                && !NetworkHelper.isUnmeteredConnected(requireContext());
+        myLogI("--- asking before downloading a VIDEO episode --- [" + ep.title + "] metered=" + metered);
+
+        String message = getString(R.string.download_video_warning_message);
+        if (metered) {
+            message = message + "\n\n" + getString(R.string.download_warning_message_unmetered);
+        }
+
+        final AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.download_video_warning_title)
+                .setMessage(message)
+                .setPositiveButton(downloadButtonLabel(ep), (d, which) -> continueDownload(ep, metered))
+                .setNeutralButton(R.string.download_video_play_instead, (d, which) -> {
+                    myLogI("--- user listens to the video episode instead of downloading it ---");
+                    enqueuedEpisodeIds.remove(ep.idEpisode);
+                    onPlayEpisode(ep);
+                })
+                .setNegativeButton(android.R.string.cancel, (d, which) -> downloadNotStarted(ep))
+                .setOnCancelListener(d -> downloadNotStarted(ep))
+                .show();
+
+        if (ep.enclosureLength <= 0) {
+            // The size is what this choice hinges on, so it is worth one request right here.
+            EnclosureSizeProbe.ensureKnown(requireContext(), ep, () -> {
+                if (dialog.isShowing()) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(downloadButtonLabel(ep));
+                }
+            });
+        }
+    }
+
+    /** "Download (2.9 GB)" once the size is known, plain "download" until then. */
+    private String downloadButtonLabel(DisplayableEpisode ep) {
+        return ep.enclosureLength > 0
+                ? getString(R.string.download_with_size, Tonio.getReadableSize(ep.enclosureLength))
+                : getString(R.string.download);
+    }
+
+    /** The rest of the download path, once a video episode has been agreed to. */
+    /** @param meteredAlreadyAccepted the caller already asked about the mobile connection (the
+     *                               video dialog folds that question in), so do not ask twice. */
+    private void continueDownload(DisplayableEpisode ep, boolean meteredAlreadyAccepted) {
+        if (!meteredAlreadyAccepted
+                && Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                 && !NetworkHelper.isUnmeteredConnected(requireContext())) {
             new AlertDialog.Builder(requireContext())
                     .setTitle(R.string.download_warning_title_unmetered)

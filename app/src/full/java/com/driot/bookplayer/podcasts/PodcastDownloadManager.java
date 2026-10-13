@@ -60,6 +60,13 @@ public class PodcastDownloadManager {
             String destFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
             String destPath = new File(targetFolder, destFileName).getAbsolutePath();
 
+            // The size matters most for something about to be downloaded: ask once if the feed
+
+            // never said (the worker stores the real length when it is done).
+
+            EnclosureSizeProbe.ensureKnown(context, episode.enclosureUrl);
+
+
             Data inputData = new Data.Builder()
                     .putString(PodcastDownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
                     .putString(PodcastDownloadEpisodeWorker.KEY_DEST_PATH, destPath)
