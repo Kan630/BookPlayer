@@ -35,6 +35,7 @@ import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.heatmaps.PlaySessionHelper;
 import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -1534,12 +1535,21 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogI("Podcast download completed while playing stream! Switching to play local source.");
             long currentPos = engine.getCurrentPosition();
 
+            final long streamStartedAt = podcastStreamStartedAt;
+            final long streamStartPos = podcastStreamStartPos;
             AppDatabase.databaseReadExecutor.execute(() -> {
                 ZikFileDao dao = AppDatabase.getDatabase(MediaService.this).zikFileDao();
                 ZikFile zikFile = dao.getById(zikFileId);
                 if (zikFile != null) {
                     zikFile.setPosition(currentPos);
                     dao.update(zikFile);
+                    // What was listened to while streaming belongs to this file now: without this
+                    // session the heatmap and the stats start at the moment of the download, as if
+                    // the first minutes had never been played.
+                    if (streamStartedAt > 0) {
+                        PlaySessionHelper.registerSession(MediaService.this, zikFile.getId(),
+                                streamStartedAt, streamStartPos, System.currentTimeMillis(), currentPos);
+                    }
                     loadAndPlayTrack(zikFile, true, false);
                 } else {
                     myLogEE(null, "Podcast download completed but downloaded zikfile null");
@@ -2675,10 +2685,22 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
+    /** When the podcast stream now playing started, and from which position: what a PlaySession
+     *  for the streamed part is built from once the episode finishes downloading. 0 = no stream. */
+    private long podcastStreamStartedAt = 0;
+    private long podcastStreamStartPos = 0;
+
     private void playStream(@NonNull String playMode, @NonNull String url) {
         PlayList pl = PlayList.getInstance();
         String title = (pl != null) ? pl.getTitle() : null;
         myLogI("playStream " + playMode + " - title=[" + title + "] - url=[" + url + "]");
+
+        if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
+            podcastStreamStartedAt = System.currentTimeMillis();
+            podcastStreamStartPos = 0; // a stream starts at the beginning
+        } else {
+            podcastStreamStartedAt = 0;
+        }
 
         // Switching to a new stream (or leaving radio for a book/podcast) invalidates whatever
         // was being recorded - stop it before swapping the engine.

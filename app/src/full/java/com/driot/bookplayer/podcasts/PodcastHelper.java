@@ -1132,9 +1132,72 @@ public class PodcastHelper {
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
         String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
-        long trackId = (ep.id != null) ? ep.id : -1;
-        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, ep.title,
-                cover, caller);
+        Context appCtx = context.getApplicationContext();
+        // The row id is what everything about this episode is recorded against, so it has to
+        // exist before the first second is played - see resolveOrCreateRowId().
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            long trackId = resolveOrCreateRowId(appCtx, ep, podcast);
+            StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, ep.title,
+                    cover, caller);
+        });
+    }
+
+    /**
+     * The Episode row id of an episode about to be streamed, creating the row when the episode is
+     * only in the feed.
+     *
+     * The list shows what the feed serves, which is more than the episodes we store, so an episode
+     * could be played with no row behind it - and then everything recorded about it went nowhere:
+     * the listening time was written "WHERE id = -1" (so the podcast never appeared in the history
+     * with its streamed time), and the hand-over to a finished download, which matches on this
+     * very id, never fired either.
+     *
+     * Runs on the database executor (called from onPodcastClick).
+     */
+    private static long resolveOrCreateRowId(Context appCtx, DisplayableEpisode ep, Podcast podcast) {
+        if (ep.id != null && ep.id > 0) {
+            return ep.id;
+        }
+        EpisodeDao dao = AppDatabase.getDatabase(appCtx).episodeDao();
+        Episode row = dao.getByEpisodeId(ep.idEpisode);
+        if (row == null && ep.enclosureUrl != null && !ep.enclosureUrl.isEmpty()) {
+            row = dao.getFromUrl(ep.enclosureUrl);
+        }
+        if (row != null) {
+            ep.id = row.id;
+            return row.id;
+        }
+        Episode fresh = new Episode();
+        fresh.idPodcast = podcast.getId();
+        fresh.date_add = System.currentTimeMillis();
+        fresh.idEpisode = ep.idEpisode;
+        fresh.title = ep.title;
+        fresh.description = ep.description;
+        fresh.duration = ep.duration;
+        fresh.image = ep.image;
+        if (ep.image != null && ep.image.startsWith("http")) {
+            fresh.imageOriginalUrl = ep.image;
+        }
+        fresh.guid = ep.guid;
+        fresh.podcastGuid = ep.podcastGuid;
+        fresh.enclosureUrl = ep.enclosureUrl;
+        fresh.datePublished = ep.datePublished;
+        fresh.enclosureLength = ep.enclosureLength;
+        try {
+            long id = dao.insert(fresh);
+            ep.id = id;
+            myLogI("episode row created for a streamed episode: id=" + id + " [" + ep.title + "]");
+            return id;
+        } catch (Exception e) {
+            // unique index on idEpisode: someone inserted it in between, take theirs
+            Episode again = dao.getByEpisodeId(ep.idEpisode);
+            if (again != null) {
+                ep.id = again.id;
+                return again.id;
+            }
+            myLogEE(e, "could not create the episode row for [" + ep.title + "]");
+            return -1;
+        }
     }
 
     public static List<ZikFile> getPodcastZikFiles(Folder folder, Context context, boolean newestFirst) {
@@ -1247,9 +1310,37 @@ public class PodcastHelper {
                 .touchByZikFile(zikFileId, System.currentTimeMillis());
     }
 
+    /** Last resort when a stream was started without a row id (should not happen since
+     * onPodcastClick creates it, but a second of listening is not worth losing): find the episode
+     * by the url being played. */
+    private static long lastResolvedUrlId = -1;
+    private static String lastResolvedUrl;
+
+    private static long episodeIdForCurrentStream(Context context) {
+        PlayList pl = PlayList.getInstance();
+        String url = (pl != null) ? pl.getUrl() : null;
+        if (url == null || url.isEmpty()) {
+            return -1;
+        }
+        if (url.equals(lastResolvedUrl)) {
+            return lastResolvedUrlId;
+        }
+        Episode e = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
+        lastResolvedUrl = url;
+        lastResolvedUrlId = (e != null) ? e.id : -1;
+        if (lastResolvedUrlId > 0) {
+            myLogW("streamed episode had no row id; resolved by url => " + lastResolvedUrlId);
+        }
+        return lastResolvedUrlId;
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-        db.episodeDao().addSecondToTimeListened(trackId, System.currentTimeMillis());
+        long id = (trackId > 0) ? trackId : episodeIdForCurrentStream(context);
+        if (id <= 0) {
+            return; // nothing to record it against
+        }
+        db.episodeDao().addSecondToTimeListened(id, System.currentTimeMillis());
     }
 
 }
