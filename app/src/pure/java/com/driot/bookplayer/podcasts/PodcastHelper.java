@@ -127,6 +127,10 @@ public class PodcastHelper {
         myLogE("should never happen");
     }
 
+    public static void touchEpisodeForZikFile(Context context, long zikFileId) {
+        // no podcasts in pure flavor
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }

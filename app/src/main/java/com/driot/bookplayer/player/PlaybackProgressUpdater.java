@@ -108,6 +108,11 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
 
                 zf.timeListened = zf.timeListened + 1;
 
+                // When the file being played is a downloaded podcast episode, stamp that episode
+                // as just listened to (podcast history is ordered by it). A plain book matches no
+                // Episode row, so this is a no-op update on an indexed column.
+                PodcastHelper.touchEpisodeForZikFile(app, zf.getId());
+
                 AppDatabase db = AppDatabase.getDatabase(app);
                 CommonZikFileDao dao = db.zikFileDao();
 

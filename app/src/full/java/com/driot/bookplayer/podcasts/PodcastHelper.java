@@ -1237,9 +1237,19 @@ public class PodcastHelper {
                 .getEpisodeTimeListenedForFolder(folderId);
     }
 
+    /** A downloaded episode is playing: stamp it, so the podcast rises in the history list. Its
+     * listening time itself lives on the ZikFile row, which is what the player updates. */
+    public static void touchEpisodeForZikFile(Context context, long zikFileId) {
+        if (zikFileId <= 0) {
+            return;
+        }
+        AppDatabase.getDatabase(context.getApplicationContext()).episodeDao()
+                .touchByZikFile(zikFileId, System.currentTimeMillis());
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-        db.episodeDao().addSecondToTimeListened(trackId);
+        db.episodeDao().addSecondToTimeListened(trackId, System.currentTimeMillis());
     }
 
 }

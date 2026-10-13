@@ -39,12 +39,18 @@ public interface PodcastDao {
     // episodes tick ZikFile.timeListened (rolled up into Folder.timeListened, same as any other
     // book), while streamed-only episodes tick Episode.timeListened directly. Sum both per
     // podcast so history covers "listened to at least 1s, downloaded or streamed" either way.
+    // Most recently listened at the top (Episode.lastAccess, stamped by EpisodeDao for both a
+    // streamed and a downloaded episode). Episodes listened to before that column was ever
+    // written have no stamp, so they keep their old place below, ordered by total time.
     @Query("SELECT p.* FROM Podcast p " +
             "LEFT JOIN Folder f ON f.id = p.idFolder " +
-            "LEFT JOIN (SELECT idPodcast, SUM(timeListened) AS sumEpisodeTime FROM Episode GROUP BY idPodcast) e " +
+            "LEFT JOIN (SELECT idPodcast, SUM(timeListened) AS sumEpisodeTime, " +
+            "                  MAX(COALESCE(lastAccess, 0)) AS lastListened " +
+            "           FROM Episode GROUP BY idPodcast) e " +
             "  ON e.idPodcast = p.id " +
             "WHERE (COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0)) > 0 " +
-            "ORDER BY (COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0)) DESC")
+            "ORDER BY COALESCE(e.lastListened, 0) DESC, " +
+            "         (COALESCE(f.timeListened, 0) + COALESCE(e.sumEpisodeTime, 0)) DESC")
     LiveData<List<Podcast>> getListenedPodcastsLive();
 
     // Same combined downloaded+streamed total as getListenedPodcastsLive(), scoped to one

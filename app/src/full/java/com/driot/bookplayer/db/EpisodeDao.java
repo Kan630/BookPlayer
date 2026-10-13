@@ -73,8 +73,14 @@ public interface EpisodeDao {
     @Query("SELECT MAX(datePublished) FROM Episode WHERE idPodcast = :podcastId")
     Long getMaxDatePublishedForPodcast(long podcastId);
 
-    @Query("UPDATE Episode SET timeListened = timeListened + 1 WHERE id = :id")
-    void addSecondToTimeListened(long id);
+    // lastAccess is what orders the podcast history (most recently listened first), and this is
+    // where a streamed episode gets it: nothing used to write that column at all.
+    @Query("UPDATE Episode SET timeListened = timeListened + 1, lastAccess = :now WHERE id = :id")
+    void addSecondToTimeListened(long id, long now);
+
+    /** Same stamp for a downloaded episode, whose listening time lives on its ZikFile row. */
+    @Query("UPDATE Episode SET lastAccess = :now WHERE idZikFile = :zikFileId")
+    int touchByZikFile(long zikFileId, long now);
 
     // Sets (not increments) timeListened - used to re-apply a recovered value from
     // PendingEpisodeHistory after a restore, see PodcastEpisodeViewModel.
