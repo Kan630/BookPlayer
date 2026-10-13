@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -154,6 +155,11 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
     private boolean isPodcast = false;
     private boolean isMusic = false;
 
+    private ImageButton ibShareEpisode;
+    /** ZikFile the share button was last resolved for: the lookup needs the DB, so it runs once
+     * per track, not on every playback state update. */
+    private long shareButtonTrackId = -1;
+
     // --- Broadcasts we still care about at the player level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override
@@ -263,6 +269,16 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
         heatMapSeek = view.findViewById(R.id.heatMapSeek);
         ivCover = view.findViewById(R.id.folderImage);
         ivCover.setImageURI(null);
+
+        // Share: only for a downloaded podcast episode (the XML keeps it visible for the preview)
+        ibShareEpisode = view.findViewById(R.id.ibShareEpisode);
+        ibShareEpisode.setVisibility(View.GONE);
+        ibShareEpisode.setOnClickListener(v -> {
+            myLogI("--- user clicks SHARE EPISODE ---  zikFile [" + shareButtonTrackId + "]");
+            final long zikFileId = shareButtonTrackId;
+            AppDatabase.databaseReadExecutor.execute(
+                    () -> PodcastHelper.shareEpisodeForZikFile(appContext, zikFileId));
+        });
         frequencyVisualizerView = view.findViewById(R.id.frequencyVisualizerView);
 
         // TTS
@@ -379,6 +395,7 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
 
             updateCover(s.cover);
             updateSpeed(s);
+            updateShareEpisodeButton(s.trackId);
 
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
@@ -945,6 +962,27 @@ public class PlayerFragment extends LoggingFragment implements TtsOverlayManager
             startActivity(intent);
             myLogI("Launching screensaver");
         }
+    }
+
+    /** Shows the share button for a podcast episode downloaded from a feed we still know (the only
+     * track a share link can be built for), and hides it for everything else. */
+    private void updateShareEpisodeButton(long trackId) {
+        if (ibShareEpisode == null || trackId == shareButtonTrackId)
+            return;
+        shareButtonTrackId = trackId;
+        if (!isPodcast || trackId <= 0) {
+            ibShareEpisode.setVisibility(View.GONE);
+            return;
+        }
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            boolean shareable = PodcastHelper.isShareableEpisodeZikFile(appContext, trackId);
+            mainHandler.post(() -> {
+                // another track started while we were looking this one up
+                if (!isAdded() || ibShareEpisode == null || shareButtonTrackId != trackId)
+                    return;
+                ibShareEpisode.setVisibility(shareable ? View.VISIBLE : View.GONE);
+            });
+        });
     }
 
     private void updateCover(String cover) {

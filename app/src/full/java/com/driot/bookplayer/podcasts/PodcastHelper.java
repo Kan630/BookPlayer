@@ -1016,6 +1016,45 @@ public class PodcastHelper {
         });
     }
 
+    /** The player (PlayActivity / PlayerFragment, shared "main" source set: no Episode or Podcast
+     * there) only shows its share button for a track that really is a downloaded podcast episode
+     * we can build a share link for. Blocking DB call - call off the main thread. */
+    public static boolean isShareableEpisodeZikFile(Context context, long zikFileId) {
+        return findShareableEpisode(context, zikFileId) != null;
+    }
+
+    /** Shares the podcast episode a downloaded track belongs to, with the very link the episode
+     * list shares. Blocking DB call - call off the main thread. */
+    public static void shareEpisodeForZikFile(Context context, long zikFileId) {
+        Episode episode = findShareableEpisode(context, zikFileId);
+        if (episode == null) {
+            myLogE("shareEpisodeForZikFile: no shareable episode for zikFile " + zikFileId);
+            return;
+        }
+        Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
+                .getById(episode.idPodcast);
+        if (podcast == null) {
+            myLogE("shareEpisodeForZikFile: podcast " + episode.idPodcast + " is gone");
+            return;
+        }
+        shareEpisode(context, podcast, DisplayableEpisode.fromDatabaseEpisode(episode));
+    }
+
+    /** The episode of this downloaded track, when it has the audio url and the podcast a share
+     * link needs. Blocking DB call - call off the main thread. */
+    @androidx.annotation.Nullable
+    private static Episode findShareableEpisode(Context context, long zikFileId) {
+        if (zikFileId <= 0) {
+            return null;
+        }
+        AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+        Episode episode = db.episodeDao().getByZikFileId(zikFileId);
+        if (episode == null || episode.enclosureUrl == null || episode.enclosureUrl.isEmpty()) {
+            return null;
+        }
+        return db.podcastDao().getById(episode.idPodcast) == null ? null : episode;
+    }
+
     /** Opens a shared episode's podcast and starts playing that episode, exactly as tapping it in
      * the podcast's episode list would. The podcast is saved locally if it's new to this device
      * (same as opening one from the search results). */

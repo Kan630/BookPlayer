@@ -80,19 +80,33 @@
             >
 
             <!-- BLOCK 1: Title + Subtitle (weight 2) -->
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/blockTitle"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:layout_weight="2">
+
+                <!-- Shares the podcast episode being played; hidden in code for anything else -->
+                <ImageButton
+                    android:id="@+id/ibShareEpisode"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_share_24px"
+                    android:contentDescription="@string/share_episode"
+                    />
+
                 <TextView
                     android:id="@+id/textviewTitle"
                     android:text="@string/title"
                     android:textColor="?attr/colorPrimary"
                     style="@style/myStyleTitle"
                     android:layout_marginTop="0dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_toStartOf="@id/ibShareEpisode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -111,6 +125,7 @@
                     android:textColor="?attr/colorPrimaryVariant"
                     style="@style/myStyleTitle"
                     android:layout_marginBottom="0dp"
+                    android:layout_below="@id/textviewTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -122,7 +137,7 @@
                     app:autoSizeMaxTextSize="30sp"
                     app:autoSizeMinTextSize="15sp"
                     app:autoSizeStepGranularity="1sp" />
-            </LinearLayout>
+            </RelativeLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 

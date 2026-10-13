@@ -119,6 +119,14 @@ public class PodcastHelper {
         return 0; // no podcasts in pure flavor
     }
 
+    public static boolean isShareableEpisodeZikFile(Context context, long zikFileId) {
+        return false; // no podcasts in pure flavor
+    }
+
+    public static void shareEpisodeForZikFile(Context context, long zikFileId) {
+        myLogE("should never happen");
+    }
+
     public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }

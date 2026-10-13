@@ -1415,6 +1415,7 @@
     <string name="share_radio_head">BookPlayer radio share</string>
     <string name="share_podcast_body">Check out this podcast episode on BookPlayer</string>
     <string name="share_podcast_head">BookPlayer podcast share</string>
+    <string name="share_episode">Share episode</string>
 
 
     <string name="massimport_all_aready_imported">No items to import (all are already imported)</string>

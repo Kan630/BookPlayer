@@ -98,8 +98,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         void onOpenLocalEpisode(ZikFile zikFile);
 
         void onDownloadEpisode(DisplayableEpisode episode);
-
-        void onShareEpisode(DisplayableEpisode episode);
     }
 
     private final EpisodeClickHandler handler;
@@ -264,11 +262,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     + "]");
             myLogD(episode.toString());
             clickOnEpisode(holder, episode);
-        });
-        holder.itemView.setOnLongClickListener(v -> {
-            myLogI("------------ USER LONG-CLICKS EPISODE (share) --------------  [" + episodeName + "]");
-            handler.onShareEpisode(episode);
-            return true;
         });
 
         // Check if in physical folder : reserved sd card or reserved smartphone storage

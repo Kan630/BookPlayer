@@ -16,6 +16,19 @@
     android:padding="10dp"
     >
 
+    <!-- Shares the podcast episode being played; hidden in code for anything else -->
+    <ImageButton
+        android:id="@+id/ibShareEpisode"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:padding="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_share_24px"
+        android:contentDescription="@string/share_episode"
+        />
+
     <TextView
         android:id="@+id/textviewTitle"
         android:text="@string/title"
@@ -24,6 +37,7 @@
         android:layout_marginTop="10dp"
 
         android:layout_width="match_parent"
+        android:layout_toStartOf="@id/ibShareEpisode"
         android:layout_height="wrap_content"
         android:gravity="center"
 
