@@ -27,8 +27,10 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 // Adapter for Podcast (Room entity)
 public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
@@ -60,10 +62,48 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     /** Items and mode always arrive together, so the header (toggle + count) and the list below
      * it never show a mismatched pairing while a mode switch is loading. */
     public void setItems(List<Podcast> newItems, boolean isHistoryMode) {
-        this.items = newItems != null ? newItems : new ArrayList<>();
+        List<Podcast> next = newItems != null ? newItems : new ArrayList<>();
+        // This list is fed by a Room query over Podcast + Folder + Episode, and playback writes to
+        // those tables every second, so it re-emits constantly. Rebuilding every row each time is
+        // what made the list flicker - and reload every cover - while scrolling, so an emission
+        // that changes nothing is taken but not announced.
+        if (isHistoryMode == this.historyMode && sameOrder(this.items, next)) {
+            this.items = next;
+            return;
+        }
+        this.items = next;
         this.historyMode = isHistoryMode;
         notifyDataSetChanged();
     }
+
+    private static boolean sameOrder(List<Podcast> a, List<Podcast> b) {
+        if (a == null || b == null || a.size() != b.size()) {
+            return false;
+        }
+        for (int i = 0; i < a.size(); i++) {
+            if (a.get(i).getId() != b.get(i).getId()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** The stats line of a row, kept so scrolling back does not query the database again - and
+     *  does not blank the line while it waits. Short-lived: those numbers do move. */
+    private static final class CachedStats {
+        final CharSequence text;
+        final long at;
+
+        CachedStats(CharSequence text) {
+            this.text = text;
+            this.at = System.currentTimeMillis();
+        }
+    }
+
+    private static final long STATS_CACHE_MS = 60_000;
+    // static because the row binding lives in a static ViewHolder; keyed by podcast id and
+    // short-lived, so sharing it between instances of this screen is a benefit, not a risk.
+    private static final Map<Long, CachedStats> statsCache = new HashMap<>();
 
     @NonNull
     @Override
@@ -160,7 +200,17 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             final long boundPodcastId = podcast.getId();
             itemView.setTag(boundPodcastId);
             final android.content.Context appContext = itemView.getContext().getApplicationContext();
-            AppDatabase.databaseWriteExecutor.execute(() -> {
+
+            CachedStats cached = statsCache.get(boundPodcastId);
+            if (cached != null && System.currentTimeMillis() - cached.at < STATS_CACHE_MS) {
+                folderStats.setText(cached.text); // straight away: no blank, nothing to flicker
+                itemView.setOnClickListener(v -> listener.onItemClick(podcast));
+                return;
+            }
+
+            // A read, so it belongs on the read executor: on the write one it queued behind the
+            // once-a-second playback writes, which is why the line took so long to appear.
+            AppDatabase.databaseReadExecutor.execute(() -> {
                 Folder folder = (podcast.idFolder != null && podcast.idFolder > 0)
                         ? AppDatabase.getDatabase(appContext).folderDao().getById(podcast.idFolder)
                         : null;
@@ -184,10 +234,13 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
                         String line1 = nbFile + " · " + duration + " · " + percentDone + "% "
                                 + itemView.getContext().getString(R.string.listened);
                         setStatsText(folderStats, line1, listenedFor);
+                        statsCache.put(boundPodcastId, new CachedStats(folderStats.getText()));
                     } else if (listenedFor != null) {
                         setStatsText(folderStats, null, listenedFor);
+                        statsCache.put(boundPodcastId, new CachedStats(folderStats.getText()));
                     } else {
                         folderStats.setText(com.driot.bookplayer.R.string.no_episode_downloaded);
+                        statsCache.put(boundPodcastId, new CachedStats(folderStats.getText()));
                     }
                 });
             });

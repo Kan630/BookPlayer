@@ -60,28 +60,27 @@ public final class ExoStreamPlayerEngine extends LoggerHelper implements PlayerE
     }
 
     private void initPlayer() {
-        // Radio-friendly HTTP data source
-        String ua = "BookPlayer/1.0 (ExoPlayer)";
-
-        DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory()
-                .setUserAgent(ua)
-                .setAllowCrossProtocolRedirects(true)
-                .setConnectTimeoutMs(15_000)
-                .setReadTimeoutMs(20_000);
-
+        // Headers for streaming; the client itself (below) carries the user agent and the
+        // timeouts, so there is no second HTTP stack to keep in step any more.
         Map<String,String> headers = new HashMap<>();
         headers.put("Accept", "*/*");
         //headers.put("Icy-MetaData", "1"); // enable if you want ICY metadata
-        http.setDefaultRequestProperties(headers);
 
         // This engine is also reused for "preview" (a local file:// / content:// Uri opened via
-        // "Open With", played with no ZikFile/DB row - see StartPlayHelper.playPreview()). A bare
-        // DefaultHttpDataSource.Factory only understands http(s):// and throws a ClassCastException
-        // trying to cast a FileURLConnection to HttpURLConnection for any other scheme. Wrap it in
-        // DefaultDataSource.Factory, which dispatches by scheme (file/content/asset/raw -> the
-        // matching local DataSource, everything else -> the http factory below) - podcast/radio
-        // behavior for http(s) URLs is unchanged.
-        DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(appCtx, http);
+        // "Open With", played with no ZikFile/DB row - see StartPlayHelper.playPreview()), so the
+        // HTTP factory is wrapped in DefaultDataSource.Factory, which dispatches by scheme
+        // (file/content/asset/raw -> the matching local DataSource, everything else -> HTTP).
+        // Over http(s), go through the same OkHttp client the radio engine uses: it is the one
+        // with the AIA-aware TrustManager, and without it a host that serves an incomplete
+        // certificate chain (download.ted.com on an older phone, for one) fails the handshake
+        // with "Trust anchor for certification path not found" and the episode never plays,
+        // while the very same host works for radio. Local schemes still go through
+        // DefaultDataSource.Factory below.
+        DataSource.Factory streamingHttp = new androidx.media3.datasource.okhttp.OkHttpDataSource.Factory(
+                ExoRadioPlayerEngine.streamingHttpClient())
+                .setDefaultRequestProperties(headers);
+
+        DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(appCtx, streamingHttp);
 
         MediaSource.Factory mediaSourceFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
 

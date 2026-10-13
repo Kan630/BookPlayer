@@ -576,7 +576,18 @@ public class MainActivity extends FullActivity {
             NavHostFragment host = getTabHost(tabId);
             if (host != null) {
                 NavController nc = host.getNavController();
-                nc.popBackStack(nc.getGraph().getStartDestinationId(), false);
+                int start = nc.getGraph().getStartDestinationId();
+                // popBackStack() does nothing and returns false when the start destination is not
+                // on this tab's stack any more (it can be popped away, e.g. after a state
+                // restore): tapping the tab then left the section stuck on whatever was showing -
+                // favorites/history, with no way back to the search screen. Go there outright.
+                if (!nc.popBackStack(start, false) && nc.getCurrentDestination() != null
+                        && nc.getCurrentDestination().getId() != start) {
+                    myLogW("tab reselect: start destination was gone from the stack - navigating to it");
+                    nc.navigate(start, null, new NavOptions.Builder()
+                            .setPopUpTo(nc.getGraph().getId(), true)
+                            .build());
+                }
             }
             return;
         }

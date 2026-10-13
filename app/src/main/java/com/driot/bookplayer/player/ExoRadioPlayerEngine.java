@@ -121,6 +121,23 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
      */
     private static volatile OkHttpClient sharedHttpClient;
 
+    /** The one HTTP client for streaming, shared with the podcast engine: it is the only one that
+     *  copes with a server sending an incomplete certificate chain (see buildTrustManagers), which
+     *  is why a podcast on such a host used to fail with "Trust anchor not found" while a radio
+     *  station on the same host played. */
+    static OkHttpClient streamingHttpClient() {
+        OkHttpClient client = sharedHttpClient;
+        if (client == null) {
+            synchronized (ExoRadioPlayerEngine.class) {
+                client = sharedHttpClient;
+                if (client == null) {
+                    sharedHttpClient = client = buildHttpClient();
+                }
+            }
+        }
+        return client;
+    }
+
     private OkHttpClient sharedHttpClient() {
         OkHttpClient client = sharedHttpClient;
         if (client == null) {
@@ -133,7 +150,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         return client;
     }
 
-    private OkHttpClient buildHttpClient() {
+    private static OkHttpClient buildHttpClient() {
         // --- Cookie-aware OkHttpClient ---
         // Many streaming CDNs (mdstrm.com, etc.) issue session cookies on the
         // first request and require them to be echoed on the redirected CDN URL.

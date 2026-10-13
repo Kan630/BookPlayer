@@ -2487,7 +2487,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
                 myToastEE(null, getString(R.string.Podcast_source_error));
             } else {
-                myToastE(getString(R.string.unexpected_error));
+                // "Unexpected error" told the listener nothing; the same wording the radio side
+                // uses says what actually happened (no connection, format not supported...).
+                myToastE(getString(R.string.radio_stream_failed, failedName,
+                        ErrorUi.streamErrorReason(this, what, msg)));
                 myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
             }
         }

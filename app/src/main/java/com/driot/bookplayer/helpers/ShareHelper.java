@@ -36,12 +36,26 @@ public class ShareHelper {
             }
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, messageHead);
 
-            // If context is not an Activity, we need NEW_TASK
+            // The intent that gets started is the CHOOSER, not shareIntent, so that is where
+            // FLAG_ACTIVITY_NEW_TASK has to be: putting it on shareIntent only left
+            // startActivity() to throw "Calling startActivity() from outside of an Activity
+            // context requires the FLAG_ACTIVITY_NEW_TASK flag" and take the app down with it
+            // (crash in 331, hit by sharing a podcast episode from the player).
+            Intent chooser = Intent.createChooser(shareIntent, context.getString(R.string.share_title));
             if (!(context instanceof android.app.Activity)) {
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
-
-            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_title)));
+            if (imageUri != null) {
+                // the chooser passes the image on to the app picked, which needs the grant too
+                chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            try {
+                context.startActivity(chooser);
+            } catch (Exception e) {
+                myLogEE(e, "could not open the share chooser");
+                myToastE(context.getString(R.string.unexpected_error));
+            }
         });
     }
 
