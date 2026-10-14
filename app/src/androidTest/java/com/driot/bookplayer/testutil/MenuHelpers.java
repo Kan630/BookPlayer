@@ -70,12 +70,18 @@ public final class MenuHelpers {
         clickItemViaUiDevice(device, ctx.getString(menuTitleRes), menuTitleRes);
     }
 
+    /** The app does heavy work on its first seconds (a storage scan took 15s on a real phone) and
+     *  the toolbar is inflated along the way, so waiting a second for the menu button was a race
+     *  the test usually lost: it fell through to pressMenu(), which does nothing on a modern
+     *  Android, and then failed looking for an item whose menu was never opened. */
+    private static final long MENU_WAIT_MS = 8000;
+
     private static void openOverflowViaUiDevice(UiDevice device, Context ctx) {
         myLogD("Attempting to open overflow...");
         try {
             // Try by description "Menu" (from action_bar.xml title)
             UiObject threeDots = device.findObject(new UiSelector().description(ctx.getString(R.string.Menu)));
-            if (threeDots.waitForExists(1000)) {
+            if (threeDots.waitForExists(MENU_WAIT_MS)) {
                 threeDots.click();
                 myLogD("Opened overflow via description");
                 return;
@@ -83,7 +89,7 @@ public final class MenuHelpers {
 
             // Try by resource id
             threeDots = device.findObject(new UiSelector().resourceId(ctx.getPackageName() + ":id/action_menu_three_dot"));
-            if (threeDots.waitForExists(500)) {
+            if (threeDots.waitForExists(MENU_WAIT_MS)) {
                 threeDots.click();
                 myLogD("Opened overflow via id");
                 return;
@@ -104,7 +110,7 @@ public final class MenuHelpers {
             // another view with the same text first - e.g. the nav rail's "Settings" label on
             // tablets - and leave the popup open.
             UiObject menuItem = device.findObject(new UiSelector().text(title).resourceIdMatches(".*:id/title"));
-            if (menuItem.waitForExists(1000)) {
+            if (menuItem.waitForExists(MENU_WAIT_MS / 2)) {
                 menuItem.click();
                 myLogD("Tapped popup menu item via UiDevice: [" + title + "]");
                 return;

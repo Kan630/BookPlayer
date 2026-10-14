@@ -79,7 +79,7 @@
                 style="@style/SettingsGroupTitle"
                 android:text="@string/Search" />
             <com.driot.bookplayer.views.SettingsNumberField
-                android:id="@+id/field_librivox_api_nb_results"
+                android:id="@+id/field_podcast_api_nb_results"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:beforeText="@string/return_max"

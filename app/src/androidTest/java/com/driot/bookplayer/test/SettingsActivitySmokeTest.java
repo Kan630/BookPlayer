@@ -117,11 +117,14 @@ public class SettingsActivitySmokeTest implements LogSupport {
         plan.put(R.id.section_import, new int[] {
                 R.id.chk_copy_file             // <-- replace
         });
+        // section_librivox opens RepositoriesSettingsFragment (fragment_settings_repositories),
+        // which has never held a "number of results" field - that one belongs to the podcast
+        // screen, where it also used to carry a librivox id by copy-paste.
         plan.put(R.id.section_librivox, new int[] {
-                R.id.field_librivox_api_nb_results           // <-- replace
+                R.id.chk_option_use_open_library
         });
         plan.put(R.id.section_podcast, new int[] {
-                R.id.field_librivox_api_nb_results            // <-- replace
+                R.id.field_podcast_api_nb_results
         });
         plan.put(R.id.section_tts, new int[] {
                 R.id.field_tts_chunk_size,               // <-- replace

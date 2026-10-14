@@ -132,7 +132,7 @@ public class PodcastSettingsFragment extends LoggingFragment {
                 Option.setPodcastAddDateToEpisodeName(isChecked));
 
         // ====== EDIT TEXTS ======
-        et_podcast_index_org_api_nb_results = ((SettingsNumberField) root.findViewById(R.id.field_librivox_api_nb_results)).getEditText();
+        et_podcast_index_org_api_nb_results = ((SettingsNumberField) root.findViewById(R.id.field_podcast_api_nb_results)).getEditText();
         et_podcast_index_org_api_nb_results.setText(String.valueOf(Option.getPodcastIndexOrgApiNbResults()));
 
         et_podcast_auto_download_last_n_episode = ((SettingsNumberField) root.findViewById(R.id.field_auto_download_last_n_episode)).getEditText();
