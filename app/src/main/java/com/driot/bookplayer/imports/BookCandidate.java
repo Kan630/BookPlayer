@@ -27,6 +27,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.WebFileNameHelper;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.googlecode.mp4parser.DataSource;
@@ -239,7 +240,7 @@ public class BookCandidate implements Parcelable {
 
         // Special handling for Folder type which might return null or generic type
         if (this.sourceType == null) {
-            DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+            DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.IMPORT_PREVIEW);
             if (file != null && file.isDirectory()) {
                 this.sourceType = "Folder";
             }
@@ -364,7 +365,7 @@ public class BookCandidate implements Parcelable {
         long startTime = System.currentTimeMillis();
         myLogD("loadEasyMetadata() START for: " + name);
 
-        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.IMPORT_PREVIEW);
         if (file == null) {
             String scheme = uri != null ? uri.getScheme() : null;
             if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
@@ -457,7 +458,7 @@ public class BookCandidate implements Parcelable {
         long startTime = System.currentTimeMillis();
         myLogD("loadHeavyMetadata() START for: " + name);
 
-        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.IMPORT_PREVIEW);
         if (file == null) {
             String scheme = uri != null ? uri.getScheme() : null;
             if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
@@ -659,7 +660,7 @@ public class BookCandidate implements Parcelable {
      */
     public void rescanEbookChaptersForPreview(Context context, String epubSplitModeOverride,
             OnMetadataListener listener) {
-        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.IMPORT_PREVIEW);
         if (file == null) {
             myLogW("rescanEbookChaptersForPreview() - could not resolve DocumentFile for: " + uri);
             return;
@@ -1333,7 +1334,7 @@ public class BookCandidate implements Parcelable {
 
     private String computeHash(Context context, Uri uri) {
         try {
-            return HashWorker.computeHashFromUri(context, uri);
+            return HashWorker.computeHashFromUri(context, uri, UriAccess.Ctx.IMPORT_PREVIEW);
         } catch (Exception e) {
             return null;
         }

@@ -3,6 +3,7 @@ package com.driot.bookplayer.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.helpers.UriHelper;
 
 import androidx.annotation.NonNull;
@@ -157,7 +158,16 @@ public class HashWorker extends LoggingWorker {
      * Public static method to compute hash from URI synchronously.
      * Can be used when hash needs to be computed before launching import.
      */
+    /**
+     * Prefer the {@link UriAccess.Ctx} overload: hashing is reached both from the import preview
+     * (the user is waiting, a failure is a bug) and from OriginalHashBackfill (best effort over old
+     * books, misses are expected). Without the context the two are indistinguishable in Crashlytics.
+     */
     public static String computeHashFromUri(Context context, Uri uri) {
+        return computeHashFromUri(context, uri, UriAccess.Ctx.OTHER);
+    }
+
+    public static String computeHashFromUri(Context context, Uri uri, UriAccess.Ctx ctx) {
         KanLogger.myLogD("HashWorker", "computeHashFromUri() START: " + uri);
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -191,7 +201,7 @@ public class HashWorker extends LoggingWorker {
                             + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
                     return formatHash(digest.digest());
                 } else if (f.isDirectory()) {
-                    computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex);
+                    computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex, ctx);
                     KanLogger.myLogD("HashWorker", "---Nb of hashed file : " + fileCount[0] + " files.");
                     KanLogger.myLogD("HashWorker", "---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
                     KanLogger.myLogD("HashWorker", "---[Timing] "
@@ -204,9 +214,9 @@ public class HashWorker extends LoggingWorker {
 
             // 3) content://
             if ("content".equalsIgnoreCase(scheme)) {
-                DocumentFile doc = UriHelper.getDocumentFileFromAnyUri(context, uri);
+                DocumentFile doc = UriHelper.getDocumentFileFromAnyUri(context, uri, ctx);
                 if (doc != null && doc.isDirectory()) {
-                    computeFolderHashRecursive(context, doc, digest,
+                    computeFolderHashRecursive(context, doc, digest, ctx,
                             /* rootPathLen */ (uri.getPath() != null ? uri.getPath().length() : 0),
                             sumElapsed, fileCount, fileIndex);
                 } else {
@@ -232,12 +242,14 @@ public class HashWorker extends LoggingWorker {
 
             throw new IllegalArgumentException("Unsupported URI scheme: " + scheme + " (" + uri + ")");
         } catch (Exception e) {
-            KanLogger.myLogEE(e, "HashWorker", "Exception in computeHashFromUri()");
+            KanLogger.myLogEEorWA(UriAccess.isUserFacing(ctx), e, "HashWorker",
+                    UriAccess.describe(ctx, uri, e, "computeHashFromUri failed"));
             return "";
         }
     }
 
     private static void computeFolderHashRecursive(Context context, DocumentFile folder, MessageDigest digest,
+            UriAccess.Ctx ctx,
             int rootPathLen, long[] sumElapsed, int[] fileCount, int[] fileIndex) {
         if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
             return;
@@ -271,10 +283,11 @@ public class HashWorker extends LoggingWorker {
                         hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, file.getName());
                     }
                 } catch (Exception e) {
-                    KanLogger.myLogEE(e, "HashWorker", "While hashing file: " + file.getName());
+                    KanLogger.myLogEEorWA(UriAccess.isUserFacing(ctx), e, "HashWorker",
+                            UriAccess.describe(ctx, file.getUri(), e, "while hashing file " + file.getName()));
                 }
             } else if (file.isDirectory()) {
-                computeFolderHashRecursive(context, file, digest, rootPathLen, sumElapsed, fileCount, fileIndex);
+                computeFolderHashRecursive(context, file, digest, ctx, rootPathLen, sumElapsed, fileCount, fileIndex);
             }
 
         }
@@ -288,7 +301,8 @@ public class HashWorker extends LoggingWorker {
             MessageDigest digest,
             long[] sumElapsed,
             int[] fileCount,
-            int[] fileIndex) {
+            int[] fileIndex,
+            UriAccess.Ctx ctx) {
         if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
             return;
         if (folder == null || !folder.exists() || !folder.isDirectory())
@@ -311,10 +325,11 @@ public class HashWorker extends LoggingWorker {
                 try (InputStream is = new FileInputStream(f)) {
                     hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, f.getName());
                 } catch (Exception e) {
-                    KanLogger.myLogEE(e, "HashWorker", "While hashing file: " + f.getAbsolutePath());
+                    KanLogger.myLogEEorWA(UriAccess.isUserFacing(ctx), e, "HashWorker",
+                            UriAccess.describe(ctx, android.net.Uri.fromFile(f), e, "while hashing file " + f.getName()));
                 }
             } else if (f.isDirectory()) {
-                computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex);
+                computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex, ctx);
             }
         }
     }

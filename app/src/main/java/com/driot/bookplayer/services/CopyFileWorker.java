@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -187,7 +188,7 @@ public class CopyFileWorker extends ImportWorker {
         try {
             // Uniform wrapper for content:// (tree/single) and file:// paths
             androidx.documentfile.provider.DocumentFile root = com.driot.bookplayer.helpers.UriHelper
-                    .getDocumentFileFromAnyUri(context, uri);
+                    .getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.IMPORT_COPY);
 
             if (root == null || !root.exists() || !root.isDirectory()) {
                 emitFailed(TASK_NAME, "Invalid URI: [" + uri + "]",

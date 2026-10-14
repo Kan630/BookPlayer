@@ -9,6 +9,7 @@ import android.provider.Settings;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.MsgBox;
@@ -208,7 +209,7 @@ public class ErrorUi {
             } else {
                 long size = 0;
                 try {
-                    DocumentFile df = UriHelper.getDocumentFileFromAnyUri(context, uri);
+                    DocumentFile df = UriHelper.getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.PLAYBACK);
                     if (df != null)
                         size = df.length();
                 } catch (Throwable t) {

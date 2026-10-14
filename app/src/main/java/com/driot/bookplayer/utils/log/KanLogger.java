@@ -238,6 +238,19 @@ public class KanLogger {
     }
 
     /**
+     * Same failure, two severities: a Crashlytics non-fatal when the user was waiting on it
+     * (myLogEE), a counted warning when the code path is best-effort (myLogWA). Lets a shared
+     * helper report according to its caller's context without splitting the call site - see
+     * UriAccess. Nothing is ever dropped: myLogWA still emits a "log_w" Analytics event.
+     */
+    public static void myLogEEorWA(boolean reportAsError, @Nullable Throwable t, String prefix, String str) {
+        if (reportAsError)
+            myLogEE(t, prefix, str);
+        else
+            myLogWA(t, prefix, str);
+    }
+
+    /**
      * Crashlytics + Analytics side of myLogEE / myToastEE.
      * - interruptions (user cancel) are breadcrumbs only
      * - the same report within a minute is dropped (Crashlytics keeps only 8 non-fatals per session)

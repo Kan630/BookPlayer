@@ -279,13 +279,30 @@ public final class PlaybackCommands {
             mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_GET_TEXT, b);
             return;
         }
-        myLogE("requestTtsText fallback");
-        ContextCompat.startForegroundService(ctx,
-                new Intent(ctx, MediaService.class)
-                        .setAction(Intents.CMD_TTS_GET_TEXT)
-                        .putExtra(Intents.EXTRA_RESULT_RECEIVER, rr)
-                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-                        .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.requestTtsText"));
+        // No controller: ask the service directly. Deliberately NOT startForegroundService with
+        // EXTRA_FOREGROUND - this is a read-only query, and promoting the service swaps the media
+        // notification for the generic "Please wait" placeholder. The caller latches on the answer
+        // (PlaybackViewModel.requestTtsTextOnce sets ttsTextRequested before asking), so an
+        // unanswered request silently disables the TTS text for the whole session: always reply.
+        myLogW("requestTtsText: no MediaController, asking MediaService directly");
+        try {
+            ctx.startService(new Intent(ctx, MediaService.class)
+                    .setAction(Intents.CMD_TTS_GET_TEXT)
+                    .putExtra(Intents.EXTRA_RESULT_RECEIVER, rr)
+                    .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.requestTtsText"));
+        } catch (Throwable t) {
+            myLogEE(t, "requestTtsText: could not reach MediaService");
+            answerWithNoText(rr);
+        }
+    }
+
+    /** Unblock a caller waiting on requestTtsText when we could not ask the service at all. */
+    private static void answerWithNoText(android.os.ResultReceiver rr) {
+        if (rr == null)
+            return;
+        Bundle out = new Bundle();
+        out.putString(Intents.EXTRA_TTS_TEXT, "");
+        rr.send(0, out);
     }
 
     public static String stateToString(int s) {

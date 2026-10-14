@@ -346,6 +346,24 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("radio_search", bundle);
     }
 
+    // URI ACCESS (book fails to load or play)
+
+    /**
+     * A Uri the app needed could not be read. The funnel for "no book should ever fail to load or
+     * play": filter on userFacing=true to get only the failures a user actually waited on.
+     * Deduplicated per ctx+reason+provider per minute by UriAccess.
+     */
+    public static void tellUriAccessFailed(String ctx, String reason, String provider, String extension,
+            boolean userFacing) {
+        Bundle bundle = new Bundle();
+        bundle.putString("ctx", trimFA(ctx));
+        bundle.putString("reason", trimFA(reason));
+        bundle.putString("provider", trimFA(provider));
+        bundle.putString("extension", trimFA(extension));
+        bundle.putBoolean("userFacing", userFacing);
+        logBundleEvent("uri_access_failed", bundle);
+    }
+
     public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText, String from) {
         Bundle bundle = new Bundle();
         bundle.putString("from", trimFA(from));

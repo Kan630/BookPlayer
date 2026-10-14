@@ -30,6 +30,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
@@ -125,7 +126,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             if (importJob.dynamicType.equals("Folder")) {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
+                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri), UriAccess.Ctx.IMPORT_COPY);
                 } catch (Exception e) {
                     myLogEE(e, "Error reading Folder Uri...." + Uri.parse(importJob.dynamicUri));
                     emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception",
@@ -142,7 +143,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             } else {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
+                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri), UriAccess.Ctx.IMPORT_COPY);
                 } catch (Exception e) {
                     myLogEE(e, "Error reading File Uri.... " + Uri.parse(importJob.dynamicUri));
                     emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception",
@@ -986,7 +987,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("Archive")
                 || importJob.dynamicType.equals("Folder")) {
             try {
-                dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.originalUri));
+                dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.originalUri), UriAccess.Ctx.IMPORT_COPY);
             } catch (Exception e) {
                 myLogEE(e, "deleting - error getting DocumentFile.fromSingleUri");
                 return false;

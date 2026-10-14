@@ -31,6 +31,8 @@ public final class LoggerStaticHelper {
     public static void myLogWA(Throwable t, String str) { KanLogger.myLogWA(t, getCallerTag(), str); }
     public static void myLogE(String str)          { KanLogger.myLogE(getCallerTag(), str); }
     public static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, getCallerTag(), str); }
+    /** Non-fatal when the user was waiting on it, counted warning otherwise: see KanLogger.myLogEEorWA. */
+    public static void myLogEEorWA(boolean reportAsError, Throwable t, String str) { KanLogger.myLogEEorWA(reportAsError, t, getCallerTag(), str); }
     public static void myLogInFile(String str)     { KanLogger.myLogInFile(getCallerTag(), str); }
     public static void myLogBundle(Bundle bundle)     { KanLogger.myLogBundle(getCallerTag(), bundle); }
     public static String getBundleString(Bundle bundle)     { return KanLogger.getBundleString(bundle); }

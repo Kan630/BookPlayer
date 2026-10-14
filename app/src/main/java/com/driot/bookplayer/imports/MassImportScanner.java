@@ -5,6 +5,7 @@ import android.net.Uri;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
@@ -49,7 +50,7 @@ public class MassImportScanner extends LoggerHelper {
         List<BookCandidate> candidates = new ArrayList<>();
         List<DocumentFile> deferredArchives = new ArrayList<>();
 
-        DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, rootUri);
+        DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, rootUri, UriAccess.Ctx.SCAN);
         if (root == null || !root.isDirectory()) {
             myLogE("Root is not a directory or null: " + rootUri);
             return candidates;

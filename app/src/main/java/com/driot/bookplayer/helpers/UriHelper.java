@@ -26,9 +26,22 @@ public class UriHelper {
     /**
      * Returns a DocumentFile regardless of whether the input URI is file-based or
      * content-based.
+     *
+     * Prefer the {@link UriAccess.Ctx} overload: it is what tells a failure the user was waiting on
+     * (import, playback) apart from a best-effort one (backfill, scan), both in Crashlytics and in
+     * the "uri_access_failed" Analytics funnel.
      */
     @Nullable
     public static DocumentFile getDocumentFileFromAnyUri(Context context, Uri uri) {
+        return getDocumentFileFromAnyUri(context, uri, UriAccess.Ctx.OTHER);
+    }
+
+    /**
+     * Returns a DocumentFile regardless of whether the input URI is file-based or
+     * content-based.
+     */
+    @Nullable
+    public static DocumentFile getDocumentFileFromAnyUri(Context context, Uri uri, UriAccess.Ctx ctx) {
         // problems with :
         // content://media/external/audio/media/1000028186 (Samsung SM-F721B Android 15)
         // content://com.android.fileexplorer.myprovider/external_files/Nyla/Brainwashed%20by%20Nyla%20K.mp3
@@ -85,8 +98,8 @@ public class UriHelper {
                     DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
                     if (tree != null && tree.exists())
                         return tree;
-                    myLogEE(null, "getDocumentFileFromAnyUri: fromTreeUri returned null or !exists for "
-                            + Uri.decode(uri.toString()));
+                    myLogEEorWA(UriAccess.isUserFacing(ctx), null,
+                            UriAccess.describe(ctx, uri, null, "getDocumentFileFromAnyUri: fromTreeUri null/!exists"));
                     return null;
                 }
 
@@ -94,8 +107,8 @@ public class UriHelper {
                     DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
                     if (documentFile != null && documentFile.exists())
                         return documentFile;
-                    myLogEE(null, "getDocumentFileFromAnyUri: fromSingleUri returned null or !exists for "
-                            + Uri.decode(uri.toString()));
+                    myLogEEorWA(UriAccess.isUserFacing(ctx), null,
+                            UriAccess.describe(ctx, uri, null, "getDocumentFileFromAnyUri: fromSingleUri null/!exists"));
                     return null;
                 }
 
@@ -121,7 +134,8 @@ public class UriHelper {
             return null;
 
         } catch (Exception e) {
-            myLogEE(e, "getDocumentFileFromAnyUri failed with [" + uri + "]");
+            myLogEEorWA(UriAccess.isUserFacing(ctx), e,
+                    UriAccess.describe(ctx, uri, e, "getDocumentFileFromAnyUri failed"));
             return null;
         }
     }
@@ -342,14 +356,32 @@ public class UriHelper {
     }
 
     // TODO, use openFileDescriptor & remove legacy from manifest
+    /**
+     * The track could not be turned into something playable - the "book won't play" case.
+     * Reported as a counted warning here (with the classified reason in uri_reason/uri_provider, so
+     * the caller's own non-fatal carries it) because callers like MediaService already escalate it;
+     * two non-fatals for one failure would only dilute the issue.
+     */
+    @Nullable
+    private static Uri playbackFailed(Uri attempted, @Nullable Throwable t, String what) {
+        myLogWA(t, UriAccess.describe(UriAccess.Ctx.PLAYBACK, attempted, t, what));
+        return null;
+    }
+
     @Nullable
     public static Uri resolvePlayableUri(Context context, @NonNull ZikFile zf) {
+        Uri attempted = null;
         try {
+            if (zf.getPath() == null)
+                return playbackFailed(null, null, "resolvePlayableUri: ZikFile has no path");
+
+            attempted = Uri.parse(zf.getPath());
+
             // Content (SAF)
-            if (zf.getPath() != null && zf.getPath().startsWith("content://")) {
+            if (zf.getPath().startsWith("content://")) {
                 Uri u = UriHelper.buildFileUri(context, zf.getPath(), zf.getName());
                 if (u == null)
-                    return null;
+                    return playbackFailed(attempted, null, "resolvePlayableUri: could not build a document Uri");
                 DocumentFile f = DocumentFile.fromSingleUri(context, u);
                 if (safeExists(context, f))
                     return u;
@@ -357,28 +389,30 @@ public class UriHelper {
                 // fallback: try the raw content Uri
                 u = Uri.parse(zf.getPath());
                 f = DocumentFile.fromSingleUri(context, u);
-                return safeExists(context, f) ? u : null;
+                if (safeExists(context, f))
+                    return u;
+                return playbackFailed(attempted, null, "resolvePlayableUri: SAF track not readable any more");
             }
 
             // file://
-            if (zf.getPath() != null && zf.getPath().startsWith("file://")) {
+            if (zf.getPath().startsWith("file://")) {
                 Uri u = Uri.parse(zf.getPath());
                 String p = u.getPath();
                 if (p == null)
-                    return null;
+                    return playbackFailed(attempted, null, "resolvePlayableUri: null path in file:// track");
                 File f = new File(p);
                 if (f.exists() && f.isFile())
                     return u;
 
                 // sometimes folder path + name
                 File maybe = new File(p, zf.getName());
-                return (maybe.exists() && maybe.isFile()) ? Uri.fromFile(maybe) : null;
+                if (maybe.exists() && maybe.isFile())
+                    return Uri.fromFile(maybe);
+                return playbackFailed(attempted, null, "resolvePlayableUri: file:// track is gone");
             }
 
             // Plain filesystem path
             String base = zf.getPath();
-            if (base == null)
-                return null;
 
             File f = new File(base);
             if (f.exists() && f.isFile())
@@ -388,11 +422,10 @@ public class UriHelper {
             if (fWithName.exists() && fWithName.isFile())
                 return useFileProviderIfReserved(context, fWithName);
 
-            return null;
+            return playbackFailed(attempted, null, "resolvePlayableUri: track path is gone");
 
         } catch (Throwable t) {
-            myLogEE(t, "resolvePlayableUri");
-            return null;
+            return playbackFailed(attempted, t, "resolvePlayableUri threw");
         }
     }
 
@@ -430,6 +463,13 @@ public class UriHelper {
         return null;
     }
 
+    /**
+     * Whether this Uri will still be readable later. False means the only read grant we will ever
+     * have is the one-shot grant attached to the incoming intent, so it must be carried forward on
+     * every hop (see OpenWithHelper.importIntent/progressIntent) and the file copied before the
+     * grant dies. The provider is recorded so "which apps' shares are fragile" is measurable - the
+     * matching top-of-funnel count is the proxy_load event's persistedPermission.
+     */
     public static boolean checkLongTermReadable(Context ctx, Uri src) {
         // Try to persist; if it succeeds, just return src.
         try {
@@ -438,7 +478,9 @@ public class UriHelper {
             myLog("persisting permission for uri [" + src + "]");
             return true; // persistable → good
         } catch (SecurityException e) {
-            myLogWA(e, "could not persist permission for uri [" + src + "]"); // expected for Telegram/MediaStore shares, caller copies instead
+            // expected for Telegram/WhatsApp/Gmail/MediaStore shares, caller copies instead
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("uri_provider", UriAccess.provider(src));
+            myLogWA(e, "could not persist permission, one-shot grant only [" + UriAccess.provider(src) + "] " + src);
             return false;
         } catch (Exception e) {
             myLogEE(null, "Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());

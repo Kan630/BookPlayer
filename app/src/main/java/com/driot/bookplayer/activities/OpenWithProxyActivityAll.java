@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OpenWithHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
 // 2025-07-05
@@ -55,12 +54,11 @@ public class OpenWithProxyActivityAll extends BaseActivity {
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("ImportMode", "proxy-all");
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("persistPermission", String.valueOf(persistPermission));
 
-        OpenWithHelper.handle(this, uri, persistPermission, (u, forceCopy) -> {
-            Intent nextIntent = new Intent(this, ImportBookSingleActivity.class);
-            nextIntent.putExtra(ImportBookSingleActivity.EXTRA_URI, u);
-            nextIntent.putExtra(ImportBookSingleActivity.EXTRA_FORCE_COPY, forceCopy);
-            startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
-        });
+        OpenWithHelper.handle(this, uri, persistPermission, (u, forceCopy) ->
+                // importIntent (not a bare putExtra) so a non-persistable share's one-shot read grant
+                // reaches the preview screen - see OpenWithHelper.importIntent
+                startActivityForResult(OpenWithHelper.importIntent(this, u, forceCopy, persistPermission),
+                        REQUEST_LOAD_OPTIONS));
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

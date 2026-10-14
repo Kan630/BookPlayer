@@ -1388,6 +1388,34 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
+            case Intents.CMD_TTS_GET_TEXT: {
+                // PlaybackCommands.requestTtsText falls back to startForegroundService with this action
+                // when the MediaController is not connected. Without this case it fell through to
+                // "unknown action": the ResultReceiver was never answered (the caller waits for a text
+                // that never arrives) and the service had been promoted to foreground to do nothing.
+                android.os.ResultReceiver rr = intent.getParcelableExtra(Intents.EXTRA_RESULT_RECEIVER);
+                String txt = "";
+                if (engine instanceof TtsEngine) {
+                    try {
+                        String t = ((TtsEngine) engine).getText();
+                        if (t != null)
+                            txt = t;
+                    } catch (Throwable t) {
+                        myLogEE(t, "CMD_TTS_GET_TEXT - failed to get text");
+                    }
+                } else {
+                    myLogW("CMD_TTS_GET_TEXT ignored: engine is not TTS");
+                }
+                if (rr != null) {
+                    Bundle out = new Bundle();
+                    out.putString(Intents.EXTRA_TTS_TEXT, txt);
+                    rr.send(0, out); // always answer, even empty: the caller is blocked on it
+                } else {
+                    myLogW("CMD_TTS_GET_TEXT without a ResultReceiver - nobody to answer");
+                }
+                return START_STICKY;
+            }
+
             case Intents.CMD_UPDATE_SLEEP: {
                 int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
                 if (newSleepValueInMin > 0)

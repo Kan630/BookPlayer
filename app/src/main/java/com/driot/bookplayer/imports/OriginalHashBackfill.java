@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.helpers.UriAccess;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.HashWorker;
 
@@ -79,7 +80,7 @@ public final class OriginalHashBackfill {
         Uri uri = source.startsWith("/") ? Uri.fromFile(new File(source)) : Uri.parse(source);
         if (source.startsWith("/") && !new File(source).exists())
             return null;
-        String hash = HashWorker.computeHashFromUri(context, uri); // "" when unreadable
+        String hash = HashWorker.computeHashFromUri(context, uri, UriAccess.Ctx.BACKFILL); // "" when unreadable
         return (hash == null || hash.isEmpty() || HASH_NOT_COMPUTED.equals(hash)) ? null : hash;
     }
 }

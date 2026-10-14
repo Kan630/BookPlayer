@@ -16,6 +16,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
@@ -135,6 +136,25 @@ public class OpenWithHelper {
     }
 
     /**
+     * Import options screen for an "Open with" / share. Same grant problem as progressIntent, one hop
+     * earlier and easier to miss: putExtra(EXTRA_URI, uri) does NOT carry a Uri permission grant -
+     * only setData/setClipData plus FLAG_GRANT_READ_URI_PERMISSION do. Without this the preview screen
+     * is reading the sender's Uri on the proxy's one-shot grant, which dies when the proxy finishes;
+     * ImportBookSingleViewModel then fails in "Phase 1: Fast Init" (BookCandidate -> loadEasyMetadata
+     * -> computeHash) and the user is bounced back with "bad returned Hash" - the Telegram/WhatsApp
+     * share failures in Crashlytics. Attaching the grant here ties it to this activity's own intent,
+     * so it survives the proxy finishing and the activity being recreated.
+     */
+    public static Intent importIntent(Context ctx, @Nullable Uri source, boolean forceCopy,
+            boolean persistPermission) {
+        Intent i = new Intent(ctx, ImportBookSingleActivity.class);
+        i.putExtra(ImportBookSingleActivity.EXTRA_URI, source);
+        i.putExtra(ImportBookSingleActivity.EXTRA_FORCE_COPY, forceCopy);
+        grantIfFragile(i, source, persistPermission);
+        return i;
+    }
+
+    /**
      * Progress screen shown after the user confirms an "Open with" import. A share that could not be persisted
      * (WhatsApp, Telegram, Gmail...) only comes with a one-shot read grant owned by the proxy activity, revoked
      * when the proxy finishes - while CopyFileWorker is still copying ("Permission Denial" in Crashlytics, ~90
@@ -142,11 +162,19 @@ public class OpenWithHelper {
      */
     public static Intent progressIntent(Context ctx, @Nullable Uri source, boolean persistPermission) {
         Intent i = new Intent(ctx, AddResourceActivity.class);
+        grantIfFragile(i, source, persistPermission);
+        return i;
+    }
+
+    /**
+     * Pass our one-shot read grant on to the next screen. Only needed when the grant could not be
+     * persisted: a persistable one is already ours for good, and a file:// Uri needs no grant at all.
+     */
+    private static void grantIfFragile(Intent i, @Nullable Uri source, boolean persistPermission) {
         if (source != null && !persistPermission && "content".equalsIgnoreCase(source.getScheme())) {
             i.setClipData(ClipData.newRawUri("import source", source));
             i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
-        return i;
     }
 
     private static String resolveDisplayNameFallback(Uri uri) {
